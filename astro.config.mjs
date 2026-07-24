@@ -8,6 +8,9 @@ import cloudflare from "@astrojs/cloudflare";
 // https://astro.build/config
 export default defineConfig({
 	site: "https://uk-calculator.theweekenddev.com",
+	redirects: {
+		"/sitemap.xml": "/sitemap-index.xml",
+	},
 	integrations: [mdx(), sitemap()],
 	adapter: cloudflare({
 		platformProxy: {
