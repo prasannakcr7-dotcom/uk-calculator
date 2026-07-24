@@ -1,0 +1,141 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Property Purchase Price (£)</span></div>
+      <div class="amount-field"><input type="number" id="welsh-property-price" value="260000" min="50000" step="5000" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Property Purchase Type & Buyer Status</span></div>
+      <select id="welsh-buyer-status">
+        <option value="main_residence" selected>Main Residence (Standard Residential LTT Rates - £225k Threshold)</option>
+        <option value="additional_property">Additional Residential Property / Buy-to-Let (Higher LTT Rates)</option>
+      </select>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <div class="breakdown-row net">
+        <span>Total Land Transaction Tax (LTT) Payable:</span>
+        <strong id="welsh-ltt-total-val">£0.00</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Effective LTT Tax Rate:</span>
+        <strong id="welsh-effective-ltt-rate">0.00%</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Tax Free Allowance Threshold:</span>
+        <strong id="welsh-taxfree-threshold-val">£225,000 (0% Rate)</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Tax Authority:</span>
+        <strong id="welsh-tax-authority">Welsh Revenue Authority (WRA / Awdurdod Revenue Cymru)</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculateWelshLtt() {
+    const P = parseFloat((document.getElementById('welsh-property-price') as HTMLInputElement).value) || 0;
+    const isAdditional = (document.getElementById('welsh-buyer-status') as HTMLSelectElement).value === 'additional_property';
+
+    let totalLtt = 0;
+    let thresholdStr = '£225,000 (0% Rate)';
+
+    if (!isAdditional) {
+      // 2026/27 Standard Main Residence LTT Rates (Wales):
+      // £0 - £225,000: 0%
+      // £225,001 - £400,000: 6%
+      // £400,001 - £750,000: 7.5%
+      // £750,001 - £1,500,000: 10%
+      // Over £1,500,000: 12%
+
+      if (P > 1500000) {
+        totalLtt += (P - 1500000) * 0.12;
+        totalLtt += (1500000 - 750000) * 0.10;
+        totalLtt += (750000 - 400000) * 0.075;
+        totalLtt += (400000 - 225000) * 0.06;
+      } else if (P > 750000) {
+        totalLtt += (P - 750000) * 0.10;
+        totalLtt += (750000 - 400000) * 0.075;
+        totalLtt += (400000 - 225000) * 0.06;
+      } else if (P > 400000) {
+        totalLtt += (P - 400000) * 0.075;
+        totalLtt += (400000 - 225000) * 0.06;
+      } else if (P > 225000) {
+        totalLtt += (P - 225000) * 0.06;
+      }
+    } else {
+      // Higher Rates for Additional Properties in Wales:
+      // £0 - £180,000: 4%
+      // £180,001 - £250,000: 7.5%
+      // £250,001 - £400,000: 9%
+      // £400,001 - £750,000: 11.5%
+      // £750,001 - £1,500,000: 14%
+      // Over £1,500,000: 16%
+      thresholdStr = 'No 0% band (Higher Rates start at 4%)';
+
+      if (P > 1500000) {
+        totalLtt += (P - 1500000) * 0.16;
+        totalLtt += (1500000 - 750000) * 0.14;
+        totalLtt += (750000 - 400000) * 0.115;
+        totalLtt += (400000 - 250000) * 0.09;
+        totalLtt += (250000 - 180000) * 0.075;
+        totalLtt += 180000 * 0.04;
+      } else if (P > 750000) {
+        totalLtt += (P - 750000) * 0.14;
+        totalLtt += (750000 - 400000) * 0.115;
+        totalLtt += (400000 - 250000) * 0.09;
+        totalLtt += (250000 - 180000) * 0.075;
+        totalLtt += 180000 * 0.04;
+      } else if (P > 400000) {
+        totalLtt += (P - 400000) * 0.115;
+        totalLtt += (400000 - 250000) * 0.09;
+        totalLtt += (250000 - 180000) * 0.075;
+        totalLtt += 180000 * 0.04;
+      } else if (P > 250000) {
+        totalLtt += (P - 250000) * 0.09;
+        totalLtt += (250000 - 180000) * 0.075;
+        totalLtt += 180000 * 0.04;
+      } else if (P > 180000) {
+        totalLtt += (P - 180000) * 0.075;
+        totalLtt += 180000 * 0.04;
+      } else if (P > 0) {
+        totalLtt += P * 0.04;
+      }
+    }
+
+    const effectiveRate = P > 0 ? (totalLtt / P) * 100 : 0;
+
+    (document.getElementById('welsh-ltt-total-val') as HTMLElement).textContent = '£' + totalLtt.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('welsh-effective-ltt-rate') as HTMLElement).textContent = effectiveRate.toFixed(2) + '%';
+    (document.getElementById('welsh-taxfree-threshold-val') as HTMLElement).textContent = thresholdStr;
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateWelshLtt);
+  calculateWelshLtt();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

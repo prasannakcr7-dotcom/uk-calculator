@@ -1,0 +1,220 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout mobility-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Trip Distance, Time & Ride Service Details'}</h2>
+
+      <!-- Trip Distance (Miles) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.distanceLabel || 'Trip Distance (Miles)'}</span>
+          <span class="hint" id="distanceVal">8.0 Miles</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="8.0" id="distanceInput" inputmode="decimal" />
+          <span class="cur">mi</span>
+        </div>
+        <input type="range" min="1" max="40" step="0.5" value="8" id="distanceSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1 mi</span><span>40 mi</span></div>
+      </div>
+
+      <!-- Estimated Journey Time (Minutes) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.durationLabel || 'Estimated Journey Time (Minutes)'}</span>
+          <span class="hint" id="durationVal">20 Minutes</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="20" id="durationInput" inputmode="decimal" />
+          <span class="cur">min</span>
+        </div>
+        <input type="range" min="5" max="120" step="5" value="20" id="durationSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>5 min</span><span>120 min</span></div>
+      </div>
+
+      <!-- Ride Service Mode -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.serviceTypeLabel || 'Select Ride Hailing / Taxi Service Class'}</span>
+          <span class="hint" id="serviceTypeVal">UberX / Standard Ride Hailing</span>
+        </div>
+        <select id="serviceSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="UBERX" selected>UberX / Bolt Standard Ride (Base £2.50 + £1.35/mi + 15p/min)</option>
+          <option value="BLACK_CAB">London Black Cab (Tariff 1 — Base £3.80 + £3.20/mi)</option>
+          <option value="UBER_EXEC">Uber Exec / Black Car (Base £4.00 + £2.20/mi + 30p/min)</option>
+          <option value="MINICAB">Local Private Hire Minicab (Fixed Distance Rate ~£2.00/mi)</option>
+        </select>
+      </div>
+
+      <!-- Surge Pricing Multiplier -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.surgeMultiplierLabel || 'Peak Surge Pricing Multiplier'}</span>
+          <span class="hint" id="surgeMultiplierVal">1.0x (Standard Fare — No Surge)</span>
+        </div>
+        <select id="surgeSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="1.0" selected>1.0x Standard Rate (Off-Peak / Normal Demand)</option>
+          <option value="1.3">1.3x Moderate Surge (Rush Hour / Rainy Day)</option>
+          <option value="1.8">1.8x High Surge (Weekend Night / Concert End)</option>
+          <option value="2.5">2.5x Extreme Peak Surge (New Year's Eve / Strike)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--mobility-1), var(--mobility-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Trip Fare Cost'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£16.30</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.perMileRateLabel || 'Effective Combined Fare Rate per Mile:'}</span>
+        <span class="val" id="subResultValue">£2.04 / mile (£16.30 Total Fare for 8.0 Miles)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Fare Structure Financial Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Base Pickup Flagfall Fee</span>
+          <span class="val" id="baseFeeDisplay">£2.50</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Distance Charge (8.0 mi × £1.35)</span>
+          <span class="val" id="distanceChargeDisplay">£10.80</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Time Duration Charge (20 min × 15p)</span>
+          <span class="val" id="timeChargeDisplay">£3.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Estimated Fare (1.0x Surge)</span>
+          <span class="val" id="totalFareDisplay" style="font-weight: 700; font-size: 18px;">£16.30</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>TfL Black Cab Tariffs:</strong> Metered fares regulated by TfL (Tariff 1 day / Tariff 2 night).<br/>
+        • <strong>Private Hire Licensing:</strong> Uber, Bolt, and minicabs must be licensed by local council/TfL.<br/>
+        • <strong>Dynamic Surge Pricing:</strong> App fares adjust dynamically based on driver supply & passenger demand.<br/>
+        • <strong>Heathrow Drop-off Charge:</strong> £5.00 airport terminal drop-off charge added to fares.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const distanceInput = document.getElementById('distanceInput') as HTMLInputElement;
+  const distanceSlider = document.getElementById('distanceSlider') as HTMLInputElement;
+  const distanceVal = document.getElementById('distanceVal') as HTMLElement;
+
+  const durationInput = document.getElementById('durationInput') as HTMLInputElement;
+  const durationSlider = document.getElementById('durationSlider') as HTMLInputElement;
+  const durationVal = document.getElementById('durationVal') as HTMLElement;
+
+  const serviceSelect = document.getElementById('serviceSelect') as HTMLSelectElement;
+  const surgeSelect = document.getElementById('surgeSelect') as HTMLSelectElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const baseFeeDisplay = document.getElementById('baseFeeDisplay') as HTMLElement;
+  const distanceChargeDisplay = document.getElementById('distanceChargeDisplay') as HTMLElement;
+  const timeChargeDisplay = document.getElementById('timeChargeDisplay') as HTMLElement;
+  const totalFareDisplay = document.getElementById('totalFareDisplay') as HTMLElement;
+
+  function calculate() {
+    const miles = parseInputVal(distanceInput.value);
+    const mins = parseInputVal(durationInput.value);
+    const serviceKey = serviceSelect.value;
+    const surge = parseFloat(surgeSelect.value);
+
+    let baseFee = 2.50;
+    let ratePerMile = 1.35;
+    let ratePerMin = 0.15;
+
+    if (serviceKey === 'BLACK_CAB') {
+      baseFee = 3.80;
+      ratePerMile = 3.20;
+      ratePerMin = 0.35;
+    } else if (serviceKey === 'UBER_EXEC') {
+      baseFee = 4.00;
+      ratePerMile = 2.20;
+      ratePerMin = 0.30;
+    } else if (serviceKey === 'MINICAB') {
+      baseFee = 3.00;
+      ratePerMile = 2.00;
+      ratePerMin = 0.00;
+    }
+
+    const distCharge = miles * ratePerMile;
+    const timeCharge = mins * ratePerMin;
+    const grossFare = (baseFee + distCharge + timeCharge) * surge;
+
+    const effectiveRatePerMile = miles > 0 ? grossFare / miles : 0;
+
+    distanceVal.innerText = `${miles.toFixed(1)} Miles`;
+    durationVal.innerText = `${mins.toFixed(0)} Minutes`;
+
+    mainResultDisplay.innerText = formatCurrency(grossFare);
+    subResultValue.innerText = `${formatCurrency(effectiveRatePerMile)} / mile (${formatCurrency(grossFare)} Total Fare for ${miles.toFixed(1)} mi)`;
+
+    baseFeeDisplay.innerText = formatCurrency(baseFee * surge);
+    distanceChargeDisplay.innerText = `${formatCurrency(distCharge * surge)} (${miles.toFixed(1)} mi @ £${ratePerMile}/mi)`;
+    timeChargeDisplay.innerText = `${formatCurrency(timeCharge * surge)} (${mins.toFixed(0)} min @ ${Math.round(ratePerMin * 100)}p/min)`;
+    totalFareDisplay.innerText = `${formatCurrency(grossFare)} (${surge.toFixed(1)}x Surge)`;
+  }
+
+  distanceInput.addEventListener('input', () => {
+    const val = parseInputVal(distanceInput.value);
+    distanceSlider.value = String(val);
+    calculate();
+  });
+
+  distanceSlider.addEventListener('input', () => {
+    distanceInput.value = parseFloat(distanceSlider.value).toFixed(1);
+    calculate();
+  });
+
+  durationInput.addEventListener('input', () => {
+    const val = parseInputVal(durationInput.value);
+    durationSlider.value = String(val);
+    calculate();
+  });
+
+  durationSlider.addEventListener('input', () => {
+    durationInput.value = parseInt(durationSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  serviceSelect.addEventListener('change', calculate);
+  surgeSelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

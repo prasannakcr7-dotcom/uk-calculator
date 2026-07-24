@@ -1,0 +1,129 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Scaffolding Project Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Property Elevation / Building Scope</span></div>
+        <select id="scaffold-scope-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="2_storey_front" selected>2-Storey Semi-Detached Front Elevation (£850 - £1,200)</option>
+          <option value="chimney_stack">Chimney Stack Access Tower (£550 - £800)</option>
+          <option value="2_storey_3_sides">2-Storey 3-Sided Wrap Around (£1,800 - £2,500)</option>
+          <option value="3_storey_front">3-Storey Townhouse Front Elevation (£1,200 - £1,600)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Hire Duration (Weeks - First 4-6 Weeks Standard)</span></div>
+        <div class="amount-field">
+          <input type="number" id="scaffold-hire-weeks" value="4" min="1" max="26" step="1" />
+          <span class="cur">weeks</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Pavement / Highway Permit Required</span></div>
+        <select id="scaffold-pavement-permit-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="none" selected>No Permit (Private Property Boundary - £0)</option>
+          <option value="permit">Council Pavement Licence Required (£180)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Total Estimated Scaffolding Cost</div>
+      <div class="result-amount"><span id="mainResultDisplay">£1,050.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Erection & Dismantling Labor:</span>
+        <span class="val" id="subResultValue">Included in Erection Cost</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Scaffolding Quote Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Base Erection, Transport & 4-Week Hire</span>
+          <span class="val" id="baseScaffoldErectionDisplay">£1,050.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Additional Weekly Extension Fees</span>
+          <span class="val" id="weeklyExtensionFeesDisplay">£0.00 (Standard 4 Wks)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Council Highway Pavement Licence</span>
+          <span class="val" id="councilPermitFeeDisplay">£0.00 (Private Land)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Project Scaffolding Outlay</span>
+          <span class="val" id="totalScaffoldCostDisplay" style="font-weight: 700; font-size: 18px;">£1,050.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateScaffoldingCosts() {
+    const scopeEl = document.getElementById('scaffold-scope-select') as HTMLSelectElement;
+    const weeksEl = document.getElementById('scaffold-hire-weeks') as HTMLInputElement;
+    const permitEl = document.getElementById('scaffold-pavement-permit-select') as HTMLSelectElement;
+
+    if (!scopeEl || !weeksEl || !permitEl) return;
+
+    const scope = scopeEl.value;
+    const weeks = parseInt(weeksEl.value) || 4;
+    const isPermit = permitEl.value === 'permit';
+
+    let baseCost = 1050; // 2 storey front
+    if (scope === 'chimney_stack') baseCost = 650;
+    else if (scope === '2_storey_3_sides') baseCost = 2100;
+    else if (scope === '3_storey_front') baseCost = 1400;
+
+    let extraWeeksCost = 0;
+    if (weeks > 4) {
+      extraWeeksCost = (weeks - 4) * 90;
+    }
+
+    const permitFee = isPermit ? 180 : 0;
+    const totalCost = baseCost + extraWeeksCost + permitFee;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const baseRes = document.getElementById('baseScaffoldErectionDisplay');
+    const extRes = document.getElementById('weeklyExtensionFeesDisplay');
+    const permRes = document.getElementById('councilPermitFeeDisplay');
+    const totalRes = document.getElementById('totalScaffoldCostDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + totalCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = 'Included in Erection Cost';
+    if (baseRes) baseRes.textContent = '£' + baseCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (extRes) extRes.textContent = extraWeeksCost > 0 ? '£' + extraWeeksCost.toFixed(2) + ` (${weeks-4} Extra Wks)` : '£0.00 (Standard 4 Wks)';
+    if (permRes) permRes.textContent = isPermit ? '£180.00 (Council Licence)' : '£0.00 (Private Land)';
+    if (totalRes) totalRes.textContent = '£' + totalCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['scaffold-scope-select', 'scaffold-hire-weeks', 'scaffold-pavement-permit-select'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateScaffoldingCosts);
+    document.getElementById(id)?.addEventListener('change', calculateScaffoldingCosts);
+  });
+  calculateScaffoldingCosts();
+</script>

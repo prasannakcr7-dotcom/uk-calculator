@@ -1,0 +1,142 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+  nation?: string;
+}
+
+const { labels, nation = 'england' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category" data-labels={JSON.stringify(labels)} data-nation={nation}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Property Purchase Details'}</h2>
+
+      <!-- Purchase Price -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.priceLabel || 'Property Purchase Price (£)'}</span>
+          <span class="hint" id="priceVal">£325,000</span>
+        </div>
+        <div class="amount-field" style="margin-top: 0; margin-bottom: 0;">
+          <input type="text" value="325,000" id="priceInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="50000" max="1500000" step="5000" value="325000" id="priceSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£50,000</span><span>£1,500,000</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Total Stamp Duty Land Tax (SDLT) Due'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£3,750.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.effRateLabel || 'Effective Stamp Duty Rate:'}</span>
+        <span class="val" id="subResultValue">1.15%</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'SDLT Band Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Up to £250,000 (0% Rate)</span>
+          <span class="val" id="band0Display">£0.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>£250,001 to £925,000 (5% Rate)</span>
+          <span class="val" id="band5Display">£3,750.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>£925,001 to £1.5m (10% Rate)</span>
+          <span class="val" id="band10Display">£0.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Stamp Duty (SDLT) Payable</span>
+          <span class="val" id="totalSdltDisplay" style="font-weight: 700; font-size: 18px;">£3,750.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • England & NI: <strong>SDLT</strong><br/>
+        • Scotland: <strong>LBTT</strong> (Land & Buildings Transaction Tax)<br/>
+        • Wales: <strong>LTT</strong> (Land Transaction Tax)<br/>
+        • Additional Home: <strong>+3% to +6% surcharge</strong>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const priceInput = document.getElementById('priceInput') as HTMLInputElement;
+  const priceSlider = document.getElementById('priceSlider') as HTMLInputElement;
+  const priceVal = document.getElementById('priceVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const band0Display = document.getElementById('band0Display') as HTMLElement;
+  const band5Display = document.getElementById('band5Display') as HTMLElement;
+  const band10Display = document.getElementById('band10Display') as HTMLElement;
+  const totalSdltDisplay = document.getElementById('totalSdltDisplay') as HTMLElement;
+
+  priceInput.addEventListener('input', () => {
+    const val = parseInputVal(priceInput.value);
+    priceSlider.value = String(Math.min(1500000, Math.max(50000, val)));
+    calculate();
+  });
+
+  priceSlider.addEventListener('input', () => {
+    priceInput.value = priceSlider.value;
+    calculate();
+  });
+
+  function calculate() {
+    const price = parseInputVal(priceInput.value);
+    priceVal.textContent = formatCurrency(price);
+
+    let b5 = 0;
+    let b10 = 0;
+
+    if (price > 250000) {
+      b5 = (Math.min(price, 925000) - 250000) * 0.05;
+      if (price > 925000) {
+        b10 = (Math.min(price, 1500000) - 925000) * 0.10;
+        if (price > 1500000) b10 += (price - 1500000) * 0.12;
+      }
+    }
+
+    const total = b5 + b10;
+    const effRate = price > 0 ? (total / price) * 100 : 0;
+
+    mainResultDisplay.textContent = formatCurrency(total);
+    subResultValue.textContent = `${effRate.toFixed(2)}%`;
+    band0Display.textContent = '£0.00';
+    band5Display.textContent = formatCurrency(b5);
+    band10Display.textContent = formatCurrency(b10);
+    totalSdltDisplay.textContent = formatCurrency(total);
+  }
+
+  calculate();
+</script>

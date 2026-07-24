@@ -1,0 +1,97 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout finance-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Starting Cash Amount (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="starting-cash-amount" value="10000" min="100" step="500" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Average Annual Inflation Rate (CPI % p.a.)</span></div>
+        <div class="amount-field">
+          <input type="number" id="annual-cpi-inflation-rate" value="3.5" min="0.1" max="20" step="0.5" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Time Period (Years)</span></div>
+        <div class="amount-field">
+          <input type="number" id="inflation-time-years" value="10" min="1" max="50" step="1" />
+          <span class="cur">yrs</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Inflation & Purchasing Power Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Future Cash Equivalent Needed to Match Today's Value</span>
+          <strong id="equivalent-future-cash-needed">£14,105.99</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Purchasing Power Loss Percentage</span>
+          <strong id="purchasing-power-loss-pct">29.1% Loss</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Real Purchasing Power in Today's Money</span>
+          <strong id="real-purchasing-power-today">£7,089.19</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="finanzas" />
+  </div>
+</div>
+
+<script>
+  function calculateInflationPower() {
+    const cashEl = document.getElementById('starting-cash-amount') as HTMLInputElement;
+    const rateEl = document.getElementById('annual-cpi-inflation-rate') as HTMLInputElement;
+    const yearsEl = document.getElementById('inflation-time-years') as HTMLInputElement;
+
+    if (!cashEl || !rateEl || !yearsEl) return;
+
+    const cash = parseFloat(cashEl.value) || 0;
+    const rate = (parseFloat(rateEl.value) || 3.5) / 100;
+    const years = parseInt(yearsEl.value) || 10;
+
+    const futureEquivalent = cash * Math.pow(1 + rate, years);
+    const realPowerToday = cash / Math.pow(1 + rate, years);
+    const lossPct = cash > 0 ? ((cash - realPowerToday) / cash) * 100 : 0;
+
+    const eqResEl = document.getElementById('equivalent-future-cash-needed');
+    const lossResEl = document.getElementById('purchasing-power-loss-pct');
+    const realResEl = document.getElementById('real-purchasing-power-today');
+
+    if (eqResEl) eqResEl.textContent = '£' + futureEquivalent.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (lossResEl) lossResEl.textContent = lossPct.toFixed(1) + '% Loss';
+    if (realResEl) realResEl.textContent = '£' + realPowerToday.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['starting-cash-amount', 'annual-cpi-inflation-rate', 'inflation-time-years'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateInflationPower);
+    document.getElementById(id)?.addEventListener('change', calculateInflationPower);
+  });
+  calculateInflationPower();
+</script>

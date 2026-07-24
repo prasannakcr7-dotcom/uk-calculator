@@ -1,0 +1,104 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Annual Road Tax (VED Rate) (£)</span></div>
+      <div class="amount-field"><input type="number" id="annual-road-tax-ved" value="190" min="0" step="10" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Annual Insurance Premium (£)</span></div>
+      <div class="amount-field"><input type="number" id="annual-car-insurance" value="650" min="100" step="50" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Planned Off-Road SORN Duration (Months)</span></div>
+      <div class="amount-field"><input type="number" id="sorn-duration-months" value="6" min="1" max="12" step="1" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Vehicle Storage Location</span></div>
+      <select id="sorn-storage-location">
+        <option value="private_driveway" selected>Private Driveway / Private Garage / Private Land</option>
+        <option value="public_road">Public Highway / Public Resident Parking Space (ILLEGAL FOR SORN)</option>
+      </select>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <h3>DVLA SORN Refund & Financial Summary</h3>
+      <div class="breakdown-row net">
+        <span>Estimated DVLA Road Tax (VED) Refund:</span>
+        <strong id="ved-refund-val">£0.00</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Estimated Insurance Cost Savings:</span>
+        <strong id="insurance-savings-val">£0.00</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Total Net Cash Savings:</span>
+        <strong id="total-sorn-savings">£0.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Legal Off-Road Compliance Status:</span>
+        <strong id="sorn-legality-status">Compliant</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculateSornSavings() {
+    const ved = parseFloat((document.getElementById('annual-road-tax-ved') as HTMLInputElement).value) || 0;
+    const insurance = parseFloat((document.getElementById('annual-car-insurance') as HTMLInputElement).value) || 0;
+    const months = parseInt((document.getElementById('sorn-duration-months') as HTMLInputElement).value) || 1;
+    const storage = (document.getElementById('sorn-storage-location') as HTMLSelectElement).value;
+
+    // DVLA Road Tax refund: Refunded for full remaining complete calendar months
+    const monthlyVed = ved / 12;
+    const vedRefund = monthlyVed * months;
+
+    // Insurance saving: Lay-up insurance or policy cancellation (assume ~70% savings rate accounting for admin fees)
+    const monthlyInsurance = insurance / 12;
+    const insuranceSavings = monthlyInsurance * months * 0.70;
+
+    const totalSavings = vedRefund + insuranceSavings;
+
+    let legalityStr = '';
+    if (storage === 'private_driveway') {
+      legalityStr = '🟢 Legally Compliant (Stored on private land/garage)';
+    } else {
+      legalityStr = '🔴 ILLEGAL! SORN vehicles CANNOT be parked on public roads (Up to £1,000 fine + towing!)';
+    }
+
+    (document.getElementById('ved-refund-val') as HTMLElement).textContent = '£' + vedRefund.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('insurance-savings-val') as HTMLElement).textContent = '£' + insuranceSavings.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('total-sorn-savings') as HTMLElement).textContent = '£' + totalSavings.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('sorn-legality-status') as HTMLElement).textContent = legalityStr;
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateSornSavings);
+  calculateSornSavings();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

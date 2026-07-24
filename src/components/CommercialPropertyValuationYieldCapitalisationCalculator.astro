@@ -1,0 +1,180 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Commercial Property & Income Details'}</h2>
+
+      <!-- Gross Annual Rent -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.grossRentLabel || 'Gross Annual Commercial Rent (£)'}</span>
+          <span class="hint" id="grossRentVal">£50,000</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="50,000" id="grossRentInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="10000" max="500000" step="5000" value="50000" id="grossRentSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£10,000</span><span>£500,000</span></div>
+      </div>
+
+      <!-- Target Yield / Equivalent Yield (%) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.yieldRateLabel || 'Cap Rate / Capitalisation Yield (%)'}</span>
+          <span class="hint" id="yieldRateVal">7.5%</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="7.5" id="yieldRateInput" inputmode="decimal" />
+          <span class="cur">%</span>
+        </div>
+        <input type="range" min="3" max="15" step="0.25" value="7.5" id="yieldRateSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>3% (Prime)</span><span>15% (High Risk)</span></div>
+      </div>
+
+      <!-- Non-Recoverable Expenses % -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.expensesLabel || 'Non-Recoverable Landlord Costs (%)'}</span>
+          <span class="hint" id="expensesVal">10%</span>
+        </div>
+        <input type="range" min="0" max="30" step="1" value="10" id="expensesSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>0% (FRI Lease)</span><span>30%</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Capitalised Commercial Property Value'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£600,000.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.ypMultiplierLabel || 'Years Purchase (YP) Multiplier:'}</span>
+        <span class="val" id="subResultValue">13.33 YP (Based on 7.5% Cap Rate)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Capitalisation Valuation Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Annual Contracted Rent</span>
+          <span class="val" id="grossRentDisplay">£50,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Net Operating Income (NOI after Expenses)</span>
+          <span class="val" id="noiDisplay">£45,000.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Years Purchase (YP Multiplier = 1 ÷ Yield)</span>
+          <span class="val" id="ypDisplay">13.33 YP</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Capitalised Investment Value</span>
+          <span class="val" id="netValuationDisplay" style="font-weight: 700; font-size: 18px;">£600,000.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Capitalisation Method:</strong> Capitalised Value = Net Operating Income ÷ Yield Rate.<br/>
+        • <strong>Years Purchase (YP):</strong> YP = 100 ÷ Cap Rate (e.g. 8% Cap Rate = 12.5 YP).<br/>
+        • <strong>FRI Lease:</strong> Full Repairing and Insuring (FRI) lease passes 100% repairs to tenant.<br/>
+        • <strong>Prime Yield Benchmarks:</strong> Prime London offices (~4.5%); Regional retail/industrial (6.5%–9.0%).
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const grossRentInput = document.getElementById('grossRentInput') as HTMLInputElement;
+  const grossRentSlider = document.getElementById('grossRentSlider') as HTMLInputElement;
+  const grossRentVal = document.getElementById('grossRentVal') as HTMLElement;
+  const yieldRateInput = document.getElementById('yieldRateInput') as HTMLInputElement;
+  const yieldRateSlider = document.getElementById('yieldRateSlider') as HTMLInputElement;
+  const yieldRateVal = document.getElementById('yieldRateVal') as HTMLElement;
+  const expensesSlider = document.getElementById('expensesSlider') as HTMLInputElement;
+  const expensesVal = document.getElementById('expensesVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const grossRentDisplay = document.getElementById('grossRentDisplay') as HTMLElement;
+  const noiDisplay = document.getElementById('noiDisplay') as HTMLElement;
+  const ypDisplay = document.getElementById('ypDisplay') as HTMLElement;
+  const netValuationDisplay = document.getElementById('netValuationDisplay') as HTMLElement;
+
+  function calculate() {
+    const grossRent = parseInputVal(grossRentInput.value);
+    const capRatePercent = parseInputVal(yieldRateInput.value);
+    const expensesPercent = parseInt(expensesSlider.value, 10);
+
+    const noi = grossRent * (1 - expensesPercent / 100);
+    const capRateDecimal = capRatePercent / 100;
+    const yp = capRateDecimal > 0 ? 1 / capRateDecimal : 0;
+    const valuation = capRateDecimal > 0 ? noi / capRateDecimal : 0;
+
+    grossRentVal.innerText = formatCurrency(grossRent).slice(0, -3);
+    yieldRateVal.innerText = `${capRatePercent.toFixed(2)}%`;
+    expensesVal.innerText = `${expensesPercent}%`;
+
+    mainResultDisplay.innerText = formatCurrency(valuation);
+    subResultValue.innerText = `${yp.toFixed(2)} YP (Based on ${capRatePercent.toFixed(2)}% Cap Rate)`;
+
+    grossRentDisplay.innerText = formatCurrency(grossRent);
+    noiDisplay.innerText = `${formatCurrency(noi)} / year`;
+    ypDisplay.innerText = `${yp.toFixed(2)} YP`;
+    netValuationDisplay.innerText = formatCurrency(valuation);
+  }
+
+  grossRentInput.addEventListener('input', () => {
+    const val = parseInputVal(grossRentInput.value);
+    grossRentSlider.value = String(val);
+    calculate();
+  });
+
+  grossRentSlider.addEventListener('input', () => {
+    grossRentInput.value = parseInt(grossRentSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  yieldRateInput.addEventListener('input', () => {
+    const val = parseInputVal(yieldRateInput.value);
+    yieldRateSlider.value = String(val);
+    calculate();
+  });
+
+  yieldRateSlider.addEventListener('input', () => {
+    yieldRateInput.value = yieldRateSlider.value;
+    calculate();
+  });
+
+  expensesSlider.addEventListener('input', calculate);
+
+  calculate();
+</script>

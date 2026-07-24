@@ -1,0 +1,137 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout reside-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Flight Duration (Hours & Minutes)</span></div>
+        <div class="amount-field">
+          <input type="number" id="flight-hours" value="7" min="0" max="24" step="1" />
+          <span class="cur">hrs</span>
+          <input type="number" id="flight-mins" value="45" min="0" max="59" step="5" style="margin-left: 10px;" />
+          <span class="cur">mins</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Destination Time Zone Offset relative to Origin (Hours)</span></div>
+        <div class="amount-field">
+          <input type="number" id="tz-offset-hours" value="-5" min="-12" max="14" step="0.5" />
+          <span class="cur">hrs (+/-)</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Local Departure Time</span></div>
+        <input type="time" id="departure-local-time" value="11:30" style="width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:10px; font-size:15px; background:#fff; color:var(--ink);" />
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Flight Time & Local Arrival Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Total Elapsed Flying Time</span>
+          <strong id="elapsed-flight-time-str">7 Hours 45 Minutes</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Time Zone Time Difference</span>
+          <strong id="tz-diff-display">-5 Hours Behind Origin</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Departure Time in Destination Clock</span>
+          <strong id="dest-clock-at-departure">06:30 Local Time</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Estimated Local Time at Destination Arrival</span>
+          <strong id="destination-arrival-time">14:15 Same Day</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="alltag" />
+  </div>
+</div>
+
+<script>
+  function calculateFlightArrival() {
+    const hrsEl = document.getElementById('flight-hours') as HTMLInputElement;
+    const minsEl = document.getElementById('flight-mins') as HTMLInputElement;
+    const tzEl = document.getElementById('tz-offset-hours') as HTMLInputElement;
+    const depEl = document.getElementById('departure-local-time') as HTMLInputElement;
+
+    if (!hrsEl || !minsEl || !tzEl || !depEl || !depEl.value) return;
+
+    const flightHrs = parseInt(hrsEl.value) || 0;
+    const flightMins = parseInt(minsEl.value) || 0;
+    const tzOffset = parseFloat(tzEl.value) || 0;
+
+    const [depH, depM] = depEl.value.split(':').map(Number);
+
+    // Total departure in minutes from midnight
+    const depTotalMins = (depH * 60) + depM;
+
+    // Flight elapsed minutes
+    const flightTotalMins = (flightHrs * 60) + flightMins;
+
+    // Destination arrival in minutes from midnight local time
+    const tzOffsetMins = Math.round(tzOffset * 60);
+    let arrTotalMins = depTotalMins + flightTotalMins + tzOffsetMins;
+
+    let dayDiff = 0;
+    while (arrTotalMins >= 1440) {
+      arrTotalMins -= 1440;
+      dayDiff += 1;
+    }
+    while (arrTotalMins < 0) {
+      arrTotalMins += 1440;
+      dayDiff -= 1;
+    }
+
+    const arrH = Math.floor(arrTotalMins / 60);
+    const arrM = arrTotalMins % 60;
+
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    const arrivalTimeStr = `${pad(arrH)}:${pad(arrM)}`;
+
+    let dayText = 'Same Day';
+    if (dayDiff === 1) dayText = 'Next Day (+1)';
+    else if (dayDiff > 1) dayText = `+${dayDiff} Days`;
+    else if (dayDiff === -1) dayText = 'Previous Day (-1)';
+
+    const elapsedEl = document.getElementById('elapsed-flight-time-str');
+    const tzDiffEl = document.getElementById('tz-diff-display');
+    const destDepEl = document.getElementById('dest-clock-at-departure');
+    const arrEl = document.getElementById('destination-arrival-time');
+
+    if (elapsedEl) elapsedEl.textContent = `${flightHrs} Hours ${flightMins} Mins`;
+    if (tzDiffEl) tzDiffEl.textContent = tzOffset >= 0 ? `+${tzOffset} Hours Ahead` : `${tzOffset} Hours Behind`;
+    if (destDepEl) {
+      let destDepMins = depTotalMins + tzOffsetMins;
+      while (destDepMins >= 1440) destDepMins -= 1440;
+      while (destDepMins < 0) destDepMins += 1440;
+      destDepEl.textContent = `${pad(Math.floor(destDepMins / 60))}:${pad(destDepMins % 60)} Local`;
+    }
+    if (arrEl) arrEl.textContent = `${arrivalTimeStr} (${dayText})`;
+  }
+
+  ['flight-hours', 'flight-mins', 'tz-offset-hours', 'departure-local-time'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateFlightArrival);
+    document.getElementById(id)?.addEventListener('change', calculateFlightArrival);
+  });
+  calculateFlightArrival();
+</script>

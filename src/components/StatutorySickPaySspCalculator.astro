@@ -1,0 +1,131 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label">
+          <span>Average Gross Weekly Earnings (£)</span>
+        </div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="ssp-gross-weekly-earnings" value="450" min="50" step="25" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">
+          <span>Total Consecutive Days Off Sick</span>
+        </div>
+        <div class="amount-field">
+          <input type="number" id="ssp-sick-days-count" value="10" min="1" max="250" step="1" />
+          <span class="cur">days</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">
+          <span>Qualifying Work Days Per Week</span>
+        </div>
+        <select id="qualifying-days-per-week" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="5" selected>5 Days / Week (Monday - Friday)</option>
+          <option value="6">6 Days / Week</option>
+          <option value="7">7 Days / Week</option>
+          <option value="4">4 Days / Week</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Statutory Sick Pay Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>SSP Qualification Status</span>
+          <strong id="ssp-qualification-status" style="font-size: 14.5px;">Eligible for SSP</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Daily Statutory Rate</span>
+          <strong id="ssp-daily-rate-val">£23.35 / day</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Paid Sick Days Count (After 3 Waiting Days)</span>
+          <strong id="paid-sick-days-count">0 Days Paid</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Total Statutory Sick Pay Awarded</span>
+          <strong id="total-ssp-award-val">£0.00</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>
+
+<script>
+  function calculateSsp() {
+    const weeklyEarnInput = document.getElementById('ssp-gross-weekly-earnings') as HTMLInputElement;
+    const sickDaysInput = document.getElementById('ssp-sick-days-count') as HTMLInputElement;
+    const workDaysSelect = document.getElementById('qualifying-days-per-week') as HTMLSelectElement;
+
+    if (!weeklyEarnInput || !sickDaysInput || !workDaysSelect) return;
+
+    const weeklyEarn = parseFloat(weeklyEarnInput.value) || 0;
+    const totalDays = parseInt(sickDaysInput.value) || 0;
+    const workDaysPerWeek = parseInt(workDaysSelect.value) || 5;
+
+    const lel = 123.0;
+    const weeklySspRate = 116.75;
+    const dailyRate = weeklySspRate / workDaysPerWeek;
+
+    let isEligible = false;
+    let statusStr = '';
+
+    if (weeklyEarn >= lel && totalDays >= 4) {
+      isEligible = true;
+      statusStr = 'Eligible for SSP';
+    } else if (weeklyEarn < lel) {
+      statusStr = 'Not Eligible (Earnings below £123/wk LEL)';
+    } else {
+      statusStr = 'Not Eligible (Under 4 consecutive sick days)';
+    }
+
+    let paidDays = 0;
+    let totalSsp = 0;
+
+    if (isEligible) {
+      paidDays = Math.max(0, totalDays - 3);
+      totalSsp = paidDays * dailyRate;
+    }
+
+    const totalEl = document.getElementById('total-ssp-award-val');
+    const statusEl = document.getElementById('ssp-qualification-status');
+    const rateEl = document.getElementById('ssp-daily-rate-val');
+    const paidDaysEl = document.getElementById('paid-sick-days-count');
+
+    if (totalEl) totalEl.textContent = '£' + totalSsp.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (statusEl) statusEl.textContent = statusStr;
+    if (rateEl) rateEl.textContent = '£' + dailyRate.toFixed(2) + ' / day';
+    if (paidDaysEl) paidDaysEl.textContent = paidDays + ' Days Paid';
+  }
+
+  ['ssp-gross-weekly-earnings', 'ssp-sick-days-count', 'qualifying-days-per-week'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateSsp);
+    document.getElementById(id)?.addEventListener('change', calculateSsp);
+  });
+  calculateSsp();
+</script>

@@ -1,0 +1,103 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout reside-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Start Date</span></div>
+        <input type="date" id="duration-start-date" value="2026-01-01" style="width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:10px; font-size:15px; background:#fff; color:var(--ink);" />
+      </div>
+
+      <div class="field-group" style="margin-top: 18px;">
+        <div class="field-label"><span>End Date</span></div>
+        <input type="date" id="duration-end-date" value="2026-12-31" style="width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:10px; font-size:15px; background:#fff; color:var(--ink);" />
+      </div>
+
+      <div class="field-group" style="margin-top: 18px;">
+        <div class="field-label"><span>Include End Date in Calculation?</span></div>
+        <select id="include-end-date" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="no" selected>No (Standard Difference)</option>
+          <option value="yes">Yes (Include final day in count)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Date Duration Breakdown</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Duration in Weeks & Days</span>
+          <strong id="weeks-days-count-str">52 Weeks, 1 Day</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Duration in Months</span>
+          <strong id="approx-months-count-str">11.9 Months</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Duration in Hours</span>
+          <strong id="total-hours-count-str">8,736 Hours</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Total Calendar Days</span>
+          <strong id="total-days-count-str">364 Days</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="alltag" />
+  </div>
+</div>
+
+<script>
+  function calculateDateDuration() {
+    const startInput = document.getElementById('duration-start-date') as HTMLInputElement;
+    const endInput = document.getElementById('duration-end-date') as HTMLInputElement;
+    const incInput = document.getElementById('include-end-date') as HTMLSelectElement;
+
+    if (!startInput || !endInput || !incInput || !startInput.value || !endInput.value) return;
+
+    const start = new Date(startInput.value);
+    const end = new Date(endInput.value);
+    const includeEnd = incInput.value === 'yes';
+
+    const diffMs = end.getTime() - start.getTime();
+    let totalDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    if (includeEnd) totalDays += 1;
+
+    const absDays = Math.abs(totalDays);
+    const weeks = Math.floor(absDays / 7);
+    const remDays = absDays % 7;
+    const approxMonths = (absDays / 30.4375).toFixed(1);
+    const totalHours = absDays * 24;
+
+    const daysEl = document.getElementById('total-days-count-str');
+    const weeksEl = document.getElementById('weeks-days-count-str');
+    const monthsEl = document.getElementById('approx-months-count-str');
+    const hoursEl = document.getElementById('total-hours-count-str');
+
+    if (daysEl) daysEl.textContent = totalDays.toLocaleString('en-GB') + ' Days';
+    if (weeksEl) weeksEl.textContent = `${weeks} Weeks, ${remDays} Days`;
+    if (monthsEl) monthsEl.textContent = approxMonths + ' Months';
+    if (hoursEl) hoursEl.textContent = totalHours.toLocaleString('en-GB') + ' Hours';
+  }
+
+  ['duration-start-date', 'duration-end-date', 'include-end-date'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateDateDuration);
+    document.getElementById(id)?.addEventListener('change', calculateDateDuration);
+  });
+  calculateDateDuration();
+</script>

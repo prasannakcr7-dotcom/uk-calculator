@@ -1,0 +1,182 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import NationFlagIcon from '../../components/NationFlagIcon.astro';
+import Sidebar from '../../components/Sidebar.astro';
+import { componentMap } from '../../data/componentMap';
+
+export async function getStaticPaths() {
+  const calculators = await getCollection('calculators');
+  const devolved = calculators.filter(entry => entry.data.isDevolved === true);
+  
+  const nations = ['england', 'scotland', 'wales', 'northern-ireland'];
+  const paths = [];
+  
+  for (const entry of devolved) {
+    const slug = entry.id.split('/').pop()?.replace(/\.(md|mdx)$/, '');
+    for (const nation of nations) {
+      paths.push({
+        params: { slug, nation },
+        props: { entry, nation },
+      });
+    }
+  }
+  return paths;
+}
+
+const { entry, nation } = Astro.props;
+const { Content } = await render(entry);
+const slug = entry.id.split('/').pop()?.replace(/\.(md|mdx)$/, '');
+
+const categoriesInfo: Record<string, { title: string; url: string; icon: string; class: string; backText: string }> = {
+  trabajo: {
+    title: "Work & Salary",
+    url: "/work-and-salary/",
+    icon: "💼",
+    class: "work-category",
+    backText: "‹ All Work calculators"
+  },
+  impuestos: {
+    title: "Taxes & Duties",
+    url: "/taxes-and-fees/",
+    icon: "🧾",
+    class: "taxes-category",
+    backText: "‹ All Taxes calculators"
+  },
+  familia: {
+    title: "Family & Children",
+    url: "/family-and-maternity/",
+    icon: "👶",
+    class: "family-category",
+    backText: "‹ All Family calculators"
+  },
+  vivienda: {
+    title: "Housing & Property",
+    url: "/housing-and-rent/",
+    icon: "🏠",
+    class: "housing-category",
+    backText: "‹ All Housing calculators"
+  },
+  movilidad: {
+    title: "Car & Mobility",
+    url: "/mobility-and-vehicles/",
+    icon: "🚗",
+    class: "mobility-category",
+    backText: "‹ All Mobility calculators"
+  },
+  salud: {
+    title: "Health & Fitness",
+    url: "/health-and-wellbeing/",
+    icon: "❤️",
+    class: "health-category",
+    backText: "‹ All Health calculators"
+  },
+  social: {
+    title: "Benefits & Pensions",
+    url: "/social-and-benefits/",
+    icon: "🛡️",
+    class: "social-category",
+    backText: "‹ All Benefits calculators"
+  },
+  finanzas: {
+    title: "Finance & Savings",
+    url: "/finance-and-credit/",
+    icon: "📈",
+    class: "finance-category",
+    backText: "‹ All Finance calculators"
+  },
+  alltag: {
+    title: "Everyday & School/College",
+    url: "/daily-life/",
+    icon: "☀️",
+    class: "reside-category",
+    backText: "‹ All Everyday calculators"
+  }
+};
+
+const categoryKey = entry.data.category || 'trabajo';
+const cat = categoriesInfo[categoryKey] || categoriesInfo.trabajo;
+const CalcComponent = slug ? componentMap[slug] : null;
+
+// Title modification for specific nation
+const nationDisplayNames: Record<string, string> = {
+  england: "England",
+  scotland: "Scotland",
+  wales: "Wales",
+  "northern-ireland": "Northern Ireland"
+};
+const nationName = nationDisplayNames[nation] || "England";
+const localizedTitle = `${entry.data.title} (${nationName})`;
+---
+
+<Layout title={localizedTitle} description={entry.data.description}>
+  <div class="crumb">
+    <a href="/">Home</a>
+    <span class="sep">›</span>
+    <a href={`${cat.url}${nation}/`}>{cat.title}</a>
+    <span class="sep">›</span>
+    <a href={`/${slug}/`}>{entry.data.title}</a>
+    <span class="sep">›</span>
+    <span class="current">{nationName}</span>
+  </div>
+  
+  <div class={`hero ${cat.class}`}>
+    <a href={`${cat.url}${nation}/`} class="hero-back">{cat.backText}</a>
+    <a href={`${cat.url}${nation}/`} class="hero-eyebrow">{cat.icon} {cat.title}</a>
+    <h1>{localizedTitle}</h1>
+    <p class="sub">{entry.data.description}</p>
+  </div>
+
+  <!-- Devolved Nation Selector Banner -->
+  <div style="max-width: 1200px; margin: 24px auto 0; padding: 0 48px; box-sizing: border-box;">
+    <div class="card nation-selector-card" style="padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; background: #fff;">
+      <div style="font-weight: 600; font-size: 14px;">Select Region:</div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <a href={`/${slug}/england/`} class={`tab-btn ${nation === 'england' ? 'active' : ''}`}><NationFlagIcon nation="england" width="18px" height="12px" /> England</a>
+        <a href={`/${slug}/scotland/`} class={`tab-btn ${nation === 'scotland' ? 'active' : ''}`}><NationFlagIcon nation="scotland" width="18px" height="12px" /> Scotland</a>
+        <a href={`/${slug}/wales/`} class={`tab-btn ${nation === 'wales' ? 'active' : ''}`}><NationFlagIcon nation="wales" width="18px" height="12px" /> Wales</a>
+        <a href={`/${slug}/northern-ireland/`} class={`tab-btn ${nation === 'northern-ireland' ? 'active' : ''}`}><NationFlagIcon nation="northern-ireland" width="18px" height="12px" /> N. Ireland</a>
+      </div>
+    </div>
+  </div>
+
+  <div class={cat.class}>
+    {CalcComponent ? (
+      <CalcComponent labels={entry.data.labels} nation={nation} lang="en">
+        <div class="card writeup">
+          <Content />
+        </div>
+      </CalcComponent>
+    ) : (
+      <div class="layout calculator-layout">
+        <div class="main-col">
+          <div class="card writeup">
+            <Content />
+          </div>
+        </div>
+        <Sidebar category={categoryKey} currentSlug={slug} />
+      </div>
+    )}
+  </div>
+</Layout>
+
+<style>
+  .tab-btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--paper-dim);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    transition: all 0.2s ease;
+  }
+  .tab-btn:hover {
+    background: var(--soft);
+  }
+  .tab-btn.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+</style>

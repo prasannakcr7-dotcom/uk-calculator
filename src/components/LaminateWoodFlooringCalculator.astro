@@ -1,0 +1,140 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Laminate Flooring Dimensions</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Room Length (Metres - m)</span></div>
+        <div class="amount-field">
+          <input type="number" id="flooring-room-length" value="5.0" min="1" max="25" step="0.5" />
+          <span class="cur">m</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Room Width (Metres - m)</span></div>
+        <div class="amount-field">
+          <input type="number" id="flooring-room-width" value="4.0" min="1" max="25" step="0.5" />
+          <span class="cur">m</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Wastage Allowance (%)</span></div>
+        <div class="amount-field">
+          <input type="number" id="flooring-wastage-pct" value="10" min="5" max="20" step="1" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Laminate Pack Coverage (sq m per pack)</span></div>
+        <div class="amount-field">
+          <input type="number" id="flooring-pack-coverage" value="2.2" min="1.0" max="5.0" step="0.1" />
+          <span class="cur">sq m</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Price Per Pack (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="flooring-price-per-pack" value="38.50" min="10" step="2" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Total Flooring Packs Required</div>
+      <div class="result-amount"><span id="mainResultDisplay">10 Packs (£385.00)</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Total Floor Coverage (inc. Wastage):</span>
+        <span class="val" id="subResultValue">22.00 sq m</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Flooring Quantity & Cost Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Net Room Floor Area</span>
+          <span class="val" id="netRoomAreaDisplay">20.00 sq m</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Gross Area Required (10% Wastage)</span>
+          <span class="val" id="grossAreaDisplay">22.00 sq m</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Total Flooring Packs to Purchase</span>
+          <span class="val" id="packsNeededDisplay">10 Packs</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Estimated Total Materials Outlay</span>
+          <span class="val" id="totalFlooringCostDisplay" style="font-weight: 700; font-size: 18px;">£385.00 (£17.50/sq m)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateFlooring() {
+    const lenEl = document.getElementById('flooring-room-length') as HTMLInputElement;
+    const widthEl = document.getElementById('flooring-room-width') as HTMLInputElement;
+    const wasteEl = document.getElementById('flooring-wastage-pct') as HTMLInputElement;
+    const packCovEl = document.getElementById('flooring-pack-coverage') as HTMLInputElement;
+    const priceEl = document.getElementById('flooring-price-per-pack') as HTMLInputElement;
+
+    if (!lenEl || !widthEl || !wasteEl || !packCovEl || !priceEl) return;
+
+    const len = parseFloat(lenEl.value) || 0;
+    const width = parseFloat(widthEl.value) || 0;
+    const waste = (parseFloat(wasteEl.value) || 10) / 100;
+    const packCov = parseFloat(packCovEl.value) || 2.2;
+    const packPrice = parseFloat(priceEl.value) || 38.50;
+
+    const netArea = len * width;
+    const grossArea = netArea * (1 + waste);
+    const packsNeeded = Math.ceil(grossArea / packCov);
+    const totalCost = packsNeeded * packPrice;
+    const costPerSqm = grossArea > 0 ? totalCost / grossArea : 0;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const netAreaRes = document.getElementById('netRoomAreaDisplay');
+    const grossAreaRes = document.getElementById('grossAreaDisplay');
+    const packsRes = document.getElementById('packsNeededDisplay');
+    const totalRes = document.getElementById('totalFlooringCostDisplay');
+
+    if (mainRes) mainRes.textContent = `${packsNeeded} Packs (£${totalCost.toFixed(2)})`;
+    if (subVal) subVal.textContent = grossArea.toFixed(2) + ' sq m';
+    if (netAreaRes) netAreaRes.textContent = netArea.toFixed(2) + ' sq m';
+    if (grossAreaRes) grossAreaRes.textContent = grossArea.toFixed(2) + ' sq m';
+    if (packsRes) packsRes.textContent = packsNeeded + ' Packs';
+    if (totalRes) totalRes.textContent = '£' + totalCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` (£${costPerSqm.toFixed(2)}/sq m)`;
+  }
+
+  ['flooring-room-length', 'flooring-room-width', 'flooring-wastage-pct', 'flooring-pack-coverage', 'flooring-price-per-pack'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateFlooring);
+    document.getElementById(id)?.addEventListener('change', calculateFlooring);
+  });
+  calculateFlooring();
+</script>

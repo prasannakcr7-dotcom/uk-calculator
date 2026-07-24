@@ -1,0 +1,103 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout mobility-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Vehicle Type MOT Class</span></div>
+        <select id="mot-class-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="54.85" selected>Class 4 (Cars & Light Vans - Max £54.85 Limit)</option>
+          <option value="29.65">Class 1 & 2 (Motorcycles - Max £29.65 Limit)</option>
+          <option value="58.60">Class 7 (Goods Vehicles up to 3,500kg - Max £58.60 Limit)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Actual Test Center Fee Charged (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="mot-test-fee-charged" value="45" min="15" max="58.60" step="1" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Estimated Component Repair & Advisory Costs (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="mot-repair-costs" value="180" min="0" step="10" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>MOT & Repair Budget Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>DVSA Statutory Maximum Fee Limit</span>
+          <strong id="mot-statutory-max-fee">£54.85</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Test Center Fee Discount Received</span>
+          <strong id="mot-fee-discount-saved">£9.85 Discount Saved</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Estimated Repair Parts & Labor</span>
+          <strong id="mot-repair-parts-labor">£180.00</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Total Out-of-Pocket MOT Budget</span>
+          <strong id="total-mot-out-of-pocket">£225.00</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="movilidad" />
+  </div>
+</div>
+
+<script>
+  function calculateMotBudget() {
+    const classEl = document.getElementById('mot-class-select') as HTMLSelectElement;
+    const feeEl = document.getElementById('mot-test-fee-charged') as HTMLInputElement;
+    const repairEl = document.getElementById('mot-repair-costs') as HTMLInputElement;
+
+    if (!classEl || !feeEl || !repairEl) return;
+
+    const statMax = parseFloat(classEl.value) || 54.85;
+    const charged = parseFloat(feeEl.value) || 0;
+    const repair = parseFloat(repairEl.value) || 0;
+
+    const discountSaved = Math.max(0, statMax - charged);
+    const totalCost = charged + repair;
+
+    const maxResEl = document.getElementById('mot-statutory-max-fee');
+    const discResEl = document.getElementById('mot-fee-discount-saved');
+    const partsResEl = document.getElementById('mot-repair-parts-labor');
+    const totalResEl = document.getElementById('total-mot-out-of-pocket');
+
+    if (maxResEl) maxResEl.textContent = '£' + statMax.toFixed(2);
+    if (discResEl) discResEl.textContent = '£' + discountSaved.toFixed(2) + ' Discount Saved';
+    if (partsResEl) partsResEl.textContent = '£' + repair.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (totalResEl) totalResEl.textContent = '£' + totalCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['mot-class-select', 'mot-test-fee-charged', 'mot-repair-costs'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateMotBudget);
+    document.getElementById(id)?.addEventListener('change', calculateMotBudget);
+  });
+  calculateMotBudget();
+</script>

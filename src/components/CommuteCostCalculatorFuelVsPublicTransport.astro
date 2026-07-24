@@ -1,0 +1,248 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout mobility-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Daily Commute & Travel Details'}</h2>
+
+      <!-- One-Way Commute Distance (Miles) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.distanceLabel || 'One-Way Commute Distance (Miles)'}</span>
+          <span class="hint" id="distanceVal">15.0 Miles (30 miles round trip)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="15.0" id="distanceInput" inputmode="decimal" />
+          <span class="cur">mi</span>
+        </div>
+        <input type="range" min="2" max="60" step="1" value="15" id="distanceSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>2 mi</span><span>60 mi</span></div>
+      </div>
+
+      <!-- Days Working in Office per Week -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.daysPerWeekLabel || 'Office Commute Days per Week'}</span>
+          <span class="hint" id="daysPerWeekVal">3 Days / week (Hybrid Worker)</span>
+        </div>
+        <input type="range" min="1" max="5" step="1" value="3" id="daysPerWeekSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1 Day</span><span>5 Days</span></div>
+      </div>
+
+      <!-- Vehicle Fuel Type & Efficiency -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.vehicleTypeLabel || 'Car Mode & Fuel Efficiency'}</span>
+          <span class="hint" id="vehicleTypeVal">Petrol Car (40 MPG @ £1.45/L)</span>
+        </div>
+        <select id="vehicleTypeSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="PETROL_40" selected>Petrol Car (40 MPG — 16.5p / mile fuel cost)</option>
+          <option value="DIESEL_50">Diesel Car (50 MPG — 13.6p / mile fuel cost)</option>
+          <option value="ELECTRIC_EV">Electric EV (3.5 mi/kWh Home Charge — 2.1p / mile)</option>
+        </select>
+      </div>
+
+      <!-- Daily Parking / Toll Fee (£) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.parkingFeeLabel || 'Daily Car Parking / Toll Charges (£)'}</span>
+          <span class="hint" id="parkingFeeVal">£5.00 / day</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="5.00" id="parkingFeeInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="0" max="30" step="1" value="5" id="parkingFeeSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£0</span><span>£30</span></div>
+      </div>
+
+      <!-- Public Transport Train / Bus Return Fare (£) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.publicTransportFareLabel || 'Public Transport Train / Bus Return Ticket (£)'}</span>
+          <span class="hint" id="publicTransportFareVal">£12.00 / day</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="12.00" id="publicTransportFareInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="2" max="50" step="1" value="12" id="publicTransportFareSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£2</span><span>£50</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--mobility-1), var(--mobility-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Car Commute vs Public Transport Annual Cost'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">Car £1,432 vs Train £1,728</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.comparisonWinnerLabel || 'Cost Comparison Winner & Annual Savings:'}</span>
+        <span class="val" id="subResultValue">Driving Car Saves £296.00 / year over Public Transport</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Commute Cost Financial Breakdown (44 Weeks)'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Car Fuel Cost (30 mi/day × 132 days)</span>
+          <span class="val" id="fuelCostDisplay">£653.40 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Car Parking & Toll Charges</span>
+          <span class="val" id="parkingCostDisplay">£660.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Total Annual Car Commute Expenses</span>
+          <span class="val" id="totalCarCommuteDisplay">£1,432.40 / year</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Annual Public Transport Fare (£12/day)</span>
+          <span class="val" id="totalTrainCommuteDisplay" style="font-weight: 700; font-size: 18px;">£1,728.00 / year</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Working Year Benchmark:</strong> Calculated over 44 working weeks (144 working days for 3-day hybrid).<br/>
+        • <strong>Fuel Price Assumptions:</strong> Petrol £1.45/L; Diesel £1.52/L; Home EV 7.5p/kWh.<br/>
+        • <strong>Hybrid Work Impact:</strong> Hybrid 3-day office working reduces annual commute costs by 40%.<br/>
+        • <strong>Season Ticket vs Flexi Ticket:</strong> Flexi 8-in-28 day train tickets beat annual season tickets for hybrid workers.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const distanceInput = document.getElementById('distanceInput') as HTMLInputElement;
+  const distanceSlider = document.getElementById('distanceSlider') as HTMLInputElement;
+  const distanceVal = document.getElementById('distanceVal') as HTMLElement;
+
+  const daysPerWeekSlider = document.getElementById('daysPerWeekSlider') as HTMLInputElement;
+  const daysPerWeekVal = document.getElementById('daysPerWeekVal') as HTMLElement;
+
+  const vehicleTypeSelect = document.getElementById('vehicleTypeSelect') as HTMLSelectElement;
+
+  const parkingFeeInput = document.getElementById('parkingFeeInput') as HTMLInputElement;
+  const parkingFeeSlider = document.getElementById('parkingFeeSlider') as HTMLInputElement;
+  const parkingFeeVal = document.getElementById('parkingFeeVal') as HTMLElement;
+
+  const publicTransportFareInput = document.getElementById('publicTransportFareInput') as HTMLInputElement;
+  const publicTransportFareSlider = document.getElementById('publicTransportFareSlider') as HTMLInputElement;
+  const publicTransportFareVal = document.getElementById('publicTransportFareVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const fuelCostDisplay = document.getElementById('fuelCostDisplay') as HTMLElement;
+  const parkingCostDisplay = document.getElementById('parkingCostDisplay') as HTMLElement;
+  const totalCarCommuteDisplay = document.getElementById('totalCarCommuteDisplay') as HTMLElement;
+  const totalTrainCommuteDisplay = document.getElementById('totalTrainCommuteDisplay') as HTMLElement;
+
+  function calculate() {
+    const oneWayMiles = parseInputVal(distanceInput.value);
+    const daysPerWeek = parseInt(daysPerWeekSlider.value, 10);
+    const vehicleKey = vehicleTypeSelect.value;
+    const dailyParking = parseInputVal(parkingFeeInput.value);
+    const dailyTrainFare = parseInputVal(publicTransportFareInput.value);
+
+    // Working year: 44 weeks (accounting for 5.6 weeks statutory paid leave & bank holidays)
+    const annualCommuteDays = daysPerWeek * 44;
+    const dailyRoundTripMiles = oneWayMiles * 2;
+    const annualCommuteMiles = dailyRoundTripMiles * annualCommuteDays;
+
+    let fuelCostPerMilePence = 16.5; // Petrol 40mpg @ £1.45/L
+    if (vehicleKey === 'DIESEL_50') fuelCostPerMilePence = 13.6; // Diesel 50mpg @ £1.52/L
+    if (vehicleKey === 'ELECTRIC_EV') fuelCostPerMilePence = 2.14; // EV 3.5mi/kWh @ 7.5p/kWh
+
+    const annualFuelCost = (annualCommuteMiles * fuelCostPerMilePence) / 100;
+    const annualParkingCost = dailyParking * annualCommuteDays;
+    const totalCarCommuteCost = annualFuelCost + annualParkingCost;
+
+    const totalTrainCommuteCost = dailyTrainFare * annualCommuteDays;
+
+    const costDifference = Math.abs(totalCarCommuteCost - totalTrainCommuteCost);
+    const carIsCheaper = totalCarCommuteCost < totalTrainCommuteCost;
+
+    distanceVal.innerText = `${oneWayMiles.toFixed(1)} Miles (${dailyRoundTripMiles.toFixed(0)} mi round trip)`;
+    daysPerWeekVal.innerText = `${daysPerWeek} Day${daysPerWeek === 1 ? '' : 's'} / week (${annualCommuteDays} days/yr)`;
+    parkingFeeVal.innerText = `${formatCurrency(dailyParking)} / day`;
+    publicTransportFareVal.innerText = `${formatCurrency(dailyTrainFare)} / day`;
+
+    mainResultDisplay.innerText = `Car ${formatCurrency(totalCarCommuteCost).slice(0,-3)} vs Train ${formatCurrency(totalTrainCommuteCost).slice(0,-3)}`;
+
+    if (carIsCheaper) {
+      subResultValue.innerText = `Driving Car Saves ${formatCurrency(costDifference)} / year over Public Transport`;
+    } else {
+      subResultValue.innerText = `Public Transport Saves ${formatCurrency(costDifference)} / year over Driving Car`;
+    }
+
+    fuelCostDisplay.innerText = `${formatCurrency(annualFuelCost)} / year (${annualCommuteMiles.toLocaleString('en-GB')} mi)`;
+    parkingCostDisplay.innerText = `${formatCurrency(annualParkingCost)} / year`;
+    totalCarCommuteDisplay.innerText = `${formatCurrency(totalCarCommuteCost)} / year`;
+    totalTrainCommuteDisplay.innerText = `${formatCurrency(totalTrainCommuteCost)} / year`;
+  }
+
+  distanceInput.addEventListener('input', () => {
+    const val = parseInputVal(distanceInput.value);
+    distanceSlider.value = String(val);
+    calculate();
+  });
+
+  distanceSlider.addEventListener('input', () => {
+    distanceInput.value = parseFloat(distanceSlider.value).toFixed(1);
+    calculate();
+  });
+
+  daysPerWeekSlider.addEventListener('input', calculate);
+  vehicleTypeSelect.addEventListener('change', calculate);
+
+  parkingFeeInput.addEventListener('input', () => {
+    const val = parseInputVal(parkingFeeInput.value);
+    parkingFeeSlider.value = String(val);
+    calculate();
+  });
+
+  parkingFeeSlider.addEventListener('input', () => {
+    parkingFeeInput.value = parseFloat(parkingFeeSlider.value).toFixed(2);
+    calculate();
+  });
+
+  publicTransportFareInput.addEventListener('input', () => {
+    const val = parseInputVal(publicTransportFareInput.value);
+    publicTransportFareSlider.value = String(val);
+    calculate();
+  });
+
+  publicTransportFareSlider.addEventListener('input', () => {
+    publicTransportFareInput.value = parseFloat(publicTransportFareSlider.value).toFixed(2);
+    calculate();
+  });
+
+  calculate();
+</script>

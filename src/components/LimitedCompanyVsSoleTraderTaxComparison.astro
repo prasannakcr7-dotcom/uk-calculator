@@ -1,0 +1,130 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Business Profit Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Annual Net Business Profit (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="comparison-annual-profit" value="65000" min="10000" step="5000" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--work-1), var(--work-2) 80%);">
+      <div class="result-label">Limited Company Net Take-Home Advantage</div>
+      <div class="result-amount"><span id="mainResultDisplay">+£2,850.00 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Recommended Business Structure:</span>
+        <span class="val" id="subResultValue">Limited Company Structure</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Sole Trader vs Ltd Company Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Sole Trader Net Take-Home Pay</span>
+          <span class="val" id="soleTraderNetDisplay">£45,350.00 (69.8%)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Ltd Company Director Take-Home Pay (Salary + Dividends)</span>
+          <span class="val" id="ltdCompanyNetDisplay">£48,200.00 (74.2%)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Tax & NI Savings Differential</span>
+          <span class="val" id="taxSavingsDiffDisplay">£2,850.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Extra Annual Cash Kept in Pocket</span>
+          <span class="val" id="extraAnnualCashDisplay" style="font-weight: 700; font-size: 18px;">+£2,850.00 / year (+£237.50/mo)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="trabajo" />
+  </div>
+</div>
+
+<script>
+  function calculateSoleVsLtd() {
+    const profitEl = document.getElementById('comparison-annual-profit') as HTMLInputElement;
+    if (!profitEl) return;
+
+    const profit = parseFloat(profitEl.value) || 0;
+
+    // Sole Trader: Income Tax (Basic/Higher) + Class 4 NI (6% / 2%) + Class 2
+    let soleTax = 0;
+    const pa = 12570;
+    const taxableProfit = Math.max(0, profit - pa);
+    if (taxableProfit > 37700) {
+      soleTax += 37700 * 0.20 + (taxableProfit - 37700) * 0.40;
+    } else {
+      soleTax += taxableProfit * 0.20;
+    }
+    // Class 4 NI: 6% between £12,570 & £50,270, 2% above
+    let class4Ni = 0;
+    if (profit > 50270) {
+      class4Ni += (50270 - 12570) * 0.06 + (profit - 50270) * 0.02;
+    } else if (profit > 12570) {
+      class4Ni += (profit - 12570) * 0.06;
+    }
+    const soleTakeHome = Math.max(0, profit - soleTax - class4Ni);
+
+    // Ltd Company: Director Salary £12,570 + Corp Tax (19-25%) + Dividend Tax
+    const salary = 12570;
+    const corpTaxable = Math.max(0, profit - salary);
+    const corpRate = profit > 50000 ? 0.25 : 0.19;
+    const corpTax = corpTaxable * corpRate;
+    const netDividendAvailable = Math.max(0, corpTaxable - corpTax);
+    
+    // Dividend Tax: £500 allowance, 8.75% basic rate up to £37.7k, 33.75% higher rate
+    const divTaxable = Math.max(0, netDividendAvailable - 500);
+    let divTax = 0;
+    if (divTaxable > 37700) {
+      divTax += 37700 * 0.0875 + (divTaxable - 37700) * 0.3375;
+    } else {
+      divTax += divTaxable * 0.0875;
+    }
+    const ltdTakeHome = salary + netDividendAvailable - divTax;
+
+    const diff = ltdTakeHome - soleTakeHome;
+    const diffMonthly = Math.abs(diff) / 12;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const soleRes = document.getElementById('soleTraderNetDisplay');
+    const ltdRes = document.getElementById('ltdCompanyNetDisplay');
+    const diffRes = document.getElementById('taxSavingsDiffDisplay');
+    const extraRes = document.getElementById('extraAnnualCashDisplay');
+
+    if (mainRes) mainRes.textContent = (diff >= 0 ? '+£' : '-£') + Math.abs(diff).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (subVal) subVal.textContent = diff >= 0 ? 'Limited Company Structure' : 'Sole Trader Structure';
+    if (soleRes) soleRes.textContent = '£' + soleTakeHome.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` (${((soleTakeHome/profit)*100).toFixed(1)}%)`;
+    if (ltdRes) ltdRes.textContent = '£' + ltdTakeHome.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` (${((ltdTakeHome/profit)*100).toFixed(1)}%)`;
+    if (diffRes) diffRes.textContent = '£' + Math.abs(diff).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (extraRes) extraRes.textContent = (diff >= 0 ? '+£' : '-£') + Math.abs(diff).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` / year (${diff >= 0 ? '+' : '-' }£${diffMonthly.toFixed(2)}/mo)`;
+  }
+
+  const profitInput = document.getElementById('comparison-annual-profit');
+  profitInput?.addEventListener('input', calculateSoleVsLtd);
+  profitInput?.addEventListener('change', calculateSoleVsLtd);
+  calculateSoleVsLtd();
+</script>

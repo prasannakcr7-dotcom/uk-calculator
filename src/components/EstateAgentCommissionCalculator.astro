@@ -1,0 +1,170 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Property Sale & Commission Details'}</h2>
+
+      <!-- Sale Price -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.salePriceLabel || 'Agreed Property Sale Price (£)'}</span>
+          <span class="hint" id="salePriceVal">£350,000</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="350,000" id="salePriceInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="100000" max="1500000" step="25000" value="350000" id="salePriceSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£100,000</span><span>£1,500,000</span></div>
+      </div>
+
+      <!-- Estate Agent Commission Rate (%) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.commissionRateLabel || 'Estate Agent Commission Fee (%)'}</span>
+          <span class="hint" id="commissionRateVal">1.40% (Incl. VAT)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="1.4" id="commissionRateInput" inputmode="decimal" />
+          <span class="cur">%</span>
+        </div>
+        <input type="range" min="0.5" max="3.5" step="0.1" value="1.4" id="commissionRateSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>0.5% (Online)</span><span>3.5% (Multi-Agency)</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Total Estate Agent Commission Fee'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£4,900.00 Total</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.vatNoticeLabel || '20% VAT Inclusive Notice:'}</span>
+        <span class="val" id="subResultValue">£4,083.33 Net Fee + £816.67 VAT (20%)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Estate Agent Fee Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Agreed Property Sale Price</span>
+          <span class="val" id="salePriceDisplay">£350,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Commission Rate Applied</span>
+          <span class="val" id="rateAppliedDisplay">1.40%</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Net Agent Fee Before VAT</span>
+          <span class="val" id="netFeeDisplay">£4,083.33</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>20% Statutory VAT Added</span>
+          <span class="val" id="vatDisplay">+£816.67</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Commission Payable on Completion</span>
+          <span class="val" id="totalFeeDisplay" style="font-weight: 700; font-size: 18px;">£4,900.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Sole Agency Rate:</strong> UK average sole agency fee is 1.0% to 1.5% (+ VAT).<br/>
+        • <strong>Multi-Agency Rate:</strong> Multi-agency agreements range from 2.0% to 3.0% (+ VAT).<br/>
+        • <strong>Mandatory VAT Display:</strong> Consumer Protection regulations require agents to quote fees INCLUDING 20% VAT.<br/>
+        • <strong>No Sale No Fee:</strong> Standard high-street agency contracts only charge upon successful completion.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const salePriceInput = document.getElementById('salePriceInput') as HTMLInputElement;
+  const salePriceSlider = document.getElementById('salePriceSlider') as HTMLInputElement;
+  const salePriceVal = document.getElementById('salePriceVal') as HTMLElement;
+  const commissionRateInput = document.getElementById('commissionRateInput') as HTMLInputElement;
+  const commissionRateSlider = document.getElementById('commissionRateSlider') as HTMLInputElement;
+  const commissionRateVal = document.getElementById('commissionRateVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const salePriceDisplay = document.getElementById('salePriceDisplay') as HTMLElement;
+  const rateAppliedDisplay = document.getElementById('rateAppliedDisplay') as HTMLElement;
+  const netFeeDisplay = document.getElementById('netFeeDisplay') as HTMLElement;
+  const vatDisplay = document.getElementById('vatDisplay') as HTMLElement;
+  const totalFeeDisplay = document.getElementById('totalFeeDisplay') as HTMLElement;
+
+  function calculate() {
+    const salePrice = parseInputVal(salePriceInput.value);
+    const ratePercent = parseInputVal(commissionRateInput.value);
+
+    // Assume rate includes VAT as required by UK Consumer Protection Regs
+    const totalCommission = salePrice * (ratePercent / 100);
+    const netFee = totalCommission / 1.20;
+    const vatAmount = totalCommission - netFee;
+
+    salePriceVal.innerText = formatCurrency(salePrice).slice(0, -3);
+    commissionRateVal.innerText = `${ratePercent.toFixed(2)}% (Incl. VAT)`;
+
+    mainResultDisplay.innerText = `${formatCurrency(totalCommission)} Total`;
+    subResultValue.innerText = `${formatCurrency(netFee)} Net Fee + ${formatCurrency(vatAmount)} VAT (20%)`;
+
+    salePriceDisplay.innerText = formatCurrency(salePrice);
+    rateAppliedDisplay.innerText = `${ratePercent.toFixed(2)}%`;
+    netFeeDisplay.innerText = formatCurrency(netFee);
+    vatDisplay.innerText = `+${formatCurrency(vatAmount)}`;
+    totalFeeDisplay.innerText = formatCurrency(totalCommission);
+  }
+
+  salePriceInput.addEventListener('input', () => {
+    const val = parseInputVal(salePriceInput.value);
+    salePriceSlider.value = String(val);
+    calculate();
+  });
+
+  salePriceSlider.addEventListener('input', () => {
+    salePriceInput.value = parseInt(salePriceSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  commissionRateInput.addEventListener('input', () => {
+    const val = parseInputVal(commissionRateInput.value);
+    commissionRateSlider.value = String(val);
+    calculate();
+  });
+
+  commissionRateSlider.addEventListener('input', () => {
+    commissionRateInput.value = commissionRateSlider.value;
+    calculate();
+  });
+
+  calculate();
+</script>

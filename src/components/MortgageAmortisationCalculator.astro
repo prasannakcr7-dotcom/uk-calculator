@@ -1,0 +1,121 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Mortgage Amortisation Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Mortgage Loan Amount (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="amort-loan-amount" value="240000" min="20000" step="5000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Mortgage Interest Rate (% p.a.)</span></div>
+        <div class="amount-field">
+          <input type="number" id="amort-interest-rate" value="4.5" min="0.5" max="15" step="0.1" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Mortgage Term (Years)</span></div>
+        <div class="amount-field">
+          <input type="number" id="amort-mortgage-term" value="25" min="5" max="40" step="1" />
+          <span class="cur">yrs</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Monthly Amortised Mortgage Payment</div>
+      <div class="result-amount"><span id="mainResultDisplay">£1,333.89 / month</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Total Cumulative Interest Charge:</span>
+        <span class="val" id="subResultValue">£160,167.00 Total Interest</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Total Amortisation Lifetime Summary</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Original Principal Loan Borrowed</span>
+          <span class="val" id="principalBorrowedDisplay">£240,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Total Interest Cost Over Full Term</span>
+          <span class="val" id="totalInterestCostDisplay">£160,167.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Monthly Repayment (Capital + Interest)</span>
+          <span class="val" id="monthlyRepaymentDisplay">£1,333.89 / month</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Cost of Mortgage (Principal + Interest)</span>
+          <span class="val" id="totalMortgageCostDisplay" style="font-weight: 700; font-size: 18px;">£400,167.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateAmortisation() {
+    const loanEl = document.getElementById('amort-loan-amount') as HTMLInputElement;
+    const rateEl = document.getElementById('amort-interest-rate') as HTMLInputElement;
+    const termEl = document.getElementById('amort-mortgage-term') as HTMLInputElement;
+
+    if (!loanEl || !rateEl || !termEl) return;
+
+    const loan = parseFloat(loanEl.value) || 0;
+    const rate = (parseFloat(rateEl.value) || 0) / 100;
+    const years = parseInt(termEl.value) || 25;
+
+    const r = rate / 12;
+    const n = years * 12;
+
+    const monthlyPayment = r > 0 ? loan * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1) : loan / n;
+    const totalRepayments = monthlyPayment * n;
+    const totalInterest = Math.max(0, totalRepayments - loan);
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const princRes = document.getElementById('principalBorrowedDisplay');
+    const intRes = document.getElementById('totalInterestCostDisplay');
+    const monthRes = document.getElementById('monthlyRepaymentDisplay');
+    const totalRes = document.getElementById('totalMortgageCostDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + monthlyPayment.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (subVal) subVal.textContent = '£' + totalInterest.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Total Interest';
+    if (princRes) princRes.textContent = '£' + loan.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (intRes) intRes.textContent = '£' + totalInterest.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (monthRes) monthRes.textContent = '£' + monthlyPayment.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (totalRes) totalRes.textContent = '£' + totalRepayments.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['amort-loan-amount', 'amort-interest-rate', 'amort-mortgage-term'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateAmortisation);
+    document.getElementById(id)?.addEventListener('change', calculateAmortisation);
+  });
+  calculateAmortisation();
+</script>

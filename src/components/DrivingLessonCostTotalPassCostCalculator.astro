@@ -1,0 +1,192 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout mobility-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Driving Lessons & Test Details'}</h2>
+
+      <!-- Hourly Lesson Rate (£/hr) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.hourlyRateLabel || 'Driving Instructor Hourly Rate (£/hr)'}</span>
+          <span class="hint" id="hourlyRateVal">£35.00 / hour</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="35.00" id="hourlyRateInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="25" max="55" step="1" value="35" id="hourlyRateSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£25/hr</span><span>£55/hr</span></div>
+      </div>
+
+      <!-- Professional Professional Hours Needed -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.lessonHoursLabel || 'Professional Driving Lesson Hours Required'}</span>
+          <span class="hint" id="lessonHoursVal">45 Hours (DVSA National Average)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="45" id="lessonHoursInput" inputmode="decimal" />
+          <span class="cur">hrs</span>
+        </div>
+        <input type="range" min="15" max="80" step="5" value="45" id="lessonHoursSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>15 hrs</span><span>80 hrs</span></div>
+      </div>
+
+      <!-- Transmission & Test Attempt Details -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.attemptsLabel || 'Expected Practical Driving Test Attempts'}</span>
+          <span class="hint" id="attemptsVal">1st Time Pass (1 Test Attempt)</span>
+        </div>
+        <select id="attemptsSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="1" selected>1st Time Pass (1 Theory + 1 Practical Test)</option>
+          <option value="2">2 Practical Test Attempts (1 Fail + 1 Pass)</option>
+          <option value="3">3 Practical Test Attempts (2 Fails + 1 Pass)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--mobility-1), var(--mobility-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Total Cost to Learn to Drive & Pass Test'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£1,680.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.costSplitLabel || 'Lessons vs Official DVSA Test Fees Split:'}</span>
+        <span class="val" id="subResultValue">£1,575 Lessons + £23 Theory + £62 Practical Fee + £20 License</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Driving Pass Financial Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Professional Driving Lessons (45 Hours @ £35/hr)</span>
+          <span class="val" id="lessonsCostDisplay">£1,575.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Provisional Driving License Fee (Online)</span>
+          <span class="val" id="provisionalDisplay">£34.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>DVSA Theory Test Fee</span>
+          <span class="val" id="theoryCostDisplay">£23.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>DVSA Practical Driving Test Fee (£62 Weekday)</span>
+          <span class="val" id="practicalCostDisplay">£62.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Estimated Cost to Become a Qualified Driver</span>
+          <span class="val" id="totalPassDisplay" style="font-weight: 700; font-size: 18px;">£1,694.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>DVSA National Average:</strong> Learners require an average of 45 hours professional lessons + 20 hours private practice.<br/>
+        • <strong>Official Test Fees:</strong> Theory Test (£23); Practical Test (£62 weekday / £75 weekend).<br/>
+        • <strong>Provisional License:</strong> £34 online (£43 by post).<br/>
+        • <strong>Block Booking Discounts:</strong> Booking 10-hour blocks saves ~£2 to £4 per hour.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const hourlyRateInput = document.getElementById('hourlyRateInput') as HTMLInputElement;
+  const hourlyRateSlider = document.getElementById('hourlyRateSlider') as HTMLInputElement;
+  const hourlyRateVal = document.getElementById('hourlyRateVal') as HTMLElement;
+
+  const lessonHoursInput = document.getElementById('lessonHoursInput') as HTMLInputElement;
+  const lessonHoursSlider = document.getElementById('lessonHoursSlider') as HTMLInputElement;
+  const lessonHoursVal = document.getElementById('lessonHoursVal') as HTMLElement;
+
+  const attemptsSelect = document.getElementById('attemptsSelect') as HTMLSelectElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const lessonsCostDisplay = document.getElementById('lessonsCostDisplay') as HTMLElement;
+  const provisionalDisplay = document.getElementById('provisionalDisplay') as HTMLElement;
+  const theoryCostDisplay = document.getElementById('theoryCostDisplay') as HTMLElement;
+  const practicalCostDisplay = document.getElementById('practicalCostDisplay') as HTMLElement;
+  const totalPassDisplay = document.getElementById('totalPassDisplay') as HTMLElement;
+
+  function calculate() {
+    const hourlyRate = parseInputVal(hourlyRateInput.value);
+    const lessonHours = parseInputVal(lessonHoursInput.value);
+    const attempts = parseInt(attemptsSelect.value, 10);
+
+    const provisionalFee = 34.00;
+    const theoryFee = 23.00;
+    const practicalFeePerAttempt = 62.00; // Weekday rate
+
+    const lessonsCost = hourlyRate * lessonHours;
+    const totalPracticalFees = practicalFeePerAttempt * attempts;
+    const totalCost = lessonsCost + provisionalFee + theoryFee + totalPracticalFees;
+
+    hourlyRateVal.innerText = `${formatCurrency(hourlyRate)} / hour`;
+    lessonHoursVal.innerText = `${lessonHours.toFixed(0)} Hours`;
+
+    mainResultDisplay.innerText = formatCurrency(totalCost);
+    subResultValue.innerText = `${formatCurrency(lessonsCost)} Lessons + ${formatCurrency(totalPracticalFees + theoryFee + provisionalFee)} License & Fees`;
+
+    lessonsCostDisplay.innerText = `${formatCurrency(lessonsCost)} (${lessonHours} hrs @ £${hourlyRate}/hr)`;
+    provisionalDisplay.innerText = formatCurrency(provisionalFee);
+    theoryCostDisplay.innerText = formatCurrency(theoryFee);
+    practicalCostDisplay.innerText = `${formatCurrency(totalPracticalFees)} (${attempts} Attempt${attempts === 1 ? '' : 's'})`;
+    totalPassDisplay.innerText = formatCurrency(totalCost);
+  }
+
+  hourlyRateInput.addEventListener('input', () => {
+    const val = parseInputVal(hourlyRateInput.value);
+    hourlyRateSlider.value = String(val);
+    calculate();
+  });
+
+  hourlyRateSlider.addEventListener('input', () => {
+    hourlyRateInput.value = parseFloat(hourlyRateSlider.value).toFixed(2);
+    calculate();
+  });
+
+  lessonHoursInput.addEventListener('input', () => {
+    const val = parseInputVal(lessonHoursInput.value);
+    lessonHoursSlider.value = String(val);
+    calculate();
+  });
+
+  lessonHoursSlider.addEventListener('input', () => {
+    lessonHoursInput.value = parseInt(lessonHoursSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  attemptsSelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

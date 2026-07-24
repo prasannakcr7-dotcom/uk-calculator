@@ -1,0 +1,201 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Solar PV & Battery System Details'}</h2>
+
+      <!-- Solar System Capacity (kWp) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.kwpLabel || 'Solar PV Array Capacity (kWp)'}</span>
+          <span class="hint" id="kwpVal">4.0 kWp (10-12 Solar Panels)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="4.0" id="kwpInput" inputmode="decimal" />
+          <span class="cur">kWp</span>
+        </div>
+        <input type="range" min="1.5" max="12.0" step="0.5" value="4.0" id="kwpSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1.5 kWp</span><span>12.0 kWp</span></div>
+      </div>
+
+      <!-- Battery Storage Capacity (kWh) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.batteryCapacityLabel || 'Home Battery Storage Capacity (kWh)'}</span>
+          <span class="hint" id="batteryCapacityVal">5.0 kWh Battery Storage</span>
+        </div>
+        <select id="batterySelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="0">No Battery Storage (Solar PV Only)</option>
+          <option value="5" selected>5.0 kWh Lithium Battery Storage (+£2,800)</option>
+          <option value="10">10.0 kWh Lithium Battery Storage (+£4,800)</option>
+          <option value="13.5">13.5 kWh Tesla Powerwall Battery Storage (+£7,500)</option>
+        </select>
+      </div>
+
+      <!-- Electricity Tariff Rate (p/kWh) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.tariffRateLabel || 'Electricity Unit Rate (p / kWh)'}</span>
+          <span class="hint" id="tariffRateVal">24.5 p / kWh (Ofgem Cap Rate)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="24.5" id="tariffRateInput" inputmode="decimal" />
+          <span class="cur">p</span>
+        </div>
+        <input type="range" min="15" max="45" step="0.5" value="24.5" id="tariffRateSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>15p</span><span>45p</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Annual Bill Savings & Smart Export (SEG)'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£980.00 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.paybackLabel || 'Estimated Total System Cost & Payback Period:'}</span>
+        <span class="val" id="subResultValue">£9,300 System Cost (9.5 Years Payback Period)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Solar & Battery Financial Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Annual Solar Generation (~850 kWh / kWp)</span>
+          <span class="val" id="generationDisplay">3,400 kWh / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Self-Consumed Solar Electricity Savings</span>
+          <span class="val" id="selfConsumedDisplay">£700.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Smart Export Guarantee (SEG @ 15p/kWh)</span>
+          <span class="val" id="segDisplay">£280.00 / year</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total System Investment Cost (0% VAT)</span>
+          <span class="val" id="systemCostDisplay" style="font-weight: 700; font-size: 18px;">£9,300.00 (0% VAT Rate)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>0% VAT Incentive:</strong> 0% VAT rate on residential solar PV & battery storage installation.<br/>
+        • <strong>UK Generation Yield:</strong> South-facing roofs generate ~850 to 950 kWh per 1 kWp installed.<br/>
+        • <strong>Battery Self-Consumption:</strong> Battery increases solar self-consumption from 35% up to 80%.<br/>
+        • <strong>SEG Tariff:</strong> Export tariffs pay ~15p/kWh for surplus solar fed into the National Grid.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const kwpInput = document.getElementById('kwpInput') as HTMLInputElement;
+  const kwpSlider = document.getElementById('kwpSlider') as HTMLInputElement;
+  const kwpVal = document.getElementById('kwpVal') as HTMLElement;
+  const batterySelect = document.getElementById('batterySelect') as HTMLSelectElement;
+  const tariffRateInput = document.getElementById('tariffRateInput') as HTMLInputElement;
+  const tariffRateSlider = document.getElementById('tariffRateSlider') as HTMLInputElement;
+  const tariffRateVal = document.getElementById('tariffRateVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const generationDisplay = document.getElementById('generationDisplay') as HTMLElement;
+  const selfConsumedDisplay = document.getElementById('selfConsumedDisplay') as HTMLElement;
+  const segDisplay = document.getElementById('segDisplay') as HTMLElement;
+  const systemCostDisplay = document.getElementById('systemCostDisplay') as HTMLElement;
+
+  function calculate() {
+    const kwp = parseInputVal(kwpInput.value);
+    const batteryKwh = parseFloat(batterySelect.value);
+    const tariffPence = parseInputVal(tariffRateInput.value);
+
+    // Generation ~850 kWh per kWp in UK
+    const annualGenerationKwh = kwp * 850;
+
+    // Base solar cost ~£1,650 per kWp (0% VAT)
+    const baseSolarCost = kwp * 1650;
+
+    let batteryCost = 0;
+    if (batteryKwh === 5) batteryCost = 2800;
+    if (batteryKwh === 10) batteryCost = 4800;
+    if (batteryKwh === 13.5) batteryCost = 7500;
+
+    const totalSystemCost = baseSolarCost + batteryCost;
+
+    // Self-consumption ratio: 35% solar only; 75-85% with battery
+    const selfConsumptionRatio = batteryKwh > 0 ? 0.80 : 0.35;
+    const selfConsumedKwh = annualGenerationKwh * selfConsumptionRatio;
+    const exportedKwh = annualGenerationKwh * (1 - selfConsumptionRatio);
+
+    const selfConsumedSavings = (selfConsumedKwh * tariffPence) / 100;
+    const segIncome = (exportedKwh * 15.0) / 100; // 15p/kWh SEG tariff
+    const totalAnnualSavings = selfConsumedSavings + segIncome;
+
+    const paybackYears = totalAnnualSavings > 0 ? totalSystemCost / totalAnnualSavings : 0;
+
+    kwpVal.innerText = `${kwp.toFixed(1)} kWp (${Math.round(kwp * 2.7)} Solar Panels)`;
+    tariffRateVal.innerText = `${tariffPence.toFixed(1)} p / kWh`;
+
+    mainResultDisplay.innerText = `${formatCurrency(totalAnnualSavings)} / year`;
+    subResultValue.innerText = `${formatCurrency(totalSystemCost)} System Cost (${paybackYears.toFixed(1)} Years Payback)`;
+
+    generationDisplay.innerText = `${Math.round(annualGenerationKwh).toLocaleString('en-GB')} kWh / year`;
+    selfConsumedDisplay.innerText = `${formatCurrency(selfConsumedSavings)} / year (${Math.round(selfConsumedKwh)} kWh)`;
+    segDisplay.innerText = `${formatCurrency(segIncome)} / year (${Math.round(exportedKwh)} kWh @ 15p)`;
+    systemCostDisplay.innerText = `${formatCurrency(totalSystemCost)} (0% VAT Rate)`;
+  }
+
+  kwpInput.addEventListener('input', () => {
+    const val = parseInputVal(kwpInput.value);
+    kwpSlider.value = String(val);
+    calculate();
+  });
+
+  kwpSlider.addEventListener('input', () => {
+    kwpInput.value = parseFloat(kwpSlider.value).toFixed(1);
+    calculate();
+  });
+
+  tariffRateInput.addEventListener('input', () => {
+    const val = parseInputVal(tariffRateInput.value);
+    tariffRateSlider.value = String(val);
+    calculate();
+  });
+
+  tariffRateSlider.addEventListener('input', () => {
+    tariffRateInput.value = parseFloat(tariffRateSlider.value).toFixed(1);
+    calculate();
+  });
+
+  batterySelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

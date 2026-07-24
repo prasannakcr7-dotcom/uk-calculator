@@ -1,0 +1,138 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Self-Assessment Tax Bill Details'}</h2>
+
+      <!-- Prior Year Total Tax & NI Bill -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.taxBillLabel || 'Prior Year Total Income Tax & Class 4 NI Bill (£)'}</span>
+          <span class="hint" id="taxBillVal">£6,000</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="6,000" id="taxBillInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="0" max="50000" step="500" value="6000" id="taxBillSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£0</span><span>£50,000</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Individual Payment on Account Amount (50%)'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£3,000.00 / instalment</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.datesLabel || 'Instalment Payment Deadlines:'}</span>
+        <span class="val" id="subResultValue">31 Jan (£3,000) & 31 July (£3,000)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Payment Schedule Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Prior Tax Year Total Tax Bill</span>
+          <span class="val" id="taxBillDisplay">£6,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>1st Payment on Account (Due 31 January — 50%)</span>
+          <span class="val" id="poa1Display">£3,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>2nd Payment on Account (Due 31 July — 50%)</span>
+          <span class="val" id="poa2Display">£3,000.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Advance Payments on Account Paid</span>
+          <span class="val" id="totalPoaDisplay" style="font-weight: 700; font-size: 18px;">£6,000.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>£1,000 Threshold:</strong> Mandatory POA applies if tax bill exceeds £1,000.<br/>
+        • <strong>80% Exemption:</strong> Exempt if over 80% of tax was deducted at source (e.g. via PAYE).<br/>
+        • <strong>31 Jan & 31 July:</strong> 2 equal advance instalments of 50% each.<br/>
+        • <strong>Reduction Option:</strong> Can apply to HMRC online to reduce POA if profits fall.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const taxBillInput = document.getElementById('taxBillInput') as HTMLInputElement;
+  const taxBillSlider = document.getElementById('taxBillSlider') as HTMLInputElement;
+  const taxBillVal = document.getElementById('taxBillVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const taxBillDisplay = document.getElementById('taxBillDisplay') as HTMLElement;
+  const poa1Display = document.getElementById('poa1Display') as HTMLElement;
+  const poa2Display = document.getElementById('poa2Display') as HTMLElement;
+  const totalPoaDisplay = document.getElementById('totalPoaDisplay') as HTMLElement;
+
+  function calculate() {
+    const bill = parseInputVal(taxBillInput.value);
+
+    const isPoaRequired = bill > 1000;
+    const poaEach = isPoaRequired ? bill * 0.50 : 0;
+    const totalPoa = poaEach * 2;
+
+    taxBillVal.innerText = formatCurrency(bill).slice(0, -3);
+
+    if (isPoaRequired) {
+      mainResultDisplay.innerText = `${formatCurrency(poaEach)} / instalment`;
+      subResultValue.innerText = `31 Jan (${formatCurrency(poaEach)}) & 31 July (${formatCurrency(poaEach)})`;
+    } else {
+      mainResultDisplay.innerText = 'No POA Required (<£1,000)';
+      subResultValue.innerText = 'Bill Under £1,000 Threshold';
+    }
+
+    taxBillDisplay.innerText = formatCurrency(bill);
+    poa1Display.innerText = formatCurrency(poaEach);
+    poa2Display.innerText = formatCurrency(poaEach);
+    totalPoaDisplay.innerText = formatCurrency(totalPoa);
+  }
+
+  taxBillInput.addEventListener('input', () => {
+    const val = parseInputVal(taxBillInput.value);
+    taxBillSlider.value = String(val);
+    calculate();
+  });
+
+  taxBillSlider.addEventListener('input', () => {
+    taxBillInput.value = parseInt(taxBillSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  calculate();
+</script>

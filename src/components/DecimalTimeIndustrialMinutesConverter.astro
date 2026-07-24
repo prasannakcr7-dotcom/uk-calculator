@@ -1,0 +1,122 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Time Conversion Details'}</h2>
+
+      <!-- Hours -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.hoursLabel || 'Hours (HH)'}</span>
+          <span class="hint" id="hoursVal">7 Hours</span>
+        </div>
+        <input type="range" min="0" max="24" step="1" value="7" id="hoursSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>0 Hours</span><span>24 Hours</span></div>
+      </div>
+
+      <!-- Minutes -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.minutesLabel || 'Minutes (MM)'}</span>
+          <span class="hint" id="minutesVal">30 Minutes</span>
+        </div>
+        <input type="range" min="0" max="59" step="1" value="30" id="minutesSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>0 Mins</span><span>59 Mins</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--work-1), var(--work-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Decimal Industrial Hours'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">7.50 Hours</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.standardTimeLabel || 'Standard Time Format:'}</span>
+        <span class="val" id="subResultValue">7h 30m</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Conversion Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Standard Time (HH:MM)</span>
+          <span class="val" id="standardFormatDisplay">7h 30m</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Minutes Portion in Decimal (30 / 60)</span>
+          <span class="val" id="decimalMinutesDisplay">.50</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Decimal Industrial Hours</span>
+          <span class="val" id="decimalFormatDisplay" style="font-weight: 700; font-size: 18px;">7.50 Hours</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • 15 Mins = <strong>0.25 Hours</strong><br/>
+        • 30 Mins = <strong>0.50 Hours</strong><br/>
+        • 45 Mins = <strong>0.75 Hours</strong><br/>
+        • Used by payroll systems for multiplication.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  const hoursSlider = document.getElementById('hoursSlider') as HTMLInputElement;
+  const hoursVal = document.getElementById('hoursVal') as HTMLElement;
+  const minutesSlider = document.getElementById('minutesSlider') as HTMLInputElement;
+  const minutesVal = document.getElementById('minutesVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const standardFormatDisplay = document.getElementById('standardFormatDisplay') as HTMLElement;
+  const decimalMinutesDisplay = document.getElementById('decimalMinutesDisplay') as HTMLElement;
+  const decimalFormatDisplay = document.getElementById('decimalFormatDisplay') as HTMLElement;
+
+  hoursSlider.addEventListener('input', calculate);
+  minutesSlider.addEventListener('input', calculate);
+
+  function calculate() {
+    const h = parseInt(hoursSlider.value, 10);
+    const m = parseInt(minutesSlider.value, 10);
+
+    hoursVal.textContent = `${h} Hours`;
+    minutesVal.textContent = `${m} Minutes`;
+
+    const decM = m / 60;
+    const decTotal = h + decM;
+
+    mainResultDisplay.textContent = `${decTotal.toFixed(2)} Hours`;
+    subResultValue.textContent = `${h}h ${m}m`;
+    standardFormatDisplay.textContent = `${h}h ${m}m`;
+    decimalMinutesDisplay.textContent = `.${(decM * 100).toFixed(0).padStart(2, '0')}`;
+    decimalFormatDisplay.textContent = `${decTotal.toFixed(2)} Hours`;
+  }
+
+  calculate();
+</script>

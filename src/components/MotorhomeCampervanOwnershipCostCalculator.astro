@@ -1,0 +1,133 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout mobility-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Motorhome & Campervan Ownership Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Annual Touring Mileage</span></div>
+        <div class="amount-field">
+          <input type="number" id="camper-annual-mileage" value="5000" min="500" step="500" />
+          <span class="cur">miles</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Campervan Fuel Economy (MPG)</span></div>
+        <div class="amount-field">
+          <input type="number" id="camper-fuel-mpg" value="28" min="15" max="45" step="1" />
+          <span class="cur">MPG</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Annual Motorhome Specialist Insurance (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="camper-annual-insurance" value="550" min="100" step="25" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Annual Storage Yard / Pitch Storage Fee (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="camper-storage-fee" value="600" min="0" step="50" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--mobility-1), var(--mobility-2) 80%);">
+      <div class="result-label">Total Annual Motorhome Running Cost</div>
+      <div class="result-amount"><span id="mainResultDisplay">£3,275.00 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Monthly Equivalent Ownership Cost:</span>
+        <span class="val" id="subResultValue">£272.92 / month</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Campervan Ownership Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Annual Diesel Fuel Cost (28 MPG)</span>
+          <span class="val" id="camperFuelCostDisplay">£1,225.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Insurance, VED Tax & Storage</span>
+          <span class="val" id="camperFixedCostsDisplay">£1,480.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Habitation Check, Servicing & Maintenance</span>
+          <span class="val" id="camperMaintenanceDisplay">£570.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Combined Annual Ownership Outlay</span>
+          <span class="val" id="totalCamperCostDisplay" style="font-weight: 700; font-size: 18px;">£3,275.00 / year (£272.92/mo)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="movilidad" />
+  </div>
+</div>
+
+<script>
+  function calculateCamperCosts() {
+    const milesEl = document.getElementById('camper-annual-mileage') as HTMLInputElement;
+    const mpgEl = document.getElementById('camper-fuel-mpg') as HTMLInputElement;
+    const insEl = document.getElementById('camper-annual-insurance') as HTMLInputElement;
+    const storageEl = document.getElementById('camper-storage-fee') as HTMLInputElement;
+
+    if (!milesEl || !mpgEl || !insEl || !storageEl) return;
+
+    const miles = parseFloat(milesEl.value) || 0;
+    const mpg = parseFloat(mpgEl.value) || 28;
+    const ins = parseFloat(insEl.value) || 0;
+    const storage = parseFloat(storageEl.value) || 0;
+
+    // Diesel ~£1.51/L (£6.86/gal)
+    const pricePerGallon = 1.51 * 4.54609;
+    const fuelCost = (miles / mpg) * pricePerGallon;
+    const vedTax = 330; // Motorhome VED rate
+    const habCheckAndMaint = 570;
+
+    const totalAnnual = fuelCost + ins + storage + vedTax + habCheckAndMaint;
+    const monthly = totalAnnual / 12;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const fuelRes = document.getElementById('camperFuelCostDisplay');
+    const fixedRes = document.getElementById('camperFixedCostsDisplay');
+    const maintRes = document.getElementById('camperMaintenanceDisplay');
+    const totalRes = document.getElementById('totalCamperCostDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + totalAnnual.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (subVal) subVal.textContent = '£' + monthly.toFixed(2) + ' / month';
+    if (fuelRes) fuelRes.textContent = '£' + fuelCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (fixedRes) fixedRes.textContent = '£' + (ins + storage + vedTax).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (maintRes) maintRes.textContent = '£' + habCheckAndMaint.toFixed(2);
+    if (totalRes) totalRes.textContent = '£' + totalAnnual.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` / year (£${monthly.toFixed(2)}/mo)`;
+  }
+
+  ['camper-annual-mileage', 'camper-fuel-mpg', 'camper-annual-insurance', 'camper-storage-fee'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateCamperCosts);
+    document.getElementById(id)?.addEventListener('change', calculateCamperCosts);
+  });
+  calculateCamperCosts();
+</script>

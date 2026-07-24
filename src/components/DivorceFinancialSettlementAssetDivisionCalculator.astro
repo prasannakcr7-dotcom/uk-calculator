@@ -1,0 +1,181 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Matrimonial Assets & Division Details'}</h2>
+
+      <!-- Total Matrimonial Equity & Assets (£) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.totalAssetsLabel || 'Total Matrimonial Assets (Home Equity + Savings + Pensions £)'}</span>
+          <span class="hint" id="totalAssetsVal">£650,000</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="650,000" id="totalAssetsInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="50000" max="3000000" step="25000" value="650000" id="totalAssetsSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£50,000</span><span>£3,000,000</span></div>
+      </div>
+
+      <!-- Asset Division Ratio (%) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.splitRatioLabel || 'Proposed Asset Division Ratio (Spouse A %)'}</span>
+          <span class="hint" id="splitRatioVal">50% / 50% Equal Split Benchmark</span>
+        </div>
+        <input type="range" min="30" max="70" step="5" value="50" id="splitRatioSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>30%</span><span>50% (Equal)</span><span>70%</span></div>
+      </div>
+
+      <!-- Legal & Mediation Expenses (£) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.legalCostsLabel || 'Estimated Combined Legal & Solicitor Fees (£)'}</span>
+          <span class="hint" id="legalCostsVal">£12,000 Combined Fees</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="12,000" id="legalCostsInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="1000" max="80000" step="1000" value="12000" id="legalCostsSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£1,000</span><span>£80,000</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--social-1), var(--social-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Net Asset Share for Spouse A'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£319,000.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.spouseBShareLabel || 'Net Asset Share for Spouse B & Net Asset Pool:'}</span>
+        <span class="val" id="subResultValue">Spouse B Share: £319,000.00 (Net Pool £638,000 After £12k Legal Fees)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Divorce Financial Settlement Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Matrimonial Asset Pool</span>
+          <span class="val" id="grossPoolDisplay">£650,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Combined Legal Fees & Mediation Costs</span>
+          <span class="val" id="legalFeeDeductionDisplay">-£12,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Net Distributable Asset Pool</span>
+          <span class="val" id="netPoolDisplay">£638,000.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Spouse A Net Settlement Share (50%)</span>
+          <span class="val" id="spouseADisplay" style="font-weight: 700; font-size: 18px;">£319,000.00 Net Share</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Section 25 Criteria:</strong> Matrimonial Causes Act 1973 governs financial settlements.<br/>
+        • <strong>Yardstick of Equality:</strong> Starting benchmark is 50/50 division of matrimonial assets.<br/>
+        • <strong>Needs & Children First:</strong> Housing needs of primary carer parent & children take priority.<br/>
+        • <strong>Pension Sharing Order:</strong> Pensions are matrimonial assets subject to Pension Sharing Orders.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const totalAssetsInput = document.getElementById('totalAssetsInput') as HTMLInputElement;
+  const totalAssetsSlider = document.getElementById('totalAssetsSlider') as HTMLInputElement;
+  const totalAssetsVal = document.getElementById('totalAssetsVal') as HTMLElement;
+
+  const splitRatioSlider = document.getElementById('splitRatioSlider') as HTMLInputElement;
+  const splitRatioVal = document.getElementById('splitRatioVal') as HTMLElement;
+
+  const legalCostsInput = document.getElementById('legalCostsInput') as HTMLInputElement;
+  const legalCostsSlider = document.getElementById('legalCostsSlider') as HTMLInputElement;
+  const legalCostsVal = document.getElementById('legalCostsVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const grossPoolDisplay = document.getElementById('grossPoolDisplay') as HTMLElement;
+  const legalFeeDeductionDisplay = document.getElementById('legalFeeDeductionDisplay') as HTMLElement;
+  const netPoolDisplay = document.getElementById('netPoolDisplay') as HTMLElement;
+  const spouseADisplay = document.getElementById('spouseADisplay') as HTMLElement;
+
+  function calculate() {
+    const grossAssets = parseInputVal(totalAssetsInput.value);
+    const spouseAPercent = parseFloat(splitRatioSlider.value);
+    const legalCosts = parseInputVal(legalCostsInput.value);
+
+    const netPool = Math.max(0, grossAssets - legalCosts);
+    const spouseAShare = netPool * (spouseAPercent / 100);
+    const spouseBShare = netPool * ((100 - spouseAPercent) / 100);
+
+    totalAssetsVal.innerText = formatCurrency(grossAssets).slice(0, -3);
+    splitRatioVal.innerText = `${spouseAPercent}% / ${(100 - spouseAPercent)}% Split Ratio`;
+    legalCostsVal.innerText = formatCurrency(legalCosts);
+
+    mainResultDisplay.innerText = formatCurrency(spouseAShare);
+    subResultValue.innerText = `Spouse B Share: ${formatCurrency(spouseBShare)} (Net Pool ${formatCurrency(netPool)} After ${formatCurrency(legalCosts)} Legal Costs)`;
+
+    grossPoolDisplay.innerText = formatCurrency(grossAssets);
+    legalFeeDeductionDisplay.innerText = `-${formatCurrency(legalCosts)}`;
+    netPoolDisplay.innerText = formatCurrency(netPool);
+    spouseADisplay.innerText = `${formatCurrency(spouseAShare)} (${spouseAPercent}% Net Share)`;
+  }
+
+  totalAssetsInput.addEventListener('input', () => {
+    const val = parseInputVal(totalAssetsInput.value);
+    totalAssetsSlider.value = String(val);
+    calculate();
+  });
+
+  totalAssetsSlider.addEventListener('input', () => {
+    totalAssetsInput.value = parseInt(totalAssetsSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  splitRatioSlider.addEventListener('input', calculate);
+
+  legalCostsInput.addEventListener('input', () => {
+    const val = parseInputVal(legalCostsInput.value);
+    legalCostsSlider.value = String(val);
+    calculate();
+  });
+
+  legalCostsSlider.addEventListener('input', () => {
+    legalCostsInput.value = parseInt(legalCostsSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  calculate();
+</script>

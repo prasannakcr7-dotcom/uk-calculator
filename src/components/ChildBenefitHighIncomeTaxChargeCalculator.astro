@@ -1,0 +1,122 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout family-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>High Income Child Benefit Charge (HICBC) Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Highest Earning Partner's Annual Adjusted Net Income (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="hicbc-adjusted-income" value="68000" min="40000" step="1000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Number of Children Claiming Child Benefit</span></div>
+        <div class="amount-field">
+          <input type="number" id="hicbc-children-count" value="2" min="1" max="6" step="1" />
+          <span class="cur">children</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--family-1), var(--family-2) 80%);">
+      <div class="result-label">Net Child Benefit Retained (After HICBC Tax Charge)</div>
+      <div class="result-amount"><span id="mainResultDisplay">£1,107.60 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">HICBC Tax Clawback Charge:</span>
+        <span class="val" id="subResultValue">£1,107.60 (50.0% Taper)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Child Benefit & HICBC Taper Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Child Benefit Awarded</span>
+          <span class="val" id="grossChildBenefitDisplay">£2,215.20 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>HICBC Taper Percentage Charge</span>
+          <span class="val" id="taperPercentageDisplay">50.0% Charge (£68k / £80k threshold)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>HMRC HICBC Tax Charge Amount</span>
+          <span class="val" id="hicbcTaxChargeDisplay">-£1,107.60</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Retained Benefit Value</span>
+          <span class="val" id="netRetainedBenefitDisplay" style="font-weight: 700; font-size: 18px;">£1,107.60 / year</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="familia" />
+  </div>
+</div>
+
+<script>
+  function calculateHicbc() {
+    const incomeEl = document.getElementById('hicbc-adjusted-income') as HTMLInputElement;
+    const kidsEl = document.getElementById('hicbc-children-count') as HTMLInputElement;
+
+    if (!incomeEl || !kidsEl) return;
+
+    const income = parseFloat(incomeEl.value) || 0;
+    const kids = parseInt(kidsEl.value) || 1;
+
+    // 2026/27 Child Benefit Rates: 1st child £25.60/wk, sub kids £16.95/wk
+    const annualChild1 = 25.60 * 52;
+    const annualChildSub = 16.95 * 52;
+    const grossChildBenefit = annualChild1 + (Math.max(0, kids - 1) * annualChildSub);
+
+    // HICBC Taper Rules 2026/27:
+    // Threshold: £60,000 to £80,000 (1% charge for every £200 over £60k)
+    let taperPct = 0;
+    if (income >= 80000) {
+      taperPct = 100;
+    } else if (income > 60000) {
+      taperPct = ((income - 60000) / 200);
+    }
+
+    taperPct = Math.min(100, Math.max(0, taperPct));
+    const taxCharge = grossChildBenefit * (taperPct / 100);
+    const netRetained = Math.max(0, grossChildBenefit - taxCharge);
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const grossRes = document.getElementById('grossChildBenefitDisplay');
+    const taperRes = document.getElementById('taperPercentageDisplay');
+    const taxChargeRes = document.getElementById('hicbcTaxChargeDisplay');
+    const netRes = document.getElementById('netRetainedBenefitDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + netRetained.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (subVal) subVal.textContent = '£' + taxCharge.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` (${taperPct.toFixed(1)}% Taper)`;
+    if (grossRes) grossRes.textContent = '£' + grossChildBenefit.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (taperRes) taperRes.textContent = taperPct.toFixed(1) + '% Charge (£60k - £80k Taper)';
+    if (taxChargeRes) taxChargeRes.textContent = '-£' + taxCharge.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (netRes) netRes.textContent = '£' + netRetained.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+  }
+
+  ['hicbc-adjusted-income', 'hicbc-children-count'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateHicbc);
+    document.getElementById(id)?.addEventListener('change', calculateHicbc);
+  });
+  calculateHicbc();
+</script>

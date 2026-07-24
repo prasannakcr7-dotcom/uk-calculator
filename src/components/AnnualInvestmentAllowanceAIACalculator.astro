@@ -1,0 +1,93 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Total Qualifying Plant & Machinery Expenditure (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="aia-qualifying-spend" value="150000" min="1000" step="5000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Corporation Tax Rate (%)</span></div>
+        <div class="amount-field">
+          <input type="number" id="corp-tax-rate-pct" value="25.0" min="19.0" max="25.0" step="1.0" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>AIA Capital Allowances Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Statutory AIA Limit Cap (£1,000,000 max)</span>
+          <strong id="aia-cap-limit">£1,000,000.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>AIA 100% First-Year Deduction Claimed</span>
+          <strong id="aia-deduction-claimed">£150,000.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Remaining Expenditure to Main Pool (18% WDA)</span>
+          <strong id="remaining-main-pool-expenditure">£0.00</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Total Immediate Corporation Tax Saving</span>
+          <strong id="total-tax-savings-from-aia">£37,500.00</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="impuestos" />
+  </div>
+</div>
+
+<script>
+  function calculateAia() {
+    const spendEl = document.getElementById('aia-qualifying-spend') as HTMLInputElement;
+    const rateEl = document.getElementById('corp-tax-rate-pct') as HTMLInputElement;
+
+    if (!spendEl || !rateEl) return;
+
+    const spend = parseFloat(spendEl.value) || 0;
+    const corpRate = (parseFloat(rateEl.value) || 25) / 100;
+
+    const aiaMaxCap = 1000000;
+    const aiaClaimed = Math.min(spend, aiaMaxCap);
+    const remMainPool = Math.max(0, spend - aiaClaimed);
+
+    const taxSavings = aiaClaimed * corpRate;
+
+    const claimedResEl = document.getElementById('aia-deduction-claimed');
+    const remResEl = document.getElementById('remaining-main-pool-expenditure');
+    const taxSavingsResEl = document.getElementById('total-tax-savings-from-aia');
+
+    if (claimedResEl) claimedResEl.textContent = '£' + aiaClaimed.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (remResEl) remResEl.textContent = '£' + remMainPool.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (taxSavingsResEl) taxSavingsResEl.textContent = '£' + taxSavings.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['aia-qualifying-spend', 'corp-tax-rate-pct'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateAia);
+    document.getElementById(id)?.addEventListener('change', calculateAia);
+  });
+  calculateAia();
+</script>

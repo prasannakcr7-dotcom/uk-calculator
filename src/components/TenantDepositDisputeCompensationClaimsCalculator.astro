@@ -1,0 +1,186 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Tenancy Deposit & Breach Details'}</h2>
+
+      <!-- Monthly Rent Amount (£) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.monthlyRentLabel || 'Monthly Rent Amount (£)'}</span>
+          <span class="hint" id="monthlyRentVal">£1,200 / month</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="1,200" id="monthlyRentInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="400" max="5000" step="50" value="1200" id="monthlyRentSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£400/mo</span><span>£5,000/mo</span></div>
+      </div>
+
+      <!-- Paid Tenancy Deposit Amount (£) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.depositAmountLabel || 'Tenancy Deposit Paid to Landlord (£)'}</span>
+          <span class="hint" id="depositAmountVal">£1,380 (Compliant 5-Week Rent Cap)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="1,380" id="depositAmountInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="400" max="6000" step="50" value="1380" id="depositAmountSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£400</span><span>£6,000</span></div>
+      </div>
+
+      <!-- Landlord Protection Protection Multiplier (1x to 3x Compensation) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.breachTypeLabel || 'Landlord Deposit Protection Breach Category'}</span>
+          <span class="hint" id="breachTypeVal">Unprotected Deposit (2x Statutory Compensation Award)</span>
+        </div>
+        <select id="breachSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="1">1x Deposit Penalty (Minor Administrative Delay / Served Prescribed Info Late)</option>
+          <option value="2" selected>2x Deposit Penalty (Deposit Unprotected for Majority of Tenancy)</option>
+          <option value="3">3x Maximum Statutory Penalty (Deposit Unprotected & Landlord Refused Deposit Scheme)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--social-1), var(--social-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Total Statutory Tenant Compensation Award'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£4,140.00 Total</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.depositReturnSplitLabel || 'Deposit Refund + 2x Statutory Penalty Award:'}</span>
+        <span class="val" id="subResultValue">£1,380 Deposit Refund + £2,760 Penalty (2x Statutory Award)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Tenant Deposit Claim Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Original Deposit Refund Amount</span>
+          <span class="val" id="depositRefundDisplay">£1,380.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Housing Act Statutory Penalty Award (2x Deposit)</span>
+          <span class="val" id="penaltyAwardDisplay">£2,760.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Tenant Fees Act 2019 Cap Status</span>
+          <span class="val" id="capStatusDisplay">COMPLIANT (Under 5 Weeks Rent Cap)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Financial Recovery Award</span>
+          <span class="val" id="totalTenantAwardDisplay" style="font-weight: 700; font-size: 18px;">£4,140.00 Total Award</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>30-Day Protection Rule:</strong> Landlord MUST protect deposit in DPS/TDS/MyDeposits within 30 days.<br/>
+        • <strong>1x to 3x Penalty:</strong> Court MUST award 1x to 3x deposit compensation for protection breaches.<br/>
+        • <strong>Tenant Fees Act 2019:</strong> Tenancy deposits capped at maximum 5 weeks' rent.<br/>
+        • <strong>Section 21 Invalidated:</strong> Landlord cannot serve a valid Section 21 eviction notice if deposit is unprotected.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const monthlyRentInput = document.getElementById('monthlyRentInput') as HTMLInputElement;
+  const monthlyRentSlider = document.getElementById('monthlyRentSlider') as HTMLInputElement;
+  const monthlyRentVal = document.getElementById('monthlyRentVal') as HTMLElement;
+
+  const depositAmountInput = document.getElementById('depositAmountInput') as HTMLInputElement;
+  const depositAmountSlider = document.getElementById('depositAmountSlider') as HTMLInputElement;
+  const depositAmountVal = document.getElementById('depositAmountVal') as HTMLElement;
+
+  const breachSelect = document.getElementById('breachSelect') as HTMLSelectElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const depositRefundDisplay = document.getElementById('depositRefundDisplay') as HTMLElement;
+  const penaltyAwardDisplay = document.getElementById('penaltyAwardDisplay') as HTMLElement;
+  const capStatusDisplay = document.getElementById('capStatusDisplay') as HTMLElement;
+  const totalTenantAwardDisplay = document.getElementById('totalTenantAwardDisplay') as HTMLElement;
+
+  function calculate() {
+    const rent = parseInputVal(monthlyRentInput.value);
+    const deposit = parseInputVal(depositAmountInput.value);
+    const penaltyMultiplier = parseFloat(breachSelect.value);
+
+    // Tenant Fees Act 5-Week Rent Cap
+    const weeklyRent = (rent * 12) / 52;
+    const maxPermittedDeposit = weeklyRent * 5;
+    const isOverCap = deposit > maxPermittedDeposit;
+
+    const penaltyAward = deposit * penaltyMultiplier;
+    const totalAward = deposit + penaltyAward;
+
+    monthlyRentVal.innerText = `${formatCurrency(rent)} / month`;
+    depositAmountVal.innerText = formatCurrency(deposit).slice(0, -3);
+
+    mainResultDisplay.innerText = formatCurrency(totalAward);
+    subResultValue.innerText = `${formatCurrency(deposit)} Deposit Refund + ${formatCurrency(penaltyAward)} (${penaltyMultiplier}x Statutory Penalty Award)`;
+
+    depositRefundDisplay.innerText = formatCurrency(deposit);
+    penaltyAwardDisplay.innerText = `${formatCurrency(penaltyAward)} (${penaltyMultiplier}x Penalty)`;
+    capStatusDisplay.innerText = isOverCap ? `ILLEGAL OVERCHARGE (${formatCurrency(deposit - maxPermittedDeposit)} over 5-wk cap)` : `COMPLIANT (Under ${formatCurrency(maxPermittedDeposit)} 5-wk cap)`;
+    totalTenantAwardDisplay.innerText = formatCurrency(totalAward);
+  }
+
+  monthlyRentInput.addEventListener('input', () => {
+    const val = parseInputVal(monthlyRentInput.value);
+    monthlyRentSlider.value = String(val);
+    calculate();
+  });
+
+  monthlyRentSlider.addEventListener('input', () => {
+    monthlyRentInput.value = parseInt(monthlyRentSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  depositAmountInput.addEventListener('input', () => {
+    const val = parseInputVal(depositAmountInput.value);
+    depositAmountSlider.value = String(val);
+    calculate();
+  });
+
+  depositAmountSlider.addEventListener('input', () => {
+    depositAmountInput.value = parseInt(depositAmountSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  breachSelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

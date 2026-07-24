@@ -1,0 +1,113 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Base Universal Credit Maximum Award (Elements Subtotal) (£)</span></div>
+      <div class="amount-field"><input type="number" id="uc-max-standard-element" value="950" min="300" step="50" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Monthly Net Take-Home Earned Income (£)</span></div>
+      <div class="amount-field"><input type="number" id="monthly-net-takehome-pay" value="1200" min="0" step="100" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Work Allowance Qualification Status</span></div>
+      <select id="uc-work-allowance-tier">
+        <option value="higher" selected>Higher Work Allowance (£673/mo - Responsible for child/LCW, NO housing element)</option>
+        <option value="lower">Lower Work Allowance (£404/mo - Responsible for child/LCW, WITH housing element)</option>
+        <option value="none">No Work Allowance (£0/mo - No children & no LCW status)</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Scottish Choices Payment Preference</span></div>
+      <select id="scottish-choices-option">
+        <option value="twice_monthly" selected>Twice Monthly Payments (Paid every 2 weeks in Scotland)</option>
+        <option value="monthly_standard">Monthly Single Payment (Standard UK rule)</option>
+      </select>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <h3>Universal Credit Calculation Breakdown</h3>
+      <div class="breakdown-row net">
+        <span>Final Net Monthly Universal Credit Award:</span>
+        <strong id="final-uc-monthly-award-val">£0.00 / month</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Scottish Choices Payment Schedule:</span>
+        <strong id="scottish-payment-schedule-str">2 Payments of £0.00 / month</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Work Allowance Disregarded Income:</span>
+        <strong id="work-allowance-disregard-val">£673.00 / month</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Earned Income Taper Reduction (55% Rate):</span>
+        <strong id="earned-income-taper-reduction">£0.00 / month</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculateUcScot() {
+    const maxAward = parseFloat((document.getElementById('uc-max-standard-element') as HTMLInputElement).value) || 0;
+    const netEarnings = parseFloat((document.getElementById('monthly-net-takehome-pay') as HTMLInputElement).value) || 0;
+    const waStatus = (document.getElementById('uc-work-allowance-tier') as HTMLSelectElement).value;
+    const choices = (document.getElementById('scottish-choices-option') as HTMLSelectElement).value;
+
+    // 2026/27 Work Allowances:
+    // Higher Work Allowance (no housing element): £673/month
+    // Lower Work Allowance (with housing element): £404/month
+    // Taper Rate: 55% (0.55) of net earnings above Work Allowance
+
+    let workAllowance = 0;
+    if (waStatus === 'higher') workAllowance = 673.0;
+    else if (waStatus === 'lower') workAllowance = 404.0;
+
+    const netEarningsSubjectToTaper = Math.max(0, netEarnings - workAllowance);
+    const taperReduction = netEarningsSubjectToTaper * 0.55;
+
+    const finalMonthlyAward = Math.max(0, maxAward - taperReduction);
+
+    let scheduleStr = '';
+    if (choices === 'twice_monthly') {
+      const halfAward = finalMonthlyAward / 2;
+      scheduleStr = 'Paid in 2 fortnightly instalments of £' + halfAward.toFixed(2) + ' (Social Security Scotland Choice)';
+    } else {
+      scheduleStr = 'Paid in 1 single monthly payment of £' + finalMonthlyAward.toFixed(2);
+    }
+
+    (document.getElementById('final-uc-monthly-award-val') as HTMLElement).textContent = '£' + finalMonthlyAward.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    (document.getElementById('scottish-payment-schedule-str') as HTMLElement).textContent = scheduleStr;
+    (document.getElementById('work-allowance-disregard-val') as HTMLElement).textContent = '£' + workAllowance.toFixed(2) + ' / month (0% taper below this amount)';
+    (document.getElementById('earned-income-taper-reduction') as HTMLElement).textContent = '-£' + taperReduction.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month (55% taper rate)';
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateUcScot);
+  calculateUcScot();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

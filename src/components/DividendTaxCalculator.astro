@@ -1,0 +1,130 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Total Gross Annual Dividend Income (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="gross-dividend-income" value="12000" min="0" step="500" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Other Annual Non-Dividend Taxable Income (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="other-taxable-income" value="45000" min="0" step="1000" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>HMRC Dividend Tax Breakdown (2026/27)</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Tax-Free Dividend Allowance (£500) Used</span>
+          <strong id="dividend-allowance-used">£500.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Taxable Dividend Income (After Allowance)</span>
+          <strong id="taxable-dividend-amount">£11,500.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Basic Rate Dividend Tax (8.75%)</span>
+          <strong id="basic-rate-div-tax">£461.13</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Higher Rate Dividend Tax (33.75%)</span>
+          <strong id="higher-rate-div-tax">£2,102.63</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Total HMRC Dividend Tax Payable</span>
+          <strong id="total-dividend-tax-payable">£2,563.76</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="impuestos" />
+  </div>
+</div>
+
+<script>
+  function calculateDividendTax() {
+    const divIncomeEl = document.getElementById('gross-dividend-income') as HTMLInputElement;
+    const otherIncomeEl = document.getElementById('other-taxable-income') as HTMLInputElement;
+
+    if (!divIncomeEl || !otherIncomeEl) return;
+
+    const divIncome = parseFloat(divIncomeEl.value) || 0;
+    const otherIncome = parseFloat(otherIncomeEl.value) || 0;
+
+    const divAllowance = 500; // 2026/27 Dividend Allowance: £500
+    const personalAllowance = 12570;
+    const basicRateThreshold = 50270;
+
+    // Remaining PA applied to non-dividend income first
+    const unusedPA = Math.max(0, personalAllowance - otherIncome);
+    const divCoveredByPA = Math.min(divIncome, unusedPA);
+    const divRemainingAfterPA = Math.max(0, divIncome - divCoveredByPA);
+
+    const allowanceUsed = Math.min(divAllowance, divRemainingAfterPA);
+    const taxableDiv = Math.max(0, divRemainingAfterPA - allowanceUsed);
+
+    // Position of dividend income in tax bands
+    const taxableOtherIncome = Math.max(0, otherIncome - personalAllowance);
+    const basicRateSpaceLeft = Math.max(0, basicRateThreshold - (personalAllowance + taxableOtherIncome));
+
+    let basicTax = 0;
+    let higherTax = 0;
+    let additionalTax = 0;
+
+    if (taxableDiv > 0) {
+      const inBasic = Math.min(taxableDiv, basicRateSpaceLeft);
+      const remAfterBasic = Math.max(0, taxableDiv - inBasic);
+
+      const higherRateSpaceLeft = Math.max(0, 125140 - Math.max(basicRateThreshold, personalAllowance + taxableOtherIncome + inBasic));
+      const inHigher = Math.min(remAfterBasic, higherRateSpaceLeft);
+      const inAdditional = Math.max(0, remAfterBasic - inHigher);
+
+      basicTax = inBasic * 0.0875;
+      higherTax = inHigher * 0.3375;
+      additionalTax = inAdditional * 0.3935;
+    }
+
+    const totalDivTax = basicTax + higherTax + additionalTax;
+
+    const allowEl = document.getElementById('dividend-allowance-used');
+    const taxDivEl = document.getElementById('taxable-dividend-amount');
+    const basicTaxEl = document.getElementById('basic-rate-div-tax');
+    const higherTaxEl = document.getElementById('higher-rate-div-tax');
+    const totalTaxEl = document.getElementById('total-dividend-tax-payable');
+
+    if (allowEl) allowEl.textContent = '£' + allowanceUsed.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (taxDivEl) taxDivEl.textContent = '£' + taxableDiv.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (basicTaxEl) basicTaxEl.textContent = '£' + basicTax.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (higherTaxEl) higherTaxEl.textContent = '£' + (higherTax + additionalTax).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (totalTaxEl) totalTaxEl.textContent = '£' + totalDivTax.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['gross-dividend-income', 'other-taxable-income'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateDividendTax);
+    document.getElementById(id)?.addEventListener('change', calculateDividendTax);
+  });
+  calculateDividendTax();
+</script>

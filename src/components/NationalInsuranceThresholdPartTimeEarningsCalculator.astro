@@ -1,0 +1,119 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Part-Time Earnings & NI Threshold Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Weekly Gross Earnings (£/week)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="parttime-weekly-gross" value="180" min="50" step="10" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Pay Frequency</span></div>
+        <select id="parttime-pay-frequency" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="weekly" selected>Weekly Pay (£123 LEL / £242 Primary Threshold)</option>
+          <option value="monthly">Monthly Pay (£533 LEL / £1,048 Primary Threshold)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">Class 1 Primary National Insurance Deducted</div>
+      <div class="result-amount"><span id="mainResultDisplay">£0.00 / week</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">State Pension Credit Status:</span>
+        <span class="val" id="subResultValue">NI Credit Awarded (Above LEL £123/wk)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Part-Time NI Threshold Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Lower Earnings Limit (LEL £123/wk) Status</span>
+          <span class="val" id="lelStatusDisplay">ABOVE LEL (£180 >= £123)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Primary Threshold (PT £242/wk) Status</span>
+          <span class="val" id="ptStatusDisplay">BELOW PT (£180 < £242 - Zero NI Payable)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>State Pension NI Credit Accrual</span>
+          <span class="val" id="pensionCreditDisplay">Yes - Free Credit Accrued</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Primary Employee NI Deducted</span>
+          <span class="val" id="netEmployeeNiDisplay" style="font-weight: 700; font-size: 18px;">£0.00 / week (£0.00/yr)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="impuestos" />
+  </div>
+</div>
+
+<script>
+  function calculatePartTimeNi() {
+    const grossEl = document.getElementById('parttime-weekly-gross') as HTMLInputElement;
+    const freqEl = document.getElementById('parttime-pay-frequency') as HTMLSelectElement;
+
+    if (!grossEl || !freqEl) return;
+
+    const gross = parseFloat(grossEl.value) || 0;
+    const isWeekly = freqEl.value === 'weekly';
+
+    // 2026/27 NI Thresholds:
+    // LEL: £123/wk (£533/mo)
+    // PT: £242/wk (£1,048/mo)
+    const lel = isWeekly ? 123 : 533;
+    const pt = isWeekly ? 242 : 1048;
+
+    const isAboveLel = gross >= lel;
+    const isAbovePt = gross > pt;
+
+    const niRate = 0.08; // 8% primary rate
+    const niPayable = isAbovePt ? (gross - pt) * niRate : 0;
+    const annualNi = isWeekly ? niPayable * 52 : niPayable * 12;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const lelRes = document.getElementById('lelStatusDisplay');
+    const ptRes = document.getElementById('ptStatusDisplay');
+    const creditRes = document.getElementById('pensionCreditDisplay');
+    const netRes = document.getElementById('netEmployeeNiDisplay');
+
+    const unitStr = isWeekly ? ' / week' : ' / month';
+
+    if (mainRes) mainRes.textContent = '£' + niPayable.toFixed(2) + unitStr;
+    if (subVal) subVal.textContent = isAboveLel ? `NI Credit Awarded (Above LEL £${lel}${unitStr})` : `Below LEL (£${lel}${unitStr} - No Credit)`;
+    if (lelRes) lelRes.textContent = isAboveLel ? `ABOVE LEL (£${gross} >= £${lel})` : `BELOW LEL (£${gross} < £${lel})`;
+    if (ptRes) ptRes.textContent = isAbovePt ? `ABOVE PT (£${gross} > £${pt})` : `BELOW PT (£${gross} <= £${pt} - Zero NI)`;
+    if (creditRes) creditRes.textContent = isAboveLel ? 'Yes - Free Pension Credit Accrued' : 'No Credit Accrued';
+    if (netRes) netRes.textContent = '£' + niPayable.toFixed(2) + unitStr + ` (£${annualNi.toFixed(2)}/yr)`;
+  }
+
+  ['parttime-weekly-gross', 'parttime-pay-frequency'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculatePartTimeNi);
+    document.getElementById(id)?.addEventListener('change', calculatePartTimeNi);
+  });
+  calculatePartTimeNi();
+</script>

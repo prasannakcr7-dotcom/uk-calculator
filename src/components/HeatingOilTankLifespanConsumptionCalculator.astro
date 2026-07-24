@@ -1,0 +1,193 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Heating Oil Tank & Property Details'}</h2>
+
+      <!-- Annual Heating Oil Consumption (Litres) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.annualOilLabel || 'Annual Heating Oil Consumption (Litres)'}</span>
+          <span class="hint" id="annualOilVal">1,800 Litres / year</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="1,800" id="annualOilInput" inputmode="decimal" />
+          <span class="cur">L</span>
+        </div>
+        <input type="range" min="500" max="5000" step="100" value="1800" id="annualOilSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>500L</span><span>5,000L</span></div>
+      </div>
+
+      <!-- Kerosene Price (p / Litre) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.oilPriceLabel || 'Kerosene Heating Oil Price (p / Litre)'}</span>
+          <span class="hint" id="oilPriceVal">68.0 p / Litre</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="68.0" id="oilPriceInput" inputmode="decimal" />
+          <span class="cur">p</span>
+        </div>
+        <input type="range" min="40" max="150" step="1" value="68" id="oilPriceSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>40p</span><span>150p</span></div>
+      </div>
+
+      <!-- Tank Age (Years) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.tankAgeLabel || 'Current Heating Oil Tank Age (Years)'}</span>
+          <span class="hint" id="tankAgeVal">12 Years Old</span>
+        </div>
+        <input type="range" min="1" max="30" step="1" value="12" id="tankAgeSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1 Year</span><span>30 Years</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Annual Heating Oil Bill'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£1,224.00 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.tankLifespanLabel || 'Oil Tank Replacement Lifespan Status:'}</span>
+        <span class="val" id="subResultValue">3 Years Remaining (Plastic Tank Standard 15-Year Life)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Heating Oil & Tank Replacement Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Annual Kerosene Consumption</span>
+          <span class="val" id="litresDisplay">1,800 Litres</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Average Monthly Oil Cost</span>
+          <span class="val" id="monthlyDisplay">£102.00 / month</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Current Tank Age</span>
+          <span class="val" id="ageDisplay">12 Years</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Tank Condition & Replacement Assessment</span>
+          <span class="val" id="replacementStatusDisplay" style="font-weight: 700; font-size: 18px;">Approaching Replacement Window (15-Year Plastic Tank Life)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>OFTEC Tank Lifespan:</strong> Plastic bunded oil tanks have a recommended 15-20 year service life.<br/>
+        • <strong>Bunded Tank Rule:</strong> Bunded (double-skinned) oil tanks mandatory near watercourses.<br/>
+        • <strong>Minimum Distance Rules:</strong> Must sit 1.8m from non-fire rated building walls & 760mm from fences.<br/>
+        • <strong>Kerosene Energy:</strong> 28-second Kerosene yields ~10.35 kWh heat energy per Litre.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const annualOilInput = document.getElementById('annualOilInput') as HTMLInputElement;
+  const annualOilSlider = document.getElementById('annualOilSlider') as HTMLInputElement;
+  const annualOilVal = document.getElementById('annualOilVal') as HTMLElement;
+
+  const oilPriceInput = document.getElementById('oilPriceInput') as HTMLInputElement;
+  const oilPriceSlider = document.getElementById('oilPriceSlider') as HTMLInputElement;
+  const oilPriceVal = document.getElementById('oilPriceVal') as HTMLElement;
+
+  const tankAgeSlider = document.getElementById('tankAgeSlider') as HTMLInputElement;
+  const tankAgeVal = document.getElementById('tankAgeVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const litresDisplay = document.getElementById('litresDisplay') as HTMLElement;
+  const monthlyDisplay = document.getElementById('monthlyDisplay') as HTMLElement;
+  const ageDisplay = document.getElementById('ageDisplay') as HTMLElement;
+  const replacementStatusDisplay = document.getElementById('replacementStatusDisplay') as HTMLElement;
+
+  function calculate() {
+    const litres = parseInputVal(annualOilInput.value);
+    const pricePence = parseInputVal(oilPriceInput.value);
+    const tankAge = parseInt(tankAgeSlider.value, 10);
+
+    const annualBill = (litres * pricePence) / 100;
+    const monthlyBill = annualBill / 12;
+
+    const remainingYears = Math.max(0, 15 - tankAge);
+
+    annualOilVal.innerText = `${litres.toLocaleString('en-GB')} Litres / year`;
+    oilPriceVal.innerText = `${pricePence.toFixed(1)} p / Litre`;
+    tankAgeVal.innerText = `${tankAge} Year${tankAge === 1 ? '' : 's'} Old`;
+
+    mainResultDisplay.innerText = `${formatCurrency(annualBill)} / year`;
+
+    let statusText = `${remainingYears} Years Remaining (Plastic Tank Standard 15-Year Life)`;
+    let detailText = `Approaching Replacement Window (15-Year Plastic Tank Life)`;
+
+    if (tankAge >= 20) {
+      statusText = `CRITICAL: Tank Exceeds 20 Years (Immediate Replacement Required)`;
+      detailText = `Urgent Replacement Required (High Risk of Tank Failure / Environmental Oil Spill)`;
+    } else if (tankAge >= 15) {
+      statusText = `WARNING: Tank Reached 15-Year Expiry Limit`;
+      detailText = `OFTEC Recommended Replacement Due (Inspect for Sun Bleaching / Cracking)`;
+    }
+
+    subResultValue.innerText = statusText;
+    litresDisplay.innerText = `${litres.toLocaleString('en-GB')} Litres`;
+    monthlyDisplay.innerText = `${formatCurrency(monthlyBill)} / month`;
+    ageDisplay.innerText = `${tankAge} Years`;
+    replacementStatusDisplay.innerText = detailText;
+  }
+
+  annualOilInput.addEventListener('input', () => {
+    const val = parseInputVal(annualOilInput.value);
+    annualOilSlider.value = String(val);
+    calculate();
+  });
+
+  annualOilSlider.addEventListener('input', () => {
+    annualOilInput.value = parseInt(annualOilSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  oilPriceInput.addEventListener('input', () => {
+    const val = parseInputVal(oilPriceInput.value);
+    oilPriceSlider.value = String(val);
+    calculate();
+  });
+
+  oilPriceSlider.addEventListener('input', () => {
+    oilPriceInput.value = parseFloat(oilPriceSlider.value).toFixed(1);
+    calculate();
+  });
+
+  tankAgeSlider.addEventListener('input', calculate);
+
+  calculate();
+</script>

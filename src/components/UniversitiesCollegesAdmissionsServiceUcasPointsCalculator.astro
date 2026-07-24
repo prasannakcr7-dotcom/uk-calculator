@@ -1,0 +1,135 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>A-Level Subject 1 Grade</span></div>
+      <select id="alevel-1-grade">
+        <option value="56">A* (56 Points)</option>
+        <option value="48" selected>A (48 Points)</option>
+        <option value="40">B (40 Points)</option>
+        <option value="32">C (32 Points)</option>
+        <option value="24">D (24 Points)</option>
+        <option value="16">E (16 Points)</option>
+        <option value="0">None / Unclassified (0 Points)</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>A-Level Subject 2 Grade</span></div>
+      <select id="alevel-2-grade">
+        <option value="56">A* (56 Points)</option>
+        <option value="48">A (48 Points)</option>
+        <option value="40" selected>B (40 Points)</option>
+        <option value="32">C (32 Points)</option>
+        <option value="24">D (24 Points)</option>
+        <option value="16">E (16 Points)</option>
+        <option value="0">None / Unclassified (0 Points)</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>A-Level Subject 3 Grade</span></div>
+      <select id="alevel-3-grade">
+        <option value="56">A* (56 Points)</option>
+        <option value="48">A (48 Points)</option>
+        <option value="40">B (40 Points)</option>
+        <option value="32" selected>C (32 Points)</option>
+        <option value="24">D (24 Points)</option>
+        <option value="16">E (16 Points)</option>
+        <option value="0">None / Unclassified (0 Points)</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Extended Project Qualification (EPQ) Grade</span></div>
+      <select id="epq-grade">
+        <option value="28">A* (28 Points)</option>
+        <option value="24">A (24 Points)</option>
+        <option value="20">B (20 Points)</option>
+        <option value="16">C (16 Points)</option>
+        <option value="12">D (12 Points)</option>
+        <option value="8">E (8 Points)</option>
+        <option value="0" selected>None / Not Taken (0 Points)</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>BTEC National Extended Diploma (3 Units)</span></div>
+      <select id="btec-national-grade">
+        <option value="0" selected>None / Not Taken (0 Points)</option>
+        <option value="168">D*D*D* (168 Points)</option>
+        <option value="160">D*D*D (160 Points)</option>
+        <option value="144">DDD (144 Points)</option>
+        <option value="128">DDM (128 Points)</option>
+        <option value="112">DMM (112 Points)</option>
+        <option value="96">MMM (96 Points)</option>
+        <option value="80">MMP (80 Points)</option>
+        <option value="64">MPP (64 Points)</option>
+      </select>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <h3>UCAS Tariff Score Results</h3>
+      <div class="breakdown-row net">
+        <span>Total UCAS Tariff Points Score:</span>
+        <strong id="total-ucas-points-val">0 Points</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>A-Level Combination Equivalent:</span>
+        <strong id="alevel-combo-str">A, B, C</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>A-Levels Contribution:</span>
+        <strong id="alevels-points-contrib">0 Points</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Additional Qualifications Contribution:</span>
+        <strong id="other-quals-contrib">0 Points</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculateUcasPoints() {
+    const a1 = parseInt((document.getElementById('alevel-1-grade') as HTMLSelectElement).value) || 0;
+    const a2 = parseInt((document.getElementById('alevel-2-grade') as HTMLSelectElement).value) || 0;
+    const a3 = parseInt((document.getElementById('alevel-3-grade') as HTMLSelectElement).value) || 0;
+    const epq = parseInt((document.getElementById('epq-grade') as HTMLSelectElement).value) || 0;
+    const btec = parseInt((document.getElementById('btec-national-grade') as HTMLSelectElement).value) || 0;
+
+    const alevelsPoints = a1 + a2 + a3;
+    const otherPoints = epq + btec;
+    const totalPoints = alevelsPoints + otherPoints;
+
+    (document.getElementById('total-ucas-points-val') as HTMLElement).textContent = totalPoints + ' Points';
+    (document.getElementById('alevels-points-contrib') as HTMLElement).textContent = alevelsPoints + ' Points';
+    (document.getElementById('other-quals-contrib') as HTMLElement).textContent = otherPoints + ' Points';
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateUcasPoints);
+  calculateUcasPoints();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

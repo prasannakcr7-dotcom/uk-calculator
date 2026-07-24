@@ -1,0 +1,128 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Estimated Monthly Gross Client Revenue (£)</span></div>
+      <div class="amount-field"><input type="number" id="monthly-gross-invoiced" value="4500" min="500" step="250" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Estimated Monthly Allowable Business Expenses (£)</span></div>
+      <div class="amount-field"><input type="number" id="monthly-allowable-expenses" value="600" min="0" step="50" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Student Loan Plan Deductions</span></div>
+      <select id="student-loan-plan-reserve">
+        <option value="none" selected>No Student Loan</option>
+        <option value="plan1">Plan 1 (£26,065 Threshold)</option>
+        <option value="plan2">Plan 2 (£27,295 Threshold)</option>
+        <option value="plan5">Plan 5 (£25,000 Threshold)</option>
+      </select>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <div class="breakdown-row net">
+        <span>Recommended Tax Reserve Set-Aside:</span>
+        <strong id="recommended-tax-setaside-pct">25% of Gross Invoices</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Monthly Amount to Transfer to Tax Savings Account:</span>
+        <strong id="monthly-tax-reserve-cash">£0.00 / month</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Monthly Taxable Profit Subtotal:</span>
+        <strong id="monthly-net-profit-subtotal">£0.00 / month</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Safe Monthly Take-Home Pay (After Tax Reserve):</span>
+        <strong id="safe-monthly-takehome-pay">£0.00 / month</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculateSoleTraderReserve() {
+    const grossInvoiced = parseFloat((document.getElementById('monthly-gross-invoiced') as HTMLInputElement).value) || 0;
+    const expenses = parseFloat((document.getElementById('monthly-allowable-expenses') as HTMLInputElement).value) || 0;
+    const studentPlan = (document.getElementById('student-loan-plan-reserve') as HTMLSelectElement).value;
+
+    const monthlyProfit = Math.max(0, grossInvoiced - expenses);
+    const annualProfit = monthlyProfit * 12;
+
+    // Income Tax 2026/27:
+    // PA: £12,570
+    // Basic Rate 20%: £12,571 - £50,270
+    // Higher Rate 40%: £50,271 - £125,140
+    let incomeTax = 0;
+    if (annualProfit > 125140) {
+      incomeTax += (125140 - 50270) * 0.40;
+      incomeTax += (50270 - 12570) * 0.20;
+      incomeTax += (annualProfit - 125140) * 0.45;
+    } else if (annualProfit > 50270) {
+      incomeTax += (50270 - 12570) * 0.20;
+      incomeTax += (annualProfit - 50270) * 0.40;
+    } else if (annualProfit > 12570) {
+      incomeTax += (annualProfit - 12570) * 0.20;
+    }
+
+    // Class 4 NI: 6% between £12,570 and £50,270, 2% above £50,270
+    let class4 = 0;
+    if (annualProfit > 50270) {
+      class4 += (50270 - 12570) * 0.06;
+      class4 += (annualProfit - 50270) * 0.02;
+    } else if (annualProfit > 12570) {
+      class4 += (annualProfit - 12570) * 0.06;
+    }
+
+    // Student Loan
+    let sl = 0;
+    if (studentPlan !== 'none') {
+      let thresh = 27295;
+      if (studentPlan === 'plan1') thresh = 26065;
+      if (studentPlan === 'plan5') thresh = 25000;
+
+      if (annualProfit > thresh) {
+        sl = (annualProfit - thresh) * 0.09;
+      }
+    }
+
+    const totalAnnualTax = incomeTax + class4 + sl;
+    const monthlyTaxNeeded = totalAnnualTax / 12;
+
+    const reservePct = grossInvoiced > 0 ? (monthlyTaxNeeded / grossInvoiced) * 100 : 0;
+    const safeTakehome = grossInvoiced - expenses - monthlyTaxNeeded;
+
+    (document.getElementById('recommended-tax-setaside-pct') as HTMLElement).textContent = Math.ceil(reservePct) + '% of gross invoice revenue';
+    (document.getElementById('monthly-tax-reserve-cash') as HTMLElement).textContent = '£' + monthlyTaxNeeded.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    (document.getElementById('monthly-net-profit-subtotal') as HTMLElement).textContent = '£' + monthlyProfit.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    (document.getElementById('safe-monthly-takehome-pay') as HTMLElement).textContent = '£' + safeTakehome.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateSoleTraderReserve);
+  calculateSoleTraderReserve();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

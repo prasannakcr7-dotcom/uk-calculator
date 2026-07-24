@@ -1,0 +1,109 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Working from Home Details'}</h2>
+
+      <!-- Weeks WFH -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.weeksLabel || 'Weeks Worked From Home / Year'}</span>
+          <span class="hint" id="weeksVal">48 Weeks</span>
+        </div>
+        <input type="range" min="1" max="52" step="1" value="48" id="weeksSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1 Week</span><span>52 Weeks</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--work-1), var(--work-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Annual WFH Tax Relief (Basic Rate 20%)'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£57.60/yr</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.rateLabel || 'HMRC Flat Rate Allowance:'}</span>
+        <span class="val" id="subResultValue">£6.00 / week</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Tax Relief Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>HMRC Flat Rate Expense Allowance</span>
+          <span class="val" id="allowanceDisplay">£6.00 / week</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Total Expense Claim Amount</span>
+          <span class="val" id="totalClaimDisplay">£288.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Annual Tax Refund (20% Basic Rate)</span>
+          <span class="val" id="taxReliefDisplay" style="font-weight: 700; font-size: 18px;">£57.60</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • Flat Rate: <strong>£6.00 / week</strong> (£312/yr max)<br/>
+        • Tax Relief Value: <strong>20% basic rate</strong> (£62.40/yr) or <strong>40% higher rate</strong> (£124.80/yr).<br/>
+        • Must be required to work from home by employer.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const weeksSlider = document.getElementById('weeksSlider') as HTMLInputElement;
+  const weeksVal = document.getElementById('weeksVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const allowanceDisplay = document.getElementById('allowanceDisplay') as HTMLElement;
+  const totalClaimDisplay = document.getElementById('totalClaimDisplay') as HTMLElement;
+  const taxReliefDisplay = document.getElementById('taxReliefDisplay') as HTMLElement;
+
+  weeksSlider.addEventListener('input', calculate);
+
+  function calculate() {
+    const wks = parseInt(weeksSlider.value, 10);
+    weeksVal.textContent = `${wks} Weeks`;
+
+    const claim = wks * 6;
+    const relief = claim * 0.20;
+
+    mainResultDisplay.textContent = `${formatCurrency(relief)}/yr`;
+    subResultValue.textContent = '£6.00 / week';
+    allowanceDisplay.textContent = '£6.00 / week';
+    totalClaimDisplay.textContent = formatCurrency(claim);
+    taxReliefDisplay.textContent = formatCurrency(relief);
+  }
+
+  calculate();
+</script>

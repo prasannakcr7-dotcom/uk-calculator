@@ -1,0 +1,129 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout mobility-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Car P11D List Price (£)</span></div>
+        <div class="amount-field"><input type="number" id="car-p11d-list-price" value="35000" min="5000" step="1000" /></div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>CO2 Emissions (g/km)</span></div>
+        <div class="amount-field"><input type="number" id="co2-emissions-g-km" value="0" min="0" max="300" step="1" /></div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Fuel & Engine Type</span></div>
+        <select id="fuel-type-bik" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="electric" selected>Pure Electric EV (0g/km CO2 - 3% BiK in 2026/27)</option>
+          <option value="plug_in_hybrid">Plug-in Hybrid PHEV (1-50g/km CO2)</option>
+          <option value="petrol">Petrol / RDE2 Compliant Diesel</option>
+          <option value="non_rde2_diesel">Non-RDE2 Diesel (+4% Surcharge)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Your Marginal Income Tax Band</span></div>
+        <select id="personal-tax-rate-bik" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="0.20" selected>Basic Rate (20%)</option>
+          <option value="0.40">Higher Rate (40%)</option>
+          <option value="0.45">Additional Rate (45%)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Company Car Tax Breakdown</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Applicable BiK Tax Percentage Band</span>
+          <strong id="bik-percentage-band">3%</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Total Taxable Benefit-in-Kind Value</span>
+          <strong id="total-bik-benefit-value">£1,050.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Monthly Net Tax Liability</span>
+          <strong id="monthly-bik-tax-payable">£17.50 / month</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Annual Company Car Tax Payable</span>
+          <strong id="annual-bik-tax-payable">£210.00 / year</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar />
+  </div>
+</div>
+
+<script>
+  function calculateBikTax() {
+    const p11dEl = document.getElementById('car-p11d-list-price') as HTMLInputElement;
+    const co2El = document.getElementById('co2-emissions-g-km') as HTMLInputElement;
+    const fuelEl = document.getElementById('fuel-type-bik') as HTMLSelectElement;
+    const taxRateEl = document.getElementById('personal-tax-rate-bik') as HTMLSelectElement;
+
+    if (!p11dEl || !co2El || !fuelEl || !taxRateEl) return;
+
+    const p11d = parseFloat(p11dEl.value) || 0;
+    const co2 = parseInt(co2El.value) || 0;
+    const fuel = fuelEl.value;
+    const taxRate = parseFloat(taxRateEl.value) || 0.20;
+
+    let bikPct = 0;
+
+    if (fuel === 'electric' || co2 === 0) {
+      bikPct = 3;
+    } else if (co2 >= 1 && co2 <= 50) {
+      bikPct = 12;
+    } else {
+      if (co2 < 55) bikPct = 15;
+      else {
+        const excessGrams = co2 - 55;
+        const steps = Math.floor(excessGrams / 5) + 1;
+        bikPct = Math.min(37, 15 + steps);
+      }
+
+      if (fuel === 'non_rde2_diesel') {
+        bikPct = Math.min(37, bikPct + 4);
+      }
+    }
+
+    const bikValue = p11d * (bikPct / 100);
+    const annualTax = bikValue * taxRate;
+    const monthlyTax = annualTax / 12;
+
+    const bikPctEl = document.getElementById('bik-percentage-band');
+    const bikValEl = document.getElementById('total-bik-benefit-value');
+    const monthlyTaxEl = document.getElementById('monthly-bik-tax-payable');
+    const annualTaxEl = document.getElementById('annual-bik-tax-payable');
+
+    if (bikPctEl) bikPctEl.textContent = bikPct + '%';
+    if (bikValEl) bikValEl.textContent = '£' + bikValue.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (monthlyTaxEl) monthlyTaxEl.textContent = '£' + monthlyTax.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (annualTaxEl) annualTaxEl.textContent = '£' + annualTax.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+  }
+
+  ['car-p11d-list-price', 'co2-emissions-g-km', 'fuel-type-bik', 'personal-tax-rate-bik'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateBikTax);
+    document.getElementById(id)?.addEventListener('change', calculateBikTax);
+  });
+  calculateBikTax();
+</script>

@@ -1,0 +1,122 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>House Extension Project Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Extension Floor Area (Square Metres - sq m)</span></div>
+        <div class="amount-field">
+          <input type="number" id="ext-floor-area-sqm" value="25" min="5" max="150" step="1" />
+          <span class="cur">sq m</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Build Quality / Specification Level</span></div>
+        <select id="ext-build-quality" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="1800" selected>Standard Build Quality (£1,800 / sq m)</option>
+          <option value="2400">Premium / High Finish (£2,400 / sq m)</option>
+          <option value="3200">Luxury Architect Design (£3,200 / sq m)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Location Cost Adjustment Factor</span></div>
+        <select id="ext-location-factor" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="1.0" selected>UK Regional Average (1.0x)</option>
+          <option value="1.3">London & South East (+30% Premium - 1.3x)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Estimated Total House Extension Cost</div>
+      <div class="result-amount"><span id="mainResultDisplay">£45,000.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Effective Cost Per Sq Metre:</span>
+        <span class="val" id="subResultValue">£1,800.00 / sq m</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Extension Construction Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Main Building Structure & Shell</span>
+          <span class="val" id="shellCostDisplay">£27,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Internal Fit-Out, Plumbing & Electrics</span>
+          <span class="val" id="fitOutCostDisplay">£13,500.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Architect, Structural Engineer & Planning Fees</span>
+          <span class="val" id="professionalFeesDisplay">£4,500.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Estimated Extension Outlay</span>
+          <span class="val" id="totalExtensionCostDisplay" style="font-weight: 700; font-size: 18px;">£45,000.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateExtensionCost() {
+    const areaEl = document.getElementById('ext-floor-area-sqm') as HTMLInputElement;
+    const qualityEl = document.getElementById('ext-build-quality') as HTMLSelectElement;
+    const locationEl = document.getElementById('ext-location-factor') as HTMLSelectElement;
+
+    if (!areaEl || !qualityEl || !locationEl) return;
+
+    const area = parseFloat(areaEl.value) || 0;
+    const baseRate = parseFloat(qualityEl.value) || 1800;
+    const locFactor = parseFloat(locationEl.value) || 1.0;
+
+    const effectiveRate = baseRate * locFactor;
+    const totalCost = area * effectiveRate;
+
+    const shell = totalCost * 0.60;
+    const fitout = totalCost * 0.30;
+    const profFees = totalCost * 0.10;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const shellRes = document.getElementById('shellCostDisplay');
+    const fitRes = document.getElementById('fitOutCostDisplay');
+    const profRes = document.getElementById('professionalFeesDisplay');
+    const totalRes = document.getElementById('totalExtensionCostDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + totalCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = '£' + effectiveRate.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / sq m';
+    if (shellRes) shellRes.textContent = '£' + shell.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (fitRes) fitRes.textContent = '£' + fitout.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (profRes) profRes.textContent = '£' + profFees.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (totalRes) totalRes.textContent = '£' + totalCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['ext-floor-area-sqm', 'ext-build-quality', 'ext-location-factor'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateExtensionCost);
+    document.getElementById(id)?.addEventListener('change', calculateExtensionCost);
+  });
+  calculateExtensionCost();
+</script>

@@ -1,0 +1,123 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout mobility-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Vehicle Original Purchase Price (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="vehicle-original-price" value="28000" min="2000" step="1000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Vehicle Age at Purchase (Years)</span></div>
+        <div class="amount-field">
+          <input type="number" id="vehicle-age-years" value="0" min="0" max="15" step="1" />
+          <span class="cur">yrs</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Planned Ownership Duration (Years)</span></div>
+        <div class="amount-field">
+          <input type="number" id="ownership-duration-years" value="3" min="1" max="10" step="1" />
+          <span class="cur">yrs</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Annual Mileage (Miles)</span></div>
+        <div class="amount-field">
+          <input type="number" id="annual-mileage" value="10000" min="1000" step="1000" />
+          <span class="cur">mi</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Vehicle Depreciation Breakdown</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Estimated Resale / Trade-in Value</span>
+          <strong id="estimated-resale-value">£16,800.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Percentage Value Lost</span>
+          <strong id="depreciation-pct-lost">40.0%</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Monthly Depreciation Cost</span>
+          <strong id="monthly-depreciation-cost">£311.11 / month</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Total Monetary Value Depreciation</span>
+          <strong id="total-depreciation-amount">£11,200.00</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="movilidad" />
+  </div>
+</div>
+
+<script>
+  function calculateCarDepreciation() {
+    const priceEl = document.getElementById('vehicle-original-price') as HTMLInputElement;
+    const ageEl = document.getElementById('vehicle-age-years') as HTMLInputElement;
+    const durationEl = document.getElementById('ownership-duration-years') as HTMLInputElement;
+
+    if (!priceEl || !ageEl || !durationEl) return;
+
+    const price = parseFloat(priceEl.value) || 0;
+    const currentAge = parseInt(ageEl.value) || 0;
+    const duration = parseInt(durationEl.value) || 3;
+
+    // Average UK Depreciation Curve
+    // Yr 1: 20%, Yr 2: 15%, Yr 3: 10%, Yr 4+: 7%/yr
+    let remainingFactor = 1.0;
+    for (let yr = 1; yr <= currentAge + duration; yr++) {
+      if (yr <= currentAge) continue;
+      if (yr === 1) remainingFactor *= 0.80;
+      else if (yr === 2) remainingFactor *= 0.85;
+      else if (yr === 3) remainingFactor *= 0.90;
+      else remainingFactor *= 0.93;
+    }
+
+    const estimatedResale = price * remainingFactor;
+    const totalDepreciation = Math.max(0, price - estimatedResale);
+    const pctLost = price > 0 ? (totalDepreciation / price) * 100 : 0;
+    const monthlyCost = (duration * 12) > 0 ? totalDepreciation / (duration * 12) : 0;
+
+    const resaleEl = document.getElementById('estimated-resale-value');
+    const pctEl = document.getElementById('depreciation-pct-lost');
+    const monthlyEl = document.getElementById('monthly-depreciation-cost');
+    const totalEl = document.getElementById('total-depreciation-amount');
+
+    if (resaleEl) resaleEl.textContent = '£' + estimatedResale.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (pctEl) pctEl.textContent = pctLost.toFixed(1) + '%';
+    if (monthlyEl) monthlyEl.textContent = '£' + monthlyCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (totalEl) totalEl.textContent = '£' + totalDepreciation.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['vehicle-original-price', 'vehicle-age-years', 'ownership-duration-years', 'annual-mileage'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateCarDepreciation);
+    document.getElementById(id)?.addEventListener('change', calculateCarDepreciation);
+  });
+  calculateCarDepreciation();
+</script>

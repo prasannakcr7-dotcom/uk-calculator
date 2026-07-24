@@ -1,0 +1,142 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout reside-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Unit Type Category</span></div>
+        <select id="unit-category-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="length" selected>Length / Distance (Miles, Feet, Inches to Km, Metres, cm)</option>
+          <option value="weight">Weight / Mass (Pounds, Stones to Kg, Grams)</option>
+          <option value="volume">Volume / Liquid (UK Gallons, Pints to Litres)</option>
+          <option value="area">Area (Square Feet, Acres to Sq Metres, Hectares)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Input Value</span></div>
+        <div class="amount-field">
+          <input type="number" id="unit-input-value" value="10" min="0.01" step="1" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Conversion Direction</span></div>
+        <select id="conversion-direction" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="imp_to_met" selected>Imperial to Metric</option>
+          <option value="met_to_imp">Metric to Imperial</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Unit Conversion Result Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Exact Conversion Factor</span>
+          <strong id="conversion-factor-str">1 Mile = 1.60934 Kilometres</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Formatted Equivalent Unit</span>
+          <strong id="formatted-unit-result">16.09 km</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Exact Converted Value</span>
+          <strong id="exact-converted-val">16.0934 km</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="alltag" />
+  </div>
+</div>
+
+<script>
+  function calculateUnitConversion() {
+    const catEl = document.getElementById('unit-category-select') as HTMLSelectElement;
+    const valEl = document.getElementById('unit-input-value') as HTMLInputElement;
+    const dirEl = document.getElementById('conversion-direction') as HTMLSelectElement;
+
+    if (!catEl || !valEl || !dirEl) return;
+
+    const category = catEl.value;
+    const val = parseFloat(valEl.value) || 0;
+    const isImpToMet = dirEl.value === 'imp_to_met';
+
+    let factor = 1.0;
+    let factorStr = '';
+    let unitLabel = '';
+
+    if (category === 'length') {
+      if (isImpToMet) {
+        factor = 1.609344;
+        factorStr = '1 Mile = 1.60934 Kilometres';
+        unitLabel = 'km';
+      } else {
+        factor = 1 / 1.609344;
+        factorStr = '1 Kilometre = 0.62137 Miles';
+        unitLabel = 'miles';
+      }
+    } else if (category === 'weight') {
+      if (isImpToMet) {
+        factor = 0.45359237;
+        factorStr = '1 Pound (lb) = 0.45359 Kilograms';
+        unitLabel = 'kg';
+      } else {
+        factor = 1 / 0.45359237;
+        factorStr = '1 Kilogram = 2.20462 Pounds';
+        unitLabel = 'lbs';
+      }
+    } else if (category === 'volume') {
+      if (isImpToMet) {
+        factor = 4.54609;
+        factorStr = '1 UK Gallon = 4.54609 Litres';
+        unitLabel = 'Litres';
+      } else {
+        factor = 1 / 4.54609;
+        factorStr = '1 Litre = 0.21997 UK Gallons';
+        unitLabel = 'Gallons';
+      }
+    } else if (category === 'area') {
+      if (isImpToMet) {
+        factor = 0.09290304;
+        factorStr = '1 Sq Ft = 0.09290 Sq Metres';
+        unitLabel = 'sq m';
+      } else {
+        factor = 1 / 0.09290304;
+        factorStr = '1 Sq Metre = 10.7639 Sq Feet';
+        unitLabel = 'sq ft';
+      }
+    }
+
+    const converted = val * factor;
+
+    const factEl = document.getElementById('conversion-factor-str');
+    const formEl = document.getElementById('formatted-unit-result');
+    const exactEl = document.getElementById('exact-converted-val');
+
+    if (factEl) factEl.textContent = factorStr;
+    if (formEl) formEl.textContent = `${converted.toFixed(2)} ${unitLabel}`;
+    if (exactEl) exactEl.textContent = `${converted.toFixed(4)} ${unitLabel}`;
+  }
+
+  ['unit-category-select', 'unit-input-value', 'conversion-direction'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateUnitConversion);
+    document.getElementById(id)?.addEventListener('change', calculateUnitConversion);
+  });
+  calculateUnitConversion();
+</script>

@@ -1,0 +1,120 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Leasehold Service Charge Allocation Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Total Annual Building Service Budget (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="service-charge-annual-budget" value="45000" min="5000" step="2500" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Flat Demise Floor Area (Square Feet - sq ft)</span></div>
+        <div class="amount-field">
+          <input type="number" id="leasehold-flat-sqft" value="750" min="200" max="5000" step="25" />
+          <span class="cur">sq ft</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Total Building Internal Floor Area (Sum of all flats sq ft)</span></div>
+        <div class="amount-field">
+          <input type="number" id="total-building-sqft" value="15000" min="1000" step="500" />
+          <span class="cur">sq ft</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Annual Leasehold Service Charge Share</div>
+      <div class="result-amount"><span id="mainResultDisplay">£2,250.00 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Proportional Share Percentage:</span>
+        <span class="val" id="subResultValue">5.00% Share</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Service Charge Allocation Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Flat Apportionment Percentage</span>
+          <span class="val" id="apportionmentPctDisplay">5.00%</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Cost Per Square Foot</span>
+          <span class="val" id="costPerSqftDisplay">£3.00 / sq ft</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Quarterly Service Charge Payment</span>
+          <span class="val" id="quarterlyPaymentDisplay">£562.50 / quarter</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Annual Service Charge Payable</span>
+          <span class="val" id="totalAnnualChargeDisplay" style="font-weight: 700; font-size: 18px;">£2,250.00 / year (£187.50/mo)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateServiceChargeAllocation() {
+    const budgetEl = document.getElementById('service-charge-annual-budget') as HTMLInputElement;
+    const flatSqftEl = document.getElementById('leasehold-flat-sqft') as HTMLInputElement;
+    const totalSqftEl = document.getElementById('total-building-sqft') as HTMLInputElement;
+
+    if (!budgetEl || !flatSqftEl || !totalSqftEl) return;
+
+    const budget = parseFloat(budgetEl.value) || 0;
+    const flatSqft = parseFloat(flatSqftEl.value) || 0;
+    const totalSqft = parseFloat(totalSqftEl.value) || 1;
+
+    const sharePct = totalSqft > 0 ? (flatSqft / totalSqft) * 100 : 0;
+    const annualCharge = budget * (sharePct / 100);
+    const quarterlyCharge = annualCharge / 4;
+    const monthlyCharge = annualCharge / 12;
+    const costPerSqft = flatSqft > 0 ? annualCharge / flatSqft : 0;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const pctRes = document.getElementById('apportionmentPctDisplay');
+    const sqftRes = document.getElementById('costPerSqftDisplay');
+    const qtrRes = document.getElementById('quarterlyPaymentDisplay');
+    const totalRes = document.getElementById('totalAnnualChargeDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + annualCharge.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (subVal) subVal.textContent = sharePct.toFixed(2) + '% Share';
+    if (pctRes) pctRes.textContent = sharePct.toFixed(2) + '%';
+    if (sqftRes) sqftRes.textContent = '£' + costPerSqft.toFixed(2) + ' / sq ft';
+    if (qtrRes) qtrRes.textContent = '£' + quarterlyCharge.toFixed(2) + ' / quarter';
+    if (totalRes) totalRes.textContent = '£' + annualCharge.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` / year (£${monthlyCharge.toFixed(2)}/mo)`;
+  }
+
+  ['service-charge-annual-budget', 'leasehold-flat-sqft', 'total-building-sqft'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateServiceChargeAllocation);
+    document.getElementById(id)?.addEventListener('change', calculateServiceChargeAllocation);
+  });
+  calculateServiceChargeAllocation();
+</script>

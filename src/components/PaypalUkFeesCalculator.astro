@@ -1,0 +1,132 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Target Desired Amount or Invoice Total (£)</span></div>
+      <div class="amount-field"><input type="number" id="transaction-amount" value="100" min="1" step="5" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Calculation Mode</span></div>
+      <select id="calculation-mode">
+        <option value="receive" selected>I want to receive exact £X (Calculate invoice amount to send)</option>
+        <option value="send">I am receiving £X (Calculate net amount after PayPal fees)</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>PayPal Transaction Type</span></div>
+      <select id="transaction-type">
+        <option value="standard" selected>Standard UK Commercial Payment (2.90% + 30p)</option>
+        <option value="qr">PayPal QR Code Payment >£10 (1.50% + 10p)</option>
+        <option value="micropayment">PayPal Micropayment (5.00% + 5p)</option>
+        <option value="international">International EUR Payment (3.40% + 30p)</option>
+        <option value="friends">Friends & Family UK (0.00% Fee)</option>
+      </select>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <div class="breakdown-row net">
+        <span>Invoice Amount to Charge:</span>
+        <strong id="invoice-total">£0.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Total PayPal Transaction Fee:</span>
+        <strong id="paypal-fee-deducted">£0.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Percentage Fee Component:</span>
+        <strong id="pct-fee-val">£0.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Fixed Fee Component:</span>
+        <strong id="fixed-fee-val">£0.00</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Net Amount You Take Home:</span>
+        <strong id="net-takehome-val">£0.00</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculatePayPalFees() {
+    const amount = parseFloat((document.getElementById('transaction-amount') as HTMLInputElement).value) || 0;
+    const mode = (document.getElementById('calculation-mode') as HTMLSelectElement).value;
+    const type = (document.getElementById('transaction-type') as HTMLSelectElement).value;
+
+    let rate = 0.029;
+    let fixed = 0.30;
+
+    if (type === 'qr') {
+      rate = 0.015;
+      fixed = 0.10;
+    } else if (type === 'micropayment') {
+      rate = 0.05;
+      fixed = 0.05;
+    } else if (type === 'international') {
+      rate = 0.034;
+      fixed = 0.30;
+    } else if (type === 'friends') {
+      rate = 0.00;
+      fixed = 0.00;
+    }
+
+    let invoiceTotal = 0;
+    let totalFee = 0;
+    let netTakehome = 0;
+
+    if (mode === 'receive') {
+      // Want net amount X -> Invoice = (X + fixed) / (1 - rate)
+      if (rate < 1.0) {
+        invoiceTotal = (amount + fixed) / (1 - rate);
+        totalFee = invoiceTotal - amount;
+        netTakehome = amount;
+      } else {
+        invoiceTotal = amount;
+        totalFee = 0;
+        netTakehome = amount;
+      }
+    } else {
+      // Sent amount X -> Net = X - (X * rate + fixed)
+      invoiceTotal = amount;
+      totalFee = (amount * rate) + fixed;
+      netTakehome = Math.max(0, amount - totalFee);
+    }
+
+    const pctFeeVal = invoiceTotal * rate;
+
+    (document.getElementById('invoice-total') as HTMLElement).textContent = '£' + invoiceTotal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('paypal-fee-deducted') as HTMLElement).textContent = '£' + totalFee.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('pct-fee-val') as HTMLElement).textContent = '£' + pctFeeVal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('fixed-fee-val') as HTMLElement).textContent = '£' + fixed.toFixed(2);
+    (document.getElementById('net-takehome-val') as HTMLElement).textContent = '£' + netTakehome.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculatePayPalFees);
+  calculatePayPalFees();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

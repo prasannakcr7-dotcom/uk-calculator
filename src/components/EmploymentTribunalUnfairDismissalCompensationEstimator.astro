@@ -1,0 +1,192 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Employment & Dismissal Claim Details'}</h2>
+
+      <!-- Employee Age at Dismissal -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.employeeAgeLabel || 'Employee Age at Date of Dismissal'}</span>
+          <span class="hint" id="employeeAgeVal">45 Years Old (1.5x Multiplier for years > 41)</span>
+        </div>
+        <input type="range" min="18" max="70" step="1" value="45" id="employeeAgeSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>18 yrs</span><span>70 yrs</span></div>
+      </div>
+
+      <!-- Years of Continuous Service -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.serviceYearsLabel || 'Years of Continuous Service (Max 20 Years)'}</span>
+          <span class="hint" id="serviceYearsVal">8 Years of Service</span>
+        </div>
+        <input type="range" min="2" max="20" step="1" value="8" id="serviceYearsSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>2 yrs (Min)</span><span>20 yrs (Max)</span></div>
+      </div>
+
+      <!-- Gross Weekly Pay (£) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.weeklyPayLabel || 'Gross Weekly Pay (£/week)'}</span>
+          <span class="hint" id="weeklyPayVal">£650.00 / week (Capped at £700 Statutory Max)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="650.00" id="weeklyPayInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="200" max="2000" step="25" value="650" id="weeklyPaySlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£200/wk</span><span>£2,000/wk</span></div>
+      </div>
+
+      <!-- Compensatory Financial Loss (Months of Lost Pay) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.lostMonthsLabel || 'Estimated Net Lost Earnings (Months)'}</span>
+          <span class="hint" id="lostMonthsVal">6 Months Lost Earnings</span>
+        </div>
+        <input type="range" min="1" max="12" step="1" value="6" id="lostMonthsSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1 Mo</span><span>12 Mos (Cap)</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--social-1), var(--social-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Total Unfair Dismissal Award'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£24,700.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.awardSplitLabel || 'Basic Award + Compensatory Award Breakdown:'}</span>
+        <span class="val" id="subResultValue">Basic Award £7,800.00 + Compensatory Award £16,900.00</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Employment Tribunal Award Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Basic Award (Statutory Redundancy Multiplier)</span>
+          <span class="val" id="basicAwardDisplay">£7,800.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Compensatory Award (6 Months Lost Earnings)</span>
+          <span class="val" id="compensatoryAwardDisplay">£16,900.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Statutory Tribunal Award Valuation</span>
+          <span class="val" id="totalTribunalDisplay" style="font-weight: 700; font-size: 18px;">£24,700.00 Total Award</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Statutory Cap on Weekly Pay:</strong> £700 max statutory weekly pay cap for Basic Award.<br/>
+        • <strong>Compensatory Cap:</strong> Lower of 52 weeks' gross pay or statutory cap (~£115,115).<br/>
+        • <strong>Qualifying Service:</strong> Requires 2 years' continuous service to claim Unfair Dismissal.<br/>
+        • <strong>ACAS Early Conciliation:</strong> Mandatory ACAS conciliation required before filing ET1.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const MAX_STATUTORY_WEEKLY_PAY = 700.00; // 2026/27 weekly pay cap
+
+  const employeeAgeSlider = document.getElementById('employeeAgeSlider') as HTMLInputElement;
+  const employeeAgeVal = document.getElementById('employeeAgeVal') as HTMLElement;
+
+  const serviceYearsSlider = document.getElementById('serviceYearsSlider') as HTMLInputElement;
+  const serviceYearsVal = document.getElementById('serviceYearsVal') as HTMLElement;
+
+  const weeklyPayInput = document.getElementById('weeklyPayInput') as HTMLInputElement;
+  const weeklyPaySlider = document.getElementById('weeklyPaySlider') as HTMLInputElement;
+  const weeklyPayVal = document.getElementById('weeklyPayVal') as HTMLElement;
+
+  const lostMonthsSlider = document.getElementById('lostMonthsSlider') as HTMLInputElement;
+  const lostMonthsVal = document.getElementById('lostMonthsVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const basicAwardDisplay = document.getElementById('basicAwardDisplay') as HTMLElement;
+  const compensatoryAwardDisplay = document.getElementById('compensatoryAwardDisplay') as HTMLElement;
+  const totalTribunalDisplay = document.getElementById('totalTribunalDisplay') as HTMLElement;
+
+  function calculate() {
+    const age = parseInt(employeeAgeSlider.value, 10);
+    const serviceYears = parseInt(serviceYearsSlider.value, 10);
+    const grossWeeklyPay = parseInputVal(weeklyPayInput.value);
+    const lostMonths = parseInt(lostMonthsSlider.value, 10);
+
+    const cappedWeeklyPay = Math.min(grossWeeklyPay, MAX_STATUTORY_WEEKLY_PAY);
+
+    // Calculate Basic Award (age factor multiplier per year of service)
+    let ageMultiplier = 1.0;
+    if (age >= 41) ageMultiplier = 1.5;
+    if (age < 22) ageMultiplier = 0.5;
+
+    const basicAward = serviceYears * cappedWeeklyPay * ageMultiplier;
+
+    // Calculate Compensatory Award (actual lost net earnings capped at 52 weeks gross pay)
+    const monthlyGrossPay = (grossWeeklyPay * 52) / 12;
+    const rawCompensatory = monthlyGrossPay * lostMonths;
+    const maxCompensatoryCap = grossWeeklyPay * 52; // Capped at 52 weeks gross pay
+    const compensatoryAward = Math.min(rawCompensatory, maxCompensatoryCap);
+
+    const totalAward = basicAward + compensatoryAward;
+
+    employeeAgeVal.innerText = `${age} Years Old (${ageMultiplier}x Multiplier)`;
+    serviceYearsVal.innerText = `${serviceYears} Year${serviceYears === 1 ? '' : 's'} of Continuous Service`;
+    weeklyPayVal.innerText = `${formatCurrency(grossWeeklyPay)} / week (Capped at ${formatCurrency(cappedWeeklyPay)})`;
+    lostMonthsVal.innerText = `${lostMonths} Month${lostMonths === 1 ? '' : 's'} Lost Net Earnings`;
+
+    mainResultDisplay.innerText = formatCurrency(totalAward);
+    subResultValue.innerText = `Basic Award ${formatCurrency(basicAward)} + Compensatory Award ${formatCurrency(compensatoryAward)}`;
+
+    basicAwardDisplay.innerText = `${formatCurrency(basicAward)} (${serviceYears} yrs × ${ageMultiplier}x × ${formatCurrency(cappedWeeklyPay)})`;
+    compensatoryAwardDisplay.innerText = `${formatCurrency(compensatoryAward)} (${lostMonths} mos lost earnings)`;
+    totalTribunalDisplay.innerText = `${formatCurrency(totalAward)} Total Award`;
+  }
+
+  employeeAgeSlider.addEventListener('input', calculate);
+  serviceYearsSlider.addEventListener('input', calculate);
+
+  weeklyPayInput.addEventListener('input', () => {
+    const val = parseInputVal(weeklyPayInput.value);
+    weeklyPaySlider.value = String(val);
+    calculate();
+  });
+
+  weeklyPaySlider.addEventListener('input', () => {
+    weeklyPayInput.value = parseFloat(weeklyPaySlider.value).toFixed(2);
+    calculate();
+  });
+
+  lostMonthsSlider.addEventListener('input', calculate);
+
+  calculate();
+</script>

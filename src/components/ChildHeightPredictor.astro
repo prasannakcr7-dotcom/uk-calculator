@@ -1,0 +1,129 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout family-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Parent Height Details'}</h2>
+
+      <!-- Father Height -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.fatherLabel || 'Father Height (cm)'}</span>
+          <span class="hint" id="fatherVal">178 cm</span>
+        </div>
+        <input type="range" min="140" max="210" step="1" value="178" id="fatherHeightSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>140 cm</span><span>210 cm</span></div>
+      </div>
+
+      <!-- Mother Height -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.motherLabel || 'Mother Height (cm)'}</span>
+          <span class="hint" id="motherVal">165 cm</span>
+        </div>
+        <input type="range" min="140" max="210" step="1" value="165" id="motherHeightSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>140 cm</span><span>210 cm</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--family-1), var(--family-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Predicted Adult Boy Height'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">178 cm (5 ft 10 in)</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.girlLabel || 'Predicted Adult Girl Height:'}</span>
+        <span class="val" id="subResultValue">165 cm (5 ft 5 in)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Height Predictions'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Predicted Adult Height (Boy)</span>
+          <span class="val" id="boyPredictionDisplay">178 cm</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Predicted Adult Height (Girl)</span>
+          <span class="val" id="girlPredictionDisplay">165 cm</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Standard Confidence Range (+/- 8.5 cm)</span>
+          <span class="val" id="rangeDisplay" style="font-weight: 700; font-size: 18px;">169 - 186 cm</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • Boy: <strong>(Father + Mother + 13) / 2</strong><br/>
+        • Girl: <strong>(Father + Mother - 13) / 2</strong><br/>
+        • 95% of healthy children fall within <strong>+/- 8.5 cm</strong>.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function cmToFtIn(cm: number): string {
+    const totalInches = cm / 2.54;
+    const feet = Math.floor(totalInches / 12);
+    const inches = Math.round(totalInches % 12);
+    return `${feet} ft ${inches} in`;
+  }
+
+  const fatherHeightSlider = document.getElementById('fatherHeightSlider') as HTMLInputElement;
+  const fatherVal = document.getElementById('fatherVal') as HTMLElement;
+  const motherHeightSlider = document.getElementById('motherHeightSlider') as HTMLInputElement;
+  const motherVal = document.getElementById('motherVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const boyPredictionDisplay = document.getElementById('boyPredictionDisplay') as HTMLElement;
+  const girlPredictionDisplay = document.getElementById('girlPredictionDisplay') as HTMLElement;
+  const rangeDisplay = document.getElementById('rangeDisplay') as HTMLElement;
+
+  fatherHeightSlider.addEventListener('input', calculate);
+  motherHeightSlider.addEventListener('input', calculate);
+
+  function calculate() {
+    const f = parseInt(fatherHeightSlider.value, 10);
+    const m = parseInt(motherHeightSlider.value, 10);
+
+    fatherVal.textContent = `${f} cm`;
+    motherVal.textContent = `${m} cm`;
+
+    const boy = (f + m + 13) / 2;
+    const girl = (f + m - 13) / 2;
+
+    mainResultDisplay.textContent = `${Math.round(boy)} cm (${cmToFtIn(boy)})`;
+    subResultValue.textContent = `${Math.round(girl)} cm (${cmToFtIn(girl)})`;
+
+    boyPredictionDisplay.textContent = `${Math.round(boy)} cm (${cmToFtIn(boy)})`;
+    girlPredictionDisplay.textContent = `${Math.round(girl)} cm (${cmToFtIn(girl)})`;
+    rangeDisplay.textContent = `${Math.round(boy - 8.5)} - ${Math.round(boy + 8.5)} cm`;
+  }
+
+  calculate();
+</script>

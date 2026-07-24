@@ -1,0 +1,128 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout family-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Universal Credit Child Element Details'}</h2>
+
+      <!-- Number of Children -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.childrenLabel || 'Number of Qualifying Children'}</span>
+          <span class="hint" id="childrenVal">2 Children</span>
+        </div>
+        <input type="range" min="1" max="6" step="1" value="2" id="childrenSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1 Child</span><span>6 Children</span></div>
+      </div>
+
+      <!-- Disabled Children -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.disabledLabel || 'Disabled Children (Receiving DLA/PIP)'}</span>
+          <span class="hint" id="disabledVal">0 Disabled</span>
+        </div>
+        <input type="range" min="0" max="3" step="1" value="0" id="disabledSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>0</span><span>3 Children</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--family-1), var(--family-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Total Monthly Child Element'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£666.66/mo</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.annualLabel || 'Annual Total:'}</span>
+        <span class="val" id="subResultValue">£7,999.92/yr</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Element Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Standard Child Element (Max 2 Children)</span>
+          <span class="val" id="childElementDisplay">£666.66</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Disabled Child Addition (£156.11/mo)</span>
+          <span class="val" id="disabilityAdditionDisplay">£0.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Monthly Child Entitlement</span>
+          <span class="val" id="totalMonthlyDisplay" style="font-weight: 700; font-size: 18px;">£666.66</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • Child Element: <strong>£333.33/mo</strong> per eligible child<br/>
+        • 2-Child Limit: Applies to children born after 6 April 2017<br/>
+        • Disabled Addition: <strong>+£156.11/mo</strong> per disabled child
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const childrenSlider = document.getElementById('childrenSlider') as HTMLInputElement;
+  const childrenVal = document.getElementById('childrenVal') as HTMLElement;
+  const disabledSlider = document.getElementById('disabledSlider') as HTMLInputElement;
+  const disabledVal = document.getElementById('disabledVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const childElementDisplay = document.getElementById('childElementDisplay') as HTMLElement;
+  const disabilityAdditionDisplay = document.getElementById('disabilityAdditionDisplay') as HTMLElement;
+  const totalMonthlyDisplay = document.getElementById('totalMonthlyDisplay') as HTMLElement;
+
+  childrenSlider.addEventListener('input', calculate);
+  disabledSlider.addEventListener('input', calculate);
+
+  function calculate() {
+    const kids = parseInt(childrenSlider.value, 10);
+    const disabled = parseInt(disabledSlider.value, 10);
+
+    childrenVal.textContent = kids === 1 ? '1 Child' : `${kids} Children`;
+    disabledVal.textContent = disabled === 1 ? '1 Disabled Child' : `${disabled} Disabled Children`;
+
+    // 2-child limit
+    const eligibleKids = Math.min(2, kids);
+    const baseElement = eligibleKids * 333.33;
+    const disElement = disabled * 156.11;
+    const totalMo = baseElement + disElement;
+
+    mainResultDisplay.textContent = `${formatCurrency(totalMo)}/mo`;
+    subResultValue.textContent = `${formatCurrency(totalMo * 12)}/yr`;
+    childElementDisplay.textContent = formatCurrency(baseElement);
+    disabilityAdditionDisplay.textContent = formatCurrency(disElement);
+    totalMonthlyDisplay.textContent = formatCurrency(totalMo);
+  }
+
+  calculate();
+</script>

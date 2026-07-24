@@ -1,0 +1,120 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Mortgage Deposit & LTV Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Property Purchase Price (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="ltv-property-price" value="300000" min="50000" step="5000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Deposit Cash Saved (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="ltv-deposit-cash" value="45000" min="5000" step="2500" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Loan-to-Value (LTV) Ratio Percentage</div>
+      <div class="result-amount"><span id="mainResultDisplay">85.00% LTV</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">LTV Bracket Rating:</span>
+        <span class="val" id="subResultValue">85% LTV Bracket (Good Competitive Rate)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Deposit & Mortgage Borrowing Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Deposit Contribution Share</span>
+          <span class="val" id="depositPctDisplay">15.00% (£45,000.00)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Mortgage Loan Required</span>
+          <span class="val" id="loanRequiredDisplay">£255,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Extra Cash Needed for Next LTV Band (80% LTV)</span>
+          <span class="val" id="nextBandCashNeededDisplay">£15,000.00 more deposit</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Final Mortgage Loan-to-Value Ratio</span>
+          <span class="val" id="finalLtvDisplay" style="font-weight: 700; font-size: 18px;">85.00% LTV</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateLtv() {
+    const priceEl = document.getElementById('ltv-property-price') as HTMLInputElement;
+    const depositEl = document.getElementById('ltv-deposit-cash') as HTMLInputElement;
+
+    if (!priceEl || !depositEl) return;
+
+    const price = parseFloat(priceEl.value) || 0;
+    const deposit = parseFloat(depositEl.value) || 0;
+
+    const loan = Math.max(0, price - deposit);
+    const ltv = price > 0 ? (loan / price) * 100 : 0;
+    const depositPct = price > 0 ? (deposit / price) * 100 : 0;
+
+    // Next lower LTV bands: 90%, 85%, 80%, 75%, 60%
+    let nextBandLtv = 80;
+    if (ltv <= 60) nextBandLtv = 60;
+    else if (ltv <= 75) nextBandLtv = 60;
+    else if (ltv <= 80) nextBandLtv = 75;
+    else if (ltv <= 85) nextBandLtv = 80;
+    else if (ltv <= 90) nextBandLtv = 85;
+    else nextBandLtv = 90;
+
+    const targetDeposit = price * ((100 - nextBandLtv) / 100);
+    const extraCashNeeded = Math.max(0, targetDeposit - deposit);
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const depRes = document.getElementById('depositPctDisplay');
+    const loanRes = document.getElementById('loanRequiredDisplay');
+    const nextRes = document.getElementById('nextBandCashNeededDisplay');
+    const finalLtvRes = document.getElementById('finalLtvDisplay');
+
+    if (mainRes) mainRes.textContent = ltv.toFixed(2) + '% LTV';
+    if (subVal) subVal.textContent = `${ltv.toFixed(0)}% LTV Bracket`;
+    if (depRes) depRes.textContent = depositPct.toFixed(2) + '% (£' + deposit.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ')';
+    if (loanRes) loanRes.textContent = '£' + loan.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (nextRes) nextRes.textContent = extraCashNeeded > 0 ? '£' + extraCashNeeded.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` to hit ${nextBandLtv}% LTV` : 'Top LTV Tier Reached!';
+    if (finalLtvRes) finalLtvRes.textContent = ltv.toFixed(2) + '% LTV';
+  }
+
+  ['ltv-property-price', 'ltv-deposit-cash'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateLtv);
+    document.getElementById(id)?.addEventListener('change', calculateLtv);
+  });
+  calculateLtv();
+</script>

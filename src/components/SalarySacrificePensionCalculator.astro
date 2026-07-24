@@ -1,0 +1,155 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Salary Sacrifice Details'}</h2>
+
+      <!-- Gross Salary -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.salaryLabel || 'Gross Annual Salary (£)'}</span>
+          <span class="hint" id="salaryVal">£45,000</span>
+        </div>
+        <div class="amount-field" style="margin-top: 0; margin-bottom: 0;">
+          <input type="text" value="45,000" id="salaryInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="20000" max="120000" step="1000" value="45000" id="salarySlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£20,000</span><span>£120,000</span></div>
+      </div>
+
+      <!-- Sacrifice Amount -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.sacrificeLabel || 'Annual Pension Sacrifice (£)'}</span>
+          <span class="hint" id="sacrificeVal">£3,000</span>
+        </div>
+        <div class="amount-field" style="margin-top: 0; margin-bottom: 0;">
+          <input type="text" value="3,000" id="sacrificeInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="500" max="20000" step="250" value="3000" id="sacrificeSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£500</span><span>£20,000</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--work-1), var(--work-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Total Annual Tax & NI Saved'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£840.00/yr</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.adjustedSalaryLabel || 'Adjusted Salary Post-Sacrifice:'}</span>
+        <span class="val" id="subResultValue">£42,000.00/yr</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Sacrifice Savings Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Pension Contribution (Sacrifice)</span>
+          <span class="val" id="grossSacrificeDisplay">£3,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Income Tax & NI Saved</span>
+          <span class="val" id="taxNiSavedDisplay">£840.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Take-Home Cost of £3,000 Pension Fund</span>
+          <span class="val" id="netCostDisplay" style="font-weight: 700; font-size: 18px;">£2,160.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • Saves both <strong>Income Tax</strong> and <strong>National Insurance (8%)</strong>.<br/>
+        • More tax-efficient than standard Relief at Source.<br/>
+        • Lowers gross salary for Child Benefit / HICBC.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const salaryInput = document.getElementById('salaryInput') as HTMLInputElement;
+  const salarySlider = document.getElementById('salarySlider') as HTMLInputElement;
+  const salaryVal = document.getElementById('salaryVal') as HTMLElement;
+  const sacrificeInput = document.getElementById('sacrificeInput') as HTMLInputElement;
+  const sacrificeSlider = document.getElementById('sacrificeSlider') as HTMLInputElement;
+  const sacrificeVal = document.getElementById('sacrificeVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const grossSacrificeDisplay = document.getElementById('grossSacrificeDisplay') as HTMLElement;
+  const taxNiSavedDisplay = document.getElementById('taxNiSavedDisplay') as HTMLElement;
+  const netCostDisplay = document.getElementById('netCostDisplay') as HTMLElement;
+
+  salaryInput.addEventListener('input', () => {
+    const val = parseInputVal(salaryInput.value);
+    salarySlider.value = String(Math.min(120000, Math.max(20000, val)));
+    calculate();
+  });
+
+  salarySlider.addEventListener('input', () => {
+    salaryInput.value = salarySlider.value;
+    calculate();
+  });
+
+  sacrificeInput.addEventListener('input', () => {
+    const val = parseInputVal(sacrificeInput.value);
+    sacrificeSlider.value = String(Math.min(20000, Math.max(500, val)));
+    calculate();
+  });
+
+  sacrificeSlider.addEventListener('input', () => {
+    sacrificeInput.value = sacrificeSlider.value;
+    calculate();
+  });
+
+  function calculate() {
+    const sal = parseInputVal(salaryInput.value);
+    const sac = parseInputVal(sacrificeInput.value);
+
+    salaryVal.textContent = formatCurrency(sal);
+    sacrificeVal.textContent = formatCurrency(sac);
+
+    const savingRate = sal > 50270 ? 0.42 : 0.28;
+    const totalSaved = sac * savingRate;
+    const netCost = sac - totalSaved;
+
+    mainResultDisplay.textContent = `${formatCurrency(totalSaved)}/yr`;
+    subResultValue.textContent = formatCurrency(sal - sac);
+    grossSacrificeDisplay.textContent = formatCurrency(sac);
+    taxNiSavedDisplay.textContent = formatCurrency(totalSaved);
+    netCostDisplay.textContent = formatCurrency(netCost);
+  }
+
+  calculate();
+</script>

@@ -1,0 +1,104 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Living Location During Term Time</span></div>
+      <select id="student-living-location">
+        <option value="parental_home">Living at Home with Parents (Max £8,610)</option>
+        <option value="away_outside_london" selected>Living Away from Home, Outside London (Max £10,227)</option>
+        <option value="away_in_london">Living Away from Home, In London (Max £13,348)</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Taxable Household Income (£ / year)</span></div>
+      <div class="amount-field"><input type="number" id="household-income-annual" value="45000" min="0" step="5000" /></div>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <h3>Student Finance Entitlement Summary</h3>
+      <div class="breakdown-row net">
+        <span>Estimated Annual Maintenance Loan:</span>
+        <strong id="maintenance-loan-total-val">£0.00 / year</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Termly Payment Instalment (3 Terms):</span>
+        <strong id="termly-payment-val">£0.00 / term</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Maximum Possible Allowance for Location:</span>
+        <strong id="max-location-allowance">£0.00</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Recommended Parental Contribution Gap:</span>
+        <strong id="parental-contribution-gap">£0.00 / year</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculateMaintenanceLoan() {
+    const location = (document.getElementById('student-living-location') as HTMLSelectElement).value;
+    const income = parseFloat((document.getElementById('household-income-annual') as HTMLInputElement).value) || 0;
+
+    // 2026/27 Student Finance England Maintenance Loan Benchmarks:
+    // Living at Home: Max £8,610 | Non-means-tested Min: £3,798
+    // Away Outside London: Max £10,227 | Non-means-tested Min: £4,767
+    // Away In London: Max £13,348 | Non-means-tested Min: £6,647
+
+    let maxLoan = 10227;
+    let minLoan = 4767;
+
+    if (location === 'parental_home') {
+      maxLoan = 8610;
+      minLoan = 3798;
+    } else if (location === 'away_in_london') {
+      maxLoan = 13348;
+      minLoan = 6647;
+    }
+
+    // Means testing reduction threshold starts above £25,000 household income
+    // Reduction rate: approx £1 loan reduction for every £7.00 - £8.50 of income above £25k until minimum loan reached
+    let calculatedLoan = maxLoan;
+    if (income > 25000) {
+      const excessIncome = income - 25000;
+      const reduction = excessIncome / 7.5;
+      calculatedLoan = Math.max(minLoan, maxLoan - reduction);
+    }
+
+    const termlyPayment = calculatedLoan / 3;
+    const parentalGap = Math.max(0, maxLoan - calculatedLoan);
+
+    (document.getElementById('maintenance-loan-total-val') as HTMLElement).textContent = '£' + calculatedLoan.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    (document.getElementById('termly-payment-val') as HTMLElement).textContent = '£' + termlyPayment.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / term';
+    (document.getElementById('max-location-allowance') as HTMLElement).textContent = '£' + maxLoan.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('parental-contribution-gap') as HTMLElement).textContent = '£' + parentalGap.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateMaintenanceLoan);
+  calculateMaintenanceLoan();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

@@ -1,0 +1,339 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  nation?: string;
+}
+
+const { labels, nation = 'england' } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category" data-labels={JSON.stringify(labels)} data-nation={nation}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Salary Details'}</h2>
+
+      <!-- Gross Salary Input -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.salaryLabel || 'Gross Annual Salary'}</span>
+          <span class="hint" id="salaryVal">£30,000</span>
+        </div>
+        <div class="amount-field" style="margin-top: 0; margin-bottom: 0;">
+          <input type="text" value="30,000" id="salaryInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="5000" max="250000" step="500" value="30000" id="salarySlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£5,000</span><span>£250,000</span></div>
+      </div>
+
+      <!-- Pay Frequency Toggle -->
+      <div class="field-group" style="margin-top: 24px;">
+        <label class="field-label" style="margin-bottom: 8px;">{labels.frequencyLabel || 'Pay Frequency'}</label>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="mode-btn active" id="freqAnnualBtn" data-freq="annual">
+            {labels.frequencyAnnual || 'Annual'}
+          </button>
+          <button type="button" class="mode-btn" id="freqMonthlyBtn" data-freq="monthly">
+            {labels.frequencyMonthly || 'Monthly'}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--work-1), var(--work-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Monthly Take-Home'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£2,093.30</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.taxAmountLabel || 'Income Tax Deductions:'}</span>
+        <span class="val" id="subResultValue">£3,486.00</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Take-Home Pay Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>{labels.grossSalaryLabel || 'Gross Salary'}</span>
+          <span class="val" id="grossSalaryDisplay">£30,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>{labels.adjustedPaLabel || 'Personal Allowance'}</span>
+          <span class="val" id="adjustedPaDisplay">£12,570.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>{labels.totalTaxLabel || 'Income Tax'}</span>
+          <span class="val" id="totalTaxDisplay">-£3,486.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>{labels.totalNiLabel || 'National Insurance'}</span>
+          <span class="val" id="totalNiDisplay">-£1,394.40</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>{labels.netPayLabel || 'Take-Home Pay'}</span>
+          <span class="val" id="totalNetDisplay" style="font-weight: 700; font-size: 18px;">£25,119.60</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MARKDOWN CONTENT SLOT -->
+    <slot />
+
+    <!-- CALCULATOR BADGES -->
+    <div class="card writeup" style="margin-top: -12px;">
+      <h3>{labels.calcBadgesTitle || 'Take-Home Assurances'}</h3>
+      <div class="badge-grid">
+        <div class="badge">
+          <span class="check" style="background: var(--work-2);">✓</span>
+          <span><strong>{labels.taxYearBadge}</strong>: {labels.taxYearBadgeDesc}</span>
+        </div>
+        <div class="badge">
+          <span class="check" style="background: var(--work-2);">✓</span>
+          <span><strong>{labels.devolBadge}</strong>: {labels.devolBadgeDesc}</span>
+        </div>
+        <div class="badge">
+          <span class="check" style="background: var(--work-2);">✓</span>
+          <span><strong>{labels.taperBadge}</strong>: {labels.taperBadgeDesc}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- AUTHORITIES -->
+    <div class="card">
+      <h2>{labels.authoritiesTitle || 'Reference Authorities'}</h2>
+      <div class="auth-grid">
+        <div class="auth-box">
+          <span class="icon">🏛️</span>
+          <div class="name">{labels.auth1Name}</div>
+          <div class="desc">{labels.auth1Desc}</div>
+          <a href="https://www.gov.uk/government/organisations/hm-revenue-customs" target="_blank" rel="noopener" style="color: var(--theme-link) !important;">{labels.auth1Link}</a>
+        </div>
+        <div class="auth-box">
+          <span class="icon">🏢</span>
+          <div class="name">{labels.auth2Name}</div>
+          <div class="desc">{labels.auth2Desc}</div>
+          <a href="https://www.gov.scot/policies/taxes/income-tax/" target="_blank" rel="noopener" style="color: var(--theme-link) !important;">{labels.auth2Link}</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- SOURCES -->
+    <div class="sources">
+      <div class="lbl">{labels.sourcesTitle || 'Official Sources'}</div>
+      <a href="https://www.legislation.gov.uk/" target="_blank" rel="noopener" style="color: var(--theme-link) !important;">{labels.source1}</a>
+    </div>
+
+    <!-- UPDATE BOX -->
+    <div class="updated-box">
+      <span class="ico">🛡️</span>
+      <div><strong>{labels.lastUpdatedTitle}</strong> {labels.lastUpdatedDesc}</div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <Sidebar />
+  </div>
+</div>
+
+<script>
+  const container = document.querySelector('.calculator-layout') as HTMLElement;
+  if (!container) throw new Error('No calculator container');
+  const nation = container.getAttribute('data-nation') || 'england';
+
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', {
+      style: 'currency',
+      currency: 'GBP',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  // DOM Elements
+  const salaryInput = document.getElementById('salaryInput') as HTMLInputElement;
+  const salarySlider = document.getElementById('salarySlider') as HTMLInputElement;
+  const salaryVal = document.getElementById('salaryVal') as HTMLElement;
+
+  const freqAnnualBtn = document.getElementById('freqAnnualBtn') as HTMLButtonElement;
+  const freqMonthlyBtn = document.getElementById('freqMonthlyBtn') as HTMLButtonElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+
+  const grossSalaryDisplay = document.getElementById('grossSalaryDisplay') as HTMLElement;
+  const adjustedPaDisplay = document.getElementById('adjustedPaDisplay') as HTMLElement;
+  const totalTaxDisplay = document.getElementById('totalTaxDisplay') as HTMLElement;
+  const totalNiDisplay = document.getElementById('totalNiDisplay') as HTMLElement;
+  const totalNetDisplay = document.getElementById('totalNetDisplay') as HTMLElement;
+
+  // Variables
+  let frequency: 'annual' | 'monthly' = 'annual';
+
+  // Frequency toggle
+  freqAnnualBtn.addEventListener('click', () => {
+    frequency = 'annual';
+    freqAnnualBtn.classList.add('active');
+    freqMonthlyBtn.classList.remove('active');
+    calculate();
+  });
+
+  freqMonthlyBtn.addEventListener('click', () => {
+    frequency = 'monthly';
+    freqMonthlyBtn.classList.add('active');
+    freqAnnualBtn.classList.remove('active');
+    calculate();
+  });
+
+  // Bi-directional slider sync
+  salaryInput.addEventListener('input', () => {
+    const val = parseInputVal(salaryInput.value);
+    salarySlider.value = String(Math.min(250000, Math.max(5000, val)));
+    calculate();
+  });
+
+  salarySlider.addEventListener('input', () => {
+    salaryInput.value = salarySlider.value;
+    calculate();
+  });
+
+  // Calculation Logic
+  function calculate() {
+    let rawInput = parseInputVal(salaryInput.value);
+    let grossAnnual = frequency === 'annual' ? rawInput : rawInput * 12;
+
+    salaryVal.textContent = formatCurrency(grossAnnual);
+
+    // 1. Personal Allowance (PA) Taper
+    let personalAllowance = 12570;
+    if (grossAnnual > 100000) {
+      personalAllowance = Math.max(0, 12570 - Math.floor((grossAnnual - 100000) / 2));
+    }
+
+    // 2. National Insurance (NICs) - UK Wide Class 1 Employee
+    let nationalInsurance = 0;
+    if (grossAnnual > 12570) {
+      const band1 = Math.min(grossAnnual, 50270) - 12570;
+      nationalInsurance += band1 * 0.08;
+    }
+    if (grossAnnual > 50270) {
+      const band2 = grossAnnual - 50270;
+      nationalInsurance += band2 * 0.02;
+    }
+
+    // 3. Income Tax
+    let taxableIncome = Math.max(0, grossAnnual - personalAllowance);
+    let incomeTax = 0;
+
+    if (nation === 'scotland') {
+      // Scottish Devolved 6-band progressive rates
+      const bands = [
+        { limit: 2306, rate: 0.19 },      // Starter: up to £14,876 (£2,306 wide)
+        { limit: 11685, rate: 0.20 },     // Basic: up to £26,561 (£11,685 wide)
+        { limit: 17101, rate: 0.21 },     // Intermediate: up to £43,662 (£17,101 wide)
+        { limit: 31338, rate: 0.42 },     // Higher: up to £75,000 (£31,338 wide)
+        { limit: 50140, rate: 0.45 },     // Advanced: up to £125,140 (£50,140 wide)
+        { limit: Infinity, rate: 0.48 }   // Top: above £125,140
+      ];
+
+      let tempTaxable = taxableIncome;
+      for (const b of bands) {
+        if (tempTaxable <= 0) break;
+        const chunk = Math.min(tempTaxable, b.limit);
+        incomeTax += chunk * b.rate;
+        tempTaxable -= chunk;
+      }
+    } else {
+      // England, Wales, Northern Ireland 3-band progressive rates
+      const bands = [
+        { limit: 37700, rate: 0.20 },     // Basic: up to £50,270 (£37,700 wide)
+        { limit: 74870, rate: 0.40 },     // Higher: up to £125,140 (£74,870 wide)
+        { limit: Infinity, rate: 0.45 }   // Additional: above £125,140
+      ];
+
+      let tempTaxable = taxableIncome;
+      for (const b of bands) {
+        if (tempTaxable <= 0) break;
+        const chunk = Math.min(tempTaxable, b.limit);
+        incomeTax += chunk * b.rate;
+        tempTaxable -= chunk;
+      }
+    }
+
+    const netAnnual = grossAnnual - incomeTax - nationalInsurance;
+
+    // Display updates
+    if (frequency === 'annual') {
+      mainResultDisplay.textContent = formatCurrency(netAnnual / 12); // Standard monthly display
+      grossSalaryDisplay.textContent = formatCurrency(grossAnnual);
+      adjustedPaDisplay.textContent = formatCurrency(personalAllowance);
+      totalTaxDisplay.textContent = '-' + formatCurrency(incomeTax);
+      totalNiDisplay.textContent = '-' + formatCurrency(nationalInsurance);
+      totalNetDisplay.textContent = formatCurrency(netAnnual);
+      subResultValue.textContent = formatCurrency(incomeTax);
+    } else {
+      mainResultDisplay.textContent = formatCurrency(netAnnual / 12);
+      grossSalaryDisplay.textContent = formatCurrency(grossAnnual / 12);
+      adjustedPaDisplay.textContent = formatCurrency(personalAllowance / 12);
+      totalTaxDisplay.textContent = '-' + formatCurrency(incomeTax / 12);
+      totalNiDisplay.textContent = '-' + formatCurrency(nationalInsurance / 12);
+      totalNetDisplay.textContent = formatCurrency(netAnnual / 12);
+      subResultValue.textContent = formatCurrency(incomeTax / 12);
+    }
+  }
+
+  // FAQ Accordion
+  document.querySelectorAll('.faq-trigger').forEach(trigger => {
+    trigger.addEventListener('click', () => {
+      const item = trigger.closest('.faq-item');
+      if (item) {
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item').forEach(i => {
+          i.classList.remove('open');
+          const content = i.querySelector('.faq-content') as HTMLElement;
+          if (content) content.style.maxHeight = '0px';
+        });
+        if (!isOpen) {
+          item.classList.add('open');
+          const content = item.querySelector('.faq-content') as HTMLElement;
+          if (content) content.style.maxHeight = content.scrollHeight + 'px';
+        }
+      }
+    });
+  });
+
+  // Run initial calculation
+  calculate();
+</script>
+
+<style>
+  .mode-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    background: var(--paper-dim);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .mode-btn:hover {
+    background: var(--soft);
+  }
+  .mode-btn.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+</style>

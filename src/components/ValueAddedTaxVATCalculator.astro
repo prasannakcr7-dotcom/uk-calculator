@@ -1,0 +1,124 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'VAT Transaction Details'}</h2>
+
+      <!-- Net Amount -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.amountLabel || 'Net Amount (Excluding VAT £)'}</span>
+          <span class="hint" id="amountVal">£500.00</span>
+        </div>
+        <div class="amount-field" style="margin-top: 0; margin-bottom: 0;">
+          <input type="text" value="500.00" id="amountInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="10" max="10000" step="50" value="500" id="amountSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£10</span><span>£10,000</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Total Gross Amount (Including 20% VAT)'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£600.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.vatAmountLabel || 'VAT Amount Added:'}</span>
+        <span class="val" id="subResultValue">£100.00</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'VAT Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Net Amount (Excl. VAT)</span>
+          <span class="val" id="netAmountDisplay">£500.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Standard UK VAT Rate (20%)</span>
+          <span class="val" id="vatAmountDisplay">£100.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Gross Price (Incl. VAT)</span>
+          <span class="val" id="grossPriceDisplay" style="font-weight: 700; font-size: 18px;">£600.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • Standard Rate: <strong>20%</strong><br/>
+        • Reduced Rate: <strong>5%</strong> (domestic energy)<br/>
+        • Zero Rate: <strong>0%</strong> (food, children's clothes, books)<br/>
+        • Registration Threshold: <strong>£90,000/yr</strong>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const amountInput = document.getElementById('amountInput') as HTMLInputElement;
+  const amountSlider = document.getElementById('amountSlider') as HTMLInputElement;
+  const amountVal = document.getElementById('amountVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const netAmountDisplay = document.getElementById('netAmountDisplay') as HTMLElement;
+  const vatAmountDisplay = document.getElementById('vatAmountDisplay') as HTMLElement;
+  const grossPriceDisplay = document.getElementById('grossPriceDisplay') as HTMLElement;
+
+  amountInput.addEventListener('input', () => {
+    const val = parseInputVal(amountInput.value);
+    amountSlider.value = String(Math.min(10000, Math.max(10, val)));
+    calculate();
+  });
+
+  amountSlider.addEventListener('input', () => {
+    amountInput.value = amountSlider.value;
+    calculate();
+  });
+
+  function calculate() {
+    const net = parseInputVal(amountInput.value);
+    amountVal.textContent = formatCurrency(net);
+
+    const vat = net * 0.20;
+    const gross = net + vat;
+
+    mainResultDisplay.textContent = formatCurrency(gross);
+    subResultValue.textContent = formatCurrency(vat);
+    netAmountDisplay.textContent = formatCurrency(net);
+    vatAmountDisplay.textContent = formatCurrency(vat);
+    grossPriceDisplay.textContent = formatCurrency(gross);
+  }
+
+  calculate();
+</script>

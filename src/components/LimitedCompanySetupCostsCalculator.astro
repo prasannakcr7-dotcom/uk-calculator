@@ -1,0 +1,106 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Companies House Online Filing Fee (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="companies-house-fee" value="50" min="50" step="10" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Registered Office Address Service (Annual £)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="registered-office-fee" value="45" min="0" step="15" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Initial Accountant Setup / Onboarding Fee (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="accountant-setup-fee" value="150" min="0" step="25" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Business Bank Account & Software Setup (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="software-bank-fee" value="0" min="0" step="10" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Limited Company Incorporation Costs</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Statutory Registration Fee</span>
+          <strong id="ch-fee-display">£50.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Professional & Compliance Support</span>
+          <strong id="compliance-fee-display">£195.00</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Total Upfront Setup Outlay</span>
+          <strong id="total-incorporation-setup-cost">£245.00</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="trabajo" />
+  </div>
+</div>
+
+<script>
+  function calculateCompanySetup() {
+    const chEl = document.getElementById('companies-house-fee') as HTMLInputElement;
+    const regEl = document.getElementById('registered-office-fee') as HTMLInputElement;
+    const accEl = document.getElementById('accountant-setup-fee') as HTMLInputElement;
+    const softEl = document.getElementById('software-bank-fee') as HTMLInputElement;
+
+    if (!chEl || !regEl || !accEl || !softEl) return;
+
+    const chFee = parseFloat(chEl.value) || 50;
+    const regFee = parseFloat(regEl.value) || 0;
+    const accFee = parseFloat(accEl.value) || 0;
+    const softFee = parseFloat(softEl.value) || 0;
+
+    const complianceTotal = regFee + accFee + softFee;
+    const totalSetup = chFee + complianceTotal;
+
+    const chResEl = document.getElementById('ch-fee-display');
+    const compResEl = document.getElementById('compliance-fee-display');
+    const totalResEl = document.getElementById('total-incorporation-setup-cost');
+
+    if (chResEl) chResEl.textContent = '£' + chFee.toFixed(2);
+    if (compResEl) compResEl.textContent = '£' + complianceTotal.toFixed(2);
+    if (totalResEl) totalResEl.textContent = '£' + totalSetup.toFixed(2);
+  }
+
+  ['companies-house-fee', 'registered-office-fee', 'accountant-setup-fee', 'software-bank-fee'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateCompanySetup);
+    document.getElementById(id)?.addEventListener('change', calculateCompanySetup);
+  });
+  calculateCompanySetup();
+</script>

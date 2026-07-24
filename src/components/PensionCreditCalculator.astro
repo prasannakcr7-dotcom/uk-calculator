@@ -1,0 +1,127 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Pension Credit Income Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Applicant Household Status</span></div>
+        <select id="pensioncredit-status-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="single" selected>Single Pensioner (Statutory Guarantee Credit £218.15 / week)</option>
+          <option value="couple">Pensioner Couple (Statutory Guarantee Credit £332.95 / week)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Total Weekly Income (£/week - State Pension, Private Pension, Earnings)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="pensioncredit-weekly-income" value="160" min="0" step="10" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Total Capital & Savings (£ - First £10,000 Disregarded)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="pensioncredit-savings-capital" value="8000" min="0" step="1000" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--social-1), var(--social-2) 80%);">
+      <div class="result-label">Weekly Guarantee Pension Credit Award</div>
+      <div class="result-amount"><span id="mainResultDisplay">£58.15 / week</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Passported Benefits Unlocked:</span>
+        <span class="val" id="subResultValue">Free TV Licence (80+) & Winter Fuel Payment</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Pension Credit Entitlement Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Statutory Top-Up Minimum Guarantee Limit</span>
+          <span class="val" id="minimumGuaranteeLimitDisplay">£218.15 / week</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Assessable Weekly Income & Tariff Income</span>
+          <span class="val" id="assessableIncomeDisplay">£160.00 / week</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Capital Savings Tariff Income (£1 per £500 over £10k)</span>
+          <span class="val" id="tariffIncomeDisplay">£0.00 (Under £10,000)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Weekly Guarantee Credit Payable</span>
+          <span class="val" id="weeklyGuaranteeCreditDisplay" style="font-weight: 700; font-size: 18px;">£58.15 / week (£3,023.80/yr)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="social" />
+  </div>
+</div>
+
+<script>
+  function calculatePensionCredit() {
+    const statusEl = document.getElementById('pensioncredit-status-select') as HTMLSelectElement;
+    const incomeEl = document.getElementById('pensioncredit-weekly-income') as HTMLInputElement;
+    const savingsEl = document.getElementById('pensioncredit-savings-capital') as HTMLInputElement;
+
+    if (!statusEl || !incomeEl || !savingsEl) return;
+
+    const isSingle = statusEl.value === 'single';
+    const weeklyIncome = parseFloat(incomeEl.value) || 0;
+    const savings = parseFloat(savingsEl.value) || 0;
+
+    // 2026/27 Pension Credit Guarantee Limits: Single £218.15/wk, Couple £332.95/wk
+    const guaranteeLimit = isSingle ? 218.15 : 332.95;
+
+    // Tariff income from savings: First £10,000 ignored, £1 for every £500 above
+    let tariffIncome = 0;
+    if (savings > 10000) {
+      tariffIncome = Math.ceil((savings - 10000) / 500) * 1.00;
+    }
+
+    const totalAssessable = weeklyIncome + tariffIncome;
+    const pcAward = Math.max(0, guaranteeLimit - totalAssessable);
+    const annualAward = pcAward * 52;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const limitRes = document.getElementById('minimumGuaranteeLimitDisplay');
+    const assessRes = document.getElementById('assessableIncomeDisplay');
+    const tariffRes = document.getElementById('tariffIncomeDisplay');
+    const totalRes = document.getElementById('weeklyGuaranteeCreditDisplay');
+
+    if (mainRes) mainRes.textContent = pcAward > 0 ? '£' + pcAward.toFixed(2) + ' / week' : '£0.00 (Over Limit)';
+    if (subVal) subVal.textContent = pcAward > 0 ? 'Unlocks Winter Fuel & Housing Benefit' : 'Income Exceeds Guarantee Limit';
+    if (limitRes) limitRes.textContent = '£' + guaranteeLimit.toFixed(2) + ' / week';
+    if (assessRes) assessRes.textContent = '£' + totalAssessable.toFixed(2) + ' / week';
+    if (tariffRes) tariffRes.textContent = tariffIncome > 0 ? '£' + tariffIncome.toFixed(2) + ' / week' : '£0.00 (Under £10k)';
+    if (totalRes) totalRes.textContent = pcAward > 0 ? '£' + pcAward.toFixed(2) + ` / week (£${annualAward.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/yr)` : '£0.00';
+  }
+
+  ['pensioncredit-status-select', 'pensioncredit-weekly-income', 'pensioncredit-savings-capital'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculatePensionCredit);
+    document.getElementById(id)?.addEventListener('change', calculatePensionCredit);
+  });
+  calculatePensionCredit();
+</script>

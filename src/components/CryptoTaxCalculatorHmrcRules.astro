@@ -1,0 +1,102 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Disposal Value / Sales Proceeds in GBP (£)</span></div>
+      <div class="amount-field"><input type="number" id="crypto-disposal-value" value="12000" min="100" step="500" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Allowable Cost Basis (Section 104 Pool Cost £)</span></div>
+      <div class="amount-field"><input type="number" id="crypto-cost-basis" value="5000" min="0" step="500" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Exchange Fees & Network Gas Fees (£)</span></div>
+      <div class="amount-field"><input type="number" id="crypto-exchange-fees" value="150" min="0" step="25" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Income Tax Band</span></div>
+      <select id="user-income-tax-band">
+        <option value="basic" selected>Basic Rate Taxpayer (20% Income / 10% CGT)</option>
+        <option value="higher">Higher / Additional Rate Taxpayer (40%/45% Income / 20% CGT)</option>
+      </select>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card">
+      <h2>Calculation Breakdown</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+        <span>Estimated Crypto CGT Payable:</span>
+        <strong id="crypto-cgt-payable">£0.00</strong>
+      </div>
+        <div class="breakdown-row">
+        <span>Gross Realized Capital Gain:</span>
+        <strong id="crypto-gross-gain">£0.00</strong>
+      </div>
+        <div class="breakdown-row">
+        <span>CGT Exemption Applied (£3,000 max):</span>
+        <strong id="crypto-allowance-used">£0.00</strong>
+      </div>
+        <div class="breakdown-row">
+        <span>Taxable Gain Subject to CGT:</span>
+        <strong id="crypto-taxable-gain">£0.00</strong>
+      </div>
+        <div class="breakdown-row net">
+        <span>Applicable Crypto CGT Tax Rate:</span>
+        <strong id="crypto-cgt-rate">10% / 20%</strong>
+      
+  </div>
+      </div>
+    </div>
+
+<script>
+  function calculateCryptoTax() {
+    const proceeds = parseFloat((document.getElementById('crypto-disposal-value') as HTMLInputElement).value) || 0;
+    const cost = parseFloat((document.getElementById('crypto-cost-basis') as HTMLInputElement).value) || 0;
+    const fees = parseFloat((document.getElementById('crypto-exchange-fees') as HTMLInputElement).value) || 0;
+    const taxBand = (document.getElementById('user-income-tax-band') as HTMLSelectElement).value;
+
+    const annualAllowance = 3000; // 2026/27 CGT annual exempt amount
+    const grossGain = Math.max(0, proceeds - cost - fees);
+    const allowanceUsed = Math.min(annualAllowance, grossGain);
+    const taxableGain = Math.max(0, grossGain - allowanceUsed);
+
+    const cgtRate = taxBand === 'basic' ? 0.10 : 0.20;
+    const cgtPayable = taxableGain * cgtRate;
+
+    (document.getElementById('crypto-cgt-payable') as HTMLElement).textContent = '£' + cgtPayable.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('crypto-gross-gain') as HTMLElement).textContent = '£' + grossGain.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('crypto-allowance-used') as HTMLElement).textContent = '£' + allowanceUsed.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('crypto-taxable-gain') as HTMLElement).textContent = '£' + taxableGain.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('crypto-cgt-rate') as HTMLElement).textContent = (cgtRate * 100).toFixed(0) + '%';
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateCryptoTax);
+  calculateCryptoTax();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

@@ -1,0 +1,160 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout family-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Statutory Leave & Pay Details'}</h2>
+
+      <!-- Average Weekly Earnings -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.earningsLabel || 'Average Weekly Earnings (AWE)'}</span>
+          <span class="hint" id="earningsVal">£500.00</span>
+        </div>
+        <div class="amount-field" style="margin-top: 0; margin-bottom: 0;">
+          <input type="text" value="500" id="earningsInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="100" max="2000" step="10" value="500" id="earningsSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£100</span><span>£2,000</span></div>
+      </div>
+
+      <!-- Weeks Planned -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.weeksLabel || 'Leave Duration (Weeks)'}</span>
+          <span class="hint" id="weeksVal">39 Weeks</span>
+        </div>
+        <input type="range" min="1" max="52" step="1" value="39" id="weeksSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1 Week</span><span>52 Weeks</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--family-1), var(--family-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Total Statutory Pay Entitlement'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£8,876.94</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.first6WksLabel || 'First 6 Weeks Rate (90%):'}</span>
+        <span class="val" id="subResultValue">£450.00/wk</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Pay Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>First 6 Weeks Rate (90% AWE)</span>
+          <span class="val" id="sixWeeksRateDisplay">£450.00/wk</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Weeks 7 to 39 Standard Rate</span>
+          <span class="val" id="remainingRateDisplay">£187.18/wk</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Unpaid Weeks (Weeks 40-52)</span>
+          <span class="val" id="unpaidWeeksDisplay">13 Weeks</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Statutory Pay</span>
+          <span class="val" id="totalStatutoryDisplay" style="font-weight: 700; font-size: 18px;">£8,876.94</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • First 6 weeks: <strong>90% of AWE</strong><br/>
+        • Next 33 weeks: Lower of <strong>90% AWE</strong> or <strong>£187.18/wk</strong><br/>
+        • Lower Earnings Limit: <strong>£123/wk</strong>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const earningsInput = document.getElementById('earningsInput') as HTMLInputElement;
+  const earningsSlider = document.getElementById('earningsSlider') as HTMLInputElement;
+  const earningsVal = document.getElementById('earningsVal') as HTMLElement;
+  const weeksSlider = document.getElementById('weeksSlider') as HTMLInputElement;
+  const weeksVal = document.getElementById('weeksVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const sixWeeksRateDisplay = document.getElementById('sixWeeksRateDisplay') as HTMLElement;
+  const remainingRateDisplay = document.getElementById('remainingRateDisplay') as HTMLElement;
+  const unpaidWeeksDisplay = document.getElementById('unpaidWeeksDisplay') as HTMLElement;
+  const totalStatutoryDisplay = document.getElementById('totalStatutoryDisplay') as HTMLElement;
+
+  earningsInput.addEventListener('input', () => {
+    const val = parseInputVal(earningsInput.value);
+    earningsSlider.value = String(Math.min(2000, Math.max(100, val)));
+    calculate();
+  });
+
+  earningsSlider.addEventListener('input', () => {
+    earningsInput.value = earningsSlider.value;
+    calculate();
+  });
+
+  weeksSlider.addEventListener('input', () => {
+    calculate();
+  });
+
+  function calculate() {
+    const awe = parseInputVal(earningsInput.value);
+    const weeks = parseInt(weeksSlider.value, 10);
+
+    earningsVal.textContent = formatCurrency(awe);
+    weeksVal.textContent = `${weeks} Weeks`;
+
+    const wk1_6Rate = awe * 0.9;
+    const stdRate = Math.min(awe * 0.9, 187.18);
+
+    let total = 0;
+    let unpaidCount = 0;
+
+    if (weeks <= 6) {
+      total = wk1_6Rate * weeks;
+    } else if (weeks <= 39) {
+      total = (wk1_6Rate * 6) + (stdRate * (weeks - 6));
+    } else {
+      total = (wk1_6Rate * 6) + (stdRate * 33);
+      unpaidCount = weeks - 39;
+    }
+
+    mainResultDisplay.textContent = formatCurrency(total);
+    subResultValue.textContent = `${formatCurrency(wk1_6Rate)}/wk`;
+    sixWeeksRateDisplay.textContent = `${formatCurrency(wk1_6Rate)}/wk`;
+    remainingRateDisplay.textContent = `${formatCurrency(stdRate)}/wk`;
+    unpaidWeeksDisplay.textContent = `${unpaidCount} Weeks`;
+    totalStatutoryDisplay.textContent = formatCurrency(total);
+  }
+
+  calculate();
+</script>

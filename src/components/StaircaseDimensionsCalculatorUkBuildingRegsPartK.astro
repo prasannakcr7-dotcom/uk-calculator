@@ -1,0 +1,183 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Staircase Height & Riser Details'}</h2>
+
+      <!-- Total Floor-to-Floor Height (mm) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.totalRiseLabel || 'Total Floor-to-Floor Rise Height (mm)'}</span>
+          <span class="hint" id="totalRiseVal">2,600 mm (Standard Ceiling + Joists)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="2,600" id="totalRiseInput" inputmode="decimal" />
+          <span class="cur">mm</span>
+        </div>
+        <input type="range" min="1500" max="4000" step="50" value="2600" id="totalRiseSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1,500mm</span><span>4,000mm</span></div>
+      </div>
+
+      <!-- Target Going / Tread Depth (mm) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.goingLabel || 'Target Going / Tread Depth (mm)'}</span>
+          <span class="hint" id="goingVal">250 mm (Standard Domestic)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="250" id="goingInput" inputmode="decimal" />
+          <span class="cur">mm</span>
+        </div>
+        <input type="range" min="220" max="350" step="5" value="250" id="goingSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>220mm (Min)</span><span>350mm</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Calculated Staircase Riser Count & Height'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">14 Risers @ 185.7mm</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.complianceLabel || 'Building Regs Part K Compliance Status:'}</span>
+        <span class="val" id="subResultValue">PASSED (2G + R = 621mm — Within 550mm to 700mm Rule)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Part K Staircase Geometry Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Number of Individual Risers</span>
+          <span class="val" id="risersDisplay">14 Risers</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Individual Riser Height (Max 220mm)</span>
+          <span class="val" id="riserHeightDisplay">185.7 mm (Compliant)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Individual Going Depth (Min 220mm)</span>
+          <span class="val" id="goingDisplay">250.0 mm (Compliant)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Pitch Angle (Max 42.0°)</span>
+          <span class="val" id="pitchDisplay">36.6° (Compliant)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>2G + R Relationship Formula Check</span>
+          <span class="val" id="relationshipDisplay" style="font-weight: 700; font-size: 18px;">621 mm (Pass: 550mm - 700mm)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Max Riser Height:</strong> Maximum 220mm for domestic stairs (max 190mm for semi-public).<br/>
+        • <strong>Min Going Depth:</strong> Minimum 220mm for domestic stairs (min 250mm for semi-public).<br/>
+        • <strong>Max Pitch Angle:</strong> Maximum 42.0° pitch angle for private domestic staircases.<br/>
+        • <strong>2G + R Rule:</strong> Twice the Going plus Riser must equal between 550mm and 700mm.<br/>
+        • <strong>Min Headroom:</strong> Minimum 2.0m clear vertical headroom above the pitch line.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  const totalRiseInput = document.getElementById('totalRiseInput') as HTMLInputElement;
+  const totalRiseSlider = document.getElementById('totalRiseSlider') as HTMLInputElement;
+  const totalRiseVal = document.getElementById('totalRiseVal') as HTMLElement;
+
+  const goingInput = document.getElementById('goingInput') as HTMLInputElement;
+  const goingSlider = document.getElementById('goingSlider') as HTMLInputElement;
+  const goingVal = document.getElementById('goingVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const risersDisplay = document.getElementById('risersDisplay') as HTMLElement;
+  const riserHeightDisplay = document.getElementById('riserHeightDisplay') as HTMLElement;
+  const goingDisplay = document.getElementById('goingDisplay') as HTMLElement;
+  const pitchDisplay = document.getElementById('pitchDisplay') as HTMLElement;
+  const relationshipDisplay = document.getElementById('relationshipDisplay') as HTMLElement;
+
+  function calculate() {
+    const totalRise = parseInputVal(totalRiseInput.value);
+    const going = parseInputVal(goingInput.value);
+
+    // Target ideal riser height is approx 175-190mm for domestic
+    const numRisers = Math.round(totalRise / 185);
+    const actualRiser = totalRise / numRisers;
+
+    // Pitch Angle = arctan(Riser / Going)
+    const pitchRad = Math.atan(actualRiser / going);
+    const pitchDeg = pitchRad * (180 / Math.PI);
+
+    // 2G + R formula
+    const relationship = (2 * going) + actualRiser;
+
+    totalRiseVal.innerText = `${totalRise.toLocaleString('en-GB')} mm`;
+    goingVal.innerText = `${going.toFixed(0)} mm`;
+
+    mainResultDisplay.innerText = `${numRisers} Risers @ ${actualRiser.toFixed(1)}mm`;
+
+    let passStatus = 'PASSED';
+    let isPass = true;
+
+    if (actualRiser > 220) { passStatus = 'FAILED (Riser > 220mm Max)'; isPass = false; }
+    if (going < 220) { passStatus = 'FAILED (Going < 220mm Min)'; isPass = false; }
+    if (pitchDeg > 42.0) { passStatus = 'FAILED (Pitch > 42.0° Max)'; isPass = false; }
+    if (relationship < 550 || relationship > 700) { passStatus = 'FAILED (2G+R Outside 550-700mm)'; isPass = false; }
+
+    subResultValue.innerText = `${passStatus} (2G + R = ${Math.round(relationship)}mm)`;
+
+    risersDisplay.innerText = `${numRisers} Risers`;
+    riserHeightDisplay.innerText = `${actualRiser.toFixed(1)} mm ${actualRiser <= 220 ? '(Compliant ≤ 220mm)' : '(Non-Compliant)'}`;
+    goingDisplay.innerText = `${going.toFixed(1)} mm ${going >= 220 ? '(Compliant ≥ 220mm)' : '(Non-Compliant)'}`;
+    pitchDisplay.innerText = `${pitchDeg.toFixed(1)}° ${pitchDeg <= 42.0 ? '(Compliant ≤ 42°)' : '(Non-Compliant)'}`;
+    relationshipDisplay.innerText = `${Math.round(relationship)} mm (${isPass ? 'Pass: 550-700mm' : 'Fail'})`;
+  }
+
+  totalRiseInput.addEventListener('input', () => {
+    const val = parseInputVal(totalRiseInput.value);
+    totalRiseSlider.value = String(val);
+    calculate();
+  });
+
+  totalRiseSlider.addEventListener('input', () => {
+    totalRiseInput.value = parseInt(totalRiseSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  goingInput.addEventListener('input', () => {
+    const val = parseInputVal(goingInput.value);
+    goingSlider.value = String(val);
+    calculate();
+  });
+
+  goingSlider.addEventListener('input', () => {
+    goingInput.value = goingSlider.value;
+    calculate();
+  });
+
+  calculate();
+</script>

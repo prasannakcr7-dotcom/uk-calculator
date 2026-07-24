@@ -1,0 +1,120 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    <h2 class="calc-title">Scale Model & Ordnance Survey Map Distance Converter (2026/27)</h2>
+    <p class="calc-desc">Convert real-world dimensions into scale model sizes (1:76 OO gauge, 1:148 N gauge, 1:72, 1:48, 1:35) and Ordnance Survey map distances (1:25,000 & 1:50,000).</p>
+
+    <div class="field-group">
+      <div class="field-label"><span>Select Scale Ratio Preset</span></div>
+      <select id="scale-preset">
+        <option value="76.2" selected>1:76.2 - UK OO Gauge Railway / 4mm Scale</option>
+        <option value="148">1:148 - UK N Gauge Railway / 2mm Scale</option>
+        <option value="43.5">1:43.5 - UK O Gauge Railway / 7mm Scale</option>
+        <option value="72">1:72 - Aircraft & Military Models</option>
+        <option value="48">1:48 - Architectural & Aircraft Models</option>
+        <option value="35">1:35 - Military Armour & Figure Models</option>
+        <option value="25000">1:25,000 - Ordnance Survey Explorer Map (4cm = 1km)</option>
+        <option value="50000">1:50,000 - Ordnance Survey Landranger Map (2cm = 1km)</option>
+        <option value="custom">Custom Scale Ratio (1:X)</option>
+      </select>
+    </div>
+
+    <div class="field-group" id="group-custom-scale" style="display: none;">
+      <div class="field-label"><span>Custom Scale Factor (X in 1:X)</span></div>
+      <div class="amount-field"><input type="number" id="custom-scale-ratio" value="100" min="1" step="1" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Real-World Actual Dimension (Metres)</span></div>
+      <div class="amount-field"><input type="number" id="real-world-dimension" value="15" min="0.01" step="1" /></div>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <h3>Scaled Model Dimension Results</h3>
+      <div class="breakdown-row net">
+        <span>Model Dimension (Millimetres):</span>
+        <strong id="model-dim-mm">0.00 mm</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Model Dimension (Centimetres):</span>
+        <strong id="model-dim-cm">0.00 cm</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Model Dimension (Inches):</span>
+        <strong id="model-dim-inches">0.00 inches</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Map Equivalent (4cm on 1:25k map = 1km):</span>
+        <strong id="map-scale-note">Scale 1:76.2</strong>
+      
+  </div>
+</div>
+
+<script>
+  function toggleCustomScale() {
+    const preset = (document.getElementById('scale-preset') as HTMLSelectElement).value;
+    const customGroup = document.getElementById('group-custom-scale') as HTMLElement;
+    if (preset === 'custom') {
+      customGroup.style.display = 'block';
+    } else {
+      customGroup.style.display = 'none';
+    }
+  }
+
+  function calculateScaleModel() {
+    const preset = (document.getElementById('scale-preset') as HTMLSelectElement).value;
+    const customRatio = parseFloat((document.getElementById('custom-scale-ratio') as HTMLInputElement).value) || 100;
+    const realM = parseFloat((document.getElementById('real-world-dimension') as HTMLInputElement).value) || 0;
+
+    let ratio = 76.2;
+    if (preset === 'custom') {
+      ratio = customRatio;
+    } else {
+      ratio = parseFloat(preset);
+    }
+
+    // Real metres -> Real mm = realM * 1000
+    const realMm = realM * 1000;
+    const modelMm = ratio > 0 ? realMm / ratio : 0;
+    const modelCm = modelMm / 10;
+    const modelInches = modelMm / 25.4;
+
+    let note = 'Scale 1:' + ratio;
+    if (ratio === 25000) {
+      note = '1:25,000 OS Explorer: 4cm on map represents 1km (1,000m) in reality';
+    } else if (ratio === 50000) {
+      note = '1:50,000 OS Landranger: 2cm on map represents 1km (1,000m) in reality';
+    }
+
+    (document.getElementById('model-dim-mm') as HTMLElement).textContent = modelMm.toFixed(2) + ' mm';
+    (document.getElementById('model-dim-cm') as HTMLElement).textContent = modelCm.toFixed(2) + ' cm';
+    (document.getElementById('model-dim-inches') as HTMLElement).textContent = modelInches.toFixed(2) + ' in';
+    (document.getElementById('map-scale-note') as HTMLElement).textContent = note;
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('scale-preset')?.addEventListener('change', toggleCustomScale);
+  document.getElementById('calc-btn')?.addEventListener('click', calculateScaleModel);
+  calculateScaleModel();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

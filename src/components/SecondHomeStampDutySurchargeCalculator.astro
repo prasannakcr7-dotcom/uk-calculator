@@ -1,0 +1,122 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Second Home & Additional Property SDLT Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Purchase Price (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="secondhome-property-price" value="280000" min="40000" step="10000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>UK Nation Jurisdiction</span></div>
+        <select id="secondhome-nation-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="england" selected>England & NI (SDLT - 5% Additional Property Surcharge)</option>
+          <option value="scotland">Scotland (LBTT - 6% Additional Dwelling Supplement ADS)</option>
+          <option value="wales">Wales (LTT - Higher Residential Rates Scale)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Replacing Main Residence?</span></div>
+        <select id="secondhome-replacing-main-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="no" selected>No (Buy-to-Let / Second Home Surcharge Applies)</option>
+          <option value="yes">Yes (Replacing Main Residence - Standard Rates Apply)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">Total Additional Property Stamp Duty (SDLT)</div>
+      <div class="result-amount"><span id="mainResultDisplay">£18,000.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">5% Additional Surcharge Amount:</span>
+        <span class="val" id="subResultValue">£14,000.00 Surcharge Share</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Stamp Duty Surcharge Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Standard Base Residential Rate Share</span>
+          <span class="val" id="baseSdltShareDisplay">£4,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>5% Additional Property Surcharge Share</span>
+          <span class="val" id="surchargeShareDisplay">£14,000.00 (5% on £280k)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Combined Stamp Duty Liability</span>
+          <span class="val" id="totalSecondHomeSdltDisplay" style="font-weight: 700; font-size: 18px;">£18,000.00 (6.43% Effective Rate)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="impuestos" />
+  </div>
+</div>
+
+<script>
+  function calculateSecondHomeSdlt() {
+    const priceEl = document.getElementById('secondhome-property-price') as HTMLInputElement;
+    const nationEl = document.getElementById('secondhome-nation-select') as HTMLSelectElement;
+    const replacingEl = document.getElementById('secondhome-replacing-main-select') as HTMLSelectElement;
+
+    if (!priceEl || !nationEl || !replacingEl) return;
+
+    const price = parseFloat(priceEl.value) || 0;
+    const isReplacing = replacingEl.value === 'yes';
+
+    // 5% Surcharge for England 2026/27
+    const surchargeRate = isReplacing ? 0.0 : 0.05;
+    const surchargeShare = price * surchargeRate;
+
+    let baseSdlt = 0;
+    if (price > 250000) {
+      baseSdlt += (price - 250000) * 0.05 + (250000 - 125000) * 0.02;
+    } else if (price > 125000) {
+      baseSdlt += (price - 125000) * 0.02;
+    }
+
+    const totalSdlt = baseSdlt + surchargeShare;
+    const effectiveRate = price > 0 ? (totalSdlt / price) * 100 : 0;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const baseRes = document.getElementById('baseSdltShareDisplay');
+    const surRes = document.getElementById('surchargeShareDisplay');
+    const totalRes = document.getElementById('totalSecondHomeSdltDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + totalSdlt.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = '£' + surchargeShare.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Surcharge Share';
+    if (baseRes) baseRes.textContent = '£' + baseSdlt.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (surRes) surRes.textContent = '£' + surchargeShare.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` (${(surchargeRate*100).toFixed(0)}%)`;
+    if (totalRes) totalRes.textContent = '£' + totalSdlt.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` (${effectiveRate.toFixed(2)}% Effective Rate)`;
+  }
+
+  ['secondhome-property-price', 'secondhome-nation-select', 'secondhome-replacing-main-select'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateSecondHomeSdlt);
+    document.getElementById(id)?.addEventListener('change', calculateSecondHomeSdlt);
+  });
+  calculateSecondHomeSdlt();
+</script>

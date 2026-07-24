@@ -1,0 +1,134 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout finance-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Amount to Convert</span></div>
+        <div class="amount-field">
+          <input type="number" id="currency-amount" value="1000" min="1" step="50" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>From Currency</span></div>
+        <select id="from-currency-code" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="GBP" selected>GBP (£) - British Pound Sterling</option>
+          <option value="EUR">EUR (€) - Euro</option>
+          <option value="USD">USD ($) - US Dollar</option>
+          <option value="AUD">AUD ($) - Australian Dollar</option>
+          <option value="CAD">CAD ($) - Canadian Dollar</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>To Currency</span></div>
+        <select id="to-currency-code" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="EUR" selected>EUR (€) - Euro</option>
+          <option value="USD">USD ($) - US Dollar</option>
+          <option value="GBP">GBP (£) - British Pound Sterling</option>
+          <option value="AUD">AUD ($) - Australian Dollar</option>
+          <option value="CAD">CAD ($) - Canadian Dollar</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Exchange Fee / Markup (%)</span></div>
+        <div class="amount-field">
+          <input type="number" id="fx-fee-pct" value="0.5" min="0" max="5" step="0.1" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Currency Conversion Results</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Mid-Market Exchange Rate</span>
+          <strong id="mid-market-rate-display">1 GBP = 1.1800 EUR</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Exchange Fee Deducted</span>
+          <strong id="fx-fee-deducted-val">£5.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Effective Applied Exchange Rate</span>
+          <strong id="effective-fx-rate-display">1.1741 EUR</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Converted Amount Received</span>
+          <strong id="converted-amount-display">1,174.10 EUR</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="finanzas" />
+  </div>
+</div>
+
+<script>
+  const fxRates: Record<string, number> = {
+    GBP: 1.0,
+    EUR: 1.18,
+    USD: 1.28,
+    AUD: 1.92,
+    CAD: 1.74
+  };
+
+  function calculateCurrencyConversion() {
+    const amountEl = document.getElementById('currency-amount') as HTMLInputElement;
+    const fromEl = document.getElementById('from-currency-code') as HTMLSelectElement;
+    const toEl = document.getElementById('to-currency-code') as HTMLSelectElement;
+    const feeEl = document.getElementById('fx-fee-pct') as HTMLInputElement;
+
+    if (!amountEl || !fromEl || !toEl || !feeEl) return;
+
+    const amount = parseFloat(amountEl.value) || 0;
+    const from = fromEl.value;
+    const to = toEl.value;
+    const feePct = parseFloat(feeEl.value) || 0;
+
+    const rateFromInGbp = fxRates[from] || 1.0;
+    const rateToInGbp = fxRates[to] || 1.0;
+
+    // Convert input to GBP baseline, then to target currency
+    const amountInGbp = amount / rateFromInGbp;
+    const feeInGbp = amountInGbp * (feePct / 100);
+    const netGbp = Math.max(0, amountInGbp - feeInGbp);
+
+    const convertedAmount = netGbp * rateToInGbp;
+    const midMarketRate = rateToInGbp / rateFromInGbp;
+    const effectiveRate = amount > 0 ? convertedAmount / amount : 0;
+
+    const midRateEl = document.getElementById('mid-market-rate-display');
+    const feeDeductEl = document.getElementById('fx-fee-deducted-val');
+    const effRateEl = document.getElementById('effective-fx-rate-display');
+    const resultEl = document.getElementById('converted-amount-display');
+
+    if (midRateEl) midRateEl.textContent = `1 ${from} = ${midMarketRate.toFixed(4)} ${to}`;
+    if (feeDeductEl) feeDeductEl.textContent = `${feePct.toFixed(1)}% (${feeInGbp.toFixed(2)} GBP equiv)`;
+    if (effRateEl) effRateEl.textContent = `${effectiveRate.toFixed(4)} ${to}`;
+    if (resultEl) resultEl.textContent = `${convertedAmount.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${to}`;
+  }
+
+  ['currency-amount', 'from-currency-code', 'to-currency-code', 'fx-fee-pct'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateCurrencyConversion);
+    document.getElementById(id)?.addEventListener('change', calculateCurrencyConversion);
+  });
+  calculateCurrencyConversion();
+</script>

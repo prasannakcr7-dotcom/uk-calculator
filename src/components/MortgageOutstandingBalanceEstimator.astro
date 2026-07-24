@@ -1,0 +1,128 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Original Mortgage Principal Borrowed (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="orig-loan-principal" value="250000" min="10000" step="5000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Annual Interest Rate (% p.a.)</span></div>
+        <div class="amount-field">
+          <input type="number" id="orig-interest-rate-pct" value="4.5" min="0.5" max="15" step="0.1" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Total Mortgage Term (Years)</span></div>
+        <div class="amount-field">
+          <input type="number" id="orig-mortgage-term-years" value="25" min="5" max="40" step="1" />
+          <span class="cur">yrs</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Years of Mortgage Payments Completed</span></div>
+        <div class="amount-field">
+          <input type="number" id="years-payments-completed" value="5" min="1" max="39" step="1" />
+          <span class="cur">yrs</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Outstanding Balance & Equity Paid Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Monthly Repayment Amount</span>
+          <strong id="repayment-monthly-val">£1,389.49 / month</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Cumulative Total Repayments Made So Far</span>
+          <strong id="total-repayments-made-so-far">£83,369.40</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Capital Principal Paid Off So Far</span>
+          <strong id="principal-paid-off-val">£28,321.45</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Remaining Outstanding Mortgage Balance</span>
+          <strong id="remaining-outstanding-balance">£221,678.55</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateOutstandingBalance() {
+    const principalEl = document.getElementById('orig-loan-principal') as HTMLInputElement;
+    const rateEl = document.getElementById('orig-interest-rate-pct') as HTMLInputElement;
+    const termEl = document.getElementById('orig-mortgage-term-years') as HTMLInputElement;
+    const completedEl = document.getElementById('years-payments-completed') as HTMLInputElement;
+
+    if (!principalEl || !rateEl || !termEl || !completedEl) return;
+
+    const P = parseFloat(principalEl.value) || 0;
+    const annualRate = (parseFloat(rateEl.value) || 0) / 100;
+    const yearsTotal = parseInt(termEl.value) || 25;
+    const yearsDone = parseInt(completedEl.value) || 0;
+
+    const r = annualRate / 12;
+    const nTotal = yearsTotal * 12;
+    const nDone = yearsDone * 12;
+
+    const M = r > 0 ? P * (r * Math.pow(1 + r, nTotal)) / (Math.pow(1 + r, nTotal) - 1) : P / nTotal;
+
+    // Balance after k payments: P * ((1+r)^N - (1+r)^k) / ((1+r)^N - 1)
+    let balance = P;
+    if (r > 0) {
+      balance = P * (Math.pow(1 + r, nTotal) - Math.pow(1 + r, nDone)) / (Math.pow(1 + r, nTotal) - 1);
+    } else {
+      balance = P * (1 - (nDone / nTotal));
+    }
+
+    balance = Math.max(0, balance);
+
+    const totalPaidSoFar = M * nDone;
+    const principalPaid = Math.max(0, P - balance);
+
+    const monthlyResEl = document.getElementById('repayment-monthly-val');
+    const paidSoFarEl = document.getElementById('total-repayments-made-so-far');
+    const principalResEl = document.getElementById('principal-paid-off-val');
+    const balanceResEl = document.getElementById('remaining-outstanding-balance');
+
+    if (monthlyResEl) monthlyResEl.textContent = '£' + M.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (paidSoFarEl) paidSoFarEl.textContent = '£' + totalPaidSoFar.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (principalResEl) principalResEl.textContent = '£' + principalPaid.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (balanceResEl) balanceResEl.textContent = '£' + balance.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['orig-loan-principal', 'orig-interest-rate-pct', 'orig-mortgage-term-years', 'years-payments-completed'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateOutstandingBalance);
+    document.getElementById(id)?.addEventListener('change', calculateOutstandingBalance);
+  });
+  calculateOutstandingBalance();
+</script>

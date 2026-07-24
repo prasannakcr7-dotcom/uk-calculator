@@ -1,12 +1,14 @@
 ---
+import Sidebar from './Sidebar.astro';
 interface Props {
 	date: Date;
 }
 
 const { date } = Astro.props;
 ---
-
-<time datetime={date.toISOString()}>
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <time datetime={date.toISOString()}>
 	{
 		date.toLocaleDateString('en-us', {
 			year: 'numeric',
@@ -15,3 +17,9 @@ const { date } = Astro.props;
 		})
 	}
 </time>
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

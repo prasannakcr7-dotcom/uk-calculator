@@ -1,0 +1,123 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Employee Age at Dismissal Date (Years)</span></div>
+      <div class="amount-field"><input type="number" id="dismissal-employee-age" value="48" min="18" max="75" step="1" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Completed Years of Continuous Service</span></div>
+      <div class="amount-field"><input type="number" id="dismissal-years-service" value="10" min="2" max="20" step="1" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Gross Weekly Pay Before Dismissal (£)</span></div>
+      <div class="amount-field"><input type="number" id="dismissal-gross-weekly-pay" value="750" min="100" step="25" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Net Monthly Financial Loss After Dismissal (£)</span></div>
+      <div class="amount-field"><input type="number" id="net-monthly-earnings-loss" value="2500" min="0" step="250" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Months Unemployed / Projected Job Search Duration</span></div>
+      <div class="amount-field"><input type="number" id="months-unemployed-duration" value="6" min="1" max="24" step="1" /></div>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <h3>Employment Tribunal Award Estimate</h3>
+      <div class="breakdown-row net">
+        <span>Total Estimated Tribunal Award (Basic + Compensatory):</span>
+        <strong id="total-tribunal-award-val">£0.00</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Statutory Basic Award Subtotal:</span>
+        <strong id="basic-award-subtotal">£0.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Compensatory Financial Loss Subtotal:</span>
+        <strong id="compensatory-award-subtotal">£0.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Compensatory Award Cap Rule:</span>
+        <strong id="compensatory-cap-rule">Capped at lower of £115,000 or 52 weeks' gross pay</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculateTribunalAward() {
+    const age = parseInt((document.getElementById('dismissal-employee-age') as HTMLInputElement).value) || 18;
+    const years = Math.min(20, parseInt((document.getElementById('dismissal-years-service') as HTMLInputElement).value) || 0);
+    const grossWeekly = parseFloat((document.getElementById('dismissal-gross-weekly-pay') as HTMLInputElement).value) || 0;
+    const monthlyNetLoss = parseFloat((document.getElementById('net-monthly-earnings-loss') as HTMLInputElement).value) || 0;
+    const monthsUnemployed = parseInt((document.getElementById('months-unemployed-duration') as HTMLInputElement).value) || 0;
+
+    // 2026/27 Tribunal Limits:
+    // Basic Award Weekly Cap: £700/week
+    // Max Basic Award: £21,000 (20 yrs x 1.5 x £700)
+    // Compensatory Award Statutory Cap: £115,000 (or 52 weeks' gross pay, whichever is lower)
+
+    const statWeeklyCap = 700.0;
+    const effectiveWeekly = Math.min(statWeeklyCap, grossWeekly);
+
+    // Basic Award Multiplier calculation (same logic as redundancy):
+    let totalWeeks = 0;
+    let currAge = age;
+    for (let i = 0; i < years; i++) {
+      if (currAge >= 41) {
+        totalWeeks += 1.5;
+      } else if (currAge >= 22) {
+        totalWeeks += 1.0;
+      } else {
+        totalWeeks += 0.5;
+      }
+      currAge--;
+    }
+
+    const basicAward = totalWeeks * effectiveWeekly;
+
+    // Compensatory Award: Actual financial loss capped at lower of £115,000 or 52 weeks' gross pay
+    const actualLoss = monthlyNetLoss * monthsUnemployed;
+    const annualGrossPay = grossWeekly * 52;
+    const statCompCap = 115000;
+    const effectiveCap = Math.min(statCompCap, annualGrossPay);
+
+    const compensatoryAward = Math.min(actualLoss, effectiveCap);
+    const totalAward = basicAward + compensatoryAward;
+
+    (document.getElementById('total-tribunal-award-val') as HTMLElement).textContent = '£' + totalAward.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('basic-award-subtotal') as HTMLElement).textContent = '£' + basicAward.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' (' + totalWeeks.toFixed(1) + ' weeks @ £' + effectiveWeekly.toFixed(2) + '/wk)';
+    (document.getElementById('compensatory-award-subtotal') as HTMLElement).textContent = '£' + compensatoryAward.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('compensatory-cap-rule') as HTMLElement).textContent = 'Capped at £' + effectiveCap.toLocaleString('en-GB') + ' (lower of 52wks gross pay or £115,000)';
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateTribunalAward);
+  calculateTribunalAward();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

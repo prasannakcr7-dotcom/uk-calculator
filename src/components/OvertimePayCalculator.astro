@@ -1,0 +1,114 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Overtime Hours & Multiplier Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Base Standard Hourly Rate (£/hour)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="overtime-base-rate" value="18.00" min="10" step="0.5" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Overtime Pay Multiplier Rate</span></div>
+        <select id="overtime-multiplier-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="1.5" selected>Time and a Half (1.5x Rate - £27.00/hr)</option>
+          <option value="2.0">Double Time (2.0x Rate - £36.00/hr)</option>
+          <option value="1.25">Time and a Quarter (1.25x Rate - £22.50/hr)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Overtime Hours Worked (in Period)</span></div>
+        <div class="amount-field">
+          <input type="number" id="overtime-hours-count" value="10" min="1" max="100" step="1" />
+          <span class="cur">hours</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--work-1), var(--work-2) 80%);">
+      <div class="result-label">Gross Overtime Pay Earned</div>
+      <div class="result-amount"><span id="mainResultDisplay">£270.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Effective Overtime Hourly Rate:</span>
+        <span class="val" id="subResultValue">£27.00 / hour</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Overtime Earnings Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Base Value of Hours (10 hrs @ £18.00)</span>
+          <span class="val" id="baseHoursValueDisplay">£180.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Overtime Multiplier Premium Bonus (0.5x)</span>
+          <span class="val" id="overtimePremiumValueDisplay">£90.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Gross Overtime Earnings</span>
+          <span class="val" id="totalOvertimePayDisplay" style="font-weight: 700; font-size: 18px;">£270.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="trabajo" />
+  </div>
+</div>
+
+<script>
+  function calculateOvertime() {
+    const baseRateEl = document.getElementById('overtime-base-rate') as HTMLInputElement;
+    const multEl = document.getElementById('overtime-multiplier-select') as HTMLSelectElement;
+    const hoursEl = document.getElementById('overtime-hours-count') as HTMLInputElement;
+
+    if (!baseRateEl || !multEl || !hoursEl) return;
+
+    const baseRate = parseFloat(baseRateEl.value) || 0;
+    const mult = parseFloat(multEl.value) || 1.5;
+    const hours = parseFloat(hoursEl.value) || 0;
+
+    const effectiveRate = baseRate * mult;
+    const baseValue = baseRate * hours;
+    const premiumValue = (baseRate * (mult - 1)) * hours;
+    const totalOvertime = effectiveRate * hours;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const baseRes = document.getElementById('baseHoursValueDisplay');
+    const premRes = document.getElementById('overtimePremiumValueDisplay');
+    const totalRes = document.getElementById('totalOvertimePayDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + totalOvertime.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = '£' + effectiveRate.toFixed(2) + ' / hour';
+    if (baseRes) baseRes.textContent = '£' + baseValue.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (premRes) premRes.textContent = '£' + premiumValue.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (totalRes) totalRes.textContent = '£' + totalOvertime.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['overtime-base-rate', 'overtime-multiplier-select', 'overtime-hours-count'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateOvertime);
+    document.getElementById(id)?.addEventListener('change', calculateOvertime);
+  });
+  calculateOvertime();
+</script>

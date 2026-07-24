@@ -1,0 +1,107 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Employment Service Details'}</h2>
+
+      <!-- Service Years -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.serviceYearsLabel || 'Complete Years of Continuous Service'}</span>
+          <span class="hint" id="serviceYearsVal">6 Years</span>
+        </div>
+        <input type="range" min="0" max="20" step="1" value="6" id="serviceYearsSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>0 Years (< 1 Mo)</span><span>20 Years</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--work-1), var(--work-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Employer Statutory Minimum Notice Required'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">6 Weeks</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.employeeLabel || 'Employee Minimum Notice:'}</span>
+        <span class="val" id="subResultValue">1 Week</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Notice Period Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Continuous Years of Service</span>
+          <span class="val" id="serviceDisplay">6 Years</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Employer Statutory Minimum Notice</span>
+          <span class="val" id="statutoryNoticeDisplay">6 Weeks</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Employee Statutory Resignation Notice</span>
+          <span class="val" id="employeeNoticeDisplay" style="font-weight: 700; font-size: 18px;">1 Week</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • 1mo–2yrs service: <strong>1 week notice</strong><br/>
+        • 2–12yrs service: <strong>1 week per year</strong><br/>
+        • 12+yrs service: Capped at <strong>12 weeks max</strong><br/>
+        • Contractual notice applies if longer.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  const serviceYearsSlider = document.getElementById('serviceYearsSlider') as HTMLInputElement;
+  const serviceYearsVal = document.getElementById('serviceYearsVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const serviceDisplay = document.getElementById('serviceDisplay') as HTMLElement;
+  const statutoryNoticeDisplay = document.getElementById('statutoryNoticeDisplay') as HTMLElement;
+  const employeeNoticeDisplay = document.getElementById('employeeNoticeDisplay') as HTMLElement;
+
+  serviceYearsSlider.addEventListener('input', calculate);
+
+  function calculate() {
+    const yrs = parseInt(serviceYearsSlider.value, 10);
+    serviceYearsVal.textContent = `${yrs} Years`;
+
+    let notice = 1;
+    if (yrs === 0) notice = 1;
+    else notice = Math.min(12, yrs);
+
+    mainResultDisplay.textContent = `${notice} Weeks`;
+    subResultValue.textContent = '1 Week';
+    serviceDisplay.textContent = `${yrs} Years`;
+    statutoryNoticeDisplay.textContent = `${notice} Weeks`;
+    employeeNoticeDisplay.textContent = '1 Week';
+  }
+
+  calculate();
+</script>

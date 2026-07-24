@@ -1,0 +1,190 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout family-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <!-- Number of Children -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.childrenLabel || 'Number of Children'}</span>
+        </div>
+        <div class="amount-field" style="margin-top: 0; margin-bottom: 0;">
+          <input type="number" value="1" min="1" max="10" step="1" id="childrenInput" />
+          <span class="cur">children</span>
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 12px;" id="childrenPresetsContainer">
+          <button type="button" class="preset-btn active" data-children="1">1 Child</button>
+          <button type="button" class="preset-btn" data-children="2">2 Children</button>
+          <button type="button" class="preset-btn" data-children="3">3 Children</button>
+          <button type="button" class="preset-btn" data-children="4">4+ Children</button>
+        </div>
+      </div>
+
+      <!-- Adjusted Net Income -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.incomeLabel || 'Highest Earner Net Income'}</span>
+          <span class="hint" id="incomeVal">£50,000</span>
+        </div>
+        <div class="amount-field" style="margin-top: 0; margin-bottom: 0;">
+          <input type="text" value="50,000" id="incomeInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="0" max="120000" step="1000" value="50000" id="incomeSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£0</span><span>£120,000</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--family-1), var(--family-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Net Child Benefit'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£1,354.60/yr</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.weeklyLabel || 'Weekly Payment:'}</span>
+        <span class="val" id="subResultValue">£26.05/wk</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Child Benefit Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Weekly Benefit</span>
+          <span class="val" id="weeklyGrossDisplay">£26.05</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Gross Annual Benefit</span>
+          <span class="val" id="annualGrossDisplay">£1,354.60</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>High Income Charge (HICBC)</span>
+          <span class="val" id="hicbcDisplay">£0.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Annual Benefit Received</span>
+          <span class="val" id="netAnnualDisplay" style="font-weight: 700; font-size: 18px;">£1,354.60</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • First Child: <strong>£26.05/week</strong><br/>
+        • Additional Children: <strong>£17.25/week</strong><br/>
+        • HICBC Threshold: Income over <strong>£60,000</strong> (tapered to 100% at £80,000).
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const childrenInput = document.getElementById('childrenInput') as HTMLInputElement;
+  const incomeInput = document.getElementById('incomeInput') as HTMLInputElement;
+  const incomeSlider = document.getElementById('incomeSlider') as HTMLInputElement;
+  const incomeVal = document.getElementById('incomeVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const weeklyGrossDisplay = document.getElementById('weeklyGrossDisplay') as HTMLElement;
+  const annualGrossDisplay = document.getElementById('annualGrossDisplay') as HTMLElement;
+  const hicbcDisplay = document.getElementById('hicbcDisplay') as HTMLElement;
+  const netAnnualDisplay = document.getElementById('netAnnualDisplay') as HTMLElement;
+
+  const presetBtns = document.querySelectorAll('#childrenPresetsContainer .preset-btn');
+
+  let childrenCount = 1;
+
+  presetBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      presetBtns.forEach(b => b.classList.remove('active'));
+      const target = e.currentTarget as HTMLButtonElement;
+      target.classList.add('active');
+      childrenCount = parseInt(target.getAttribute('data-children') || '1', 10);
+      if (childrenInput) childrenInput.value = String(childrenCount);
+      calculate();
+    });
+  });
+
+  if (childrenInput) {
+    childrenInput.addEventListener('input', () => {
+      childrenCount = parseInt(childrenInput.value, 10) || 1;
+      updatePresets();
+      calculate();
+    });
+  }
+
+  function updatePresets() {
+    presetBtns.forEach(b => {
+      if (parseInt(b.getAttribute('data-children') || '0', 10) === childrenCount) {
+        b.classList.add('active');
+      } else {
+        b.classList.remove('active');
+      }
+    });
+  }
+
+  incomeInput.addEventListener('input', () => {
+    const val = parseInputVal(incomeInput.value);
+    incomeSlider.value = String(Math.min(120000, Math.max(0, val)));
+    calculate();
+  });
+
+  incomeSlider.addEventListener('input', () => {
+    incomeInput.value = incomeSlider.value;
+    calculate();
+  });
+
+  function calculate() {
+    const income = parseInputVal(incomeInput.value);
+    childrenVal.textContent = childrenCount === 1 ? '1 Child' : `${childrenCount} Children`;
+    incomeVal.textContent = formatCurrency(income);
+
+    // Rates 2026/27: 1st child £26.05, subsequent £17.25
+    const weeklyRate = 26.05 + Math.max(0, childrenCount - 1) * 17.25;
+    const annualGross = weeklyRate * 52;
+
+    // HICBC: 1% per £200 over £60k (100% at £80k)
+    let hicbcCharge = 0;
+    if (income > 60000) {
+      const excess = Math.min(20000, income - 60000);
+      const chargePct = excess / 20000;
+      hicbcCharge = annualGross * chargePct;
+    }
+
+    const netAnnual = Math.max(0, annualGross - hicbcCharge);
+
+    mainResultDisplay.textContent = `${formatCurrency(netAnnual)}/yr`;
+    subResultValue.textContent = `${formatCurrency(weeklyRate)}/wk`;
+    weeklyGrossDisplay.textContent = formatCurrency(weeklyRate);
+    annualGrossDisplay.textContent = formatCurrency(annualGross);
+    hicbcDisplay.textContent = `-${formatCurrency(hicbcCharge)}`;
+    netAnnualDisplay.textContent = formatCurrency(netAnnual);
+  }
+
+  calculate();
+</script>

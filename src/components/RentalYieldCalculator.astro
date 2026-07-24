@@ -1,0 +1,120 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Property Purchase & Rental Income Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Property Purchase Price (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="yield-property-price" value="220000" min="20000" step="5000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Monthly Rent Received (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="yield-monthly-rent" value="1200" min="100" step="50" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Annual Property Expenses (£ - Ground Rent, Service Charge, Repairs)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="yield-annual-expenses" value="2400" min="0" step="200" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Gross Rental Yield</div>
+      <div class="result-amount"><span id="mainResultDisplay">6.55% Gross</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Net Rental Yield (After Expenses):</span>
+        <span class="val" id="subResultValue">5.45% Net</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Rental Yield Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Annual Rental Income</span>
+          <span class="val" id="grossAnnualRentDisplay">£14,400.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Net Annual Rental Income (After Expenses)</span>
+          <span class="val" id="netAnnualRentDisplay">£12,000.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Gross Rental Yield Percentage</span>
+          <span class="val" id="grossYieldDisplay">6.55%</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Rental Yield Percentage</span>
+          <span class="val" id="netYieldDisplay" style="font-weight: 700; font-size: 18px;">5.45% Net Yield</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateRentalYield() {
+    const priceEl = document.getElementById('yield-property-price') as HTMLInputElement;
+    const rentEl = document.getElementById('yield-monthly-rent') as HTMLInputElement;
+    const expEl = document.getElementById('yield-annual-expenses') as HTMLInputElement;
+
+    if (!priceEl || !rentEl || !expEl) return;
+
+    const price = parseFloat(priceEl.value) || 0;
+    const monthlyRent = parseFloat(rentEl.value) || 0;
+    const expenses = parseFloat(expEl.value) || 0;
+
+    const grossAnnualRent = monthlyRent * 12;
+    const netAnnualRent = Math.max(0, grossAnnualRent - expenses);
+
+    const grossYield = price > 0 ? (grossAnnualRent / price) * 100 : 0;
+    const netYield = price > 0 ? (netAnnualRent / price) * 100 : 0;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const grossRentRes = document.getElementById('grossAnnualRentDisplay');
+    const netRentRes = document.getElementById('netAnnualRentDisplay');
+    const grossYieldRes = document.getElementById('grossYieldDisplay');
+    const netYieldRes = document.getElementById('netYieldDisplay');
+
+    if (mainRes) mainRes.textContent = grossYield.toFixed(2) + '% Gross';
+    if (subVal) subVal.textContent = netYield.toFixed(2) + '% Net';
+    if (grossRentRes) grossRentRes.textContent = '£' + grossAnnualRent.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (netRentRes) netRentRes.textContent = '£' + netAnnualRent.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (grossYieldRes) grossYieldRes.textContent = grossYield.toFixed(2) + '%';
+    if (netYieldRes) netYieldRes.textContent = netYield.toFixed(2) + '% Net Yield';
+  }
+
+  ['yield-property-price', 'yield-monthly-rent', 'yield-annual-expenses'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateRentalYield);
+    document.getElementById(id)?.addEventListener('change', calculateRentalYield);
+  });
+  calculateRentalYield();
+</script>

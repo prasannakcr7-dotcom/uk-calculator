@@ -1,0 +1,117 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Police Pension Scheme (2015 CARE) Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Annual Pensionable Pay (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="police-pensionable-pay" value="44000" min="20000" step="1000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Years of Pensionable Service</span></div>
+        <div class="amount-field">
+          <input type="number" id="police-service-years" value="20" min="1" max="40" step="1" />
+          <span class="cur">yrs</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--social-1), var(--social-2) 80%);">
+      <div class="result-label">Projected Annual Guaranteed Pension</div>
+      <div class="result-amount"><span id="mainResultDisplay">£15,873.00 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Employee Contribution Rate:</span>
+        <span class="val" id="subResultValue">12.44% Contribution Tier</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Police Pension Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>2015 CARE Scheme Accrual Rate</span>
+          <span class="val" id="accrualRateDisplay">1/55.3th per year (1.81%)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Annual Pension Accrued Per Year</span>
+          <span class="val" id="annualAccrualDisplay">£795.66 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Employee Contribution Tier (12.44%)</span>
+          <span class="val" id="employeeContributionDisplay">£5,473.60 / year</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Projected Uncommuted Annual Pension</span>
+          <span class="val" id="totalPolicePensionDisplay" style="font-weight: 700; font-size: 18px;">£15,873.00 / year (£1,322.75/mo)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="social" />
+  </div>
+</div>
+
+<script>
+  function calculatePolicePension() {
+    const payEl = document.getElementById('police-pensionable-pay') as HTMLInputElement;
+    const yearsEl = document.getElementById('police-service-years') as HTMLInputElement;
+
+    if (!payEl || !yearsEl) return;
+
+    const pay = parseFloat(payEl.value) || 0;
+    const years = parseInt(yearsEl.value) || 20;
+
+    // 2015 CARE Scheme accrual rate = 1/55.3 (~1.808%)
+    const annualAccrual = pay / 55.3;
+    const totalPension = annualAccrual * years;
+    const monthlyPension = totalPension / 12;
+
+    // Employee Tier rates 2026/27:
+    // Up to £27,048: 12.44%
+    // £27,049 - £54,096: 12.44%
+    // £54,097 - £60,107: 13.44%
+    let contribRate = 0.1244;
+    if (pay > 54096) contribRate = 0.1344;
+    const annualContrib = pay * contribRate;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const accRateRes = document.getElementById('accrualRateDisplay');
+    const accValRes = document.getElementById('annualAccrualDisplay');
+    const contribRes = document.getElementById('employeeContributionDisplay');
+    const totalRes = document.getElementById('totalPolicePensionDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + totalPension.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (subVal) subVal.textContent = (contribRate * 100).toFixed(2) + '% Contribution Tier';
+    if (accRateRes) accRateRes.textContent = '1/55.3th per year (1.81%)';
+    if (accValRes) accValRes.textContent = '£' + annualAccrual.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (contribRes) contribRes.textContent = '£' + annualContrib.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (totalRes) totalRes.textContent = '£' + totalPension.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` / year (£${monthlyPension.toFixed(2)}/mo)`;
+  }
+
+  ['police-pensionable-pay', 'police-service-years'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculatePolicePension);
+    document.getElementById(id)?.addEventListener('change', calculatePolicePension);
+  });
+  calculatePolicePension();
+</script>

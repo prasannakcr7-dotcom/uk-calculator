@@ -1,0 +1,397 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+import Layout from '../../layouts/Layout.astro';
+import { categoryHubContent } from '../../data/categoryHubContent';
+import NationFlagIcon from '../../components/NationFlagIcon.astro';
+
+type CategoryKey = 'work' | 'taxes' | 'family' | 'housing' | 'mobility' | 'health' | 'social' | 'finance' | 'alltag';
+
+export async function getStaticPaths() {
+  const categories = [
+    { key: 'work', title: 'Work & Salary', icon: '💼', dotClass: 'work', desc: 'Manage your pay, income tax, NI contributions, overtime, and work benefits.', categorySlug: 'work-and-salary' },
+    { key: 'taxes', title: 'Taxes & Duties', icon: '🧾', dotClass: 'taxes', desc: 'Calculate VAT, Stamp Duty, capital gains, and self-assessment tax obligations.', categorySlug: 'taxes-and-fees' },
+    { key: 'family', title: 'Family & Children', icon: '👶', dotClass: 'family', desc: 'Plan maternity pay, child maintenance, and statutory family allowances.', categorySlug: 'family-and-maternity' },
+    { key: 'housing', title: 'Housing & Property', icon: '🏠', dotClass: 'housing', desc: 'Estimate mortgage payments, landlord tax, rental yields, and property values.', categorySlug: 'housing-and-rent' },
+    { key: 'mobility', title: 'Car & Mobility', icon: '🚗', dotClass: 'mobility', desc: 'Calculate vehicle taxation, company car tax, fuel usage, and business mileage.', categorySlug: 'mobility-and-vehicles' },
+    { key: 'health', title: 'Health & Fitness', icon: '❤️', dotClass: 'health', desc: 'Assess body mass index, daily calorie requirements, and healthy lifestyles.', categorySlug: 'health-and-wellbeing' },
+    { key: 'social', title: 'Benefits & Pensions', icon: '🛡️', dotClass: 'social', desc: 'Estimate universal credit eligibility, state pension forecasts, and redundancy relief.', categorySlug: 'social-and-benefits' },
+    { key: 'finance', title: 'Finance & Savings', icon: '📈', dotClass: 'finance', desc: 'Compare credit costs, loan options, compound interest returns, and savings schemes.', categorySlug: 'finance-and-credit' },
+    { key: 'alltag', title: 'Everyday & School/College', icon: '☀️', dotClass: 'reside', desc: 'Calculate everyday units, tuition costs, student budgets, and lifestyle metrics.', categorySlug: 'daily-life' },
+  ];
+  
+  const nations = ['england', 'scotland', 'wales', 'northern-ireland'];
+
+  const paths = [];
+  for (const cat of categories) {
+    for (const nation of nations) {
+      paths.push({
+        params: { category: cat.categorySlug, nation },
+        props: { ...cat, nation }
+      });
+    }
+  }
+  return paths;
+}
+
+const { category, nation } = Astro.params;
+const { key, title, icon, dotClass, desc } = Astro.props;
+
+interface CalculatorItem {
+  name: string;
+  slug: string;
+  urlPath: string;
+  category: CategoryKey;
+  emoji: string;
+  desc: string;
+  isDevolved: boolean;
+  isCompleted: boolean;
+}
+
+const nationDisplayNames: Record<string, string> = {
+  england: "England",
+  scotland: "Scotland",
+  wales: "Wales",
+  "northern-ireland": "Northern Ireland"
+};
+
+const nationFlags: Record<string, string> = {
+  england: "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+  scotland: "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+  wales: "🏴󠁧󠁢󠁷󠁬󠁳󠁿",
+  "northern-ireland": "🇬🇧"
+};
+
+const nationName = nationDisplayNames[nation] || "England";
+const nationFlag = nationFlags[nation] || "🏴󠁧󠁢󠁥󠁮󠁧󠁿";
+
+const nationGradients: Record<string, string> = {
+  england: "linear-gradient(135deg, #e11d48 0%, #fca5a5 100%)",
+  scotland: "linear-gradient(135deg, #2563eb 0%, #93c5fd 100%)",
+  wales: "linear-gradient(135deg, #16a34a 0%, #86efac 100%)",
+  "northern-ireland": "linear-gradient(135deg, #4f46e5 0%, #fca5a5 100%)"
+};
+const heroBg = nationGradients[nation] || "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)";
+
+const fallbackEmojis: Record<CategoryKey, string[]> = {
+  work: ['💶', '⏱️', '📦', '🧾', '📅', '🏛️', '🌙', '🧮'],
+  taxes: ['📊', '🧾', '🏛️', '🎁', '🏘️', '🚘', '💼', '📈'],
+  family: ['🤱', '👶', '👪', '🎒', '🧸', '📅', '⚖️', '🏫'],
+  housing: ['🏦', '🏠', '🔑', '📐', '🧱', '☀️', '🎨', '🧰'],
+  mobility: ['🚗', '⛽', '🔌', '🚲', '🚨', '🛞', '🅿️', '⚡'],
+  health: ['⚖️', '❤️', '🔥', '🩺', '💧', '🏃', '😴', '🧬'],
+  social: ['🛡️', '💶', '👵', '📋', '🎓', '🏡', '🌾', '📆'],
+  finance: ['💳', '📈', '🏦', '🪙', '📉', '🎯', '💱', '🧾'],
+  alltag: ['🧮', '🏷️', '🎓', '📅', '📏', '🎁', '🔐', '✈️'],
+};
+
+function describeUK(title: string) {
+  const lower = title.toLowerCase();
+  if (lower.includes('tax') || lower.includes('vat')) return 'Estimate the tax amount, filing impact, and taxable thresholds.';
+  if (lower.includes('salary') || lower.includes('wage')) return 'Break down pay figures, national insurance, and take-home pay.';
+  if (lower.includes('mortgage') || lower.includes('loan')) return 'Compare monthly payments, interest rates, and loan terms.';
+  if (lower.includes('rent') || lower.includes('property') || lower.includes('housing')) return 'Calculate property tax, landlord yields, and housing costs.';
+  if (lower.includes('car') || lower.includes('vehicle') || lower.includes('mileage')) return 'Estimate vehicle costs, fuel consumption, or mileage allowance.';
+  if (lower.includes('child') || lower.includes('maternity') || lower.includes('parental')) return 'Calculate benefits, statutory pay, or maintenance obligations.';
+  if (lower.includes('bmi') || lower.includes('calorie') || lower.includes('health')) return 'Assess fitness metrics with standard health calculators.';
+  if (lower.includes('interest') || lower.includes('savings')) return 'Model compound growth, returns, and financial planning.';
+  return 'Get a quick, focused estimate with the relevant UK inputs and parameters.';
+}
+
+import { getCollection } from 'astro:content';
+
+function normalizeCategoryKey(rawCat: string): CategoryKey {
+  const cat = (rawCat || '').toLowerCase().trim();
+  if (cat === 'trabajo' || cat === 'work') return 'work';
+  if (cat === 'impuestos' || cat === 'taxes') return 'taxes';
+  if (cat === 'familia' || cat === 'family') return 'family';
+  if (cat === 'vivienda' || cat === 'housing') return 'housing';
+  if (cat === 'movilidad' || cat === 'mobility') return 'mobility';
+  if (cat === 'salud' || cat === 'health') return 'health';
+  if (cat === 'social' || cat === 'benefits') return 'social';
+  if (cat === 'finanzas' || cat === 'finance') return 'finance';
+  if (cat === 'alltag' || cat === 'everyday' || cat === 'reside') return 'alltag';
+  return 'work';
+}
+
+const allCalcEntries = await getCollection('calculators');
+
+const calculators: CalculatorItem[] = allCalcEntries
+  .filter(entry => normalizeCategoryKey(entry.data.category) === key)
+  .map((entry, idx) => {
+    const slug = entry.id.split('/').pop()?.replace(/\.(md|mdx)$/, '') || entry.id;
+    let displayName = entry.data.title;
+    displayName = displayName.replace(/\s*UK\s*2026\/27.*$/i, '');
+    displayName = displayName.replace(/\s*—.*$/, '');
+    displayName = displayName.trim();
+
+    return {
+      name: displayName,
+      slug,
+      urlPath: `/${slug}`,
+      category: key,
+      emoji: fallbackEmojis[key][idx % fallbackEmojis[key].length],
+      desc: entry.data.description,
+      isDevolved: !!entry.data.isDevolved,
+      isCompleted: true
+    };
+  });
+const content = categoryHubContent[key]?.[nation] || categoryHubContent[key]?.default || categoryHubContent['work'].default;
+
+// Map categories for dynamic colors matching global.css variables
+const categoryMeta: Record<CategoryKey, { color1: string; color2: string; soft: string }> = {
+  work:    { color1: 'var(--work-1)', color2: 'var(--work-2)', soft: 'var(--work-soft)' },
+  taxes:   { color1: 'var(--taxes-1)', color2: 'var(--taxes-2)', soft: 'var(--taxes-soft)' },
+  family:  { color1: 'var(--family-1)', color2: 'var(--family-2)', soft: 'var(--family-soft)' },
+  housing: { color1: 'var(--housing-1)', color2: 'var(--housing-2)', soft: 'var(--housing-soft)' },
+  social:  { color1: 'var(--social-1)', color2: 'var(--social-2)', soft: 'var(--social-soft)' },
+  health:  { color1: 'var(--health-1)', color2: 'var(--health-2)', soft: 'var(--health-soft)' },
+  mobility:{ color1: 'var(--mobility-1)', color2: 'var(--mobility-2)', soft: 'var(--mobility-soft)' },
+  finance: { color1: 'var(--finance-1)', color2: 'var(--finance-2)', soft: 'var(--finance-soft)' },
+  alltag:  { color1: 'var(--reside-1)', color2: 'var(--reside-2)', soft: 'var(--reside-soft)' },
+};
+
+const meta = categoryMeta[key];
+const cssVars = [
+  `--cat-1:${meta.color1}`,
+  `--cat-2:${meta.color2}`,
+  `--cat-soft:${meta.soft}`,
+].join(';');
+
+const allCategoryLinks = [
+  { key: 'work',    emoji: '💼', label: 'Work & Salary',        slug: '/work-and-salary/' },
+  { key: 'taxes',   emoji: '🧾', label: 'Taxes & Duties',       slug: '/taxes-and-fees/' },
+  { key: 'family',  emoji: '👶', label: 'Family & Children',     slug: '/family-and-maternity/' },
+  { key: 'housing', emoji: '🏠', label: 'Housing & Property',     slug: '/housing-and-rent/' },
+  { key: 'mobility',emoji: '🚗', label: 'Car & Mobility',        slug: '/mobility-and-vehicles/' },
+  { key: 'health',  emoji: '❤️', label: 'Health & Wellbeing',     slug: '/health-and-wellbeing/' },
+  { key: 'social',  emoji: '🛡️', label: 'Benefits & Pensions',   slug: '/social-and-benefits/' },
+  { key: 'finance', emoji: '📈', label: 'Finance & Savings',     slug: '/finance-and-credit/' },
+  { key: 'alltag',  emoji: '☀️', label: 'Everyday & College',      slug: '/daily-life/' },
+];
+
+const otherCategories = allCategoryLinks.filter(c => c.key !== key);
+---
+
+<Layout 
+  title={`${title} Calculators (${nationName}) — UK 2026/27`} 
+  description={`${desc} Tailored work and salary calculators for taxpayers in ${nationName}.`}
+>
+  <div style={cssVars}>
+    <!-- BREADCRUMBS -->
+    <div class="ch-crumb">
+      <a href="/">Home</a>
+      <span class="ch-sep">›</span>
+      <a href={`/${category}/`}>{title}</a>
+      <span class="ch-sep">›</span>
+      <span class="ch-cur">{nationName}</span>
+    </div>
+
+    <!-- HERO BANNER -->
+    <div class="ch-hero" style={`background: ${heroBg};`}>
+      <div class="ch-hero-inner">
+        <a href={`/${category}/`} class="ch-hero-back">‹ {title} Hub</a>
+        <span class="ch-hero-emoji">{icon} {nationFlag}</span>
+        <h1>{title} ({nationName})</h1>
+        <p class="ch-sub">{desc}</p>
+        <div class="ch-hero-stats">
+          <div class="ch-hero-stat">
+            <span class="ch-n">{calculators.length}</span>
+            calculators
+          </div>
+          <div class="ch-hero-stat">
+            <span class="ch-n">{nationName}</span>
+            rates & rules
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REGION SELECTOR BANNER -->
+    <div style="max-width: 1400px; margin: 24px auto 0; padding: 0 48px; box-sizing: border-box;">
+      <div class="card nation-selector-card" style="padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; background: #fff;">
+        <div style="font-weight: 600; font-size: 14px;">Select Region:</div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <a href={`/${category}/`} class="tab-btn"><NationFlagIcon nation="uk" width="18px" height="12px" /> UK Wide / English</a>
+          <a href={`/${category}/england/`} class={`tab-btn ${nation === 'england' ? 'active' : ''}`}><NationFlagIcon nation="england" width="18px" height="12px" /> England</a>
+          <a href={`/${category}/scotland/`} class={`tab-btn ${nation === 'scotland' ? 'active' : ''}`}><NationFlagIcon nation="scotland" width="18px" height="12px" /> Scotland</a>
+          <a href={`/${category}/wales/`} class={`tab-btn ${nation === 'wales' ? 'active' : ''}`}><NationFlagIcon nation="wales" width="18px" height="12px" /> Wales</a>
+          <a href={`/${category}/northern-ireland/`} class={`tab-btn ${nation === 'northern-ireland' ? 'active' : ''}`}><NationFlagIcon nation="northern-ireland" width="18px" height="12px" /> N. Ireland</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOCALIZATION ALERT BANNER -->
+    <div style="max-width: 1400px; margin: 16px auto 0; padding: 0 48px; box-sizing: border-box;">
+      <div style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; border-radius: 12px; padding: 12px 16px; font-size: 13.5px; font-weight: 500; display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 18px;">ℹ️</span>
+        <span>Showing calculators for {nationFlag} {nationName}. Regional tools will automatically use local rates and rules.</span>
+      </div>
+    </div>
+
+    <!-- DUAL COLUMN BODY -->
+    <div class="ch-body">
+      <!-- LEFT SIDEBAR -->
+      <aside class="ch-sidebar">
+        <div class="ch-sidebar-sticky">
+          <div class="ch-side-section">
+            <div class="ch-side-label">On this page</div>
+            <a href="#intro" class="ch-side-link ch-side-active">
+              <span class="ch-dot"></span> Overview
+            </a>
+            <a href="#calculators" class="ch-side-link">
+              <span class="ch-dot"></span> Calculators
+            </a>
+            <a href="#tips" class="ch-side-link">
+              <span class="ch-dot"></span> Tips & Mistakes
+            </a>
+            <a href="#figures" class="ch-side-link">
+              <span class="ch-dot"></span> Key Figures
+            </a>
+            <a href="#faq" class="ch-side-link">
+              <span class="ch-dot"></span> FAQ
+            </a>
+            <a href="#sources" class="ch-side-link">
+              <span class="ch-dot"></span> Sources
+            </a>
+          </div>
+
+          {otherCategories.length > 0 && (
+            <div class="ch-side-section ch-side-other">
+              <div class="ch-side-label">Other categories</div>
+              {otherCategories.map(c => (
+                <a href={c.slug} class="ch-side-link">
+                  <span class="ch-cat-ico">{c.emoji}</span>
+                  {c.label}
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      </aside>
+
+      <!-- RIGHT MAIN CONTENT -->
+      <main class="ch-main">
+        <!-- 1. INTRO CARD -->
+        <section id="intro" class="ch-card ch-intro-card">
+          <h2>{content.introTitle}</h2>
+          <Fragment set:html={content.introHtml} />
+        </section>
+
+        <!-- 2. CALCULATORS GRID -->
+        <div id="calculators" class="ch-sec-head">
+          <h2>All {title} ({nationName}) Calculators</h2>
+          <span class="ch-count">{calculators.length} calculators</span>
+        </div>
+        
+        <div class="ch-calc-grid">
+          {calculators.map(c => {
+            const targetUrl = c.isDevolved ? `/${c.slug}/${nation}/` : `/${c.slug}/`;
+            return (
+              <a 
+                href={c.isCompleted ? targetUrl : '#'} 
+                class={`ch-calc-card ${c.isCompleted ? '' : 'disabled'}`} 
+                data-slug={c.slug}
+                style={c.isCompleted ? '' : 'opacity: 0.65; pointer-events: none; cursor: default;'}
+              >
+                <span class="ch-calc-ico">{c.emoji}</span>
+                <div class="ch-calc-body">
+                  <h3>{c.name} {!c.isCompleted && <span class="badge" style="margin-left: 6px;">Soon</span>}</h3>
+                  <p>{c.desc}</p>
+                </div>
+                <span class="ch-arr">→</span>
+              </a>
+            );
+          })}
+        </div>
+
+        <!-- 3. TIPS CARD -->
+        <section id="tips" class="ch-card ch-tips-card">
+          <h2>{content.tipsTitle}</h2>
+          {content.tips.map(t => (
+            <div class="ch-tip">
+              <div class="ch-tip-ico">{t.icon}</div>
+              <div>
+                <h4>{t.title}</h4>
+                <p set:html={t.body}></p>
+              </div>
+            </div>
+          ))}
+        </section>
+
+        <!-- 4. KEY FIGURES CARD -->
+        <section id="figures" class="ch-card ch-figures-card">
+          <h2>{content.figuresTitle}</h2>
+          <div class="ch-changes-grid">
+            {content.figureGroups.map(fg => (
+              <div class={`ch-change-block ${fg.isHighlighted ? 'ch-block-good' : ''}`}>
+                <h4 class={fg.isHighlighted ? 'ch-label-cat' : ''}>{fg.label}</h4>
+                {fg.items.map(item => (
+                  <div class="ch-change-item">
+                    <span>{item.term}:</span>
+                    <span class="ch-bl">{item.value}</span>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <!-- 5. FAQ CARD -->
+        <section id="faq" class="ch-card ch-faq-card">
+          <h2>{content.faqTitle}</h2>
+          {content.faq.map(item => (
+            <div class="ch-faq-item">
+              <h4>{item.question}</h4>
+              <p set:html={item.answer}></p>
+            </div>
+          ))}
+        </section>
+
+        <!-- 6. SOURCES CARD -->
+        <section id="sources" class="ch-sources-card">
+          <div class="ch-sources-lbl">{content.sourcesTitle}</div>
+          {content.sources.map(s => (
+            <a href={s.url} class="ch-src-link" target="_blank" rel="noopener noreferrer">
+              ↗ {s.label}
+            </a>
+          ))}
+        </section>
+      </main>
+    </div>
+  </div>
+</Layout>
+
+<script is:inline>
+  // TOC scroll highlights
+  document.addEventListener('DOMContentLoaded', () => {
+    const links = document.querySelectorAll('.ch-side-section:not(.ch-side-other) .ch-side-link');
+    const sections = Array.from(links).map(link => {
+      const id = link.getAttribute('href').substring(1);
+      return document.getElementById(id);
+    });
+
+    function updateActiveLink() {
+      let activeIndex = 0;
+      const scrollPos = window.scrollY + 120;
+
+      sections.forEach((sec, idx) => {
+        if (!sec) return;
+        if (scrollPos >= sec.offsetTop) {
+          activeIndex = idx;
+        }
+      });
+
+      links.forEach((link, idx) => {
+        if (idx === activeIndex) {
+          link.classList.add('ch-side-active');
+        } else {
+          link.classList.remove('ch-side-active');
+        }
+      });
+    }
+
+    window.addEventListener('scroll', updateActiveLink);
+    updateActiveLink();
+  });
+</script>

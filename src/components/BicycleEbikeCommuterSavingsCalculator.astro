@@ -1,0 +1,117 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout mobility-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Current Weekly Car / Public Transport Commute Cost (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="current-weekly-commute-cost" value="45" min="5" step="5" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Bicycle / E-Bike Package Purchase Cost (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="ebike-package-cost" value="1200" min="200" step="100" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Cycle to Work Scheme Tax Band</span></div>
+        <select id="cycle-scheme-tax-band" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="0.28" selected>Basic Rate (20% Income Tax / 8% NI = 28% Saving)</option>
+          <option value="0.42">Higher Rate (40% Income Tax / 2% NI = 42% Saving)</option>
+          <option value="0.47">Additional Rate (45% Income Tax / 2% NI = 47% Saving)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Annual Maintenance & Charging Budget (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="bike-annual-maintenance" value="100" min="0" step="25" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Cycling Commuter Savings Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Cycle to Work Net Bike Purchase Cost</span>
+          <strong id="cycle-net-bike-cost">£864.00 (28% Tax Saved)</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Annual Public Transport / Fuel Replaced</span>
+          <strong id="annual-transport-saved">£2,160.00 / year</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Net Annual Commuter Savings</span>
+          <strong id="net-annual-cycling-savings">£2,060.00 / year</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Payback Horizon for Bike Purchase</span>
+          <strong id="ebike-payback-months">5.0 Months</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="movilidad" />
+  </div>
+</div>
+
+<script>
+  function calculateCyclingSavings() {
+    const commuteEl = document.getElementById('current-weekly-commute-cost') as HTMLInputElement;
+    const bikeEl = document.getElementById('ebike-package-cost') as HTMLInputElement;
+    const bandEl = document.getElementById('cycle-scheme-tax-band') as HTMLSelectElement;
+    const maintEl = document.getElementById('bike-annual-maintenance') as HTMLInputElement;
+
+    if (!commuteEl || !bikeEl || !bandEl || !maintEl) return;
+
+    const weeklyCommute = parseFloat(commuteEl.value) || 0;
+    const bikeCost = parseFloat(bikeEl.value) || 0;
+    const taxSavingRate = parseFloat(bandEl.value) || 0.28;
+    const maintCost = parseFloat(maintEl.value) || 0;
+
+    const netBikeCost = bikeCost * (1 - taxSavingRate);
+    const annualTransportSaved = weeklyCommute * 48; // 48 working weeks
+    const netAnnualSavings = Math.max(0, annualTransportSaved - maintCost);
+
+    const monthlySavings = netAnnualSavings / 12;
+    const paybackMonths = monthlySavings > 0 ? netBikeCost / monthlySavings : 0;
+
+    const bikeResEl = document.getElementById('cycle-net-bike-cost');
+    const transResEl = document.getElementById('annual-transport-saved');
+    const netResEl = document.getElementById('net-annual-cycling-savings');
+    const payResEl = document.getElementById('ebike-payback-months');
+
+    if (bikeResEl) bikeResEl.textContent = '£' + netBikeCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` (${(taxSavingRate*100).toFixed(0)}% Tax Saved)`;
+    if (transResEl) transResEl.textContent = '£' + annualTransportSaved.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (netResEl) netResEl.textContent = '£' + netAnnualSavings.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (payResEl) payResEl.textContent = paybackMonths.toFixed(1) + ' Months';
+  }
+
+  ['current-weekly-commute-cost', 'ebike-package-cost', 'cycle-scheme-tax-band', 'bike-annual-maintenance'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateCyclingSavings);
+    document.getElementById(id)?.addEventListener('change', calculateCyclingSavings);
+  });
+  calculateCyclingSavings();
+</script>

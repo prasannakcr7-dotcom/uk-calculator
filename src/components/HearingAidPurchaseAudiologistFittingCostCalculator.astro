@@ -1,0 +1,166 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout health-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Hearing Aid Technology & Fitting Details'}</h2>
+
+      <!-- Hearing Aid Technology Level -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.techLevelLabel || 'Select Hearing Aid Technology Tier Level'}</span>
+          <span class="hint" id="techLevelVal">Advanced Digital Technology (£2,400 Pair)</span>
+        </div>
+        <select id="techSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="BASIC">Essential Digital (Behind-The-Ear BTE — £1,100 Pair)</option>
+          <option value="ADVANCED" selected>Advanced Technology (Rechargeable Bluetooth — £2,400 Pair)</option>
+          <option value="PREMIUM">Premium AI Technology (Invisible-In-Canal / Oticon / Phonak — £3,600 Pair)</option>
+        </select>
+      </div>
+
+      <!-- Single vs Pair (Binaural) Hearing Aids -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.earsCountLabel || 'Hearing Aid Quantity (Single Ear vs Pair)'}</span>
+          <span class="hint" id="earsCountVal">Pair of Hearing Aids (2 Ears — 1.0x Pair Rate)</span>
+        </div>
+        <select id="earsSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="1.0" selected>Pair of Hearing Aids (Binaural — Both Ears)</option>
+          <option value="0.55">Single Hearing Aid (Monaural — One Ear Only)</option>
+        </select>
+      </div>
+
+      <!-- NHS vs Private Care Mode -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.careModeLabel || 'Care Provision Route (NHS Free vs Private Audiologist)'}</span>
+          <span class="hint" id="careModeVal">Private Audiologist Purchase & Care Package</span>
+        </div>
+        <select id="careModeSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="PRIVATE" selected>Private Audiologist (Boots / Amplifon / Specsavers / Independent)</option>
+          <option value="NHS_FREE">100% Free NHS Digital Hearing Aids (NHS Audiology Department)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--health-1), var(--health-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Total Hearing Aid Purchase & Care Cost'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£2,400.00 (Pair)</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.aftercareLabel || 'Includes Audiologist Professional Fitting & 5-Year Aftercare:'}</span>
+        <span class="val" id="subResultValue">£1,900 Hardware + £500 Fitting & 5-Year Free Re-tests/Wax Removal</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Hearing Aid Cost Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Digital Hearing Aid Hardware (Pair)</span>
+          <span class="val" id="hardwareDisplay">£1,900.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Audiologist Fitting & REM Real Ear Measurement</span>
+          <span class="val" id="fittingDisplay">£300.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>5-Year Comprehensive Aftercare & Annual Re-tests</span>
+          <span class="val" id="aftercareDisplay">£200.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Investment (5-Year Expected Lifespan)</span>
+          <span class="val" id="totalHearingDisplay" style="font-weight: 700; font-size: 18px;">£2,400.00 (£40.00 / month)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>NHS Free Hearing Aids:</strong> NHS provides free digital BTE hearing aids + free batteries.<br/>
+        • <strong>HCPC Regulation:</strong> Private audiologists MUST be registered with the HCPC council.<br/>
+        • <strong>Real Ear Measurement (REM):</strong> Best-practice fitting procedure using probe microphones.<br/>
+        • <strong>0% VAT Medical Exemption:</strong> Hearing aids are zero-rated for VAT when supplied with fitting.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const techSelect = document.getElementById('techSelect') as HTMLSelectElement;
+  const earsSelect = document.getElementById('earsSelect') as HTMLSelectElement;
+  const careModeSelect = document.getElementById('careModeSelect') as HTMLSelectElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const hardwareDisplay = document.getElementById('hardwareDisplay') as HTMLElement;
+  const fittingDisplay = document.getElementById('fittingDisplay') as HTMLElement;
+  const aftercareDisplay = document.getElementById('aftercareDisplay') as HTMLElement;
+  const totalHearingDisplay = document.getElementById('totalHearingDisplay') as HTMLElement;
+
+  function calculate() {
+    const techKey = techSelect.value;
+    const earMultiplier = parseFloat(earsSelect.value);
+    const careMode = careModeSelect.value;
+
+    if (careMode === 'NHS_FREE') {
+      mainResultDisplay.innerText = `£0.00 (100% Free NHS Care)`;
+      subResultValue.innerText = `NHS Audiology provides free digital BTE hearing aids, fitting & free batteries`;
+      hardwareDisplay.innerText = `£0.00 (NHS Property Loan)`;
+      fittingDisplay.innerText = `£0.00 (NHS Audiologist)`;
+      aftercareDisplay.innerText = `£0.00 (Free NHS Batteries & Servicing)`;
+      totalHearingDisplay.innerText = `100% Free NHS Hearing Aid Care`;
+      return;
+    }
+
+    let basePairRate = 2400; // Advanced
+    if (techKey === 'BASIC') basePairRate = 1100;
+    if (techKey === 'PREMIUM') basePairRate = 3600;
+
+    const totalCost = basePairRate * earMultiplier;
+    const hardwareCost = totalCost * 0.80;
+    const fittingCost = totalCost * 0.12;
+    const aftercareCost = totalCost * 0.08;
+
+    const monthlyCostOver5Yrs = totalCost / 60; // 5-year lifespan
+
+    mainResultDisplay.innerText = formatCurrency(totalCost);
+    subResultValue.innerText = `${formatCurrency(monthlyCostOver5Yrs)} / month over 5-year lifespan (Includes 5-Year Care Package)`;
+
+    hardwareDisplay.innerText = formatCurrency(hardwareCost);
+    fittingDisplay.innerText = formatCurrency(fittingCost);
+    aftercareDisplay.innerText = formatCurrency(aftercareCost);
+    totalHearingDisplay.innerText = `${formatCurrency(totalCost)} (${formatCurrency(monthlyCostOver5Yrs)} / month over 5 yrs)`;
+  }
+
+  techSelect.addEventListener('change', calculate);
+  earsSelect.addEventListener('change', calculate);
+  careModeSelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

@@ -1,0 +1,173 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout mobility-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'EV Battery, Tariff & Mileage Details'}</h2>
+
+      <!-- Annual Mileage (Miles) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.annualMileageLabel || 'Annual Driving Mileage (Miles)'}</span>
+          <span class="hint" id="annualMileageVal">10,000 Miles / year</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="10,000" id="annualMileageInput" inputmode="decimal" />
+          <span class="cur">mi</span>
+        </div>
+        <input type="range" min="2000" max="30000" step="1000" value="10000" id="annualMileageSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>2,000 mi</span><span>30,000 mi</span></div>
+      </div>
+
+      <!-- EV Efficiency (Miles per kWh) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.efficiencyLabel || 'EV Real-World Efficiency (Miles / kWh)'}</span>
+          <span class="hint" id="efficiencyVal">3.5 Miles / kWh (Standard EV Average)</span>
+        </div>
+        <input type="range" min="2.0" max="5.0" step="0.1" value="3.5" id="efficiencySlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>2.0 mi/kWh (Large SUV)</span><span>5.0 mi/kWh (Efficient Hatch)</span></div>
+      </div>
+
+      <!-- Charging Location & Electricity Rate -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.tariffTypeLabel || 'Primary Charging Location & Tariff Rate'}</span>
+          <span class="hint" id="tariffTypeVal">Home Off-Peak EV Tariff (7.5p / kWh)</span>
+        </div>
+        <select id="tariffTypeSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="7.5" selected>Home Off-Peak Overnight EV Tariff (7.5p / kWh)</option>
+          <option value="24.5">Home Standard Peak Tariff (24.5p / kWh — Ofgem Cap)</option>
+          <option value="55.0">Public Rapid DC Charger (55.0p / kWh)</option>
+          <option value="79.0">Ultra-Rapid Highway Charger (79.0p / kWh — Ionity/Gridserve)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--mobility-1), var(--mobility-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Annual EV Electricity Charging Cost'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£214.29 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.costPerMileLabel || 'EV Cost per Mile vs Equivalent Petrol Car:'}</span>
+        <span class="val" id="subResultValue">2.14p per Mile (Saved £1,285/yr vs 15p/mi Petrol Car)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'EV Charging Cost Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Total Electricity Consumed (kWh)</span>
+          <span class="val" id="kwhConsumedDisplay">2,857 kWh / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Applied Electricity Rate</span>
+          <span class="val" id="rateDisplay">7.5 p / kWh</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>EV Charging Cost per Mile</span>
+          <span class="val" id="costPerMileDisplay">2.14 p / mile</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Annual Savings vs Petrol Car (40 MPG @ £1.45/L)</span>
+          <span class="val" id="petrolSavingsDisplay" style="font-weight: 700; font-size: 18px;">£1,285.71 Saved per Year</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Miles per kWh Metric:</strong> Standard EV efficiency metric (higher is better).<br/>
+        • <strong>Off-Peak EV Tariffs:</strong> Intelligent tariffs (Octopus Go, OVO Charge) offer 7p-9p/kWh night rates.<br/>
+        • <strong>Public Charger VAT:</strong> Public charging attracts 20% VAT (vs 5% VAT on domestic home power).<br/>
+        • <strong>AER Workplace Rate:</strong> HMRC Advisory Electricity Rate for business EV charging is 8p/mile.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const annualMileageInput = document.getElementById('annualMileageInput') as HTMLInputElement;
+  const annualMileageSlider = document.getElementById('annualMileageSlider') as HTMLInputElement;
+  const annualMileageVal = document.getElementById('annualMileageVal') as HTMLElement;
+
+  const efficiencySlider = document.getElementById('efficiencySlider') as HTMLInputElement;
+  const efficiencyVal = document.getElementById('efficiencyVal') as HTMLElement;
+
+  const tariffTypeSelect = document.getElementById('tariffTypeSelect') as HTMLSelectElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const kwhConsumedDisplay = document.getElementById('kwhConsumedDisplay') as HTMLElement;
+  const rateDisplay = document.getElementById('rateDisplay') as HTMLElement;
+  const costPerMileDisplay = document.getElementById('costPerMileDisplay') as HTMLElement;
+  const petrolSavingsDisplay = document.getElementById('petrolSavingsDisplay') as HTMLElement;
+
+  function calculate() {
+    const mileage = parseInputVal(annualMileageInput.value);
+    const milesPerKwh = parseFloat(efficiencySlider.value);
+    const ratePence = parseFloat(tariffTypeSelect.value);
+
+    const totalKwh = milesPerKwh > 0 ? mileage / milesPerKwh : 0;
+    const annualEvCost = (totalKwh * ratePence) / 100;
+    const costPerMilePence = milesPerKwh > 0 ? ratePence / milesPerKwh : 0;
+
+    // Equivalent petrol cost (40 MPG @ £1.45/L = 16.5p per mile)
+    const petrolCostPerMilePence = 16.48;
+    const annualPetrolCost = (mileage * petrolCostPerMilePence) / 100;
+    const annualSavings = Math.max(0, annualPetrolCost - annualEvCost);
+
+    annualMileageVal.innerText = `${mileage.toLocaleString('en-GB')} Miles / year`;
+    efficiencyVal.innerText = `${milesPerKwh.toFixed(1)} Miles / kWh`;
+
+    mainResultDisplay.innerText = `${formatCurrency(annualEvCost)} / year`;
+    subResultValue.innerText = `${costPerMilePence.toFixed(2)}p per Mile (Saved ${formatCurrency(annualSavings)} vs 16.5p/mi Petrol Car)`;
+
+    kwhConsumedDisplay.innerText = `${Math.round(totalKwh).toLocaleString('en-GB')} kWh / year`;
+    rateDisplay.innerText = `${ratePence.toFixed(1)} p / kWh`;
+    costPerMileDisplay.innerText = `${costPerMilePence.toFixed(2)} p / mile`;
+    petrolSavingsDisplay.innerText = `${formatCurrency(annualSavings)} Saved per Year`;
+  }
+
+  annualMileageInput.addEventListener('input', () => {
+    const val = parseInputVal(annualMileageInput.value);
+    annualMileageSlider.value = String(val);
+    calculate();
+  });
+
+  annualMileageSlider.addEventListener('input', () => {
+    annualMileageInput.value = parseInt(annualMileageSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  efficiencySlider.addEventListener('input', calculate);
+  tariffTypeSelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

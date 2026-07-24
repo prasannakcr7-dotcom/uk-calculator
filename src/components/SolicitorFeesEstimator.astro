@@ -1,0 +1,111 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    <h2 class="calc-title">UK Solicitor Hourly Rate & Legal Fee Estimator (2026/27)</h2>
+    <p class="calc-desc">Estimate legal costs based on official HM Courts & Tribunals Service (HMCTS) Guideline Hourly Rates (Bands 1-4 and Grades A-D).</p>
+
+    <div class="field-group">
+      <div class="field-label"><span>Firm Location & Guideline Rate Band</span></div>
+      <select id="solicitor-location">
+        <option value="london_central" selected>London Central (City / West End - Band 1)</option>
+        <option value="london_outer">London Outer / Inner Suburbs (Band 2)</option>
+        <option value="national_1">National Band 1 (Major Cities e.g. Manchester, Birmingham, Leeds)</option>
+        <option value="national_2">National Band 2 (All Other UK Regions)</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Fee Earner Seniority Grade</span></div>
+      <select id="fee-earner-grade">
+        <option value="grade_a" selected>Grade A: Senior Partner / Solicitor (8+ years PQE)</option>
+        <option value="grade_b">Grade B: Senior Solicitor (4-8 years PQE)</option>
+        <option value="grade_c">Grade C: Qualified Solicitor / Legal Executive (&lt;4 years PQE)</option>
+        <option value="grade_d">Grade D: Trainee Solicitor / Paralegal</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Estimated Work Duration (Hours)</span></div>
+      <div class="amount-field"><input type="number" id="estimated-hours" value="10" min="1" max="500" step="1" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Include UK VAT (20%)</span></div>
+      <select id="include-vat">
+        <option value="yes" selected>Yes (Include 20% VAT)</option>
+        <option value="no">No (Excluding VAT)</option>
+      </select>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <h3>HMCTS Guideline Fee Estimate</h3>
+      <div class="breakdown-row net">
+        <span>Total Estimated Legal Fee:</span>
+        <strong id="total-legal-fee">£0.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Guideline Hourly Rate (ex-VAT):</span>
+        <strong id="hourly-rate-ex-vat">£0.00 / hour</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Net Legal Charge (ex-VAT):</span>
+        <strong id="net-legal-charge">£0.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>UK VAT (20%):</span>
+        <strong id="vat-legal-charge">£0.00</strong>
+      
+  </div>
+</div>
+
+<script>
+  // HMCTS Guideline Hourly Rates benchmark matrix (ex-VAT)
+  const ratesMatrix: Record<string, Record<string, number>> = {
+    london_central: { grade_a: 546, grade_b: 372, grade_c: 282, grade_d: 186 },
+    london_outer:   { grade_a: 373, grade_b: 289, grade_c: 244, grade_d: 155 },
+    national_1:     { grade_a: 297, grade_b: 241, grade_c: 198, grade_d: 138 },
+    national_2:     { grade_a: 272, grade_b: 218, grade_c: 183, grade_d: 133 }
+  };
+
+  function calculateSolicitorFees() {
+    const loc = (document.getElementById('solicitor-location') as HTMLSelectElement).value;
+    const grade = (document.getElementById('fee-earner-grade') as HTMLSelectElement).value;
+    const hours = parseFloat((document.getElementById('estimated-hours') as HTMLInputElement).value) || 0;
+    const addVat = (document.getElementById('include-vat') as HTMLSelectElement).value === 'yes';
+
+    const hourlyRate = ratesMatrix[loc]?.[grade] || 250;
+    const netCharge = hourlyRate * hours;
+    const vatAmount = addVat ? netCharge * 0.20 : 0;
+    const totalFee = netCharge + vatAmount;
+
+    (document.getElementById('total-legal-fee') as HTMLElement).textContent = '£' + totalFee.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('hourly-rate-ex-vat') as HTMLElement).textContent = '£' + hourlyRate.toLocaleString('en-GB') + ' / hour';
+    (document.getElementById('net-legal-charge') as HTMLElement).textContent = '£' + netCharge.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('vat-legal-charge') as HTMLElement).textContent = '£' + vatAmount.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateSolicitorFees);
+  calculateSolicitorFees();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

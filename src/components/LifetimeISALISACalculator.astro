@@ -1,0 +1,126 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout finance-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Lifetime ISA (LISA) Contribution Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Annual Personal Contribution (£ - Max £4,000/year)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="lisa-annual-contribution" value="4000" min="100" max="4000" step="100" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Investment / Savings Horizon (Years)</span></div>
+        <div class="amount-field">
+          <input type="number" id="lisa-saving-years" value="5" min="1" max="30" step="1" />
+          <span class="cur">yrs</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Estimated Investment Growth Rate (% p.a.)</span></div>
+        <div class="amount-field">
+          <input type="number" id="lisa-growth-rate" value="5.0" min="0" max="12" step="0.5" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--finance-1), var(--finance-2) 80%);">
+      <div class="result-label">Total Cumulative Government 25% Bonus Claimed</div>
+      <div class="result-amount"><span id="mainResultDisplay">£5,000.00 Bonus</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Estimated Total LISA Maturity Pot:</span>
+        <span class="val" id="subResultValue">£27,628.00</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Lifetime ISA Growth Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Total Own Deposits Paid</span>
+          <span class="val" id="totalOwnDepositsDisplay">£20,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Total Government 25% Bonus Paid</span>
+          <span class="val" id="totalGovBonusDisplay">£5,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Estimated Investment Growth Earned</span>
+          <span class="val" id="investmentGrowthDisplay">£2,628.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Estimated Total LISA Pot (House Deposit / 60+ Retirement)</span>
+          <span class="val" id="totalLisaPotDisplay" style="font-weight: 700; font-size: 18px;">£27,628.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="finanzas" />
+  </div>
+</div>
+
+<script>
+  function calculateLisaGrowth() {
+    const contribEl = document.getElementById('lisa-annual-contribution') as HTMLInputElement;
+    const yearsEl = document.getElementById('lisa-saving-years') as HTMLInputElement;
+    const rateEl = document.getElementById('lisa-growth-rate') as HTMLInputElement;
+
+    if (!contribEl || !yearsEl || !rateEl) return;
+
+    const annualContrib = Math.min(4000, parseFloat(contribEl.value) || 0);
+    const years = parseInt(yearsEl.value) || 5;
+    const growthRate = (parseFloat(rateEl.value) || 0) / 100;
+
+    const annualBonus = annualContrib * 0.25;
+    const annualDepositTotal = annualContrib + annualBonus;
+
+    let pot = 0;
+    for (let y = 1; y <= years; y++) {
+      pot = (pot + annualDepositTotal) * (1 + growthRate);
+    }
+
+    const totalOwn = annualContrib * years;
+    const totalBonus = annualBonus * years;
+    const growth = Math.max(0, pot - (totalOwn + totalBonus));
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const ownRes = document.getElementById('totalOwnDepositsDisplay');
+    const bonusRes = document.getElementById('totalGovBonusDisplay');
+    const growthRes = document.getElementById('investmentGrowthDisplay');
+    const totalRes = document.getElementById('totalLisaPotDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + totalBonus.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Bonus';
+    if (subVal) subVal.textContent = '£' + pot.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (ownRes) ownRes.textContent = '£' + totalOwn.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (bonusRes) bonusRes.textContent = '£' + totalBonus.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (growthRes) growthRes.textContent = '£' + growth.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (totalRes) totalRes.textContent = '£' + pot.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['lisa-annual-contribution', 'lisa-saving-years', 'lisa-growth-rate'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateLisaGrowth);
+    document.getElementById(id)?.addEventListener('change', calculateLisaGrowth);
+  });
+  calculateLisaGrowth();
+</script>

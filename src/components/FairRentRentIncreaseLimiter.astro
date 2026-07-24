@@ -1,0 +1,168 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Fair Rent Limitation Details'}</h2>
+
+      <!-- Current Registered Rent -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.currentRentLabel || 'Current Registered Fair Rent (£/mo)'}</span>
+          <span class="hint" id="currentRentVal">£800</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="800" id="currentRentInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="200" max="3000" step="50" value="800" id="currentRentSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£200</span><span>£3,000</span></div>
+      </div>
+
+      <!-- Retail Price Index (RPI) Inflation % -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.rpiLabel || 'RPI Inflation Rate Since Last Registration (%)'}</span>
+          <span class="hint" id="rpiVal">8.5%</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="8.5" id="rpiInput" inputmode="decimal" />
+          <span class="cur">%</span>
+        </div>
+        <input type="range" min="1" max="25" step="0.5" value="8.5" id="rpiSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1%</span><span>25%</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Maximum Capped Fair Rent Limit'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£908.00/mo</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.maxPercentageLabel || 'Maximum Legal Increase Permitted:'}</span>
+        <span class="val" id="subResultValue">+13.50% Maximum Rent Cap (+£108.00/mo)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Fair Rent Cap Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Current Registered Monthly Rent</span>
+          <span class="val" id="currentRentDisplay">£800.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>RPI Change Allowance</span>
+          <span class="val" id="rpiDisplay">+8.50%</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Statutory Statutory Uplift Buffer</span>
+          <span class="val">+5.00% Uplift</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Total Statutory Rent Cap Percentage (RPI + 5%)</span>
+          <span class="val" id="totalCapPercentDisplay">13.50% Max Cap</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Maximum Legal Registered Fair Rent</span>
+          <span class="val" id="netFairRentDisplay" style="font-weight: 700; font-size: 18px;">£908.00 / month</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Regulated Tenancies:</strong> Applies to Rent Act 1977 regulated tenancies (started before 15 Jan 1989).<br/>
+        • <strong>Maximum Fair Rent Order:</strong> Limits rent increases to RPI inflation + 5% (or 7.5% for 1st re-registration).<br/>
+        • <strong>Independent Rent Officer:</strong> Rent Register maintained by Valuation Office Agency (VOA).<br/>
+        • <strong>2-Year Registration:</strong> Fair rent registrations remain fixed for a minimum of 2 years.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const currentRentInput = document.getElementById('currentRentInput') as HTMLInputElement;
+  const currentRentSlider = document.getElementById('currentRentSlider') as HTMLInputElement;
+  const currentRentVal = document.getElementById('currentRentVal') as HTMLElement;
+  const rpiInput = document.getElementById('rpiInput') as HTMLInputElement;
+  const rpiSlider = document.getElementById('rpiSlider') as HTMLInputElement;
+  const rpiVal = document.getElementById('rpiVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const currentRentDisplay = document.getElementById('currentRentDisplay') as HTMLElement;
+  const rpiDisplay = document.getElementById('rpiDisplay') as HTMLElement;
+  const totalCapPercentDisplay = document.getElementById('totalCapPercentDisplay') as HTMLElement;
+  const netFairRentDisplay = document.getElementById('netFairRentDisplay') as HTMLElement;
+
+  function calculate() {
+    const currentRent = parseInputVal(currentRentInput.value);
+    const rpiRate = parseInputVal(rpiInput.value);
+
+    // Statutory Fair Rent Cap Formula: RPI + 5.0%
+    const totalCapPercent = rpiRate + 5.0;
+    const maxIncrease = currentRent * (totalCapPercent / 100);
+    const maxFairRent = currentRent + maxIncrease;
+
+    currentRentVal.innerText = formatCurrency(currentRent).slice(0, -3);
+    rpiVal.innerText = `${rpiRate.toFixed(1)}%`;
+
+    mainResultDisplay.innerText = `${formatCurrency(maxFairRent)}/mo`;
+    subResultValue.innerText = `+${totalCapPercent.toFixed(2)}% Maximum Rent Cap (+${formatCurrency(maxIncrease)}/mo)`;
+
+    currentRentDisplay.innerText = formatCurrency(currentRent);
+    rpiDisplay.innerText = `+${rpiRate.toFixed(2)}%`;
+    totalCapPercentDisplay.innerText = `${totalCapPercent.toFixed(2)}% Max Cap`;
+    netFairRentDisplay.innerText = `${formatCurrency(maxFairRent)} / month`;
+  }
+
+  currentRentInput.addEventListener('input', () => {
+    const val = parseInputVal(currentRentInput.value);
+    currentRentSlider.value = String(val);
+    calculate();
+  });
+
+  currentRentSlider.addEventListener('input', () => {
+    currentRentInput.value = parseInt(currentRentSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  rpiInput.addEventListener('input', () => {
+    const val = parseInputVal(rpiInput.value);
+    rpiSlider.value = String(val);
+    calculate();
+  });
+
+  rpiSlider.addEventListener('input', () => {
+    rpiInput.value = rpiSlider.value;
+    calculate();
+  });
+
+  calculate();
+</script>

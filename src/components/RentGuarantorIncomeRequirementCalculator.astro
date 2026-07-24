@@ -1,0 +1,103 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Tenancy Rent & Guarantor Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Monthly Rent Amount (£/month)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="guarantor-monthly-rent" value="1400" min="300" step="50" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Referencing Agency Multiple Ratio</span></div>
+        <select id="guarantor-multiple-ratio-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="36" selected>36x Monthly Rent (Standard UK Guarantor Multiplier)</option>
+          <option value="30">30x Monthly Rent (Tenant Direct Multiplier)</option>
+          <option value="40">40x Monthly Rent (Strict Corporate Multiplier)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Minimum Guarantor Annual Gross Salary Required</div>
+      <div class="result-amount"><span id="mainResultDisplay">£50,400.00 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Tenant Direct Income Benchmark (30x):</span>
+        <span class="val" id="subResultValue">£42,000.00 / year</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Guarantor Income Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Annual Rent Total (£1,400 x 12)</span>
+          <span class="val" id="annualRentTotalDisplay">£16,800.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Referencing Rent Multiplier Ratio</span>
+          <span class="val" id="guarantorRatioDisplay">36x Monthly Rent</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Guarantor Minimum Required Annual Salary</span>
+          <span class="val" id="guarantorRequiredSalaryDisplay" style="font-weight: 700; font-size: 18px;">£50,400.00 / year</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateGuarantorIncome() {
+    const rentEl = document.getElementById('guarantor-monthly-rent') as HTMLInputElement;
+    const ratioEl = document.getElementById('guarantor-multiple-ratio-select') as HTMLSelectElement;
+
+    if (!rentEl || !ratioEl) return;
+
+    const monthlyRent = parseFloat(rentEl.value) || 0;
+    const multiplier = parseFloat(ratioEl.value) || 36;
+
+    const annualRent = monthlyRent * 12;
+    const requiredSalary = monthlyRent * multiplier;
+    const tenantSalary = monthlyRent * 30;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const rentRes = document.getElementById('annualRentTotalDisplay');
+    const ratioRes = document.getElementById('guarantorRatioDisplay');
+    const totalRes = document.getElementById('guarantorRequiredSalaryDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + requiredSalary.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (subVal) subVal.textContent = '£' + tenantSalary.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (rentRes) rentRes.textContent = '£' + annualRent.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (ratioRes) ratioRes.textContent = multiplier + 'x Monthly Rent';
+    if (totalRes) totalRes.textContent = '£' + requiredSalary.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+  }
+
+  ['guarantor-monthly-rent', 'guarantor-multiple-ratio-select'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateGuarantorIncome);
+    document.getElementById(id)?.addEventListener('change', calculateGuarantorIncome);
+  });
+  calculateGuarantorIncome();
+</script>

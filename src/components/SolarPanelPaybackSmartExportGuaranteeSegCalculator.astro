@@ -1,0 +1,203 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Solar PV & Export Details'}</h2>
+
+      <!-- Total Solar System Cost -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.systemCostLabel || 'Solar PV System Installation Cost (£)'}</span>
+          <span class="hint" id="systemCostVal">£6,500</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="6,500" id="systemCostInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="3000" max="15000" step="500" value="6500" id="systemCostSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£3,000</span><span>£15,000</span></div>
+      </div>
+
+      <!-- Solar Generation (kWh/yr) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.generationLabel || 'Annual Solar Generation (kWh / year)'}</span>
+          <span class="hint" id="generationVal">3,800 kWh (4 kWp System)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="3,800" id="generationInput" inputmode="decimal" />
+          <span class="cur">kWh</span>
+        </div>
+        <input type="range" min="1500" max="10000" step="100" value="3800" id="generationSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1,500 kWh</span><span>10,000 kWh</span></div>
+      </div>
+
+      <!-- Self-Consumption Percentage (%) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.selfConsumeLabel || 'Self-Consumed Solar Energy (%)'}</span>
+          <span class="hint" id="selfConsumeVal">50% Self-Consumed</span>
+        </div>
+        <input type="range" min="20" max="90" step="5" value="50" id="selfConsumeSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>20% (No Battery)</span><span>90% (With Battery)</span></div>
+      </div>
+
+      <!-- SEG Tariff (p/kWh) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.segTariffLabel || 'Smart Export Guarantee (SEG) Tariff (p/kWh)'}</span>
+          <span class="hint" id="segTariffVal">15.0p / kWh Exported</span>
+        </div>
+        <input type="range" min="4" max="30" step="1" value="15" id="segTariffSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>4p (Base)</span><span>30p (Premium SEG)</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Calculated Solar Payback Period'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">8.7 Years Payback</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.annualSavingsLabel || 'Combined Annual Savings & SEG Earnings:'}</span>
+        <span class="val" id="subResultValue">£750.50 / year (£465.50 Savings + £285 SEG)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Solar & SEG Financial Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Self-Consumed Savings (1,900 kWh × 24.5p)</span>
+          <span class="val" id="savingsDisplay">£465.50 / yr</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>SEG Export Income (1,900 kWh × 15p)</span>
+          <span class="val" id="segIncomeDisplay">£285.00 / yr</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>0% VAT Tax Savings on Solar Installation</span>
+          <span class="val" style="color:#059669;">0% VAT Applies (Saved ~£325)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Return on Investment (ROI %)</span>
+          <span class="val" id="roiPercentDisplay" style="font-weight: 700; font-size: 18px;">11.5% Annual Return</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>0% VAT Relief:</strong> Solar PV and battery storage systems carry 0% VAT until March 2027.<br/>
+        • <strong>Smart Export Guarantee (SEG):</strong> Statutory scheme forcing large suppliers to pay for exported renewable power.<br/>
+        • <strong>MCS Certification:</strong> System and installer must be MCS certified to qualify for SEG payouts.<br/>
+        • <strong>Smart Meters:</strong> Smart meter (SMETS2) required to track half-hourly export readings.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const systemCostInput = document.getElementById('systemCostInput') as HTMLInputElement;
+  const systemCostSlider = document.getElementById('systemCostSlider') as HTMLInputElement;
+  const systemCostVal = document.getElementById('systemCostVal') as HTMLElement;
+
+  const generationInput = document.getElementById('generationInput') as HTMLInputElement;
+  const generationSlider = document.getElementById('generationSlider') as HTMLInputElement;
+  const generationVal = document.getElementById('generationVal') as HTMLElement;
+
+  const selfConsumeSlider = document.getElementById('selfConsumeSlider') as HTMLInputElement;
+  const selfConsumeVal = document.getElementById('selfConsumeVal') as HTMLElement;
+
+  const segTariffSlider = document.getElementById('segTariffSlider') as HTMLInputElement;
+  const segTariffVal = document.getElementById('segTariffVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const savingsDisplay = document.getElementById('savingsDisplay') as HTMLElement;
+  const segIncomeDisplay = document.getElementById('segIncomeDisplay') as HTMLElement;
+  const roiPercentDisplay = document.getElementById('roiPercentDisplay') as HTMLElement;
+
+  function calculate() {
+    const cost = parseInputVal(systemCostInput.value);
+    const generationKwh = parseInputVal(generationInput.value);
+    const selfConsumePercent = parseInt(selfConsumeSlider.value, 10);
+    const segPence = parseInt(segTariffSlider.value, 10);
+
+    const gridElectricityPricePence = 24.5; // Standard Ofgem electric price cap rate
+
+    const selfConsumedKwh = generationKwh * (selfConsumePercent / 100);
+    const exportedKwh = generationKwh - selfConsumedKwh;
+
+    const selfConsumedSavings = (selfConsumedKwh * gridElectricityPricePence) / 100;
+    const segIncome = (exportedKwh * segPence) / 100;
+
+    const totalAnnualBenefit = selfConsumedSavings + segIncome;
+    const paybackYears = totalAnnualBenefit > 0 ? cost / totalAnnualBenefit : 0;
+    const annualRoiPercent = cost > 0 ? (totalAnnualBenefit / cost) * 100 : 0;
+
+    systemCostVal.innerText = formatCurrency(cost).slice(0, -3);
+    generationVal.innerText = `${generationKwh.toLocaleString('en-GB')} kWh/yr`;
+    selfConsumeVal.innerText = `${selfConsumePercent}% Self-Consumed`;
+    segTariffVal.innerText = `${segPence}p / kWh Exported`;
+
+    mainResultDisplay.innerText = `${paybackYears.toFixed(1)} Years Payback`;
+    subResultValue.innerText = `${formatCurrency(totalAnnualBenefit)} / yr (${formatCurrency(selfConsumedSavings)} Save + ${formatCurrency(segIncome)} SEG)`;
+
+    savingsDisplay.innerText = `${formatCurrency(selfConsumedSavings)} / yr`;
+    segIncomeDisplay.innerText = `${formatCurrency(segIncome)} / yr`;
+    roiPercentDisplay.innerText = `${annualRoiPercent.toFixed(1)}% Annual Return`;
+  }
+
+  systemCostInput.addEventListener('input', () => {
+    const val = parseInputVal(systemCostInput.value);
+    systemCostSlider.value = String(val);
+    calculate();
+  });
+
+  systemCostSlider.addEventListener('input', () => {
+    systemCostInput.value = parseInt(systemCostSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  generationInput.addEventListener('input', () => {
+    const val = parseInputVal(generationInput.value);
+    generationSlider.value = String(val);
+    calculate();
+  });
+
+  generationSlider.addEventListener('input', () => {
+    generationInput.value = parseInt(generationSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  selfConsumeSlider.addEventListener('input', calculate);
+  segTariffSlider.addEventListener('input', calculate);
+
+  calculate();
+</script>

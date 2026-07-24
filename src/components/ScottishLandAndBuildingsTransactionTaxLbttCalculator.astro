@@ -1,0 +1,116 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Property Purchase Price (£)</span></div>
+      <div class="amount-field"><input type="number" id="scot-lbtt-property-price" value="210000" min="50000" step="5000" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Buyer Status & Purpose</span></div>
+      <select id="scot-lbtt-buyer-status">
+        <option value="main_residence" selected>Main Residence (Standard LBTT Rates - £145k Threshold)</option>
+        <option value="first_time_buyer">First-Time Buyer (Relief Threshold Raised to £175,000)</option>
+        <option value="additional_dwelling">Additional Dwelling / Buy-to-Let (6.0% ADS Surcharge Applies)</option>
+      </select>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <h3>Revenue Scotland LBTT Results</h3>
+      <div class="breakdown-row net">
+        <span>Total LBTT & ADS Tax Payable:</span>
+        <strong id="scot-lbtt-total-val">£0.00</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Effective Tax Rate:</span>
+        <strong id="scot-effective-lbtt-rate">0.00%</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Standard Base LBTT Tax Share:</span>
+        <strong id="scot-base-lbtt-val">£0.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>6% Additional Dwelling Supplement (ADS):</span>
+        <strong id="scot-ads-surcharge-val">£0.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Tax Authority:</span>
+        <strong id="scot-tax-authority">Revenue Scotland (M\u00f2r-ch\u00f2isrean na h-Alba)</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculateScotLbtt() {
+    const P = parseFloat((document.getElementById('scot-lbtt-property-price') as HTMLInputElement).value) || 0;
+    const status = (document.getElementById('scot-lbtt-buyer-status') as HTMLSelectElement).value;
+
+    const isFtb = status === 'first_time_buyer';
+    const isAds = status === 'additional_dwelling';
+
+    // 2026/27 LBTT Standard Rates (Scotland):
+    // Standard Base Threshold: £145,000 (First time buyers: £175,000)
+    // £0 - £145,000 (or £175k): 0%
+    // £145,001 (or £175k) - £250,000: 2%
+    // £250,001 - £325,000: 5%
+    // £325,001 - £750,000: 10%
+    // Over £750,000: 12%
+
+    // ADS (Additional Dwelling Supplement): 6.0% across total purchase price if P >= £40,000
+
+    let baseLbtt = 0;
+    const zeroBandLimit = isFtb ? 175000 : 145000;
+
+    if (P > 750000) {
+      baseLbtt += (P - 750000) * 0.12;
+      baseLbtt += (750000 - 325000) * 0.10;
+      baseLbtt += (325000 - 250000) * 0.05;
+      baseLbtt += (250000 - zeroBandLimit) * 0.02;
+    } else if (P > 325000) {
+      baseLbtt += (P - 325000) * 0.10;
+      baseLbtt += (325000 - 250000) * 0.05;
+      baseLbtt += (250000 - zeroBandLimit) * 0.02;
+    } else if (P > 250000) {
+      baseLbtt += (P - 250000) * 0.05;
+      baseLbtt += (250000 - zeroBandLimit) * 0.02;
+    } else if (P > zeroBandLimit) {
+      baseLbtt += (P - zeroBandLimit) * 0.02;
+    }
+
+    const adsVal = (isAds && P >= 40000) ? P * 0.06 : 0;
+    const totalLbtt = baseLbtt + adsVal;
+    const effectiveRate = P > 0 ? (totalLbtt / P) * 100 : 0;
+
+    (document.getElementById('scot-lbtt-total-val') as HTMLElement).textContent = '£' + totalLbtt.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('scot-effective-lbtt-rate') as HTMLElement).textContent = effectiveRate.toFixed(2) + '%';
+    (document.getElementById('scot-base-lbtt-val') as HTMLElement).textContent = '£' + baseLbtt.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('scot-ads-surcharge-val') as HTMLElement).textContent = '£' + adsVal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + (isAds ? ' (6.0% rate)' : ' (£0)');
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateScotLbtt);
+  calculateScotLbtt();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

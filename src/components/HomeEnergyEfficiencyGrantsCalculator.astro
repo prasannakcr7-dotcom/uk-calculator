@@ -1,0 +1,102 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>UK Region</span></div>
+        <select id="energy-grant-region" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="england_wales" selected>England & Wales (Boiler Upgrade Scheme - BUS)</option>
+          <option value="scotland">Scotland (Home Energy Scotland Grant)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Planned Clean Energy Installation</span></div>
+        <select id="installation-type" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="air_source_heat_pump" selected>Air Source Heat Pump (£7,500 Grant)</option>
+          <option value="ground_source_heat_pump">Ground Source Heat Pump (£7,500 Grant)</option>
+          <option value="biomass_boiler">Biomass Boiler (£5,000 Grant)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Estimated Total Installation Quote (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="total-installation-quote" value="11500" min="2000" step="500" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Energy Efficiency Grant Breakdown</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Statutory Government Grant Award</span>
+          <strong id="gov-grant-award-val">£7,500.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>VAT Rate (0% VAT Relief on Clean Tech)</span>
+          <strong id="vat-relief-percentage">0% VAT Applied</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Net Out-of-Pocket Customer Cost</span>
+          <strong id="net-customer-cost-val">£4,000.00</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateEnergyGrant() {
+    const regionEl = document.getElementById('energy-grant-region') as HTMLSelectElement;
+    const installEl = document.getElementById('installation-type') as HTMLSelectElement;
+    const quoteEl = document.getElementById('total-installation-quote') as HTMLInputElement;
+
+    if (!regionEl || !installEl || !quoteEl) return;
+
+    const region = regionEl.value;
+    const installType = installEl.value;
+    const quote = parseFloat(quoteEl.value) || 0;
+
+    let grantVal = 7500;
+    if (installType === 'biomass_boiler') grantVal = 5000;
+    if (region === 'scotland') {
+      if (installType === 'air_source_heat_pump' || installType === 'ground_source_heat_pump') {
+        grantVal = 7500; // Scotland base grant
+      }
+    }
+
+    const netCost = Math.max(0, quote - grantVal);
+
+    const grantResEl = document.getElementById('gov-grant-award-val');
+    const netResEl = document.getElementById('net-customer-cost-val');
+
+    if (grantResEl) grantResEl.textContent = '£' + grantVal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (netResEl) netResEl.textContent = '£' + netCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['energy-grant-region', 'installation-type', 'total-installation-quote'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateEnergyGrant);
+    document.getElementById(id)?.addEventListener('change', calculateEnergyGrant);
+  });
+  calculateEnergyGrant();
+</script>

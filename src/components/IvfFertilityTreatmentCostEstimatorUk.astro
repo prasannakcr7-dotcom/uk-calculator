@@ -1,0 +1,172 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout health-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'IVF Cycle & Treatment Procedure Details'}</h2>
+
+      <!-- Number of IVF Fresh Cycles -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.freshCyclesLabel || 'Number of Fresh IVF Cycles Planned'}</span>
+          <span class="hint" id="freshCyclesVal">1 Fresh IVF Cycle</span>
+        </div>
+        <input type="range" min="1" max="3" step="1" value="1" id="freshCyclesSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1 Cycle</span><span>3 Cycles</span></div>
+      </div>
+
+      <!-- Specialized Procedure Add-Ons -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.procedureTypeLabel || 'Fertility Procedure & Lab Add-Ons'}</span>
+          <span class="hint" id="procedureTypeVal">Standard IVF + ICSI Sperm Injection (+£1,200)</span>
+        </div>
+        <select id="procedureSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="STANDARD_IVF">Standard IVF Cycle (Base Cycle — £4,500)</option>
+          <option value="IVF_ICSI" selected>Standard IVF + ICSI Intracytoplasmic Sperm Injection (+£1,200)</option>
+          <option value="IVF_PGTA">IVF + ICSI + PGT-A Genetic Embryo Screening (+£3,200)</option>
+          <option value="FET_ONLY">Frozen Embryo Transfer FET Only (£1,800)</option>
+        </select>
+      </div>
+
+      <!-- NHS Funding Eligibility -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.nhsFundingLabel || 'NHS ICB IVF Funding Eligibility'}</span>
+          <span class="hint" id="nhsFundingVal">100% Private Self-Funding (No NHS Funding)</span>
+        </div>
+        <select id="nhsSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="0" selected>100% Private Self-Funding Patient (No NHS Funding)</option>
+          <option value="1">1 NHS Funded Fresh Cycle Approved (-£5,000 NHS Grant)</option>
+          <option value="2">2 NHS Funded Fresh Cycles Approved (Full NHS ICB Criteria Met)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--health-1), var(--health-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Net IVF Treatment & Medication Budget'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£7,200.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.medicationSplitLabel || 'Cycle Fee, ICSI & Stimulation Medication Split:'}</span>
+        <span class="val" id="subResultValue">£4,500 Cycle + £1,200 ICSI + £1,500 Stimulation Medication</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'IVF Treatment Cost Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Base IVF Cycle Fee (Egg Retrieval & Transfer)</span>
+          <span class="val" id="baseCycleDisplay">£4,500.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Specialized Lab Add-On (ICSI / PGT-A)</span>
+          <span class="val" id="addonDisplay">£1,200.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Ovarian Stimulation Injections & Medication</span>
+          <span class="val" id="medsDisplay">£1,500.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Blood Tests, Monitoring Scans & HFEA Fee</span>
+          <span class="val" id="hfeaDisplay">£500.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Net Out-of-Pocket IVF Investment</span>
+          <span class="val" id="totalIvfDisplay" style="font-weight: 700; font-size: 18px;">£7,700.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>NICE IVF Guidelines:</strong> Recommends up to 3 funded IVF cycles for women under 40.<br/>
+        • <strong>NHS Postcode Lottery:</strong> ICB NHS funding criteria vary regionally across England.<br/>
+        • <strong>HFEA Mandatory Fee:</strong> £85 statutory HFEA registration fee per fresh IVF cycle.<br/>
+        • <strong>Egg / Embryo Storage:</strong> Annual storage fees range from £300 to £450 per year.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const freshCyclesSlider = document.getElementById('freshCyclesSlider') as HTMLInputElement;
+  const freshCyclesVal = document.getElementById('freshCyclesVal') as HTMLElement;
+
+  const procedureSelect = document.getElementById('procedureSelect') as HTMLSelectElement;
+  const nhsSelect = document.getElementById('nhsSelect') as HTMLSelectElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const baseCycleDisplay = document.getElementById('baseCycleDisplay') as HTMLElement;
+  const addonDisplay = document.getElementById('addonDisplay') as HTMLElement;
+  const medsDisplay = document.getElementById('medsDisplay') as HTMLElement;
+  const hfeaDisplay = document.getElementById('hfeaDisplay') as HTMLElement;
+  const totalIvfDisplay = document.getElementById('totalIvfDisplay') as HTMLElement;
+
+  function calculate() {
+    const cycles = parseInt(freshCyclesSlider.value, 10);
+    const procKey = procedureSelect.value;
+    const nhsCycles = parseInt(nhsSelect.value, 10);
+
+    let baseCycleFee = 4500;
+    let addonFee = 0;
+
+    if (procKey === 'IVF_ICSI') addonFee = 1200;
+    if (procKey === 'IVF_PGTA') addonFee = 3200;
+    if (procKey === 'FET_ONLY') baseCycleFee = 1800;
+
+    const medsCostPerCycle = procKey === 'FET_ONLY' ? 400 : 1500;
+    const hfeaCostPerCycle = 500;
+
+    const costPerCycle = baseCycleFee + addonFee + medsCostPerCycle + hfeaCostPerCycle;
+    const grossTotalCost = costPerCycle * cycles;
+
+    // NHS Grant value ~£5,000 per funded cycle
+    const nhsGrantValue = Math.min(cycles, nhsCycles) * 5000;
+    const netTotalCost = Math.max(0, grossTotalCost - nhsGrantValue);
+
+    freshCyclesVal.innerText = `${cycles} Fresh IVF Cycle${cycles === 1 ? '' : 's'}`;
+
+    mainResultDisplay.innerText = formatCurrency(netTotalCost);
+    subResultValue.innerText = `${formatCurrency(baseCycleFee * cycles)} Base + ${formatCurrency(addonFee * cycles)} Add-On + ${formatCurrency(medsCostPerCycle * cycles)} Meds`;
+
+    baseCycleDisplay.innerText = `${formatCurrency(baseCycleFee * cycles)} (${cycles} Cycle${cycles === 1 ? '' : 's'})`;
+    addonDisplay.innerText = `${formatCurrency(addonFee * cycles)}`;
+    medsDisplay.innerText = `${formatCurrency(medsCostPerCycle * cycles)}`;
+    hfeaDisplay.innerText = `${formatCurrency(hfeaCostPerCycle * cycles)}`;
+    totalIvfDisplay.innerText = `${formatCurrency(netTotalCost)} ${nhsGrantValue > 0 ? '(After NHS Grant)' : ''}`;
+  }
+
+  freshCyclesSlider.addEventListener('input', calculate);
+  procedureSelect.addEventListener('change', calculate);
+  nhsSelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

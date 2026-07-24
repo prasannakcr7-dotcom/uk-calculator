@@ -1,0 +1,107 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Open Market Property Valuation (£)</span></div>
+      <div class="amount-field"><input type="number" id="council-property-valuation" value="220000" min="50000" step="5000" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Years of Public Sector Tenancy Completed</span></div>
+      <div class="amount-field"><input type="number" id="tenancy-years-count" value="10" min="3" max="50" step="1" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Property Type</span></div>
+      <select id="property-building-type">
+        <option value="house" selected>House (35% in Years 3-5, +1%/yr up to 70% max)</option>
+        <option value="flat">Flat / Apartment (50% in Years 3-5, +2%/yr up to 70% max)</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Council Location</span></div>
+      <select id="council-location-region">
+        <option value="outside_london" selected>England Outside London (Max Cap £102,400)</option>
+        <option value="london_borough">London Borough (Max Cap £136,400)</option>
+      </select>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <h3>Right to Buy Purchase Results</h3>
+      <div class="breakdown-row net">
+        <span>Net Discounted Purchase Price:</span>
+        <strong id="net-rtb-purchase-price">£0.00</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Total Discount Awarded:</span>
+        <strong id="total-rtb-discount-val">£0.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Un-Capped Discount Percentage:</span>
+        <strong id="uncapped-discount-pct">0%</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Maximum Statutory Discount Cap:</span>
+        <strong id="statutory-discount-cap-display">£102,400</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculateRightToBuy() {
+    const valuation = parseFloat((document.getElementById('council-property-valuation') as HTMLInputElement).value) || 0;
+    const years = parseInt((document.getElementById('tenancy-years-count') as HTMLInputElement).value) || 3;
+    const type = (document.getElementById('property-building-type') as HTMLSelectElement).value;
+    const region = (document.getElementById('council-location-region') as HTMLSelectElement).value;
+
+    let maxCap = region === 'london_borough' ? 136400 : 102400;
+
+    let discountPct = 35;
+    if (type === 'house') {
+      // House: 35% for 3-5 years, +1% for each year over 5, up to 70%
+      if (years <= 5) discountPct = 35;
+      else discountPct = Math.min(70, 35 + (years - 5));
+    } else {
+      // Flat: 50% for 3-5 years, +2% for each year over 5, up to 70%
+      if (years <= 5) discountPct = 50;
+      else discountPct = Math.min(70, 50 + ((years - 5) * 2));
+    }
+
+    const uncappedDiscount = valuation * (discountPct / 100);
+    const actualDiscount = Math.min(maxCap, uncappedDiscount);
+    const netPurchasePrice = Math.max(0, valuation - actualDiscount);
+
+    (document.getElementById('net-rtb-purchase-price') as HTMLElement).textContent = '£' + netPurchasePrice.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('total-rtb-discount-val') as HTMLElement).textContent = '£' + actualDiscount.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('uncapped-discount-pct') as HTMLElement).textContent = discountPct + '% (' + (uncappedDiscount > maxCap ? 'Capped at max limit' : 'Uncapped') + ')';
+    (document.getElementById('statutory-discount-cap-display') as HTMLElement).textContent = '£' + maxCap.toLocaleString('en-GB');
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateRightToBuy);
+  calculateRightToBuy();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

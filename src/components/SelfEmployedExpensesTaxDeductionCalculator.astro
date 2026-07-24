@@ -1,0 +1,131 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Self-Employed Allowable Expenses Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Gross Self-Employed Trading Income (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="selfexp-gross-income" value="38000" min="5000" step="1000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Total Itemised Allowable Business Expenses (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="selfexp-actual-expenses" value="6500" min="0" step="250" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Claim £1,000 Trading Allowance Option</span></div>
+        <select id="selfexp-trading-allowance-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="actual" selected>Claim Actual Expenses (£6,500 Expenses)</option>
+          <option value="trading_allowance">Claim £1,000 Trading Allowance Instead</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Sole Trader Tax Band</span></div>
+        <select id="selfexp-tax-band-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="0.20" selected>Basic Rate (20% Income Tax + 6% Class 4 NI = 26%)</option>
+          <option value="0.40">Higher Rate (40% Income Tax + 2% Class 4 NI = 42%)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">Net Tax & NI Savings from Claiming Expenses</div>
+      <div class="result-amount"><span id="mainResultDisplay">£1,690.00 Saved / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Net Taxable Trading Profit:</span>
+        <span class="val" id="subResultValue">£31,500.00 / year</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Allowable Expenses Tax Savings Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Trading Income</span>
+          <span class="val" id="grossIncomeDisplay">£38,000.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Allowable Expenses Claimed</span>
+          <span class="val" id="expensesClaimedDisplay">-£6,500.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Combined Income Tax & Class 4 NI Rate</span>
+          <span class="val" id="combinedTaxNiRateDisplay">26.0% Rate</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Tax & National Insurance Cash Saved</span>
+          <span class="val" id="totalTaxSavedDisplay" style="font-weight: 700; font-size: 18px;">£1,690.00 Saved / year</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="impuestos" />
+  </div>
+</div>
+
+<script>
+  function calculateSelfExpenses() {
+    const incomeEl = document.getElementById('selfexp-gross-income') as HTMLInputElement;
+    const expEl = document.getElementById('selfexp-actual-expenses') as HTMLInputElement;
+    const claimEl = document.getElementById('selfexp-trading-allowance-select') as HTMLSelectElement;
+    const bandEl = document.getElementById('selfexp-tax-band-select') as HTMLSelectElement;
+
+    if (!incomeEl || !expEl || !claimEl || !bandEl) return;
+
+    const grossIncome = parseFloat(incomeEl.value) || 0;
+    const actualExp = parseFloat(expEl.value) || 0;
+    const claimType = claimEl.value;
+    const taxRate = parseFloat(bandEl.value) || 0.20;
+
+    const niRate = taxRate >= 0.40 ? 0.02 : 0.06; // Class 4 NI 6%
+    const combinedRate = taxRate + niRate;
+
+    const expensesDeducted = claimType === 'trading_allowance' ? 1000 : actualExp;
+    const netProfit = Math.max(0, grossIncome - expensesDeducted);
+    const taxSaved = expensesDeducted * combinedRate;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const grossRes = document.getElementById('grossIncomeDisplay');
+    const expRes = document.getElementById('expensesClaimedDisplay');
+    const rateRes = document.getElementById('combinedTaxNiRateDisplay');
+    const savedRes = document.getElementById('totalTaxSavedDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + taxSaved.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Saved / year';
+    if (subVal) subVal.textContent = '£' + netProfit.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (grossRes) grossRes.textContent = '£' + grossIncome.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (expRes) expRes.textContent = '-£' + expensesDeducted.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (rateRes) rateRes.textContent = (combinedRate * 100).toFixed(1) + '% Rate';
+    if (savedRes) savedRes.textContent = '£' + taxSaved.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Saved / year';
+  }
+
+  ['selfexp-gross-income', 'selfexp-actual-expenses', 'selfexp-trading-allowance-select', 'selfexp-tax-band-select'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateSelfExpenses);
+    document.getElementById(id)?.addEventListener('change', calculateSelfExpenses);
+  });
+  calculateSelfExpenses();
+</script>

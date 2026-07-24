@@ -1,0 +1,124 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    <h2 class="calc-title">Scottish Highers & Advanced Highers to UCAS Points Converter (2026/27)</h2>
+    <p class="calc-desc">Calculate total UCAS Tariff points score for UK university entry from Scottish SQA Highers and Advanced Highers qualifications.</p>
+
+    <div class="field-group">
+      <div class="field-label"><span>Scottish Higher Subject 1 Grade</span></div>
+      <select id="higher-1-grade">
+        <option value="33" selected>Grade A (33 UCAS Points)</option>
+        <option value="27">Grade B (27 UCAS Points)</option>
+        <option value="21">Grade C (21 UCAS Points)</option>
+        <option value="15">Grade D (15 UCAS Points)</option>
+        <option value="0">None / Unclassified (0 Points)</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Scottish Higher Subject 2 Grade</span></div>
+      <select id="higher-2-grade">
+        <option value="33">Grade A (33 UCAS Points)</option>
+        <option value="27" selected>Grade B (27 UCAS Points)</option>
+        <option value="21">Grade C (21 UCAS Points)</option>
+        <option value="15">Grade D (15 UCAS Points)</option>
+        <option value="0">None / Unclassified (0 Points)</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Scottish Higher Subject 3 Grade</span></div>
+      <select id="higher-3-grade">
+        <option value="33">Grade A (33 UCAS Points)</option>
+        <option value="27">Grade B (27 UCAS Points)</option>
+        <option value="21" selected>Grade C (21 UCAS Points)</option>
+        <option value="15">Grade D (15 UCAS Points)</option>
+        <option value="0">None / Unclassified (0 Points)</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Scottish Higher Subject 4 Grade</span></div>
+      <select id="higher-4-grade">
+        <option value="33">Grade A (33 UCAS Points)</option>
+        <option value="27">Grade B (27 UCAS Points)</option>
+        <option value="21">Grade C (21 UCAS Points)</option>
+        <option value="15" selected>Grade D (15 UCAS Points)</option>
+        <option value="0">None / Not Taken (0 Points)</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Advanced Higher Subject 1 Grade</span></div>
+      <select id="adv-higher-1-grade">
+        <option value="56">Grade A (56 UCAS Points)</option>
+        <option value="48">Grade B (48 UCAS Points)</option>
+        <option value="40">Grade C (40 UCAS Points)</option>
+        <option value="32">Grade D (32 UCAS Points)</option>
+        <option value="0" selected>None / Not Taken (0 Points)</option>
+      </select>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <h3>Scottish Qualification UCAS Tariff Summary</h3>
+      <div class="breakdown-row net">
+        <span>Total UCAS Tariff Points Score:</span>
+        <strong id="scot-total-ucas-points-val">0 Points</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Highers Contribution Subtotal:</span>
+        <strong id="highers-points-subtotal">0 Points</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Advanced Highers Contribution:</span>
+        <strong id="adv-highers-points-subtotal">0 Points</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>A-Level Tariff Equivalent Score:</span>
+        <strong id="alevel-tariff-equivalent-str">Equivalent to ABB A-Level tariff</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculateScotHighers() {
+    const h1 = parseInt((document.getElementById('higher-1-grade') as HTMLSelectElement).value) || 0;
+    const h2 = parseInt((document.getElementById('higher-2-grade') as HTMLSelectElement).value) || 0;
+    const h3 = parseInt((document.getElementById('higher-3-grade') as HTMLSelectElement).value) || 0;
+    const h4 = parseInt((document.getElementById('higher-4-grade') as HTMLSelectElement).value) || 0;
+    const ah1 = parseInt((document.getElementById('adv-higher-1-grade') as HTMLSelectElement).value) || 0;
+
+    const highersTotal = h1 + h2 + h3 + h4;
+    const advTotal = ah1;
+    const totalPoints = highersTotal + advTotal;
+
+    (document.getElementById('scot-total-ucas-points-val') as HTMLElement).textContent = totalPoints + ' UCAS Points';
+    (document.getElementById('highers-points-subtotal') as HTMLElement).textContent = highersTotal + ' Points';
+    (document.getElementById('adv-highers-points-subtotal') as HTMLElement).textContent = advTotal + ' Points';
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateScotHighers);
+  calculateScotHighers();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

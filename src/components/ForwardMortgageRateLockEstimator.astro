@@ -1,0 +1,119 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Current Outstanding Balance (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="current-mortgage-balance" value="190000" min="10000" step="5000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Months Remaining on Fixed Rate Deal</span></div>
+        <div class="amount-field">
+          <input type="number" id="months-until-deal-expiry" value="4" min="1" max="12" step="1" />
+          <span class="cur">mths</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Currently Available Forward Rate Lock (% p.a.)</span></div>
+        <div class="amount-field">
+          <input type="number" id="forward-rate-lock-pct" value="4.3" min="0.5" max="15" step="0.1" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Lender Rate Lock Validity Window</span></div>
+        <select id="rate-lock-window-months" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="6" selected>6 Months Valid (Standard UK Lenders)</option>
+          <option value="3">3 Months Valid</option>
+          <option value="4">4 Months Valid</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Mortgage Rate Lock Feasibility</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Lender Forward Rate Validity Window</span>
+          <strong id="lock-window-display">6 Months Valid</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Months Remaining Until Current Expiry</span>
+          <strong id="expiry-months-display">4 Months</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Estimated Monthly Payment at Rate Lock</span>
+          <strong id="locked-monthly-payment">£1,033.45 / month</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Rate Lock Qualification Status</span>
+          <strong id="rate-lock-eligibility-status">Eligible to Secure Rate Lock Now</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateRateLock() {
+    const balanceEl = document.getElementById('current-mortgage-balance') as HTMLInputElement;
+    const monthsRemEl = document.getElementById('months-until-deal-expiry') as HTMLInputElement;
+    const rateEl = document.getElementById('forward-rate-lock-pct') as HTMLInputElement;
+    const windowEl = document.getElementById('rate-lock-window-months') as HTMLSelectElement;
+
+    if (!balanceEl || !monthsRemEl || !rateEl || !windowEl) return;
+
+    const balance = parseFloat(balanceEl.value) || 0;
+    const monthsRem = parseInt(monthsRemEl.value) || 0;
+    const ratePct = parseFloat(rateEl.value) || 0;
+    const windowMonths = parseInt(windowEl.value) || 6;
+
+    const r = (ratePct / 100) / 12;
+    const n = 25 * 12;
+    const monthlyPayment = r > 0 ? balance * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1) : balance / n;
+
+    const isEligible = monthsRem <= windowMonths;
+    const statusText = isEligible
+      ? 'Eligible to Secure Rate Lock Now'
+      : `Wait ${monthsRem - windowMonths} month(s) to enter ${windowMonths}-month lock window`;
+
+    const winEl = document.getElementById('lock-window-display');
+    const expEl = document.getElementById('expiry-months-display');
+    const payEl = document.getElementById('locked-monthly-payment');
+    const statusEl = document.getElementById('rate-lock-eligibility-status');
+
+    if (winEl) winEl.textContent = windowMonths + ' Months Valid';
+    if (expEl) expEl.textContent = monthsRem + ' Months';
+    if (payEl) payEl.textContent = '£' + monthlyPayment.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (statusEl) statusEl.textContent = statusText;
+  }
+
+  ['current-mortgage-balance', 'months-until-deal-expiry', 'forward-rate-lock-pct', 'rate-lock-window-months'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateRateLock);
+    document.getElementById(id)?.addEventListener('change', calculateRateLock);
+  });
+  calculateRateLock();
+</script>

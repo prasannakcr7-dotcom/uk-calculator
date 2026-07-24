@@ -1,0 +1,119 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Pro-Rata Salary Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Full-Time Equivalent (FTE) Annual Salary (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="prorata-fte-salary" value="40000" min="10000" step="1000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Full-Time Standard Weekly Hours</span></div>
+        <div class="amount-field">
+          <input type="number" id="prorata-fulltime-hours" value="37.5" min="30" max="45" step="0.5" />
+          <span class="cur">hrs/wk</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Actual Part-Time Weekly Hours Worked</span></div>
+        <div class="amount-field">
+          <input type="number" id="prorata-parttime-hours" value="22.5" min="1" max="45" step="0.5" />
+          <span class="cur">hrs/wk</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--work-1), var(--work-2) 80%);">
+      <div class="result-label">Pro-Rata Actual Gross Annual Salary</div>
+      <div class="result-amount"><span id="mainResultDisplay">£24,000.00 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Pro-Rata Monthly Gross Income:</span>
+        <span class="val" id="subResultValue">£2,000.00 / month</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Pro-Rata Salary Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Part-Time Hours Percentage (FTE Ratio)</span>
+          <span class="val" id="fteRatioDisplay">60.00% FTE (22.5 / 37.5 hrs)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Full-Time Benchmark Salary</span>
+          <span class="val" id="fteBenchmarkDisplay">£40,000.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Pro-Rata Weekly Pay</span>
+          <span class="val" id="prorataWeeklyPayDisplay">£461.54 / week</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Actual Annual Pro-Rata Salary</span>
+          <span class="val" id="prorataAnnualSalaryDisplay" style="font-weight: 700; font-size: 18px;">£24,000.00 / year (£2,000.00/mo)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="trabajo" />
+  </div>
+</div>
+
+<script>
+  function calculateProRata() {
+    const fteSalaryEl = document.getElementById('prorata-fte-salary') as HTMLInputElement;
+    const ftHoursEl = document.getElementById('prorata-fulltime-hours') as HTMLInputElement;
+    const ptHoursEl = document.getElementById('prorata-parttime-hours') as HTMLInputElement;
+
+    if (!fteSalaryEl || !ftHoursEl || !ptHoursEl) return;
+
+    const fteSalary = parseFloat(fteSalaryEl.value) || 0;
+    const ftHours = parseFloat(ftHoursEl.value) || 37.5;
+    const ptHours = parseFloat(ptHoursEl.value) || 0;
+
+    const fteRatio = ftHours > 0 ? (ptHours / ftHours) : 0;
+    const proRataAnnual = fteSalary * fteRatio;
+    const proRataMonthly = proRataAnnual / 12;
+    const proRataWeekly = proRataAnnual / 52;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const ratioRes = document.getElementById('fteRatioDisplay');
+    const benchRes = document.getElementById('fteBenchmarkDisplay');
+    const weekRes = document.getElementById('prorataWeeklyPayDisplay');
+    const totalRes = document.getElementById('prorataAnnualSalaryDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + proRataAnnual.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (subVal) subVal.textContent = '£' + proRataMonthly.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (ratioRes) ratioRes.textContent = (fteRatio * 100).toFixed(2) + `% FTE (${ptHours} / ${ftHours} hrs)`;
+    if (benchRes) benchRes.textContent = '£' + fteSalary.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (weekRes) weekRes.textContent = '£' + proRataWeekly.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / week';
+    if (totalRes) totalRes.textContent = '£' + proRataAnnual.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` / year (£${proRataMonthly.toFixed(2)}/mo)`;
+  }
+
+  ['prorata-fte-salary', 'prorata-fulltime-hours', 'prorata-parttime-hours'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateProRata);
+    document.getElementById(id)?.addEventListener('change', calculateProRata);
+  });
+  calculateProRata();
+</script>

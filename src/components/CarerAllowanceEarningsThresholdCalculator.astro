@@ -1,0 +1,112 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Carer's Allowance Earnings Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Weekly Net Earnings (After Tax, NI & Pension Deductions) (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="carer-weekly-net-earnings" value="140" min="0" step="5" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Allowable Care / Pension Expenses (£/week)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="carer-weekly-care-expenses" value="10" min="0" step="5" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--social-1), var(--social-2) 80%);">
+      <div class="result-label">Carer's Allowance Weekly Benefit Entitlement</div>
+      <div class="result-amount"><span id="mainResultDisplay">£81.90 / week</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Statutory Weekly Limit Threshold:</span>
+        <span class="val" id="subResultValue">£151.00 Max Net Limit</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Carer's Allowance Threshold Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Net Assessable Weekly Earnings</span>
+          <span class="val" id="assessableEarningsDisplay">£130.00 / week</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>DWP Weekly Earnings Threshold Limit</span>
+          <span class="val" id="dwpThresholdDisplay">£151.00 / week</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Headroom Remaining Under Limit</span>
+          <span class="val" id="headroomRemainingDisplay">£21.00 under limit</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Weekly Carer's Allowance Payable</span>
+          <span class="val" id="carerAllowancePayableDisplay" style="font-weight: 700; font-size: 18px;">£81.90 / week</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="social" />
+  </div>
+</div>
+
+<script>
+  function calculateCarerAllowance() {
+    const earningsEl = document.getElementById('carer-weekly-net-earnings') as HTMLInputElement;
+    const expensesEl = document.getElementById('carer-weekly-care-expenses') as HTMLInputElement;
+
+    if (!earningsEl || !expensesEl) return;
+
+    const netEarnings = parseFloat(earningsEl.value) || 0;
+    const expenses = parseFloat(expensesEl.value) || 0;
+
+    const assessable = Math.max(0, netEarnings - expenses);
+    const limit = 151; // 2026/27 DWP Carer's Allowance earnings limit £151/wk
+    const allowanceRate = 81.90; // 2026/27 Carer's Allowance rate £81.90/wk
+
+    const isEligible = assessable <= limit;
+    const payable = isEligible ? allowanceRate : 0;
+    const headroom = limit - assessable;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const assessRes = document.getElementById('assessableEarningsDisplay');
+    const dwpRes = document.getElementById('dwpThresholdDisplay');
+    const headRes = document.getElementById('headroomRemainingDisplay');
+    const payRes = document.getElementById('carerAllowancePayableDisplay');
+
+    if (mainRes) mainRes.textContent = isEligible ? '£' + allowanceRate.toFixed(2) + ' / week' : '£0.00 (Over Limit)';
+    if (subVal) subVal.textContent = isEligible ? `£${headroom.toFixed(2)} under £151 limit` : `£${Math.abs(headroom).toFixed(2)} over £151 limit!`;
+    if (assessRes) assessRes.textContent = '£' + assessable.toFixed(2) + ' / week';
+    if (dwpRes) dwpRes.textContent = '£' + limit.toFixed(2) + ' / week';
+    if (headRes) headRes.textContent = headroom >= 0 ? `£${headroom.toFixed(2)} under limit` : `£${Math.abs(headroom).toFixed(2)} OVER LIMIT`;
+    if (payRes) payRes.textContent = isEligible ? '£' + allowanceRate.toFixed(2) + ' / week' : '£0.00 (Ineligible)';
+  }
+
+  ['carer-weekly-net-earnings', 'carer-weekly-care-expenses'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateCarerAllowance);
+    document.getElementById(id)?.addEventListener('change', calculateCarerAllowance);
+  });
+  calculateCarerAllowance();
+</script>

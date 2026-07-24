@@ -1,0 +1,163 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Mortgage Loan Amount (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="fixed-loan-amount" value="220000" min="10000" step="5000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Total Mortgage Term (Years)</span></div>
+        <div class="amount-field">
+          <input type="number" id="fixed-total-term-years" value="25" min="5" max="40" step="1" />
+          <span class="cur">yrs</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>2-Year Fixed Rate (% p.a. & Arrangement Fee)</span></div>
+        <div class="amount-field">
+          <input type="number" id="two-yr-rate-pct" value="4.2" min="0.5" max="15" step="0.1" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>2-Year Fix Product Fee (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="two-yr-product-fee" value="999" min="0" step="100" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>5-Year Fixed Rate (% p.a. & Arrangement Fee)</span></div>
+        <div class="amount-field">
+          <input type="number" id="five-yr-rate-pct" value="4.5" min="0.5" max="15" step="0.1" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>5-Year Fix Product Fee (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="five-yr-product-fee" value="0" min="0" step="100" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>2-Year vs 5-Year Fixed Rate Comparison</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>2-Year Fixed Monthly Payment</span>
+          <strong id="two-yr-monthly-payment">£1,186.20 / month</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>2-Year Total Cost (Payments + Fee)</span>
+          <strong id="two-yr-total-outlay">£29,467.80</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>5-Year Fixed Monthly Payment</span>
+          <strong id="five-yr-monthly-payment">£1,222.75 / month</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>5-Year Total Initial Cost (Payments + Fee)</span>
+          <strong id="five-yr-total-outlay">£73,365.00</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Lower Monthly Outgoings Option</span>
+          <strong id="cheapest-fixed-deal-summary">2-Year Fixed saves £36.55/month</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateMortgagePayment(P: number, annualRatePct: number, years: number): number {
+    const r = (annualRatePct / 100) / 12;
+    const n = years * 12;
+    if (r <= 0) return P / n;
+    return P * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+  }
+
+  function compareFixedMortgages() {
+    const loanEl = document.getElementById('fixed-loan-amount') as HTMLInputElement;
+    const termEl = document.getElementById('fixed-total-term-years') as HTMLInputElement;
+
+    const rate2El = document.getElementById('two-yr-rate-pct') as HTMLInputElement;
+    const fee2El = document.getElementById('two-yr-product-fee') as HTMLInputElement;
+
+    const rate5El = document.getElementById('five-yr-rate-pct') as HTMLInputElement;
+    const fee5El = document.getElementById('five-yr-product-fee') as HTMLInputElement;
+
+    if (!loanEl || !termEl || !rate2El || !fee2El || !rate5El || !fee5El) return;
+
+    const P = parseFloat(loanEl.value) || 0;
+    const years = parseInt(termEl.value) || 25;
+
+    const r2 = parseFloat(rate2El.value) || 0;
+    const f2 = parseFloat(fee2El.value) || 0;
+
+    const r5 = parseFloat(rate5El.value) || 0;
+    const f5 = parseFloat(fee5El.value) || 0;
+
+    const m2 = calculateMortgagePayment(P, r2, years);
+    const total2 = (m2 * 24) + f2;
+
+    const m5 = calculateMortgagePayment(P, r5, years);
+    const total5 = (m5 * 60) + f5;
+
+    const diffMonthly = m5 - m2;
+    let summaryStr = '';
+
+    if (diffMonthly > 0) {
+      summaryStr = '2-Year Fixed saves £' + Math.abs(diffMonthly).toFixed(2) + '/month';
+    } else if (diffMonthly < 0) {
+      summaryStr = '5-Year Fixed saves £' + Math.abs(diffMonthly).toFixed(2) + '/month';
+    } else {
+      summaryStr = 'Both fixed rates have equal monthly payments';
+    }
+
+    const m2El = document.getElementById('two-yr-monthly-payment');
+    const tot2El = document.getElementById('two-yr-total-outlay');
+    const m5El = document.getElementById('five-yr-monthly-payment');
+    const tot5El = document.getElementById('five-yr-total-outlay');
+    const summaryEl = document.getElementById('cheapest-fixed-deal-summary');
+
+    if (m2El) m2El.textContent = '£' + m2.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (tot2El) tot2El.textContent = '£' + total2.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (m5El) m5El.textContent = '£' + m5.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (tot5El) tot5El.textContent = '£' + total5.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (summaryEl) summaryEl.textContent = summaryStr;
+  }
+
+  ['fixed-loan-amount', 'fixed-total-term-years', 'two-yr-rate-pct', 'two-yr-product-fee', 'five-yr-rate-pct', 'five-yr-product-fee'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', compareFixedMortgages);
+    document.getElementById(id)?.addEventListener('change', compareFixedMortgages);
+  });
+  compareFixedMortgages();
+</script>

@@ -1,0 +1,126 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout family-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label">
+          <span>Average Gross Weekly Earnings (£)</span>
+        </div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="paternity-weekly-earnings" value="520" min="50" step="25" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">
+          <span>Statutory Paternity Leave Duration Taken</span>
+        </div>
+        <select id="paternity-leave-weeks" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="2" selected>2 Weeks Paternity Leave (Maximum Statutory Duration)</option>
+          <option value="1">1 Week Paternity Leave</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">
+          <span>Weeks of Continuous Employment at 15th Week Before Due Date</span>
+        </div>
+        <div class="amount-field">
+          <input type="number" id="paternity-weeks-service" value="52" min="1" max="520" step="1" />
+          <span class="cur">weeks</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Paternity Pay Entitlement Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>SPP Qualification Status</span>
+          <strong id="spp-qualification-status">Qualified for SPP</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Weekly Statutory Rate (Lower of 90% or £184.03)</span>
+          <strong id="spp-weekly-rate-val">£184.03 / week</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Flexible Leave Window Rule</span>
+          <strong id="spp-flexible-rule" style="font-size: 13.5px; max-width: 260px; text-align: right;">Two 1-week blocks within 52 wks</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Total Statutory Paternity Pay</span>
+          <strong id="total-spp-award-val">£368.06</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>
+
+<script>
+  function calculateSpp() {
+    const weeklyEarnInput = document.getElementById('paternity-weekly-earnings') as HTMLInputElement;
+    const leaveWeeksSelect = document.getElementById('paternity-leave-weeks') as HTMLSelectElement;
+    const serviceInput = document.getElementById('paternity-weeks-service') as HTMLInputElement;
+
+    if (!weeklyEarnInput || !leaveWeeksSelect || !serviceInput) return;
+
+    const weeklyEarn = parseFloat(weeklyEarnInput.value) || 0;
+    const leaveWeeks = parseInt(leaveWeeksSelect.value) || 2;
+    const weeksService = parseInt(serviceInput.value) || 0;
+
+    const lel = 123.0;
+    const statRate = 184.03;
+
+    let isEligible = false;
+    let statusStr = '';
+
+    if (weeksService >= 26 && weeklyEarn >= lel) {
+      isEligible = true;
+      statusStr = 'Qualified for SPP';
+    } else if (weeklyEarn < lel) {
+      statusStr = 'Not Eligible (Earnings below £123/wk LEL)';
+    } else {
+      statusStr = 'Not Eligible (Under 26 wks continuous service)';
+    }
+
+    let weeklyRate = 0;
+    let totalSpp = 0;
+
+    if (isEligible) {
+      weeklyRate = Math.min(statRate, weeklyEarn * 0.90);
+      totalSpp = weeklyRate * leaveWeeks;
+    }
+
+    const totalEl = document.getElementById('total-spp-award-val');
+    const statusEl = document.getElementById('spp-qualification-status');
+    const rateEl = document.getElementById('spp-weekly-rate-val');
+
+    if (totalEl) totalEl.textContent = '£' + totalSpp.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (statusEl) statusEl.textContent = statusStr;
+    if (rateEl) rateEl.textContent = '£' + weeklyRate.toFixed(2) + ' / week';
+  }
+
+  ['paternity-weekly-earnings', 'paternity-leave-weeks', 'paternity-weeks-service'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateSpp);
+    document.getElementById(id)?.addEventListener('change', calculateSpp);
+  });
+  calculateSpp();
+</script>

@@ -1,0 +1,86 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Weekly Carer Benefit Base Rate (£ / week)</span></div>
+      <div class="amount-field"><input type="number" id="scot-carer-weekly-rate" value="81.90" min="50" step="1.00" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Bi-Annual Carer's Allowance Supplement Payment (£ per 6 months)</span></div>
+      <div class="amount-field"><input type="number" id="scot-supplement-biannual-amount" value="288.60" min="100" step="5.00" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Scottish Residency Eligibility</span></div>
+      <select id="scot-residency-status">
+        <option value="scotland" selected>Resident in Scotland (Social Security Scotland Devolved Benefits Apply)</option>
+        <option value="rwe">Resident in England / Wales / NI (Standard DWP Carer's Allowance Only)</option>
+      </select>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <h3>Scottish Carer Financial Summary</h3>
+      <div class="breakdown-row net">
+        <span>Total Combined Annual Carer Benefit (Inc. Supplement):</span>
+        <strong id="scot-total-annual-carer-income">£0.00 / year</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Bi-Annual Supplement Payments (June & December):</span>
+        <strong id="scot-biannual-supplements-val">£577.20 / year (£288.60 x 2)</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Standard Weekly Base Benefit:</span>
+        <strong id="scot-weekly-base-benefit">£81.90 / week</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Effective Weekly Income Equivalent:</span>
+        <strong id="scot-effective-weekly-equivalent">£0.00 / week</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculateScottishCarer() {
+    const weeklyRate = parseFloat((document.getElementById('scot-carer-weekly-rate') as HTMLInputElement).value) || 81.90;
+    const suppAmount = parseFloat((document.getElementById('scot-supplement-biannual-amount') as HTMLInputElement).value) || 288.60;
+    const isScot = (document.getElementById('scot-residency-status') as HTMLSelectElement).value === 'scotland';
+
+    const annualBase = weeklyRate * 52;
+    const annualSupplements = isScot ? suppAmount * 2 : 0;
+    const totalAnnual = annualBase + annualSupplements;
+    const effectiveWeekly = totalAnnual / 52;
+
+    (document.getElementById('scot-total-annual-carer-income') as HTMLElement).textContent = '£' + totalAnnual.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    (document.getElementById('scot-biannual-supplements-val') as HTMLElement).textContent = isScot ? '£' + annualSupplements.toFixed(2) + ' / year (2 payments of £' + suppAmount.toFixed(2) + ')' : '£0.00 (Scottish Residents Only)';
+    (document.getElementById('scot-weekly-base-benefit') as HTMLElement).textContent = '£' + weeklyRate.toFixed(2) + ' / week (£' + annualBase.toFixed(2) + ' / year)';
+    (document.getElementById('scot-effective-weekly-equivalent') as HTMLElement).textContent = '£' + effectiveWeekly.toFixed(2) + ' / week (base + supplement)';
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateScottishCarer);
+  calculateScottishCarer();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

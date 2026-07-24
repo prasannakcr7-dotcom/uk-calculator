@@ -1,0 +1,161 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Drainage Pipe & Fall Details'}</h2>
+
+      <!-- Pipe Length (m) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.pipeLengthLabel || 'Drainage Pipe Run Length (Metres)'}</span>
+          <span class="hint" id="pipeLengthVal">12.0 m</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="12.0" id="pipeLengthInput" inputmode="decimal" />
+          <span class="cur">m</span>
+        </div>
+        <input type="range" min="1" max="50" step="0.5" value="12" id="pipeLengthSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1.0m</span><span>50.0m</span></div>
+      </div>
+
+      <!-- Pipe Diameter (mm) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.diameterLabel || 'Underground Pipe Internal Diameter (mm)'}</span>
+          <span class="hint" id="diameterVal">110mm (Standard Foul Drain)</span>
+        </div>
+        <select id="diameterSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="110" selected>110mm (Standard Domestic Foul & Surface Water Drain)</option>
+          <option value="150">150mm (Commercial / Shared Main Sewer Drain)</option>
+          <option value="100">100mm (Soil & Vent Pipe / Internal Waste)</option>
+        </select>
+      </div>
+
+      <!-- Target Fall Ratio (1 in X) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.fallRatioLabel || 'Target Gradient Ratio (1 in X)'}</span>
+          <span class="hint" id="fallRatioVal">1 in 40 (Standard 110mm Fall)</span>
+        </div>
+        <input type="range" min="20" max="100" step="5" value="40" id="fallRatioSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1 in 20 (Steep)</span><span>1 in 100 (Shallow)</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Total Required Vertical Drop / Fall'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">300 mm Fall (0.30m)</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.dropPerMetreLabel || 'Vertical Fall Rate per Metre:'}</span>
+        <span class="val" id="subResultValue">25.0 mm Drop per Metre (2.5% Slope)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Drainage Slope Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Total Horizontal Pipe Run</span>
+          <span class="val" id="runDisplay">12.00 m</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Applied Gradient Ratio</span>
+          <span class="val" id="ratioDisplay">1 in 40 (2.5%)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Drop Rate per Metre</span>
+          <span class="val" id="rateDisplay">25.0 mm / m</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Elevation Drop Over Pipe Run</span>
+          <span class="val" id="totalDropDisplay" style="font-weight: 700; font-size: 18px;">300 mm Drop (0.30 m)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Building Regs Part H:</strong> Standard 110mm foul drains require 1 in 40 to 1 in 80 gradient.<br/>
+        • <strong>150mm Drains:</strong> Larger 150mm drains allow shallower 1 in 60 to 1 in 150 gradients.<br/>
+        • <strong>Self-Cleansing Velocity:</strong> Flow velocity must exceed 0.7 m/s to prevent solid blockages.<br/>
+        • <strong>Too Steep Risk:</strong> Gradients steeper than 1 in 20 allow water to drain fast, leaving solids behind.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  const pipeLengthInput = document.getElementById('pipeLengthInput') as HTMLInputElement;
+  const pipeLengthSlider = document.getElementById('pipeLengthSlider') as HTMLInputElement;
+  const pipeLengthVal = document.getElementById('pipeLengthVal') as HTMLElement;
+  const diameterSelect = document.getElementById('diameterSelect') as HTMLSelectElement;
+  const fallRatioSlider = document.getElementById('fallRatioSlider') as HTMLInputElement;
+  const fallRatioVal = document.getElementById('fallRatioVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const runDisplay = document.getElementById('runDisplay') as HTMLElement;
+  const ratioDisplay = document.getElementById('ratioDisplay') as HTMLElement;
+  const rateDisplay = document.getElementById('rateDisplay') as HTMLElement;
+  const totalDropDisplay = document.getElementById('totalDropDisplay') as HTMLElement;
+
+  function calculate() {
+    const pipeLengthM = parseInputVal(pipeLengthInput.value);
+    const fallRatioX = parseInt(fallRatioSlider.value, 10);
+
+    const totalDropM = fallRatioX > 0 ? pipeLengthM / fallRatioX : 0;
+    const totalDropMm = totalDropM * 1000;
+    const dropPerMetreMm = 1000 / fallRatioX;
+    const slopePercent = (1 / fallRatioX) * 100;
+
+    pipeLengthVal.innerText = `${pipeLengthM.toFixed(1)} m`;
+    fallRatioVal.innerText = `1 in ${fallRatioX} (${slopePercent.toFixed(1)}% Fall)`;
+
+    mainResultDisplay.innerText = `${Math.round(totalDropMm)} mm Fall (${totalDropM.toFixed(2)}m)`;
+    subResultValue.innerText = `${dropPerMetreMm.toFixed(1)} mm Drop per Metre (${slopePercent.toFixed(1)}% Slope)`;
+
+    runDisplay.innerText = `${pipeLengthM.toFixed(2)} m`;
+    ratioDisplay.innerText = `1 in ${fallRatioX} (${slopePercent.toFixed(1)}%)`;
+    rateDisplay.innerText = `${dropPerMetreMm.toFixed(1)} mm / m`;
+    totalDropDisplay.innerText = `${Math.round(totalDropMm)} mm Drop (${totalDropM.toFixed(2)} m)`;
+  }
+
+  pipeLengthInput.addEventListener('input', () => {
+    const val = parseInputVal(pipeLengthInput.value);
+    pipeLengthSlider.value = String(val);
+    calculate();
+  });
+
+  pipeLengthSlider.addEventListener('input', () => {
+    pipeLengthInput.value = parseFloat(pipeLengthSlider.value).toFixed(1);
+    calculate();
+  });
+
+  diameterSelect.addEventListener('change', calculate);
+  fallRatioSlider.addEventListener('input', calculate);
+
+  calculate();
+</script>

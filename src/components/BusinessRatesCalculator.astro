@@ -1,0 +1,133 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Commercial Property Business Rates Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Valuation Office Agency (VOA) Rateable Value (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="voa-rateable-value" value="18000" min="1000" step="1000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>UK Jurisdiction</span></div>
+        <select id="rates-jurisdiction-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="england" selected>England (Small Business Multiplier 49.9p / Standard 54.6p)</option>
+          <option value="wales">Wales (Multiplier 56.2p)</option>
+          <option value="scotland">Scotland (Non-Domestic Rates)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Small Business Rate Relief (SBRR) Eligibility</span></div>
+        <select id="sbrr-eligibility-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="auto" selected>Auto-Calculate SBRR (100% under £12k, tapered to £15k)</option>
+          <option value="none">Not Eligible for Small Business Relief</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">Net Annual Business Rates Payable</div>
+      <div class="result-amount"><span id="mainResultDisplay">£4,491.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Small Business Rate Relief Claimed:</span>
+        <span class="val" id="subResultValue">£4,491.00 Saved</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Business Rates Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Charge Before Relief</span>
+          <span class="val" id="grossChargeDisplay">£8,982.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Multiplier Rate Applied</span>
+          <span class="val" id="multiplierAppliedDisplay">49.9p (Small Business)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Small Business Rate Relief Discount</span>
+          <span class="val" id="sbrrDiscountDisplay">-£4,491.00 (50% Relief)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Annual Business Rates Payable</span>
+          <span class="val" id="netRatesDisplay" style="font-weight: 700; font-size: 18px;">£4,491.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="impuestos" />
+  </div>
+</div>
+
+<script>
+  function calculateBusinessRates() {
+    const rvEl = document.getElementById('voa-rateable-value') as HTMLInputElement;
+    const jurEl = document.getElementById('rates-jurisdiction-select') as HTMLSelectElement;
+    const sbrrEl = document.getElementById('sbrr-eligibility-select') as HTMLSelectElement;
+
+    if (!rvEl || !jurEl || !sbrrEl) return;
+
+    const rv = parseFloat(rvEl.value) || 0;
+    const allowSbrr = sbrrEl.value === 'auto';
+
+    let multiplier = 0.546; // England standard multiplier 2026/27
+    if (rv < 51000) multiplier = 0.499; // Small business multiplier
+
+    const grossCharge = rv * multiplier;
+    let sbrrDiscount = 0;
+    let sbrrPct = 0;
+
+    if (allowSbrr) {
+      if (rv <= 12000) {
+        sbrrPct = 100;
+        sbrrDiscount = grossCharge;
+      } else if (rv < 15000) {
+        sbrrPct = ((15000 - rv) / 3000) * 100;
+        sbrrDiscount = grossCharge * (sbrrPct / 100);
+      }
+    }
+
+    const netRates = Math.max(0, grossCharge - sbrrDiscount);
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const grossRes = document.getElementById('grossChargeDisplay');
+    const multRes = document.getElementById('multiplierAppliedDisplay');
+    const sbrrRes = document.getElementById('sbrrDiscountDisplay');
+    const netRes = document.getElementById('netRatesDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + netRates.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = '£' + sbrrDiscount.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Saved';
+    if (grossRes) grossRes.textContent = '£' + grossCharge.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (multRes) multRes.textContent = (multiplier * 100).toFixed(1) + 'p (' + (rv < 51000 ? 'Small Business' : 'Standard') + ')';
+    if (sbrrRes) sbrrRes.textContent = '-£' + sbrrDiscount.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` (${sbrrPct.toFixed(0)}% Relief)`;
+    if (netRes) netRes.textContent = '£' + netRates.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['voa-rateable-value', 'rates-jurisdiction-select', 'sbrr-eligibility-select'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateBusinessRates);
+    document.getElementById(id)?.addEventListener('change', calculateBusinessRates);
+  });
+  calculateBusinessRates();
+</script>

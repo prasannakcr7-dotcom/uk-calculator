@@ -1,0 +1,120 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>P11D Company Car Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Car List Price P11D Value (£ inc. Options & VAT)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="p11d-car-list-price" value="38000" min="5000" step="1000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>BiK Percentage Band (% based on CO2 Emissions)</span></div>
+        <div class="amount-field">
+          <input type="number" id="p11d-car-bik-pct" value="28" min="2" max="37" step="1" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Employee Income Tax Band</span></div>
+        <select id="p11d-car-tax-band-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="0.20" selected>Basic Rate (20% Income Tax)</option>
+          <option value="0.40">Higher Rate (40% Income Tax)</option>
+          <option value="0.45">Additional Rate (45% Income Tax)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">Annual Employee Company Car Tax Liability</div>
+      <div class="result-amount"><span id="mainResultDisplay">£2,128.00 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Monthly PAYE Code Deduction:</span>
+        <span class="val" id="subResultValue">£177.33 / month</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Company Car BiK Tax Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Statutory Taxable Benefit Value (BiK 28%)</span>
+          <span class="val" id="taxableCarBikDisplay">£10,640.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Employee Annual Tax Payable (20%)</span>
+          <span class="val" id="employeeCarTaxDisplay">£2,128.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Employer Class 1A NIC Charge (13.8%)</span>
+          <span class="val" id="employerCarClass1aDisplay">£1,468.32 / year</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Combined Tax & Employer NIC Burden</span>
+          <span class="val" id="totalCarTaxBurdenDisplay" style="font-weight: 700; font-size: 18px;">£3,596.32 / year</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="impuestos" />
+  </div>
+</div>
+
+<script>
+  function calculateCompanyCarBik() {
+    const listPriceEl = document.getElementById('p11d-car-list-price') as HTMLInputElement;
+    const bikPctEl = document.getElementById('p11d-car-bik-pct') as HTMLInputElement;
+    const taxBandEl = document.getElementById('p11d-car-tax-band-select') as HTMLSelectElement;
+
+    if (!listPriceEl || !bikPctEl || !taxBandEl) return;
+
+    const listPrice = parseFloat(listPriceEl.value) || 0;
+    const bikPct = (parseFloat(bikPctEl.value) || 28) / 100;
+    const taxRate = parseFloat(taxBandEl.value) || 0.20;
+
+    const bikValue = listPrice * bikPct;
+    const employeeTax = bikValue * taxRate;
+    const monthlyTax = employeeTax / 12;
+    const employerClass1a = bikValue * 0.138;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const bikRes = document.getElementById('taxableCarBikDisplay');
+    const empTaxRes = document.getElementById('employeeCarTaxDisplay');
+    const niRes = document.getElementById('employerCarClass1aDisplay');
+    const totalRes = document.getElementById('totalCarTaxBurdenDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + employeeTax.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (subVal) subVal.textContent = '£' + monthlyTax.toFixed(2) + ' / month';
+    if (bikRes) bikRes.textContent = '£' + bikValue.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (empTaxRes) empTaxRes.textContent = '£' + employeeTax.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (niRes) niRes.textContent = '£' + employerClass1a.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (totalRes) totalRes.textContent = '£' + (employeeTax + employerClass1a).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+  }
+
+  ['p11d-car-list-price', 'p11d-car-bik-pct', 'p11d-car-tax-band-select'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateCompanyCarBik);
+    document.getElementById(id)?.addEventListener('change', calculateCompanyCarBik);
+  });
+  calculateCompanyCarBik();
+</script>

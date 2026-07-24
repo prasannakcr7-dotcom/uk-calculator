@@ -1,0 +1,146 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label">
+          <span>UK Nation / Jurisdiction</span>
+        </div>
+        <select id="jurisdiction" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="england" selected>England & Wales</option>
+          <option value="scotland">Scotland</option>
+          <option value="ni">Northern Ireland</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">
+          <span>Total Unsecured Debt (£)</span>
+        </div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="total-debt" value="18000" min="500" step="500" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">
+          <span>Monthly Disposable Income (£)</span>
+        </div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="monthly-disposable" value="50" min="0" step="10" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">
+          <span>Total Asset Equity / Value (£)</span>
+        </div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="total-assets" value="1000" min="0" step="500" />
+        </div>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Eligible Statutory Solutions</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Alternative Feasible Options</span>
+          <strong id="alternative-routes">Loading...</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Solution Details</span>
+          <span id="route-details" style="font-size: 13.5px; text-align: right; max-width: 320px;">Loading...</span>
+        </div>
+        <div class="breakdown-row net">
+          <span>Primary Recommended Route</span>
+          <strong id="recommended-route">Debt Relief Order (DRO)</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>
+
+<script>
+  function evaluateDebtSolution() {
+    const nationEl = document.getElementById('jurisdiction') as HTMLSelectElement;
+    const debtEl = document.getElementById('total-debt') as HTMLInputElement;
+    const disposableEl = document.getElementById('monthly-disposable') as HTMLInputElement;
+    const assetsEl = document.getElementById('total-assets') as HTMLInputElement;
+
+    if (!nationEl || !debtEl || !disposableEl || !assetsEl) return;
+
+    const nation = nationEl.value;
+    const debt = parseFloat(debtEl.value) || 0;
+    const disposable = parseFloat(disposableEl.value) || 0;
+    const assets = parseFloat(assetsEl.value) || 0;
+
+    let route = '';
+    let details = '';
+    let alts = '';
+
+    if (nation === 'scotland') {
+      if (debt <= 25000 && disposable <= 50 && assets <= 2000) {
+        route = 'Minimal Asset Process (MAP)';
+        details = 'Low-cost Scottish bankruptcy route (£50/mo limit, £2,000 asset limit).';
+        alts = 'Debt Arrangement Scheme (DAS)';
+      } else if (disposable >= 50) {
+        route = 'DAS / Protected Trust Deed';
+        details = 'DAS freezes interest for 100% repayment. PTD writes off remaining debt after 4 yrs.';
+        alts = 'Full Sequestration (Bankruptcy)';
+      } else {
+        route = 'Sequestration (Scottish Bankruptcy)';
+        details = 'Court-administered debt relief for unmanageable debt in Scotland.';
+        alts = 'Protected Trust Deed (PTD)';
+      }
+    } else {
+      if (debt <= 50000 && disposable <= 75 && assets <= 2000) {
+        route = 'Debt Relief Order (DRO)';
+        details = 'Low-cost UK bankruptcy alternative (£0 fee in 2026/27). Debts written off after 12 months.';
+        alts = 'Individual Voluntary Arrangement (IVA)';
+      } else if (disposable >= 100 && debt >= 6000) {
+        route = 'Individual Voluntary Arrangement (IVA)';
+        details = 'Legally binding 5-6 year repayment plan writing off remaining balances.';
+        alts = 'Debt Management Plan (DMP)';
+      } else {
+        route = 'Bankruptcy / DMP';
+        details = 'Formal court bankruptcy or informal Debt Management Plan.';
+        alts = 'IVA / Token Payment Plan';
+      }
+    }
+
+    const routeEl = document.getElementById('recommended-route');
+    const detailsEl = document.getElementById('route-details');
+    const altsEl = document.getElementById('alternative-routes');
+
+    if (routeEl) routeEl.textContent = route;
+    if (detailsEl) detailsEl.textContent = details;
+    if (altsEl) altsEl.textContent = alts;
+  }
+
+  ['jurisdiction', 'total-debt', 'monthly-disposable', 'total-assets'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', evaluateDebtSolution);
+    document.getElementById(id)?.addEventListener('change', evaluateDebtSolution);
+  });
+  evaluateDebtSolution();
+</script>

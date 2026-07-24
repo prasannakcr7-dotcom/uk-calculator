@@ -1,0 +1,140 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Timesheet & Rate Details'}</h2>
+
+      <!-- Daily Hours -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.dailyHoursLabel || 'Daily Working Hours (Net of Breaks)'}</span>
+          <span class="hint" id="dailyHoursVal">7.5 Hours</span>
+        </div>
+        <input type="range" min="1" max="12" step="0.5" value="7.5" id="dailyHoursSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1 Hour</span><span>12 Hours</span></div>
+      </div>
+
+      <!-- Hourly Rate -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.hourlyRateLabel || 'Hourly Pay Rate (£)'}</span>
+          <span class="hint" id="hourlyRateVal">£16.00</span>
+        </div>
+        <div class="amount-field" style="margin-top: 0; margin-bottom: 0;">
+          <input type="text" value="16.00" id="hourlyRateInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="7.55" max="60.00" step="0.50" value="16.00" id="hourlyRateSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£7.55</span><span>£60.00</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--work-1), var(--work-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Gross Weekly Timesheet Pay (5 Days)'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£600.00/wk</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.weeklyHoursLabel || 'Total Weekly Hours:'}</span>
+        <span class="val" id="subResultValue">37.5 Hours</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Timesheet Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Total Weekly Hours Worked (5 Days)</span>
+          <span class="val" id="weeklyHoursDisplay">37.5 Hours</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Hourly Pay Rate</span>
+          <span class="val" id="hourlyRateDisplay">£16.00/hr</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Gross Weekly Earnings</span>
+          <span class="val" id="grossPayDisplay" style="font-weight: 700; font-size: 18px;">£600.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • Unpaid rest breaks must be deducted.<br/>
+        • 20-minute rest break required for shifts > 6 hours.<br/>
+        • 48-hour weekly maximum WTD limit.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const dailyHoursSlider = document.getElementById('dailyHoursSlider') as HTMLInputElement;
+  const dailyHoursVal = document.getElementById('dailyHoursVal') as HTMLElement;
+  const hourlyRateInput = document.getElementById('hourlyRateInput') as HTMLInputElement;
+  const hourlyRateSlider = document.getElementById('hourlyRateSlider') as HTMLInputElement;
+  const hourlyRateVal = document.getElementById('hourlyRateVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const weeklyHoursDisplay = document.getElementById('weeklyHoursDisplay') as HTMLElement;
+  const hourlyRateDisplay = document.getElementById('hourlyRateDisplay') as HTMLElement;
+  const grossPayDisplay = document.getElementById('grossPayDisplay') as HTMLElement;
+
+  dailyHoursSlider.addEventListener('input', calculate);
+
+  hourlyRateInput.addEventListener('input', () => {
+    const val = parseInputVal(hourlyRateInput.value);
+    hourlyRateSlider.value = String(Math.min(60, Math.max(7.55, val)));
+    calculate();
+  });
+
+  hourlyRateSlider.addEventListener('input', () => {
+    hourlyRateInput.value = hourlyRateSlider.value;
+    calculate();
+  });
+
+  function calculate() {
+    const dailyHrs = parseFloat(dailyHoursSlider.value);
+    const rate = parseInputVal(hourlyRateInput.value);
+
+    dailyHoursVal.textContent = `${dailyHrs} Hours`;
+    hourlyRateVal.textContent = formatCurrency(rate);
+
+    const weeklyHrs = dailyHrs * 5;
+    const gross = weeklyHrs * rate;
+
+    mainResultDisplay.textContent = `${formatCurrency(gross)}/wk`;
+    subResultValue.textContent = `${weeklyHrs} Hours`;
+    weeklyHoursDisplay.textContent = `${weeklyHrs} Hours`;
+    hourlyRateDisplay.textContent = `${formatCurrency(rate)}/hr`;
+    grossPayDisplay.textContent = formatCurrency(gross);
+  }
+
+  calculate();
+</script>

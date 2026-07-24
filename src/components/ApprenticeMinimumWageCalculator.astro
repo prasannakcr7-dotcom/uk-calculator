@@ -1,0 +1,112 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Apprentice Age (Years)</span></div>
+        <div class="amount-field">
+          <input type="number" id="apprentice-age-val" value="19" min="16" max="65" step="1" />
+          <span class="cur">yrs</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Apprenticeship Year of Training</span></div>
+        <select id="apprentice-year-of-training" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="first_year" selected>1st Year of Apprenticeship (Apprentice Rate Applies)</option>
+          <option value="subsequent_year">2nd Year or Later (Standard NMW for Age Applies)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Weekly Paid Working Hours (Including Off-the-Job Training)</span></div>
+        <div class="amount-field">
+          <input type="number" id="apprentice-weekly-hours" value="37.5" min="1" max="48" step="0.5" />
+          <span class="cur">hrs/wk</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>National Minimum Wage Entitlement Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Statutory Minimum Hourly Rate Entitlement</span>
+          <strong id="statutory-nmw-hourly-rate">£7.55 / hour</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Minimum Gross Weekly Pay</span>
+          <strong id="minimum-gross-weekly-pay">£283.13 / week</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Minimum Gross Annual Salary</span>
+          <strong id="minimum-gross-annual-salary">£14,722.50 / year</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="trabajo" />
+  </div>
+</div>
+
+<script>
+  function calculateApprenticeNmw() {
+    const ageEl = document.getElementById('apprentice-age-val') as HTMLInputElement;
+    const yearEl = document.getElementById('apprentice-year-of-training') as HTMLSelectElement;
+    const hoursEl = document.getElementById('apprentice-weekly-hours') as HTMLInputElement;
+
+    if (!ageEl || !yearEl || !hoursEl) return;
+
+    const age = parseInt(ageEl.value) || 19;
+    const isFirstYear = yearEl.value === 'first_year';
+    const hours = parseFloat(hoursEl.value) || 37.5;
+
+    // UK National Minimum Wage Rates 2026/27 Benchmarks:
+    // National Living Wage (21+): £12.21
+    // 18-20 Rate: £10.00
+    // Under 18 Rate: £7.55
+    // Apprentice Rate: £7.55
+
+    let rate = 7.55;
+
+    if (!isFirstYear && age >= 19) {
+      if (age >= 21) rate = 12.21;
+      else if (age >= 18) rate = 10.00;
+      else rate = 7.55;
+    } else {
+      rate = 7.55; // Apprentice rate applies for 1st year regardless of age
+    }
+
+    const weeklyPay = hours * rate;
+    const annualPay = weeklyPay * 52;
+
+    const rateResEl = document.getElementById('statutory-nmw-hourly-rate');
+    const weekResEl = document.getElementById('minimum-gross-weekly-pay');
+    const annualResEl = document.getElementById('minimum-gross-annual-salary');
+
+    if (rateResEl) rateResEl.textContent = '£' + rate.toFixed(2) + ' / hour';
+    if (weekResEl) weekResEl.textContent = '£' + weeklyPay.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / week';
+    if (annualResEl) annualResEl.textContent = '£' + annualPay.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+  }
+
+  ['apprentice-age-val', 'apprentice-year-of-training', 'apprentice-weekly-hours'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateApprenticeNmw);
+    document.getElementById(id)?.addEventListener('change', calculateApprenticeNmw);
+  });
+  calculateApprenticeNmw();
+</script>

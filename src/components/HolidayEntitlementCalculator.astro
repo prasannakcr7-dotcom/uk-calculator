@@ -1,0 +1,117 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Statutory Annual Leave Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Days Worked Per Week</span></div>
+        <div class="amount-field">
+          <input type="number" id="holiday-days-per-week" value="5.0" min="0.5" max="5.0" step="0.5" />
+          <span class="cur">days/wk</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Employment Period Status</span></div>
+        <select id="holiday-employment-period" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="full_year" selected>Full Leave Year Worked (5.6 Weeks Cap)</option>
+          <option value="part_year">Part-Year / Commenced Mid-Year</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Bank Holidays Included in Employer Annual Leave Allowance?</span></div>
+        <select id="holiday-bank-hols-included" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="yes" selected>Yes (28 Days Total includes 8 Bank Holidays)</option>
+          <option value="no">No (Bank Holidays Extra On Top of 28 Days)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--work-1), var(--work-2) 80%);">
+      <div class="result-label">Total Statutory Paid Annual Leave Entitlement</div>
+      <div class="result-amount"><span id="mainResultDisplay">28.0 Days / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Statutory Weeks Entitlement:</span>
+        <span class="val" id="subResultValue">5.6 Weeks Max Cap</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Annual Leave Entitlement Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Statutory Minimum Leave Multiplier</span>
+          <span class="val" id="leaveMultiplierDisplay">5.6 Weeks</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Bank Holidays Status</span>
+          <span class="val" id="bankHolsStatusDisplay">8 Bank Holidays Included</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Bookable Personal Holiday Days</span>
+          <span class="val" id="personalHolidayDaysDisplay">20.0 Days</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Statutory Annual Paid Days Off</span>
+          <span class="val" id="totalAnnualLeaveDisplay" style="font-weight: 700; font-size: 18px;">28.0 Days / year</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="trabajo" />
+  </div>
+</div>
+
+<script>
+  function calculateHolidayEntitlement() {
+    const daysEl = document.getElementById('holiday-days-per-week') as HTMLInputElement;
+    const periodEl = document.getElementById('holiday-employment-period') as HTMLSelectElement;
+    const bankEl = document.getElementById('holiday-bank-hols-included') as HTMLSelectElement;
+
+    if (!daysEl || !periodEl || !bankEl) return;
+
+    const daysPerWeek = Math.min(5.0, Math.max(0.5, parseFloat(daysEl.value) || 5.0));
+    const bankIncluded = bankEl.value === 'yes';
+
+    // Statutory 5.6 weeks cap
+    const totalDays = Math.min(28.0, daysPerWeek * 5.6);
+    const bookableDays = bankIncluded ? Math.max(0, totalDays - 8) : totalDays;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const multRes = document.getElementById('leaveMultiplierDisplay');
+    const bankRes = document.getElementById('bankHolsStatusDisplay');
+    const bookRes = document.getElementById('personalHolidayDaysDisplay');
+    const totalRes = document.getElementById('totalAnnualLeaveDisplay');
+
+    if (mainRes) mainRes.textContent = totalDays.toFixed(1) + ' Days / year';
+    if (subVal) subVal.textContent = '5.6 Statutory Weeks Cap';
+    if (multRes) multRes.textContent = `${daysPerWeek} days/wk x 5.6 = ${totalDays.toFixed(1)} days`;
+    if (bankRes) bankRes.textContent = bankIncluded ? '8 Bank Holidays Included' : '8 Bank Holidays Extra';
+    if (bookRes) bookRes.textContent = bookableDays.toFixed(1) + ' Days Bookable';
+    if (totalRes) totalRes.textContent = totalDays.toFixed(1) + ' Days / year';
+  }
+
+  ['holiday-days-per-week', 'holiday-employment-period', 'holiday-bank-hols-included'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateHolidayEntitlement);
+    document.getElementById(id)?.addEventListener('change', calculateHolidayEntitlement);
+  });
+  calculateHolidayEntitlement();
+</script>

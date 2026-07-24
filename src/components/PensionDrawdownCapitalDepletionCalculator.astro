@@ -1,0 +1,140 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout finance-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Pension Drawdown & Pot Depletion Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Initial Pension Pot Balance (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="drawdown-pot-balance" value="350000" min="25000" step="25000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Annual Net Income Drawdown Income (£/year)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="drawdown-annual-withdrawal" value="21000" min="1000" step="1000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Estimated Investment Return Rate (% p.a.)</span></div>
+        <div class="amount-field">
+          <input type="number" id="drawdown-investment-return" value="4.5" min="0" max="12" step="0.5" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Annual Inflation Rate (% p.a.)</span></div>
+        <div class="amount-field">
+          <input type="number" id="drawdown-inflation-rate" value="2.5" min="0" max="10" step="0.5" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--finance-1), var(--finance-2) 80%);">
+      <div class="result-label">Estimated Pension Pot Longevity</div>
+      <div class="result-amount"><span id="mainResultDisplay">24.5 Years</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Depletion Age Target:</span>
+        <span class="val" id="subResultValue">Pot Lasts to Age 89 (From Age 65)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Drawdown Depletion Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Initial Pension Fund Pot</span>
+          <span class="val" id="initialPotDisplay">£350,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Initial Withdrawal Rate</span>
+          <span class="val" id="initialWithdrawalRateDisplay">6.00% p.a. (£21,000/yr)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Net Investment Growth (Return - Inflation)</span>
+          <span class="val" id="netRealReturnDisplay">2.00% Real Return</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Estimated Fund Depletion Horizon</span>
+          <span class="val" id="fundDepletionHorizonDisplay" style="font-weight: 700; font-size: 18px;">24.5 Years</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="finanzas" />
+  </div>
+</div>
+
+<script>
+  function calculateDrawdownDepletion() {
+    const potEl = document.getElementById('drawdown-pot-balance') as HTMLInputElement;
+    const withdrawEl = document.getElementById('drawdown-annual-withdrawal') as HTMLInputElement;
+    const returnEl = document.getElementById('drawdown-investment-return') as HTMLInputElement;
+    const infEl = document.getElementById('drawdown-inflation-rate') as HTMLInputElement;
+
+    if (!potEl || !withdrawEl || !returnEl || !infEl) return;
+
+    const initialPot = parseFloat(potEl.value) || 0;
+    const initialWithdrawal = parseFloat(withdrawEl.value) || 0;
+    const nomReturn = (parseFloat(returnEl.value) || 0) / 100;
+    const inflation = (parseFloat(infEl.value) || 0) / 100;
+
+    const realReturn = nomReturn - inflation;
+    const initialRatePct = initialPot > 0 ? (initialWithdrawal / initialPot) * 100 : 0;
+
+    let pot = initialPot;
+    let withdrawal = initialWithdrawal;
+    let years = 0;
+
+    while (pot > 0 && years < 60) {
+      years++;
+      pot = (pot - withdrawal) * (1 + realReturn);
+      withdrawal *= (1 + inflation);
+      if (pot <= 0) break;
+    }
+
+    const isIndefinite = years >= 60 && pot > initialPot;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const potRes = document.getElementById('initialPotDisplay');
+    const rateRes = document.getElementById('initialWithdrawalRateDisplay');
+    const realRes = document.getElementById('netRealReturnDisplay');
+    const horizRes = document.getElementById('fundDepletionHorizonDisplay');
+
+    if (mainRes) mainRes.textContent = isIndefinite ? 'Sustainable Indefinitely' : years + ' Years';
+    if (subVal) subVal.textContent = isIndefinite ? 'Pot Grows Over Time' : `Pot Lasts to Age ${65 + years} (From Age 65)`;
+    if (potRes) potRes.textContent = '£' + initialPot.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (rateRes) rateRes.textContent = initialRatePct.toFixed(2) + '% p.a. (£' + initialWithdrawal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '/yr)';
+    if (realRes) realRes.textContent = (realReturn * 100).toFixed(2) + '% Real Return';
+    if (horizRes) horizRes.textContent = isIndefinite ? 'Sustainable Indefinitely' : years + ' Years';
+  }
+
+  ['drawdown-pot-balance', 'drawdown-annual-withdrawal', 'drawdown-investment-return', 'drawdown-inflation-rate'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateDrawdownDepletion);
+    document.getElementById(id)?.addEventListener('change', calculateDrawdownDepletion);
+  });
+  calculateDrawdownDepletion();
+</script>

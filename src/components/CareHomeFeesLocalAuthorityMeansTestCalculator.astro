@@ -1,0 +1,221 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout health-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Capital Assets & Care Home Details'}</h2>
+
+      <!-- Total Capital Assets (£) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.capitalAssetsLabel || 'Total Capital Assets (Savings, Stocks & Property £)'}</span>
+          <span class="hint" id="capitalAssetsVal">£35,000</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="35,000" id="capitalAssetsInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="5000" max="150000" step="2500" value="35000" id="capitalAssetsSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£5,000</span><span>£150,000</span></div>
+      </div>
+
+      <!-- Weekly Care Home Fee (£/week) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.weeklyCareFeeLabel || 'Weekly Care Home Fee (£/week)'}</span>
+          <span class="hint" id="weeklyCareFeeVal">£950.00 / week (Residential Care)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="950.00" id="weeklyCareFeeInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="500" max="2500" step="50" value="950" id="weeklyCareFeeSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£500/wk</span><span>£2,500/wk</span></div>
+      </div>
+
+      <!-- Weekly Income (State Pension + Private Pension) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.weeklyIncomeLabel || 'Weekly Personal Income (State & Private Pension £/wk)'}</span>
+          <span class="hint" id="weeklyIncomeVal">£280.00 / week</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="280.00" id="weeklyIncomeInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="100" max="1000" step="10" value="280" id="weeklyIncomeSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£100/wk</span><span>£1,000/wk</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--health-1), var(--health-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Local Authority Funding Means Test Status'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">Partial Financial Support</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.tarriffIncomeLabel || 'Tariff Income & Patient Contribution Breakdown:'}</span>
+        <span class="val" id="subResultValue">£42.00/wk Tariff Income + £255.05/wk Income Contribution</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Care Home Means Test Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Upper Capital Limit Threshold (£23,250 England)</span>
+          <span class="val" id="upperThresholdDisplay">EXCEEDED (£35,000 > £23,250)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Assumed Tariff Income (£1 per £250 between £14.25k-£23.25k)</span>
+          <span class="val" id="tariffIncomeDisplay">£36.00 / week</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Personal Expenses Allowance (PEA £24.95/wk Retained)</span>
+          <span class="val" id="peaDisplay">£24.95 / week Retained</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Patient Net Weekly Contribution to Care Home Fees</span>
+          <span class="val" id="totalPatientContribDisplay" style="font-weight: 700; font-size: 18px;">£950.00 / week (Self-Funder)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Upper Capital Limit (£23,250 England):</strong> Assets above £23.25k require 100% self-funding.<br/>
+        • <strong>Lower Capital Limit (£14,250 England):</strong> Assets under £14.25k receive maximum Council funding.<br/>
+        • <strong>Tariff Income Rule:</strong> £1/week charged for every £250 of assets between £14.25k and £23.25k.<br/>
+        • <strong>Property Disregard:</strong> House excluded if spouse/partner continues living in the home.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const UPPER_CAPITAL_LIMIT = 23250; // England upper threshold
+  const LOWER_CAPITAL_LIMIT = 14250; // England lower threshold
+  const PEA_ALLOWANCE = 24.95; // Personal Expenses Allowance per week
+
+  const capitalAssetsInput = document.getElementById('capitalAssetsInput') as HTMLInputElement;
+  const capitalAssetsSlider = document.getElementById('capitalAssetsSlider') as HTMLInputElement;
+  const capitalAssetsVal = document.getElementById('capitalAssetsVal') as HTMLElement;
+
+  const weeklyCareFeeInput = document.getElementById('weeklyCareFeeInput') as HTMLInputElement;
+  const weeklyCareFeeSlider = document.getElementById('weeklyCareFeeSlider') as HTMLInputElement;
+  const weeklyCareFeeVal = document.getElementById('weeklyCareFeeVal') as HTMLElement;
+
+  const weeklyIncomeInput = document.getElementById('weeklyIncomeInput') as HTMLInputElement;
+  const weeklyIncomeSlider = document.getElementById('weeklyIncomeSlider') as HTMLInputElement;
+  const weeklyIncomeVal = document.getElementById('weeklyIncomeVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const upperThresholdDisplay = document.getElementById('upperThresholdDisplay') as HTMLElement;
+  const tariffIncomeDisplay = document.getElementById('tariffIncomeDisplay') as HTMLElement;
+  const peaDisplay = document.getElementById('peaDisplay') as HTMLElement;
+  const totalPatientContribDisplay = document.getElementById('totalPatientContribDisplay') as HTMLElement;
+
+  function calculate() {
+    const capital = parseInputVal(capitalAssetsInput.value);
+    const careFee = parseInputVal(weeklyCareFeeInput.value);
+    const income = parseInputVal(weeklyIncomeInput.value);
+
+    let tariffIncome = 0;
+    let fundingStatus = 'Self-Funder (100% Client Pays)';
+    let patientWeeklyContrib = careFee;
+
+    if (capital > UPPER_CAPITAL_LIMIT) {
+      fundingStatus = 'Self-Funder (100% Client Pays)';
+      patientWeeklyContrib = careFee;
+      upperThresholdDisplay.innerText = `EXCEEDED (${formatCurrency(capital)} > £23,250)`;
+      tariffIncomeDisplay.innerText = `£0.00 (Self-Funder Rate)`;
+    } else if (capital <= LOWER_CAPITAL_LIMIT) {
+      fundingStatus = 'Maximum Council Funding Support';
+      tariffIncome = 0;
+      upperThresholdDisplay.innerText = `BELOW LOWER LIMIT (${formatCurrency(capital)} <= £14,250)`;
+      tariffIncomeDisplay.innerText = `£0.00 (Zero Tariff Income)`;
+      // Patient pays income minus PEA allowance
+      const incomeContrib = Math.max(0, income - PEA_ALLOWANCE);
+      patientWeeklyContrib = Math.min(careFee, incomeContrib);
+    } else {
+      fundingStatus = 'Partial Council Financial Support';
+      // £1 per £250 between £14,250 and £23,250
+      const excessCapital = capital - LOWER_CAPITAL_LIMIT;
+      tariffIncome = Math.ceil(excessCapital / 250) * 1.0;
+      upperThresholdDisplay.innerText = `BETWEEN THRESHOLDS (£14.25k - £23.25k)`;
+      tariffIncomeDisplay.innerText = `${formatCurrency(tariffIncome)} / week`;
+      const incomeContrib = Math.max(0, income - PEA_ALLOWANCE);
+      patientWeeklyContrib = Math.min(careFee, incomeContrib + tariffIncome);
+    }
+
+    capitalAssetsVal.innerText = formatCurrency(capital).slice(0, -3);
+    weeklyCareFeeVal.innerText = `${formatCurrency(careFee)} / week`;
+    weeklyIncomeVal.innerText = `${formatCurrency(income)} / week`;
+
+    mainResultDisplay.innerText = fundingStatus;
+    subResultValue.innerText = `${formatCurrency(patientWeeklyContrib)} / wk Patient Contrib (${formatCurrency(Math.max(0, careFee - patientWeeklyContrib))} Council Support)`;
+
+    peaDisplay.innerText = `${formatCurrency(PEA_ALLOWANCE)} / week Retained`;
+    totalPatientContribDisplay.innerText = `${formatCurrency(patientWeeklyContrib)} / week (${formatCurrency(patientWeeklyContrib * 52)} / yr)`;
+  }
+
+  capitalAssetsInput.addEventListener('input', () => {
+    const val = parseInputVal(capitalAssetsInput.value);
+    capitalAssetsSlider.value = String(val);
+    calculate();
+  });
+
+  capitalAssetsSlider.addEventListener('input', () => {
+    capitalAssetsInput.value = parseInt(capitalAssetsSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  weeklyCareFeeInput.addEventListener('input', () => {
+    const val = parseInputVal(weeklyCareFeeInput.value);
+    weeklyCareFeeSlider.value = String(val);
+    calculate();
+  });
+
+  weeklyCareFeeSlider.addEventListener('input', () => {
+    weeklyCareFeeInput.value = parseFloat(weeklyCareFeeSlider.value).toFixed(2);
+    calculate();
+  });
+
+  weeklyIncomeInput.addEventListener('input', () => {
+    const val = parseInputVal(weeklyIncomeInput.value);
+    weeklyIncomeSlider.value = String(val);
+    calculate();
+  });
+
+  weeklyIncomeSlider.addEventListener('input', () => {
+    weeklyIncomeInput.value = parseFloat(weeklyIncomeSlider.value).toFixed(2);
+    calculate();
+  });
+
+  calculate();
+</script>

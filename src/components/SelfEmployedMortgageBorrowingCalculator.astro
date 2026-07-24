@@ -1,0 +1,121 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Self-Employed Mortgage Trading Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Year 1 Net Trading Profit / Director Salary + Dividends (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="selfmort-year1-income" value="42000" min="10000" step="1000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Year 2 Net Trading Profit / Director Salary + Dividends (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="selfmort-year2-income" value="48000" min="10000" step="1000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Lender Income Multiplier Cap Ratio</span></div>
+        <select id="selfmort-multiplier-ratio-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="4.5" selected>4.5x Average Annual Income (Standard Lender Cap)</option>
+          <option value="4.0">4.0x Conservative Lender Cap</option>
+          <option value="5.0">5.0x High Earner Professional Lender Cap</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Maximum Estimated Mortgage Borrowing Capacity</div>
+      <div class="result-amount"><span id="mainResultDisplay">£202,500.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Assessed 2-Year Average Annual Profit:</span>
+        <span class="val" id="subResultValue">£45,000.00 / year Average</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Self-Employed Mortgage Assessment</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Year 1 Audited Net Profit / Share</span>
+          <span class="val" id="year1IncomeDisplay">£42,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Year 2 Audited Net Profit / Share</span>
+          <span class="val" id="year2IncomeDisplay">£48,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Lender Assessed Income Benchmark</span>
+          <span class="val" id="assessedIncomeBenchmarkDisplay">£45,000.00 / year (2-Yr Average)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Maximum Mortgage Loan Capacity (4.5x)</span>
+          <span class="val" id="totalSelfMortgageCapacityDisplay" style="font-weight: 700; font-size: 18px;">£202,500.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateSelfMortgage() {
+    const y1El = document.getElementById('selfmort-year1-income') as HTMLInputElement;
+    const y2El = document.getElementById('selfmort-year2-income') as HTMLInputElement;
+    const multEl = document.getElementById('selfmort-multiplier-ratio-select') as HTMLSelectElement;
+
+    if (!y1El || !y2El || !multEl) return;
+
+    const y1 = parseFloat(y1El.value) || 0;
+    const y2 = parseFloat(y2El.value) || 0;
+    const mult = parseFloat(multEl.value) || 4.5;
+
+    // Lender rules: Average 2 years unless Year 2 dropped (then use latest year)
+    let assessed = (y1 + y2) / 2;
+    if (y2 < y1) assessed = y2; // Conservative lender rule if income falls
+
+    const maxBorrowing = assessed * mult;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const y1Res = document.getElementById('year1IncomeDisplay');
+    const y2Res = document.getElementById('year2IncomeDisplay');
+    const benchRes = document.getElementById('assessedIncomeBenchmarkDisplay');
+    const totalRes = document.getElementById('totalSelfMortgageCapacityDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + maxBorrowing.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = '£' + assessed.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year Average';
+    if (y1Res) y1Res.textContent = '£' + y1.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (y2Res) y2Res.textContent = '£' + y2.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (benchRes) benchRes.textContent = '£' + assessed.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + (y2 < y1 ? ' (Latest Year)' : ' (2-Yr Average)');
+    if (totalRes) totalRes.textContent = '£' + maxBorrowing.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['selfmort-year1-income', 'selfmort-year2-income', 'selfmort-multiplier-ratio-select'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateSelfMortgage);
+    document.getElementById(id)?.addEventListener('change', calculateSelfMortgage);
+  });
+  calculateSelfMortgage();
+</script>

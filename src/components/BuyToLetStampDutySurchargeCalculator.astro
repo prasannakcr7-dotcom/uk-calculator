@@ -1,0 +1,136 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Buy-to-Let Stamp Duty Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Property Purchase Price (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="btl-property-price" value="280000" min="50000" step="5000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Purchase Purpose & Buyer Status</span></div>
+        <select id="btl-surcharge-status" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="5" selected>Buy-to-Let Investment / Additional Property (5% Surcharge Applies)</option>
+          <option value="0">Replacement Main Residence (Standard Rates, No Surcharge)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>UK Residency Status</span></div>
+        <select id="btl-residency-status" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="resident" selected>UK Resident</option>
+          <option value="non_resident">Non-UK Resident (+2% Non-Resident Surcharge)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Total Stamp Duty (SDLT) Payable</div>
+      <div class="result-amount"><span id="mainResultDisplay">£15,500.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Effective Tax Rate:</span>
+        <span class="val" id="subResultValue">5.54%</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Stamp Duty (SDLT) Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Standard Base SDLT Tax Share</span>
+          <span class="val" id="standardBaseSdltDisplay">£1,500.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>5% Additional Property Surcharge Share</span>
+          <span class="val" id="surchargeAmountDisplay">£14,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Effective Stamp Duty Tax Rate</span>
+          <span class="val" id="effectiveTaxRateDisplay">5.54%</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Stamp Duty (SDLT) Payable</span>
+          <span class="val" id="totalSdltDisplay" style="font-weight: 700; font-size: 18px;">£15,500.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateBtlSdlt() {
+    const priceEl = document.getElementById('btl-property-price') as HTMLInputElement;
+    const surchargeEl = document.getElementById('btl-surcharge-status') as HTMLSelectElement;
+    const residencyEl = document.getElementById('btl-residency-status') as HTMLSelectElement;
+
+    if (!priceEl || !surchargeEl || !residencyEl) return;
+
+    const price = parseFloat(priceEl.value) || 0;
+    const surchargePct = parseFloat(surchargeEl.value) || 0;
+    const isNonResident = residencyEl.value === 'non_resident';
+    const nonResPct = isNonResident ? 2 : 0;
+
+    let baseSdlt = 0;
+    if (price > 1500000) {
+      baseSdlt += (price - 1500000) * 0.12;
+      baseSdlt += (1500000 - 925000) * 0.10;
+      baseSdlt += (925000 - 250000) * 0.05;
+      baseSdlt += (250000 - 125000) * 0.02;
+    } else if (price > 925000) {
+      baseSdlt += (price - 925000) * 0.10;
+      baseSdlt += (925000 - 250000) * 0.05;
+      baseSdlt += (250000 - 125000) * 0.02;
+    } else if (price > 250000) {
+      baseSdlt += (price - 250000) * 0.05;
+      baseSdlt += (250000 - 125000) * 0.02;
+    } else if (price > 125000) {
+      baseSdlt += (price - 125000) * 0.02;
+    }
+
+    const surchargeAmount = price * ((surchargePct + nonResPct) / 100);
+    const totalSdlt = baseSdlt + surchargeAmount;
+    const effectiveRate = price > 0 ? (totalSdlt / price) * 100 : 0;
+
+    const mainResEl = document.getElementById('mainResultDisplay');
+    const subRateEl = document.getElementById('subResultValue');
+    const stdBaseEl = document.getElementById('standardBaseSdltDisplay');
+    const surEl = document.getElementById('surchargeAmountDisplay');
+    const effRateEl = document.getElementById('effectiveTaxRateDisplay');
+    const totalResEl = document.getElementById('totalSdltDisplay');
+
+    if (mainResEl) mainResEl.textContent = '£' + totalSdlt.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subRateEl) subRateEl.textContent = effectiveRate.toFixed(2) + '%';
+    if (stdBaseEl) stdBaseEl.textContent = '£' + baseSdlt.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (surEl) surEl.textContent = '£' + surchargeAmount.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (effRateEl) effRateEl.textContent = effectiveRate.toFixed(2) + '%';
+    if (totalResEl) totalResEl.textContent = '£' + totalSdlt.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['btl-property-price', 'btl-surcharge-status', 'btl-residency-status'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateBtlSdlt);
+    document.getElementById(id)?.addEventListener('change', calculateBtlSdlt);
+  });
+  calculateBtlSdlt();
+</script>

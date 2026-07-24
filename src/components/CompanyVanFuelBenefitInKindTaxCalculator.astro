@@ -1,0 +1,123 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Company Van & Fuel BiK Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Van Fuel / Emissions Type</span></div>
+        <select id="van-fuel-type" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="standard" selected>Petrol / Diesel Van (Standard £3,960 Charge)</option>
+          <option value="zero_ev">Zero-Emission Electric Van (0% BiK Charge £0)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Employer Provides Free Fuel for Private Use?</span></div>
+        <select id="van-free-fuel-provided" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="yes" selected>Yes - Employer Provides Private Fuel (£757 Charge)</option>
+          <option value="no">No Private Fuel Provided (£0 Charge)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Employee Marginal Income Tax Band</span></div>
+        <select id="employee-tax-band" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="0.20" selected>Basic Rate (20% Income Tax)</option>
+          <option value="0.40">Higher Rate (40% Income Tax)</option>
+          <option value="0.45">Additional Rate (45% Income Tax)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">Annual Employee Van & Fuel Tax Liability</div>
+      <div class="result-amount"><span id="mainResultDisplay">£943.40 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Monthly PAYE Tax Deduction:</span>
+        <span class="val" id="subResultValue">£78.62 / month</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Van Benefit In Kind Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Statutory Van Benefit Value</span>
+          <span class="val" id="vanBenefitValueDisplay">£3,960.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Statutory Fuel Benefit Value</span>
+          <span class="val" id="fuelBenefitValueDisplay">£757.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Total Taxable Benefit in Kind (BiK)</span>
+          <span class="val" id="totalBikValueDisplay">£4,717.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Annual Personal Tax Payable (20%)</span>
+          <span class="val" id="annualTaxPayableDisplay" style="font-weight: 700; font-size: 18px;">£943.40 / year</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="impuestos" />
+  </div>
+</div>
+
+<script>
+  function calculateVanBik() {
+    const fuelTypeEl = document.getElementById('van-fuel-type') as HTMLSelectElement;
+    const freeFuelEl = document.getElementById('van-free-fuel-provided') as HTMLSelectElement;
+    const taxBandEl = document.getElementById('employee-tax-band') as HTMLSelectElement;
+
+    if (!fuelTypeEl || !freeFuelEl || !taxBandEl) return;
+
+    const isEv = fuelTypeEl.value === 'zero_ev';
+    const hasFreeFuel = freeFuelEl.value === 'yes';
+    const taxRate = parseFloat(taxBandEl.value) || 0.20;
+
+    // HMRC Van BiK Values 2026/27: Standard Van = £3,960, Fuel Charge = £757
+    const vanBik = isEv ? 0 : 3960;
+    const fuelBik = (!isEv && hasFreeFuel) ? 757 : 0;
+    const totalBik = vanBik + fuelBik;
+
+    const annualTax = totalBik * taxRate;
+    const monthlyTax = annualTax / 12;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const vanRes = document.getElementById('vanBenefitValueDisplay');
+    const fuelRes = document.getElementById('fuelBenefitValueDisplay');
+    const totalBikRes = document.getElementById('totalBikValueDisplay');
+    const taxRes = document.getElementById('annualTaxPayableDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + annualTax.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (subVal) subVal.textContent = '£' + monthlyTax.toFixed(2) + ' / month';
+    if (vanRes) vanRes.textContent = '£' + vanBik.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (fuelRes) fuelRes.textContent = '£' + fuelBik.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (totalBikRes) totalBikRes.textContent = '£' + totalBik.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (taxRes) taxRes.textContent = '£' + annualTax.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` / year (£${monthlyTax.toFixed(2)}/mo)`;
+  }
+
+  ['van-fuel-type', 'van-free-fuel-provided', 'employee-tax-band'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateVanBik);
+    document.getElementById(id)?.addEventListener('change', calculateVanBik);
+  });
+  calculateVanBik();
+</script>

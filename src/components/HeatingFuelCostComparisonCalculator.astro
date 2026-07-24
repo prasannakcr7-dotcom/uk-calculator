@@ -1,0 +1,163 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Heating Demand & Fuel Details'}</h2>
+
+      <!-- Annual Heating Energy Demand (kWh) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.demandLabel || 'Annual Space Heating Demand (kWh)'}</span>
+          <span class="hint" id="demandVal">12,000 kWh</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="12,000" id="demandInput" inputmode="decimal" />
+          <span class="cur">kWh</span>
+        </div>
+        <input type="range" min="3000" max="30000" step="500" value="12000" id="demandSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>3,000 kWh</span><span>30,000 kWh</span></div>
+      </div>
+
+      <!-- Current Primary Fuel Type -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.fuelLabel || 'Primary Heating Fuel Type'}</span>
+          <span class="hint" id="fuelVal">Mains Natural Gas (6.2p/kWh)</span>
+        </div>
+        <select id="fuelSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="GAS" selected>Mains Natural Gas (6.2p / kWh — 90% Boiler Eff)</option>
+          <option value="OIL">Heating Oil / Kerosene (7.5p / kWh — 85% Boiler Eff)</option>
+          <option value="LPG">LPG / Liquefied Petroleum Gas (9.0p / kWh — 88% Boiler Eff)</option>
+          <option value="ELEC_RESISTANCE">Direct Electric Resistance (24.5p / kWh — 100% Eff)</option>
+          <option value="HEAT_PUMP">Air Source Heat Pump (24.5p / kWh — 320% COP Eff)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Annual Space Heating Cost'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£826.67/yr</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.monthlyCostLabel || 'Estimated Monthly Heating Cost:'}</span>
+        <span class="val" id="subResultValue">£68.89 / month</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Heating Fuel Comparison Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Annual Space Heating Demand</span>
+          <span class="val" id="demandDisplay">12,000 kWh</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Applied System Efficiency</span>
+          <span class="val" id="efficiencyDisplay">90% Efficiency</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Gross Fuel Energy Consumed</span>
+          <span class="val" id="grossEnergyDisplay">13,333 kWh</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Annual Heating Bill</span>
+          <span class="val" id="netAnnualDisplay" style="font-weight: 700; font-size: 18px;">£826.67</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Mains Gas:</strong> Most economical traditional fuel (~6.2p/kWh delivered).<br/>
+        • <strong>Air Source Heat Pump:</strong> High efficiency (320% COP) offsets higher electricity unit rates.<br/>
+        • <strong>Direct Electric:</strong> Most expensive heating method (24.5p/kWh for panel heaters).<br/>
+        • <strong>Boiler Efficiency:</strong> Modern condensing boilers operate at ~90% efficiency.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const demandInput = document.getElementById('demandInput') as HTMLInputElement;
+  const demandSlider = document.getElementById('demandSlider') as HTMLInputElement;
+  const demandVal = document.getElementById('demandVal') as HTMLElement;
+  const fuelSelect = document.getElementById('fuelSelect') as HTMLSelectElement;
+  const fuelVal = document.getElementById('fuelVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const demandDisplay = document.getElementById('demandDisplay') as HTMLElement;
+  const efficiencyDisplay = document.getElementById('efficiencyDisplay') as HTMLElement;
+  const grossEnergyDisplay = document.getElementById('grossEnergyDisplay') as HTMLElement;
+  const netAnnualDisplay = document.getElementById('netAnnualDisplay') as HTMLElement;
+
+  const fuelTypes: Record<string, { rate: number; eff: number; name: string }> = {
+    GAS: { rate: 0.062, eff: 0.90, name: 'Mains Natural Gas (6.2p/kWh)' },
+    OIL: { rate: 0.075, eff: 0.85, name: 'Heating Oil / Kerosene (7.5p/kWh)' },
+    LPG: { rate: 0.090, eff: 0.88, name: 'LPG (9.0p/kWh)' },
+    ELEC_RESISTANCE: { rate: 0.245, eff: 1.00, name: 'Direct Electric (24.5p/kWh)' },
+    HEAT_PUMP: { rate: 0.245, eff: 3.20, name: 'Air Source Heat Pump (320% COP)' }
+  };
+
+  function calculate() {
+    const demand = parseInputVal(demandInput.value);
+    const fuelKey = fuelSelect.value;
+    const fuel = fuelTypes[fuelKey] || fuelTypes['GAS'];
+
+    const grossEnergyRequired = demand / fuel.eff;
+    const totalCost = grossEnergyRequired * fuel.rate;
+    const monthlyCost = totalCost / 12;
+
+    demandVal.innerText = `${demand.toLocaleString('en-GB')} kWh`;
+    fuelVal.innerText = fuel.name;
+
+    mainResultDisplay.innerText = `${formatCurrency(totalCost)}/yr`;
+    subResultValue.innerText = `${formatCurrency(monthlyCost)} / month`;
+
+    demandDisplay.innerText = `${demand.toLocaleString('en-GB')} kWh`;
+    efficiencyDisplay.innerText = `${(fuel.eff * 100).toFixed(0)}% Efficiency`;
+    grossEnergyDisplay.innerText = `${Math.round(grossEnergyRequired).toLocaleString('en-GB')} kWh`;
+    netAnnualDisplay.innerText = formatCurrency(totalCost);
+  }
+
+  demandInput.addEventListener('input', () => {
+    const val = parseInputVal(demandInput.value);
+    demandSlider.value = String(val);
+    calculate();
+  });
+
+  demandSlider.addEventListener('input', () => {
+    demandInput.value = parseInt(demandSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  fuelSelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

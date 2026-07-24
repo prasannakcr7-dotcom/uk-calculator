@@ -1,0 +1,143 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Kitchen Renovation Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Kitchen Size Category</span></div>
+        <select id="kitchen-size-category" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="medium" selected>Medium Kitchen (10 - 15 sq m / 12-16 Units)</option>
+          <option value="small">Small Compact Kitchen (under 10 sq m / 8-10 Units)</option>
+          <option value="large">Large Open-Plan Kitchen (over 15 sq m / 18+ Units)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Cabinet & Worktop Finish Level</span></div>
+        <select id="kitchen-finish-level" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="mid" selected>Mid-Range (Laminate/Quartz Worktops, Integrated Appliances)</option>
+          <option value="budget">Budget / Builder Range (Laminate Worktops, Standard Appliances)</option>
+          <option value="luxury">High-End Bespoke (Granite/Marble Worktops, Premium Appliances)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Installation Labor (Trades: Joiner, Electrician, Plumber)</span></div>
+        <select id="kitchen-labor-option" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="full_trades" selected>Full Professional Installation Team (£2,800 - £4,500)</option>
+          <option value="diy">DIY / Self-Fitted (Dry Fit Only)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Estimated Total Kitchen Renovation Cost</div>
+      <div class="result-amount"><span id="mainResultDisplay">£12,500.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Units & Worktops Cost Share:</span>
+        <span class="val" id="subResultValue">£6,500.00</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Kitchen Cost Itemization</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Cabinets, Doors & Worktops</span>
+          <span class="val" id="cabinetsWorktopsDisplay">£6,500.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Integrated Appliances (Oven, Hob, Fridge, Dishwasher)</span>
+          <span class="val" id="appliancesCostDisplay">£2,500.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Professional Installation & Plumbing/Electrics</span>
+          <span class="val" id="installationLaborDisplay">£3,500.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Estimated Turnkey Outlay</span>
+          <span class="val" id="totalKitchenCostDisplay" style="font-weight: 700; font-size: 18px;">£12,500.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateKitchenCost() {
+    const sizeEl = document.getElementById('kitchen-size-category') as HTMLSelectElement;
+    const finishEl = document.getElementById('kitchen-finish-level') as HTMLSelectElement;
+    const laborEl = document.getElementById('kitchen-labor-option') as HTMLSelectElement;
+
+    if (!sizeEl || !finishEl || !laborEl) return;
+
+    const size = sizeEl.value;
+    const finish = finishEl.value;
+    const isDiy = laborEl.value === 'diy';
+
+    let baseUnits = 4500;
+    let baseAppliances = 1800;
+    let baseLabor = 2800;
+
+    if (size === 'small') {
+      baseUnits = 2800;
+      baseAppliances = 1200;
+      baseLabor = 1800;
+    } else if (size === 'large') {
+      baseUnits = 7500;
+      baseAppliances = 3500;
+      baseLabor = 4200;
+    }
+
+    if (finish === 'budget') {
+      baseUnits *= 0.65;
+      baseAppliances *= 0.65;
+    } else if (finish === 'luxury') {
+      baseUnits *= 2.2;
+      baseAppliances *= 2.0;
+      baseLabor *= 1.4;
+    }
+
+    if (isDiy) baseLabor = 0;
+
+    const totalCost = baseUnits + baseAppliances + baseLabor;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const cabRes = document.getElementById('cabinetsWorktopsDisplay');
+    const appRes = document.getElementById('appliancesCostDisplay');
+    const labRes = document.getElementById('installationLaborDisplay');
+    const totalRes = document.getElementById('totalKitchenCostDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + totalCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = '£' + baseUnits.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (cabRes) cabRes.textContent = '£' + baseUnits.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (appRes) appRes.textContent = '£' + baseAppliances.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (labRes) labRes.textContent = '£' + baseLabor.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (totalRes) totalRes.textContent = '£' + totalCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['kitchen-size-category', 'kitchen-finish-level', 'kitchen-labor-option'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateKitchenCost);
+    document.getElementById(id)?.addEventListener('change', calculateKitchenCost);
+  });
+  calculateKitchenCost();
+</script>

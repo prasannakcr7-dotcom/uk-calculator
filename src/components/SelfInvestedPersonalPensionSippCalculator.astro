@@ -1,0 +1,119 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Net Personal Contribution (£)</span></div>
+      <div class="amount-field"><input type="number" id="net-contribution" value="800" min="100" step="50" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Income Tax Bracket</span></div>
+      <select id="tax-bracket">
+        <option value="20" selected>Basic Rate Taxpayer (20%)</option>
+        <option value="40">Higher Rate Taxpayer (40%)</option>
+        <option value="45">Additional Rate Taxpayer (45%)</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Current Age</span></div>
+      <div class="amount-field"><input type="number" id="current-age" value="35" min="18" max="74" step="1" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Target Retirement Age</span></div>
+      <div class="amount-field"><input type="number" id="retirement-age" value="65" min="55" max="75" step="1" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Assumed Annual Investment Return (%)</span></div>
+      <div class="amount-field"><input type="number" id="annual-growth-rate" value="6.0" min="0" max="15" step="0.5" /></div>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <div class="breakdown-row net">
+        <span>Gross SIPP Contribution (Pot Addition):</span>
+        <strong id="gross-contribution">£0.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Automatic Basic Tax Relief (20%):</span>
+        <strong id="basic-tax-relief">£0.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Extra Tax Claimable via Self Assessment:</span>
+        <strong id="extra-tax-claimable">£0.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Effective Out-of-Pocket Cost:</span>
+        <strong id="effective-cost">£0.00</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Projected Pension Pot at Retirement:</span>
+        <strong id="projected-pension-pot">£0.00</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculateSIPP() {
+    const net = parseFloat((document.getElementById('net-contribution') as HTMLInputElement).value) || 0;
+    const taxRate = parseFloat((document.getElementById('tax-bracket') as HTMLSelectElement).value) || 20;
+    const currentAge = parseInt((document.getElementById('current-age') as HTMLInputElement).value) || 35;
+    const retirementAge = parseInt((document.getElementById('retirement-age') as HTMLInputElement).value) || 65;
+    const returnRate = (parseFloat((document.getElementById('annual-growth-rate') as HTMLInputElement).value) || 0) / 100;
+
+    // Automatic 20% basic tax relief adds 25% to net payment
+    // Net £800 -> Gross £1,000 (£200 basic relief)
+    const gross = net / 0.8;
+    const basicRelief = gross - net;
+
+    let extraClaimable = 0;
+    if (taxRate === 40) {
+      extraClaimable = gross * 0.20; // Extra 20% claimable back
+    } else if (taxRate === 45) {
+      extraClaimable = gross * 0.25; // Extra 25% claimable back
+    }
+
+    const effectiveCost = net - extraClaimable;
+
+    // Growth projection assuming annual recurring payment of this gross size
+    const years = Math.max(1, retirementAge - currentAge);
+    let projectedPot = 0;
+    for (let i = 0; i < years; i++) {
+      projectedPot = (projectedPot + gross) * (1 + returnRate);
+    }
+
+    (document.getElementById('gross-contribution') as HTMLElement).textContent = '£' + gross.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('basic-tax-relief') as HTMLElement).textContent = '£' + basicRelief.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('extra-tax-claimable') as HTMLElement).textContent = '£' + extraClaimable.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('effective-cost') as HTMLElement).textContent = '£' + effectiveCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('projected-pension-pot') as HTMLElement).textContent = '£' + projectedPot.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateSIPP);
+  calculateSIPP();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

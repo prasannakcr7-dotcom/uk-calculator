@@ -1,0 +1,32 @@
+/* Theme overrides for the index page and the all-calculators page */
+
+/* View all 253 calculators link styling */
+.view-all {
+  color: #2563eb !important;
+}
+
+.view-all:hover {
+  color: #1d4ed8 !important;
+}
+
+/* Inline links in about text */
+.about a.inline {
+  color: #2563eb !important;
+  border-bottom-color: rgba(37, 99, 235, 0.3) !important;
+}
+
+.about a.inline:hover {
+  color: #1d4ed8 !important;
+  border-bottom-color: rgba(29, 78, 216, 0.5) !important;
+}
+
+/* FAQ card links */
+.faq-card a {
+  color: #2563eb !important;
+  border-bottom-color: rgba(37, 99, 235, 0.25) !important;
+}
+
+.faq-card a:hover {
+  color: #1d4ed8 !important;
+  border-bottom-color: rgba(29, 78, 216, 0.5) !important;
+}

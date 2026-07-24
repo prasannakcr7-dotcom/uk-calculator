@@ -1,0 +1,107 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Date Formal Mortgage Offer Issued</span></div>
+        <input type="date" id="offer-issue-date" value="2026-02-01" style="width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:10px; font-size:15px; background:#fff; color:var(--ink);" />
+      </div>
+
+      <div class="field-group" style="margin-top: 18px;">
+        <div class="field-label"><span>Lender Formal Offer Validity Duration</span></div>
+        <select id="offer-validity-months-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="6" selected>6 Months (Standard UK Existing/New Property Offer)</option>
+          <option value="3">3 Months (Short Validity Offer)</option>
+          <option value="9">9 Months (New Build Property Extended Offer)</option>
+        </select>
+      </div>
+
+      <div class="field-group" style="margin-top: 18px;">
+        <div class="field-label"><span>Target / Estimated Conveyancing Completion Date</span></div>
+        <input type="date" id="target-completion-date" value="2026-06-15" style="width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:10px; font-size:15px; background:#fff; color:var(--ink);" />
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Mortgage Offer Expiry Timeline</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Official Offer Expiry Date</span>
+          <strong id="offer-expiry-date-str">Saturday, 1 August 2026</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Days Remaining to Complete Before Expiry</span>
+          <strong id="days-remaining-until-expiry">47 Days Remaining</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Conveyancing Completion Cushion Status</span>
+          <strong id="completion-cushion-status">On Track (47 days buffer remaining)</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateMortgageOfferDelay() {
+    const issueInput = document.getElementById('offer-issue-date') as HTMLInputElement;
+    const monthsInput = document.getElementById('offer-validity-months-select') as HTMLSelectElement;
+    const completionInput = document.getElementById('target-completion-date') as HTMLInputElement;
+
+    if (!issueInput || !monthsInput || !completionInput || !issueInput.value || !completionInput.value) return;
+
+    const issueDate = new Date(issueInput.value);
+    const validMonths = parseInt(monthsInput.value) || 6;
+    const completionDate = new Date(completionInput.value);
+
+    const expiryDate = new Date(issueDate);
+    expiryDate.setMonth(expiryDate.getMonth() + validMonths);
+
+    const today = new Date();
+    const diffMs = expiryDate.getTime() - completionDate.getTime();
+    const cushionDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const expiryStr = expiryDate.toLocaleDateString('en-GB', options);
+
+    let statusText = '';
+    if (cushionDays > 0) {
+      statusText = `On Track (${cushionDays} days buffer remaining)`;
+    } else if (cushionDays === 0) {
+      statusText = 'Expiry Risk: Completion scheduled for exact expiration date!';
+    } else {
+      statusText = `ALERT: Offer expires ${Math.abs(cushionDays)} days BEFORE completion date! Request Extension.`;
+    }
+
+    const expEl = document.getElementById('offer-expiry-date-str');
+    const remEl = document.getElementById('days-remaining-until-expiry');
+    const statusEl = document.getElementById('completion-cushion-status');
+
+    if (expEl) expEl.textContent = expiryStr;
+    if (remEl) remEl.textContent = `${cushionDays} Days Cushion`;
+    if (statusEl) statusEl.textContent = statusText;
+  }
+
+  ['offer-issue-date', 'offer-validity-months-select', 'target-completion-date'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateMortgageOfferDelay);
+    document.getElementById(id)?.addEventListener('change', calculateMortgageOfferDelay);
+  });
+  calculateMortgageOfferDelay();
+</script>

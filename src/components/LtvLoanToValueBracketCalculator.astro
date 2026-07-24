@@ -1,0 +1,124 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Property Market Valuation (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="ltv-property-value" value="300000" min="50000" step="5000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Mortgage Loan Borrowing Amount (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="ltv-mortgage-loan-amount" value="225000" min="10000" step="5000" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>LTV Bracket & Equity Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Deposit / Property Equity Amount</span>
+          <strong id="ltv-equity-amount-val">£75,000.00 (25.0%)</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Exact Loan-to-Value Percentage</span>
+          <strong id="ltv-exact-percentage">75.0% LTV</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Lender Mortgage Rate Band Bracket</span>
+          <strong id="ltv-bracket-tier-str">75% LTV Band (Favourable Rates)</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Equity Needed to Reach Next Tier (60% LTV)</span>
+          <strong id="ltv-next-tier-equity-needed">£45,000.00 additional deposit</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateLtvBand() {
+    const propValEl = document.getElementById('ltv-property-value') as HTMLInputElement;
+    const loanEl = document.getElementById('ltv-mortgage-loan-amount') as HTMLInputElement;
+
+    if (!propValEl || !loanEl) return;
+
+    const propVal = parseFloat(propValEl.value) || 0;
+    const loan = parseFloat(loanEl.value) || 0;
+
+    const equity = Math.max(0, propVal - loan);
+    const equityPct = propVal > 0 ? (equity / propVal) * 100 : 0;
+    const ltv = propVal > 0 ? (loan / propVal) * 100 : 0;
+
+    let tierStr = '';
+    let targetLtv = 60;
+
+    if (ltv <= 60) {
+      tierStr = '60% LTV Band (Best Commercial Rates)';
+      targetLtv = 50;
+    } else if (ltv <= 75) {
+      tierStr = '75% LTV Band (Favourable Rates)';
+      targetLtv = 60;
+    } else if (ltv <= 80) {
+      tierStr = '80% LTV Band (Standard Rates)';
+      targetLtv = 75;
+    } else if (ltv <= 85) {
+      tierStr = '85% LTV Band (Competitive)';
+      targetLtv = 80;
+    } else if (ltv <= 90) {
+      tierStr = '90% LTV Band (High LTV Rates)';
+      targetLtv = 85;
+    } else if (ltv <= 95) {
+      tierStr = '95% LTV Band (First-Time Buyer Scheme)';
+      targetLtv = 90;
+    } else {
+      tierStr = 'Over 95% LTV (Subprime / Special Approval)';
+      targetLtv = 95;
+    }
+
+    const targetMaxLoan = propVal * (targetLtv / 100);
+    const extraEquityNeeded = Math.max(0, loan - targetMaxLoan);
+
+    const eqResEl = document.getElementById('ltv-equity-amount-val');
+    const exactLtvEl = document.getElementById('ltv-exact-percentage');
+    const tierResEl = document.getElementById('ltv-bracket-tier-str');
+    const nextTierEl = document.getElementById('ltv-next-tier-equity-needed');
+
+    if (eqResEl) eqResEl.textContent = '£' + equity.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` (${equityPct.toFixed(1)}%)`;
+    if (exactLtvEl) exactLtvEl.textContent = ltv.toFixed(1) + '% LTV';
+    if (tierResEl) tierResEl.textContent = tierStr;
+    if (nextTierEl) nextTierEl.textContent = extraEquityNeeded > 0
+      ? '£' + extraEquityNeeded.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` needed for ${targetLtv}% LTV band`
+      : `Achieved ${targetLtv}% LTV Band!`;
+  }
+
+  ['ltv-property-value', 'ltv-mortgage-loan-amount'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateLtvBand);
+    document.getElementById(id)?.addEventListener('change', calculateLtvBand);
+  });
+  calculateLtvBand();
+</script>

@@ -1,0 +1,163 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Company Taxable Trading Profit Details'}</h2>
+
+      <!-- Taxable Profit -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.profitLabel || 'Net Taxable Company Profit (£)'}</span>
+          <span class="hint" id="profitVal">£120,000</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="120,000" id="profitInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="0" max="500000" step="5000" value="120000" id="profitSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£0</span><span>£500,000</span></div>
+      </div>
+
+      <!-- Associated Companies -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.associatedLabel || 'Number of Associated Companies'}</span>
+          <span class="hint" id="associatedVal">1 (Sole Company)</span>
+        </div>
+        <input type="range" min="1" max="5" step="1" value="1" id="associatedSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1 Company</span><span>5 Companies</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Corporation Tax Due'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£25,800.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.effectiveRateLabel || 'Effective Corporation Tax Rate:'}</span>
+        <span class="val" id="subResultValue">21.5% Effective Rate</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Corporation Tax Tier Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Net Taxable Company Profit</span>
+          <span class="val" id="profitDisplay">£120,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Small Profits Rate (19% on first £50k)</span>
+          <span class="val" id="smallRateDisplay">£9,500.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Marginal Relief Rate (26.5% on £50k–£250k)</span>
+          <span class="val" id="marginalRateDisplay">£18,550.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Net Corporation Tax Liability</span>
+          <span class="val" id="netCorpTaxDisplay" style="font-weight: 700; font-size: 18px;">£28,050.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Small Profits Rate:</strong> 19% on taxable profits up to £50,000.<br/>
+        • <strong>Main Rate:</strong> 25% on taxable profits over £250,000.<br/>
+        • <strong>Marginal Relief Taper:</strong> 26.5% effective rate on profits between £50,000 and £250,000.<br/>
+        • <strong>Payment Deadline:</strong> 9 months and 1 day after company financial year end.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const profitInput = document.getElementById('profitInput') as HTMLInputElement;
+  const profitSlider = document.getElementById('profitSlider') as HTMLInputElement;
+  const profitVal = document.getElementById('profitVal') as HTMLElement;
+  const associatedSlider = document.getElementById('associatedSlider') as HTMLInputElement;
+  const associatedVal = document.getElementById('associatedVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const profitDisplay = document.getElementById('profitDisplay') as HTMLElement;
+  const smallRateDisplay = document.getElementById('smallRateDisplay') as HTMLElement;
+  const marginalRateDisplay = document.getElementById('marginalRateDisplay') as HTMLElement;
+  const netCorpTaxDisplay = document.getElementById('netCorpTaxDisplay') as HTMLElement;
+
+  function calculate() {
+    const profit = parseInputVal(profitInput.value);
+    const numAssoc = parseInt(associatedSlider.value, 10);
+
+    const lowerLimit = 50000 / numAssoc;
+    const upperLimit = 250000 / numAssoc;
+
+    let corpTax = 0;
+
+    if (profit <= lowerLimit) {
+      corpTax = profit * 0.19;
+    } else if (profit >= upperLimit) {
+      corpTax = profit * 0.25;
+    } else {
+      // Marginal Relief Formula: (Main Rate Tax) - (3/200 * (Upper Limit - Profit))
+      const fullTax = profit * 0.25;
+      const marginalRelief = (3 / 200) * (upperLimit - profit);
+      corpTax = fullTax - marginalRelief;
+    }
+
+    const effectiveRate = profit > 0 ? (corpTax / profit) * 100 : 19.0;
+
+    profitVal.innerText = formatCurrency(profit).slice(0, -3);
+    associatedVal.innerText = `${numAssoc} Compan${numAssoc === 1 ? 'y' : 'ies'}`;
+
+    mainResultDisplay.innerText = formatCurrency(corpTax);
+    subResultValue.innerText = `${effectiveRate.toFixed(1)}% Effective Rate`;
+
+    profitDisplay.innerText = formatCurrency(profit);
+    smallRateDisplay.innerText = formatCurrency(Math.min(profit, lowerLimit) * 0.19);
+    marginalRateDisplay.innerText = profit > lowerLimit ? formatCurrency(Math.max(0, corpTax - (lowerLimit * 0.19))) : '£0.00';
+    netCorpTaxDisplay.innerText = formatCurrency(corpTax);
+  }
+
+  profitInput.addEventListener('input', () => {
+    const val = parseInputVal(profitInput.value);
+    profitSlider.value = String(val);
+    calculate();
+  });
+
+  profitSlider.addEventListener('input', () => {
+    profitInput.value = parseInt(profitSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  associatedSlider.addEventListener('input', calculate);
+
+  calculate();
+</script>

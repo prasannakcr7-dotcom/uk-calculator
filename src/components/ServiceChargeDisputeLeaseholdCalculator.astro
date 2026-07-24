@@ -1,0 +1,117 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Leasehold Service Charge Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Billed Annual Service Charge (£/year)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="servicecharge-billed-amount" value="3200" min="500" step="100" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Fair Market Reasonable Cost Estimate (£/year)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="servicecharge-fair-amount" value="1950" min="500" step="100" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>First-tier Tribunal (FTT) Application Fee (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="servicecharge-ftt-fee" value="300" min="100" step="50" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Net Disputed Service Charge Over-Charge</div>
+      <div class="result-amount"><span id="mainResultDisplay">£1,250.00 Over-Charge</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Net Dispute Savings After FTT Fees:</span>
+        <span class="val" id="subResultValue">£950.00 Net Savings</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Service Charge Dispute Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Managing Agent Billed Charge</span>
+          <span class="val" id="billedAmountDisplay">£3,200.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Benchmarked Fair Market Value</span>
+          <span class="val" id="fairValueDisplay">£1,950.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>FTT Tribunal Application & Hearing Fees</span>
+          <span class="val" id="fttFeesDisplay">-£300.00 Fee</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Financial Benefit of Challenging Charge</span>
+          <span class="val" id="netDisputeBenefitDisplay" style="font-weight: 700; font-size: 18px;">£950.00 Net Savings</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateServiceChargeDispute() {
+    const billedEl = document.getElementById('servicecharge-billed-amount') as HTMLInputElement;
+    const fairEl = document.getElementById('servicecharge-fair-amount') as HTMLInputElement;
+    const fttEl = document.getElementById('servicecharge-ftt-fee') as HTMLInputElement;
+
+    if (!billedEl || !fairEl || !fttEl) return;
+
+    const billed = parseFloat(billedEl.value) || 0;
+    const fair = parseFloat(fairEl.value) || 0;
+    const fttFee = parseFloat(fttEl.value) || 0;
+
+    const overcharge = Math.max(0, billed - fair);
+    const netSavings = overcharge - fttFee;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const billedRes = document.getElementById('billedAmountDisplay');
+    const fairRes = document.getElementById('fairValueDisplay');
+    const fttRes = document.getElementById('fttFeesDisplay');
+    const totalRes = document.getElementById('netDisputeBenefitDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + overcharge.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Over-Charge';
+    if (subVal) subVal.textContent = netSavings >= 0 ? '£' + netSavings.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Net Savings' : 'Tribunal Fee Exceeds Dispute';
+    if (billedRes) billedRes.textContent = '£' + billed.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (fairRes) fairRes.textContent = '£' + fair.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (fttRes) fttRes.textContent = '-£' + fttFee.toFixed(2) + ' Fee';
+    if (totalRes) totalRes.textContent = netSavings >= 0 ? '£' + netSavings.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Net Savings' : '£0.00 Net Savings';
+  }
+
+  ['servicecharge-billed-amount', 'servicecharge-fair-amount', 'servicecharge-ftt-fee'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateServiceChargeDispute);
+    document.getElementById(id)?.addEventListener('change', calculateServiceChargeDispute);
+  });
+  calculateServiceChargeDispute();
+</script>

@@ -1,0 +1,137 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout mobility-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Petrol vs Diesel Fuel Economy Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Annual Driving Mileage (Miles)</span></div>
+        <div class="amount-field">
+          <input type="number" id="fuel-annual-mileage" value="12000" min="1000" step="1000" />
+          <span class="cur">miles</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Petrol Car Fuel Economy (MPG)</span></div>
+        <div class="amount-field">
+          <input type="number" id="petrol-mpg-val" value="42" min="15" max="80" step="1" />
+          <span class="cur">MPG</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Diesel Car Fuel Economy (MPG)</span></div>
+        <div class="amount-field">
+          <input type="number" id="diesel-mpg-val" value="55" min="15" max="90" step="1" />
+          <span class="cur">MPG</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Petrol Pump Price (£/Litre)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="petrol-price-per-litre" value="1.45" min="0.5" step="0.01" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Diesel Pump Price (£/Litre)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="diesel-price-per-litre" value="1.52" min="0.5" step="0.01" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--mobility-1), var(--mobility-2) 80%);">
+      <div class="result-label">Net Fuel Cost Savings Advantage</div>
+      <div class="result-amount"><span id="mainResultDisplay">Diesel saves £368.50 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Monthly Fuel Difference:</span>
+        <span class="val" id="subResultValue">Diesel is £30.71/mo cheaper</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Petrol vs Diesel Fuel Cost Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Annual Petrol Cost (42 MPG @ £1.45/L)</span>
+          <span class="val" id="annualPetrolCostDisplay">£1,883.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Annual Diesel Cost (55 MPG @ £1.52/L)</span>
+          <span class="val" id="annualDieselCostDisplay">£1,514.50 / year</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Financial Savings Advantage</span>
+          <span class="val" id="netFuelAdvantageDisplay" style="font-weight: 700; font-size: 18px;">Diesel saves £368.50 / year</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="movilidad" />
+  </div>
+</div>
+
+<script>
+  function calculatePetrolVsDiesel() {
+    const milesEl = document.getElementById('fuel-annual-mileage') as HTMLInputElement;
+    const petrolMpgEl = document.getElementById('petrol-mpg-val') as HTMLInputElement;
+    const dieselMpgEl = document.getElementById('diesel-mpg-val') as HTMLInputElement;
+    const petrolPriceEl = document.getElementById('petrol-price-per-litre') as HTMLInputElement;
+    const dieselPriceEl = document.getElementById('diesel-price-per-litre') as HTMLInputElement;
+
+    if (!milesEl || !petrolMpgEl || !dieselMpgEl || !petrolPriceEl || !dieselPriceEl) return;
+
+    const miles = parseFloat(milesEl.value) || 0;
+    const petrolMpg = parseFloat(petrolMpgEl.value) || 42;
+    const dieselMpg = parseFloat(dieselMpgEl.value) || 55;
+    const petrolLitrePrice = parseFloat(petrolPriceEl.value) || 1.45;
+    const dieselLitrePrice = parseFloat(dieselPriceEl.value) || 1.52;
+
+    const petrolGalPrice = petrolLitrePrice * 4.54609;
+    const dieselGalPrice = dieselLitrePrice * 4.54609;
+
+    const petrolCost = (miles / petrolMpg) * petrolGalPrice;
+    const dieselCost = (miles / dieselMpg) * dieselGalPrice;
+
+    const diff = petrolCost - dieselCost;
+    const monthlyDiff = Math.abs(diff) / 12;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const petrolRes = document.getElementById('annualPetrolCostDisplay');
+    const dieselRes = document.getElementById('annualDieselCostDisplay');
+    const totalRes = document.getElementById('netFuelAdvantageDisplay');
+
+    if (mainRes) mainRes.textContent = diff >= 0 ? 'Diesel saves £' + diff.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year' : 'Petrol saves £' + Math.abs(diff).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (subVal) subVal.textContent = diff >= 0 ? `Diesel is £${monthlyDiff.toFixed(2)}/mo cheaper` : `Petrol is £${monthlyDiff.toFixed(2)}/mo cheaper`;
+    if (petrolRes) petrolRes.textContent = '£' + petrolCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (dieselRes) dieselRes.textContent = '£' + dieselCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (totalRes) totalRes.textContent = diff >= 0 ? 'Diesel saves £' + diff.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year' : 'Petrol saves £' + Math.abs(diff).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+  }
+
+  ['fuel-annual-mileage', 'petrol-mpg-val', 'diesel-mpg-val', 'petrol-price-per-litre', 'diesel-price-per-litre'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculatePetrolVsDiesel);
+    document.getElementById(id)?.addEventListener('change', calculatePetrolVsDiesel);
+  });
+  calculatePetrolVsDiesel();
+</script>

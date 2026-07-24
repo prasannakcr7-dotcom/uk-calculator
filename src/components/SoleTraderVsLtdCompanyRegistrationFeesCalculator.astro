@@ -1,0 +1,101 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Companies House Registration Method</span></div>
+      <select id="incorporation-method">
+        <option value="direct_digital" selected>Companies House Direct Web Incorporation (£50.00 official fee)</option>
+        <option value="paper_standard">Companies House Paper Incorporation (£71.00 fee)</option>
+        <option value="agent_package">Formation Agent All-in Package (Avg £80.00)</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Registered Office Service Needed? (Address Privacy)</span></div>
+      <select id="registered-office-service">
+        <option value="yes" selected>Yes - Paid Registered Address Service (£40 / year)</option>
+        <option value="no">No - Use Residential Address (£0 / year)</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Annual Confirmation Statement Filing Fee</span></div>
+      <select id="annual-confirmation-statement">
+        <option value="34" selected>Digital Confirmation Statement (£34.00 / year)</option>
+        <option value="62">Paper Confirmation Statement (£62.00 / year)</option>
+      </select>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <h3>Setup & Ongoing Fee Comparison</h3>
+      <div class="breakdown-row net">
+        <span>Sole Trader Initial Setup Cost:</span>
+        <strong>£0.00 (Free via HMRC)</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Limited Company Initial Setup Cost:</span>
+        <strong id="ltd-initial-cost">£50.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Sole Trader Annual Filing Fees:</span>
+        <strong>£0.00 (No statutory registry fees)</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Limited Company Mandatory Annual Fees:</span>
+        <strong id="ltd-annual-cost">£74.00 / year</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>5-Year Administrative Fee Difference:</span>
+        <strong id="five-year-diff">£420.00</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculateRegistrationFees() {
+    const incMethod = (document.getElementById('incorporation-method') as HTMLSelectElement).value;
+    const needRegOffice = (document.getElementById('registered-office-service') as HTMLSelectElement).value === 'yes';
+    const confStatementFee = parseFloat((document.getElementById('annual-confirmation-statement') as HTMLSelectElement).value) || 34;
+
+    let incFee = 50;
+    if (incMethod === 'paper_standard') incFee = 71;
+    if (incMethod === 'agent_package') incFee = 80;
+
+    const regOfficeFee = needRegOffice ? 40 : 0;
+    const ltdInitial = incFee + regOfficeFee;
+    const ltdAnnual = confStatementFee + regOfficeFee;
+
+    const fiveYearLtdTotal = ltdInitial + (ltdAnnual * 4);
+
+    (document.getElementById('ltd-initial-cost') as HTMLElement).textContent = '£' + ltdInitial.toFixed(2);
+    (document.getElementById('ltd-annual-cost') as HTMLElement).textContent = '£' + ltdAnnual.toFixed(2) + ' / year';
+    (document.getElementById('five-year-diff') as HTMLElement).textContent = '£' + fiveYearLtdTotal.toFixed(2) + ' (Ltd Company Fees)';
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateRegistrationFees);
+  calculateRegistrationFees();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

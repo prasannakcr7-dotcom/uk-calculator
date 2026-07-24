@@ -1,0 +1,88 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Initial Total Capital Invested (£)</span></div>
+      <div class="amount-field"><input type="number" id="initial-capital-invested" value="10000" min="1" step="500" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Final Value / Total Returned Amount (£)</span></div>
+      <div class="amount-field"><input type="number" id="final-investment-value" value="15000" min="0" step="500" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Investment Holding Period (Years)</span></div>
+      <div class="amount-field"><input type="number" id="investment-holding-years" value="3" min="0.1" max="50" step="0.5" /></div>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <h3>Investment Return Metrics</h3>
+      <div class="breakdown-row net">
+        <span>Total Return on Investment (ROI):</span>
+        <strong id="total-roi-pct">0.00%</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Net Financial Profit / Gain:</span>
+        <strong id="net-profit-gain">£0.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Annualized Return Rate (CAGR):</span>
+        <strong id="annualized-cagr-val">0.00% p.a.</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Capital Investment Multiplier:</span>
+        <strong id="investment-multiplier">0.00x</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculateROI() {
+    const cost = parseFloat((document.getElementById('initial-capital-invested') as HTMLInputElement).value) || 0;
+    const finalVal = parseFloat((document.getElementById('final-investment-value') as HTMLInputElement).value) || 0;
+    const years = parseFloat((document.getElementById('investment-holding-years') as HTMLInputElement).value) || 1;
+
+    const netGain = finalVal - cost;
+    const roiPct = cost > 0 ? (netGain / cost) * 100 : 0;
+    const multiplier = cost > 0 ? finalVal / cost : 0;
+
+    // Compound Annual Growth Rate (CAGR) formula: (Final / Initial)^(1 / Years) - 1
+    let cagr = 0;
+    if (cost > 0 && finalVal > 0 && years > 0) {
+      cagr = (Math.pow(finalVal / cost, 1 / years) - 1) * 100;
+    }
+
+    (document.getElementById('total-roi-pct') as HTMLElement).textContent = roiPct.toFixed(2) + '%';
+    (document.getElementById('net-profit-gain') as HTMLElement).textContent = '£' + netGain.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('annualized-cagr-val') as HTMLElement).textContent = cagr.toFixed(2) + '% p.a.';
+    (document.getElementById('investment-multiplier') as HTMLElement).textContent = multiplier.toFixed(2) + 'x';
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateROI);
+  calculateROI();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

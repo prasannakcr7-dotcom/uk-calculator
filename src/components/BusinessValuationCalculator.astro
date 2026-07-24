@@ -1,0 +1,120 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout finance-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Annual Operating Profit / EBITDA (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="annual-ebitda" value="150000" min="10000" step="5000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Industry Sector Multiple</span></div>
+        <select id="industry-sector" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="3.5">Retail & E-commerce (3.0x - 4.0x)</option>
+          <option value="4.5" selected>Professional Services & B2B (4.0x - 5.0x)</option>
+          <option value="6.0">Software / SaaS & Tech (5.0x - 8.0x)</option>
+          <option value="3.0">Hospitality & Food Services (2.5x - 3.5x)</option>
+          <option value="4.0">Construction & Trades (3.5x - 4.5x)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Net Tangible Assets / Equity (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="net-tangible-assets" value="80000" min="0" step="5000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Director Add-backs / Discretionary Expenses (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="director-addbacks" value="25000" min="0" step="2500" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Estimated Business Valuation Range</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>EBITDA Multiple Valuation (Midpoint)</span>
+          <strong id="ebitda-valuation">£675,000</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Adjusted SDE Valuation (EBITDA + Addbacks)</span>
+          <strong id="sde-valuation">£669,375</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Asset-Based Valuation Floor</span>
+          <strong id="asset-valuation">£80,000</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Estimated Realistic Market Range</span>
+          <strong id="valuation-range">£568,969 – £776,250</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="finanzas" />
+  </div>
+</div>
+
+<script>
+  function calculateBusinessValuation() {
+    const ebitdaEl = document.getElementById('annual-ebitda') as HTMLInputElement;
+    const multipleEl = document.getElementById('industry-sector') as HTMLSelectElement;
+    const assetsEl = document.getElementById('net-tangible-assets') as HTMLInputElement;
+    const addbacksEl = document.getElementById('director-addbacks') as HTMLInputElement;
+
+    if (!ebitdaEl || !multipleEl || !assetsEl || !addbacksEl) return;
+
+    const ebitda = parseFloat(ebitdaEl.value) || 0;
+    const multiple = parseFloat(multipleEl.value) || 4.0;
+    const assets = parseFloat(assetsEl.value) || 0;
+    const addbacks = parseFloat(addbacksEl.value) || 0;
+
+    const ebitdaVal = ebitda * multiple;
+    const sde = ebitda + addbacks;
+    const sdeVal = sde * (multiple * 0.85);
+    const assetVal = assets;
+
+    const minVal = Math.min(ebitdaVal * 0.85, sdeVal * 0.85);
+    const maxVal = Math.max(ebitdaVal * 1.15, sdeVal * 1.15);
+
+    const ebitdaResEl = document.getElementById('ebitda-valuation');
+    const sdeResEl = document.getElementById('sde-valuation');
+    const assetResEl = document.getElementById('asset-valuation');
+    const rangeResEl = document.getElementById('valuation-range');
+
+    if (ebitdaResEl) ebitdaResEl.textContent = '£' + Math.round(ebitdaVal).toLocaleString('en-GB');
+    if (sdeResEl) sdeResEl.textContent = '£' + Math.round(sdeVal).toLocaleString('en-GB');
+    if (assetResEl) assetResEl.textContent = '£' + Math.round(assetVal).toLocaleString('en-GB');
+    if (rangeResEl) rangeResEl.textContent = '£' + Math.round(minVal).toLocaleString('en-GB') + ' – £' + Math.round(maxVal).toLocaleString('en-GB');
+  }
+
+  ['annual-ebitda', 'industry-sector', 'net-tangible-assets', 'director-addbacks'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateBusinessValuation);
+    document.getElementById(id)?.addEventListener('change', calculateBusinessValuation);
+  });
+  calculateBusinessValuation();
+</script>

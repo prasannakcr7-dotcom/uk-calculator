@@ -1,0 +1,191 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Floor Screed Area & Thickness Details'}</h2>
+
+      <!-- Screed Floor Area (sq m) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.areaLabel || 'Floor Area to Screed (sq m)'}</span>
+          <span class="hint" id="areaVal">30.0 sq m</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="30.0" id="areaInput" inputmode="decimal" />
+          <span class="cur">sq m</span>
+        </div>
+        <input type="range" min="2" max="150" step="1" value="30" id="areaSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>2 sq m</span><span>150 sq m</span></div>
+      </div>
+
+      <!-- Screed Depth / Thickness (mm) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.depthLabel || 'Screed Thickness / Depth (mm)'}</span>
+          <span class="hint" id="depthVal">65 mm (Standard Floating Screed)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="65" id="depthInput" inputmode="decimal" />
+          <span class="cur">mm</span>
+        </div>
+        <input type="range" min="25" max="120" step="5" value="65" id="depthSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>25mm (Bonded)</span><span>120mm</span></div>
+      </div>
+
+      <!-- Mix Ratio (Cement : Sharp Sand) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.screedMixLabel || 'Screed Mix Proportions (Cement : Sharp Sand)'}</span>
+          <span class="hint" id="screedMixVal">1 : 4 Traditional Sand & Cement</span>
+        </div>
+        <select id="screedMixSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="1:4" selected>1 : 4 Standard Sand & Cement Screed</option>
+          <option value="1:3">1 : 3 Heavy-Duty / Fast-Drying Screed</option>
+          <option value="1:4.5">1 : 4.5 Commercial Grade Screed</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Total Wet Floor Screed Volume'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">1.95 m³ Screed</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.materialsLabel || 'Cement Bags & Sharp Sand Needed:'}</span>
+        <span class="val" id="subResultValue">31× 25kg Cement Bags + 3.7 Bulk Bags Sharp Sand</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Screed Material Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Calculated Wet Screed Volume</span>
+          <span class="val" id="volumeDisplay">1.95 m³</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Total Dry Screed Weight (~2,000 kg/m³)</span>
+          <span class="val" id="weightDisplay">3,900 kg</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Cement Required (25kg Bags)</span>
+          <span class="val" id="cementDisplay">31 Bags (780 kg)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Sharp Sand Required (Bulk Bags)</span>
+          <span class="val" id="sandDisplay" style="font-weight: 700; font-size: 18px;">3,120 kg (3.7 Bulk Bags)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Minimum Thickness:</strong> Bonded screed (40mm min); Floating over UFH insulation (65mm min).<br/>
+        • <strong>Dry Weight Density:</strong> Standard semi-dry sand & cement screed weighs ~2,000 kg/m³.<br/>
+        • <strong>Drying Time Rule:</strong> Traditional screed dries at 1mm per day up to 40mm (1 day per mm).<br/>
+        • <strong>Liquid Anhydrite Alternative:</strong> Pumped liquid calcium sulphate screed allows thinner 40mm UFH depth.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  const areaInput = document.getElementById('areaInput') as HTMLInputElement;
+  const areaSlider = document.getElementById('areaSlider') as HTMLInputElement;
+  const areaVal = document.getElementById('areaVal') as HTMLElement;
+
+  const depthInput = document.getElementById('depthInput') as HTMLInputElement;
+  const depthSlider = document.getElementById('depthSlider') as HTMLInputElement;
+  const depthVal = document.getElementById('depthVal') as HTMLElement;
+
+  const screedMixSelect = document.getElementById('screedMixSelect') as HTMLSelectElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const volumeDisplay = document.getElementById('volumeDisplay') as HTMLElement;
+  const weightDisplay = document.getElementById('weightDisplay') as HTMLElement;
+  const cementDisplay = document.getElementById('cementDisplay') as HTMLElement;
+  const sandDisplay = document.getElementById('sandDisplay') as HTMLElement;
+
+  function calculate() {
+    const areaSqm = parseInputVal(areaInput.value);
+    const depthMm = parseInputVal(depthInput.value);
+    const depthM = depthMm / 1000;
+
+    const volumeM3 = areaSqm * depthM;
+    const totalWeightKg = volumeM3 * 2000; // 2000 kg/m3 dry screed density
+
+    const mixKey = screedMixSelect.value;
+    let cementPart = 1;
+    let sandPart = 4;
+
+    if (mixKey === '1:3') { cementPart = 1; sandPart = 3; }
+    if (mixKey === '1:4.5') { cementPart = 1; sandPart = 4.5; }
+
+    const totalParts = cementPart + sandPart;
+    const cementWeightKg = totalWeightKg * (cementPart / totalParts);
+    const sandWeightKg = totalWeightKg * (sandPart / totalParts);
+
+    const cementBags25kg = Math.ceil(cementWeightKg / 25);
+    const sandBulkBags = (sandWeightKg / 850).toFixed(1);
+
+    areaVal.innerText = `${areaSqm.toFixed(1)} sq m`;
+    depthVal.innerText = `${depthMm} mm`;
+
+    mainResultDisplay.innerText = `${volumeM3.toFixed(2)} m³ Screed`;
+    subResultValue.innerText = `${cementBags25kg}× 25kg Cement Bags + ${sandBulkBags} Bulk Bags Sharp Sand`;
+
+    volumeDisplay.innerText = `${volumeM3.toFixed(2)} m³`;
+    weightDisplay.innerText = `${Math.round(totalWeightKg).toLocaleString('en-GB')} kg`;
+    cementDisplay.innerText = `${cementBags25kg} Bags (${Math.round(cementWeightKg)} kg)`;
+    sandDisplay.innerText = `${Math.round(sandWeightKg).toLocaleString('en-GB')} kg (${sandBulkBags} Bulk Bags)`;
+  }
+
+  areaInput.addEventListener('input', () => {
+    const val = parseInputVal(areaInput.value);
+    areaSlider.value = String(val);
+    calculate();
+  });
+
+  areaSlider.addEventListener('input', () => {
+    areaInput.value = parseInt(areaSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  depthInput.addEventListener('input', () => {
+    const val = parseInputVal(depthInput.value);
+    depthSlider.value = String(val);
+    calculate();
+  });
+
+  depthSlider.addEventListener('input', () => {
+    depthInput.value = depthSlider.value;
+    calculate();
+  });
+
+  screedMixSelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

@@ -1,0 +1,138 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Birth Year & Pension Age Details'}</h2>
+
+      <!-- Birth Year -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.birthYearLabel || 'Year of Birth'}</span>
+          <span class="hint" id="birthYearVal">1965</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="1965" id="birthYearInput" inputmode="decimal" />
+          <span class="cur">Yr</span>
+        </div>
+        <input type="range" min="1950" max="2010" step="1" value="1965" id="birthYearSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1950</span><span>2010</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--social-1), var(--social-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Statutory State Pension Age'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">67 Years Old</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.estimatedYearLabel || 'Estimated State Pension Access Year:'}</span>
+        <span class="val" id="subResultValue">Reached in Year 2032</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'State Pension Timetable Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Birth Year Selected</span>
+          <span class="val" id="birthYearDisplay">1965</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Statutory State Pension Age</span>
+          <span class="val" id="pensionAgeDisplay">67 Years</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Legislative Pension Framework</span>
+          <span class="val" id="frameworkDisplay">Pensions Act 2014 (67 Transition)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Estimated Calendar Year Pension Age Reached</span>
+          <span class="val" id="calendarYearDisplay" style="font-weight: 700; font-size: 18px;">2032</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Current Age 66:</strong> State pension age for anyone born between 1954 and 1960.<br/>
+        • <strong>Transition to Age 67:</strong> Phased in between 2026 and 2028 (born April 1960 to April 1977).<br/>
+        • <strong>Transition to Age 68:</strong> Scheduled between 2044 and 2046 (born April 1977 onward).<br/>
+        • <strong>Equalized Timetable:</strong> Pension age is identical for both men and women.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  const birthYearInput = document.getElementById('birthYearInput') as HTMLInputElement;
+  const birthYearSlider = document.getElementById('birthYearSlider') as HTMLInputElement;
+  const birthYearVal = document.getElementById('birthYearVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const birthYearDisplay = document.getElementById('birthYearDisplay') as HTMLElement;
+  const pensionAgeDisplay = document.getElementById('pensionAgeDisplay') as HTMLElement;
+  const frameworkDisplay = document.getElementById('frameworkDisplay') as HTMLElement;
+  const calendarYearDisplay = document.getElementById('calendarYearDisplay') as HTMLElement;
+
+  function calculate() {
+    const year = parseInputVal(birthYearInput.value);
+
+    let pensionAge = 66;
+    let framework = 'Current Baseline (Age 66)';
+
+    if (year >= 1961 && year <= 1976) {
+      pensionAge = 67;
+      framework = 'Pensions Act 2014 (Age 67 Transition)';
+    } else if (year >= 1977) {
+      pensionAge = 68;
+      framework = 'Pensions Act 2014 (Age 68 Timetable)';
+    }
+
+    const accessYear = year + pensionAge;
+
+    birthYearVal.innerText = String(year);
+
+    mainResultDisplay.innerText = `${pensionAge} Years Old`;
+    subResultValue.innerText = `Reached in Year ${accessYear}`;
+
+    birthYearDisplay.innerText = String(year);
+    pensionAgeDisplay.innerText = `${pensionAge} Years`;
+    frameworkDisplay.innerText = framework;
+    calendarYearDisplay.innerText = String(accessYear);
+  }
+
+  birthYearInput.addEventListener('input', () => {
+    const val = parseInputVal(birthYearInput.value);
+    birthYearSlider.value = String(val);
+    calculate();
+  });
+
+  birthYearSlider.addEventListener('input', () => {
+    birthYearInput.value = String(parseInt(birthYearSlider.value, 10));
+    calculate();
+  });
+
+  calculate();
+</script>

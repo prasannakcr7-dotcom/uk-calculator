@@ -1,0 +1,163 @@
+---
+interface Props {
+  category?: string;
+  currentSlug?: string;
+}
+
+const { category: propCategory, currentSlug: propSlug } = Astro.props;
+
+const path = Astro.url.pathname;
+const urlParts = path.split('/').filter(Boolean);
+const slugFromUrl = propSlug || (urlParts.length > 0 ? urlParts[0] : '');
+
+// Map category from prop or URL path
+let categoryKey = (propCategory || '').toLowerCase();
+
+if (categoryKey === 'health') categoryKey = 'salud';
+if (categoryKey === 'work') categoryKey = 'trabajo';
+if (categoryKey === 'taxes') categoryKey = 'impuestos';
+if (categoryKey === 'family') categoryKey = 'familia';
+if (categoryKey === 'housing') categoryKey = 'vivienda';
+if (categoryKey === 'mobility') categoryKey = 'movilidad';
+if (categoryKey === 'social') categoryKey = 'social';
+if (categoryKey === 'finance') categoryKey = 'finanzas';
+if (categoryKey === 'alltag' || categoryKey === 'everyday' || categoryKey === 'daily') categoryKey = 'alltag';
+
+if (!categoryKey) {
+  if (path.includes('work') || path.includes('salary') || path.includes('wage') || path.includes('notice') || path.includes('redundancy') || path.includes('overtime') || path.includes('holiday') || path.includes('payslip') || path.includes('minimum-wage') || path.includes('probationary') || path.includes('working-days') || path.includes('timesheet') || path.includes('sabbatical') || path.includes('furlough')) {
+    categoryKey = 'trabajo';
+  } else if (path.includes('tax') || path.includes('vat') || path.includes('hmrc') || path.includes('duty') || path.includes('sdlt') || path.includes('corporation') || path.includes('dividend') || path.includes('p11d') || path.includes('self-assessment') || path.includes('impuestos')) {
+    categoryKey = 'impuestos';
+  } else if (path.includes('family') || path.includes('child') || path.includes('maternity') || path.includes('paternity') || path.includes('parental') || path.includes('divorce') || path.includes('spousal') || path.includes('pregnancy') || path.includes('pocket-money') || path.includes('nanny') || path.includes('familia')) {
+    categoryKey = 'familia';
+  } else if (path.includes('housing') || path.includes('mortgage') || path.includes('rent') || path.includes('property') || path.includes('stamp-duty') || path.includes('tenancy') || path.includes('lease') || path.includes('ground-rent') || path.includes('house') || path.includes('room') || path.includes('radiator') || path.includes('plaster') || path.includes('tile') || path.includes('wallpaper') || path.includes('party-wall') || path.includes('vivienda') || path.includes('loft') || path.includes('garage') || path.includes('kitchen') || path.includes('bathroom') || path.includes('extension') || path.includes('screed') || path.includes('brick') || path.includes('patio')) {
+    categoryKey = 'vivienda';
+  } else if (path.includes('mobility') || path.includes('car') || path.includes('vehicle') || path.includes('mileage') || path.includes('ev') || path.includes('mot') || path.includes('fuel') || path.includes('charging') || path.includes('depreciation') || path.includes('petrol') || path.includes('diesel') || path.includes('toll') || path.includes('motorcycle') || path.includes('motorhome') || path.includes('sorn') || path.includes('movilidad') || path.includes('flight') || path.includes('taxi') || path.includes('ulez') || path.includes('bicycle') || path.includes('ebike') || path.includes('boat') || path.includes('yacht')) {
+    categoryKey = 'movilidad';
+  } else if (path.includes('health') || path.includes('bmi') || path.includes('calorie') || path.includes('body-fat') || path.includes('water') || path.includes('running') || path.includes('prescription') || path.includes('dental') || path.includes('hearing-aid') || path.includes('medical-insurance') || path.includes('optical') || path.includes('salud') || path.includes('ivf') || path.includes('fertility') || path.includes('gym') || path.includes('injury') || path.includes('care-home')) {
+    categoryKey = 'salud';
+  } else if (path.includes('social') || path.includes('benefit') || path.includes('pension') || path.includes('universal-credit') || path.includes('ssp') || path.includes('jsa') || path.includes('esa') || path.includes('carers') || path.includes('national-insurance') || path.includes('credits') || path.includes('qualifying-years') || path.includes('bereavement') || path.includes('prestaciones') || path.includes('pip') || path.includes('dla')) {
+    categoryKey = 'social';
+  } else if (path.includes('finance') || path.includes('interest') || path.includes('savings') || path.includes('sipp') || path.includes('isa') || path.includes('loan') || path.includes('lisa') || path.includes('investment') || path.includes('fund') || path.includes('crypto') || path.includes('debt') || path.includes('overdraft') || path.includes('budget') || path.includes('currency') || path.includes('paypal') || path.includes('markup') || path.includes('roi') || path.includes('finanzas') || path.includes('bank') || path.includes('valuation') || path.includes('purchasing-power') || path.includes('inflation') || path.includes('bitcoin') || path.includes('forces')) {
+    categoryKey = 'finanzas';
+  } else {
+    categoryKey = 'alltag';
+  }
+}
+
+// Category list items with exact routes
+const categories = [
+  { key: 'trabajo',   label: 'Work',     slug: '/work-and-salary/',     color: 'var(--work-2)' },
+  { key: 'impuestos', label: 'Taxes',    slug: '/taxes-and-fees/',      color: 'var(--taxes-2)' },
+  { key: 'familia',   label: 'Family',   slug: '/family-and-maternity/',color: 'var(--family-2)' },
+  { key: 'vivienda',  label: 'Housing',  slug: '/housing-and-rent/',   color: 'var(--housing-2)' },
+  { key: 'movilidad', label: 'Mobility', slug: '/mobility-and-vehicles/',color: 'var(--mobility-2)' },
+  { key: 'social',    label: 'Social',   slug: '/social-and-benefits/',color: 'var(--social-2)' },
+  { key: 'salud',     label: 'Health',   slug: '/health-and-wellbeing/',color: 'var(--health-2)' },
+  { key: 'finanzas',  label: 'Finance',  slug: '/finance-and-credit/',  color: 'var(--finance-2)' },
+  { key: 'alltag',    label: 'Daily Life',slug: '/daily-life/',         color: 'var(--reside-2)' },
+];
+
+const relatedByCat: Record<string, { title: string; href: string }[]> = {
+  trabajo: [
+    { title: 'Salary & Income Tax Calculator', href: '/salary-income-tax-calculator/' },
+    { title: 'Hourly Wage to Salary Converter', href: '/hourly-wage-to-salary-converter/' },
+    { title: 'Overtime Pay Calculator', href: '/overtime-pay-calculator/' },
+    { title: 'Holiday Entitlement Calculator', href: '/holiday-entitlement-calculator/' },
+  ],
+  impuestos: [
+    { title: 'VAT Calculator UK', href: '/vat-calculator/' },
+    { title: 'Self-Assessment Tax Calculator', href: '/self-assessment-tax-calculator/' },
+    { title: 'PAYE Tax Calculator', href: '/paye-tax-calculator/' },
+    { title: 'Dividend Tax Calculator', href: '/dividend-tax-calculator/' },
+  ],
+  familia: [
+    { title: 'Child Benefit Calculator', href: '/child-benefit-calculator/' },
+    { title: 'Statutory Maternity Pay (SMP)', href: '/statutory-maternity-paternity-pay-calculator/' },
+    { title: 'Child Maintenance Calculator', href: '/child-maintenance-calculator/' },
+    { title: 'Childcare Funding & Grants', href: '/childcare-funding-grants-calculator/' },
+  ],
+  vivienda: [
+    { title: 'Mortgage Payment Calculator', href: '/mortgage-payment-calculator/' },
+    { title: 'Rental Yield Calculator', href: '/rental-yield-calculator/' },
+    { title: 'Rent vs Buy Calculator', href: '/rent-vs-buy-calculator/' },
+    { title: 'First Time Buyer Stamp Duty', href: '/first-time-buyer-stamp-duty-calculator/' },
+  ],
+  movilidad: [
+    { title: 'Vehicle Road Tax (VED)', href: '/vehicle-excise-duty-ved-road-tax-calculator/' },
+    { title: 'HMRC Mileage Allowance (AMAP)', href: '/hmrc-mileage-allowance-payments-amap-calculator/' },
+    { title: 'EV Charging Cost & Range', href: '/electric-vehicle-ev-charging-cost-range-calculator/' },
+    { title: 'Car Depreciation Estimator', href: '/car-depreciation-estimator/' },
+  ],
+  salud: [
+    { title: 'BMI & Calorie Calculator', href: '/bmi-bmr-calorie-calculator/' },
+    { title: 'NHS Dental Charges', href: '/nhs-dental-treatment-charges-calculator/' },
+    { title: 'NHS Prescription PPC Savings', href: '/nhs-prescription-charges-ppc-certificate-savings-calculator/' },
+    { title: 'Daily Water Intake', href: '/daily-water-hydration-intake-calculator/' },
+  ],
+  social: [
+    { title: 'Universal Credit Calculator', href: '/universal-credit-calculator/' },
+    { title: 'State Pension Forecast', href: '/state-pension-forecast-calculator/' },
+    { title: 'Pension Credit Calculator', href: '/pension-credit-calculator/' },
+    { title: 'Statutory Sick Pay (SSP)', href: '/statutory-sick-pay-ssp-calculator/' },
+  ],
+  finanzas: [
+    { title: 'Compound Interest Calculator', href: '/compound-interest-calculator/' },
+    { title: 'Savings Target & Growth', href: '/savings-target-growth-calculator/' },
+    { title: 'SIPP Tax Relief Calculator', href: '/sipp-tax-relief-pension-contribution-calculator/' },
+    { title: 'Personal Loan Calculator', href: '/personal-loan-calculator/' },
+  ],
+  alltag: [
+    { title: 'UCAS Tariff Points Calculator', href: '/universities-colleges-admissions-service-ucas-points-calculator/' },
+    { title: 'Working Days Calculator', href: '/working-days-calculator/' },
+    { title: 'Time Zone Calculator', href: '/time-zone-calculator/' },
+    { title: 'Student Loan Repayments', href: '/student-loan-repayment-calculator/' },
+  ]
+};
+
+const relatedList = (relatedByCat[categoryKey] || relatedByCat.trabajo).filter(item => !slugFromUrl || !item.href.includes(slugFromUrl));
+
+const promoData: Record<string, { theme: string; title: string; desc: string; btn: string; href: string }> = {
+  trabajo: { theme: 'work-theme', title: '2026/27 PAYE Rates', desc: 'Check your tax code, Personal Allowance (£12,570), and National Insurance deductions.', btn: 'Explore Work →', href: '/work-and-salary/' },
+  impuestos: { theme: 'taxes-theme', title: 'Self Assessment Filing', desc: 'Calculate payments on account, VAT flat rate, and dividend tax thresholds for 2026/27.', btn: 'Explore Taxes →', href: '/taxes-and-fees/' },
+  familia: { theme: 'family-theme', title: 'Planning a family?', desc: 'Estimate maternity & paternity leave pay and child support obligations.', btn: 'Explore Family →', href: '/family-and-maternity/' },
+  vivienda: { theme: 'housing-theme', title: 'UK Housing & SDLT', desc: 'Compare mortgage payments, interest rates, and Stamp Duty Land Tax brackets.', btn: 'Explore Housing →', href: '/housing-and-rent/' },
+  movilidad: { theme: 'mobility-theme', title: 'Vehicle Excise Duty', desc: 'Calculate car tax, EV charging costs, and HMRC mileage allowance claims.', btn: 'Explore Mobility →', href: '/mobility-and-vehicles/' },
+  salud: { theme: 'health-theme', title: 'NHS PPC Certificate', desc: 'Prescription Prepayment Certificates save money if you need 2+ items monthly.', btn: 'Explore Health →', href: '/health-and-wellbeing/' },
+  social: { theme: 'social-theme', title: 'Universal Credit 2026/27', desc: 'Calculate standard allowance, housing elements, and work allowances.', btn: 'Explore Social →', href: '/social-and-benefits/' },
+  finanzas: { theme: 'finance-theme', title: 'SIPP & Pension Tax Relief', desc: 'Basic rate 20% added automatically; higher rate 40% & 45% reclaimable from HMRC.', btn: 'Explore Finance →', href: '/finance-and-credit/' },
+  alltag: { theme: 'reside-theme', title: 'UCAS Tariff Points', desc: 'Convert A-Levels, Highers, and T-Levels into UCAS tariff points for university.', btn: 'Explore Daily Life →', href: '/daily-life/' }
+};
+
+const promo = promoData[categoryKey] || promoData.trabajo;
+---
+
+<div class="sidebar">
+  <!-- CARD 1: CATEGORIES -->
+  <div class="card">
+    <div class="side-title">CATEGORIES</div>
+    {categories.map(c => (
+      <a href={c.slug} class={`cat-link ${categoryKey === c.key ? 'active' : ''}`}>
+        <span class="dot" style={`background: ${c.color};`}></span> {c.label}
+      </a>
+    ))}
+  </div>
+
+  <!-- CARD 2: RELATED CALCULATORS -->
+  <div class="card">
+    <div class="side-title">RELATED CALCULATORS</div>
+    {relatedList.slice(0, 4).map(item => (
+      <a href={item.href} class="related-link">
+        <span>{item.title}</span>
+        <span class="arrow">→</span>
+      </a>
+    ))}
+  </div>
+
+  <!-- CARD 3: PROMO CARD -->
+  <div class={`promo-card ${promo.theme}`}>
+    <h4>{promo.title}</h4>
+    <p>{promo.desc}</p>
+    <a class="btn" href={promo.href}>{promo.btn}</a>
+  </div>
+</div>

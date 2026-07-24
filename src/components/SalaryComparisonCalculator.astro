@@ -1,0 +1,178 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Salary Offer Details'}</h2>
+
+      <!-- Salary Offer A -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.salaryALabel || 'Job Offer A Gross Salary (£)'}</span>
+          <span class="hint" id="salaryAVal">£40,000</span>
+        </div>
+        <div class="amount-field" style="margin-top: 0; margin-bottom: 0;">
+          <input type="text" value="40,000" id="salaryAInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="15000" max="150000" step="1000" value="40000" id="salaryASlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£15,000</span><span>£150,000</span></div>
+      </div>
+
+      <!-- Salary Offer B -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.salaryBLabel || 'Job Offer B Gross Salary (£)'}</span>
+          <span class="hint" id="salaryBVal">£48,000</span>
+        </div>
+        <div class="amount-field" style="margin-top: 0; margin-bottom: 0;">
+          <input type="text" value="48,000" id="salaryBInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="15000" max="150000" step="1000" value="48000" id="salaryBSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£15,000</span><span>£150,000</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--work-1), var(--work-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Net Take-Home Increase (Offer B vs A)'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£5,440.00/yr</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.monthlyLabel || 'Net Monthly Increase:'}</span>
+        <span class="val" id="subResultValue">£453.33/mo</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Take-Home Pay Comparison'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Offer A Annual Net Take-Home</span>
+          <span class="val" id="takeHomeADisplay">£31,119.60</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Offer B Annual Net Take-Home</span>
+          <span class="val" id="takeHomeBDisplay">£36,559.60</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Annual Take-Home Difference</span>
+          <span class="val" id="annualDiffDisplay" style="font-weight: 700; font-size: 18px;">£5,440.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • Considers progressive <strong>Income Tax</strong> bands.<br/>
+        • Considers <strong>8% Class 1 NI</strong> deductions.<br/>
+        • Highlights actual in-the-pocket difference.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  function calcTakeHome(sal: number): number {
+    let pa = 12570;
+    if (sal > 100000) pa = Math.max(0, 12570 - Math.floor((sal - 100000) / 2));
+    let tax = 0;
+    if (sal > pa) {
+      const taxable = sal - pa;
+      const basicBand = Math.min(taxable, 37700);
+      tax += basicBand * 0.20;
+      if (taxable > 37700) {
+        const higherBand = Math.min(taxable - 37700, 74870);
+        tax += higherBand * 0.40;
+        if (taxable > 112570) tax += (taxable - 112570) * 0.45;
+      }
+    }
+    let ni = 0;
+    if (sal > 12570) {
+      const band = Math.min(sal, 50270) - 12570;
+      ni += band * 0.08;
+      if (sal > 50270) ni += (sal - 50270) * 0.02;
+    }
+    return sal - tax - ni;
+  }
+
+  const salaryAInput = document.getElementById('salaryAInput') as HTMLInputElement;
+  const salaryASlider = document.getElementById('salaryASlider') as HTMLInputElement;
+  const salaryAVal = document.getElementById('salaryAVal') as HTMLElement;
+  const salaryBInput = document.getElementById('salaryBInput') as HTMLInputElement;
+  const salaryBSlider = document.getElementById('salaryBSlider') as HTMLInputElement;
+  const salaryBVal = document.getElementById('salaryBVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const takeHomeADisplay = document.getElementById('takeHomeADisplay') as HTMLElement;
+  const takeHomeBDisplay = document.getElementById('takeHomeBDisplay') as HTMLElement;
+  const annualDiffDisplay = document.getElementById('annualDiffDisplay') as HTMLElement;
+
+  salaryAInput.addEventListener('input', () => {
+    const val = parseInputVal(salaryAInput.value);
+    salaryASlider.value = String(Math.min(150000, Math.max(15000, val)));
+    calculate();
+  });
+
+  salaryASlider.addEventListener('input', () => {
+    salaryAInput.value = salaryASlider.value;
+    calculate();
+  });
+
+  salaryBInput.addEventListener('input', () => {
+    const val = parseInputVal(salaryBInput.value);
+    salaryBSlider.value = String(Math.min(150000, Math.max(15000, val)));
+    calculate();
+  });
+
+  salaryBSlider.addEventListener('input', () => {
+    salaryBInput.value = salaryBSlider.value;
+    calculate();
+  });
+
+  function calculate() {
+    const salA = parseInputVal(salaryAInput.value);
+    const salB = parseInputVal(salaryBInput.value);
+
+    salaryAVal.textContent = formatCurrency(salA);
+    salaryBVal.textContent = formatCurrency(salB);
+
+    const netA = calcTakeHome(salA);
+    const netB = calcTakeHome(salB);
+    const diff = netB - netA;
+
+    mainResultDisplay.textContent = `${formatCurrency(diff)}/yr`;
+    subResultValue.textContent = `${formatCurrency(diff / 12)}/mo`;
+    takeHomeADisplay.textContent = formatCurrency(netA);
+    takeHomeBDisplay.textContent = formatCurrency(netB);
+    annualDiffDisplay.textContent = formatCurrency(diff);
+  }
+
+  calculate();
+</script>

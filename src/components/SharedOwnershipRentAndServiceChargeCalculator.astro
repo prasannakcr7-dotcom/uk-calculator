@@ -1,0 +1,120 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Full Property Market Value (£)</span></div>
+      <div class="amount-field"><input type="number" id="shared-full-market-value" value="300000" min="50000" step="10000" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Purchased Share Percentage (%)</span></div>
+      <select id="equity-share-pct">
+        <option value="25" selected>25% Share Purchased (75% Housing Association Unowned)</option>
+        <option value="40">40% Share Purchased (60% Unowned)</option>
+        <option value="50">50% Share Purchased (50% Unowned)</option>
+        <option value="75">75% Share Purchased (25% Unowned)</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Housing Association Annual Rent Rate (% of Unowned Share)</span></div>
+      <div class="amount-field"><input type="number" id="housing-assoc-rent-pct" value="2.75" min="1.0" max="5.0" step="0.05" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Mortgage Interest Rate on Owned Share (%)</span></div>
+      <div class="amount-field"><input type="number" id="shared-mortgage-rate" value="4.5" min="0.5" max="15" step="0.1" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Monthly Service Charge & Ground Rent (£)</span></div>
+      <div class="amount-field"><input type="number" id="monthly-service-charge-shared" value="160" min="0" step="10" /></div>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <h3>Shared Ownership Monthly Outlay Summary</h3>
+      <div class="breakdown-row net">
+        <span>Grand Total Combined Monthly Outlay:</span>
+        <strong id="shared-grand-total-monthly">£0.00 / month</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Housing Association Unowned Share Rent:</span>
+        <strong id="ha-rent-monthly-val">£0.00 / month</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Mortgage Repayment on Owned Share:</span>
+        <strong id="mortgage-repayment-monthly">£0.00 / month</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Service Charge & Management Fee:</span>
+        <strong id="service-charge-display">£0.00 / month</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Capital Value of Purchased Share:</span>
+        <strong id="purchased-share-value">£0.00</strong>
+      
+  </div>
+</div>
+
+<script>
+  function pmtr(r: number, n: number, p: number) {
+    if (r === 0) return p / n;
+    return (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+  }
+
+  function calculateSharedOwnership() {
+    const fullValue = parseFloat((document.getElementById('shared-full-market-value') as HTMLInputElement).value) || 0;
+    const sharePct = parseFloat((document.getElementById('equity-share-pct') as HTMLSelectElement).value) || 25;
+    const rentPct = parseFloat((document.getElementById('housing-assoc-rent-pct') as HTMLInputElement).value) || 2.75;
+    const ratePct = parseFloat((document.getElementById('shared-mortgage-rate') as HTMLInputElement).value) || 4.5;
+    const serviceCharge = parseFloat((document.getElementById('monthly-service-charge-shared') as HTMLInputElement).value) || 0;
+
+    const ownedValue = fullValue * (sharePct / 100);
+    const unownedValue = Math.max(0, fullValue - ownedValue);
+
+    // HA Annual Rent = unownedValue * (rentPct / 100)
+    const annualRent = unownedValue * (rentPct / 100);
+    const monthlyRent = annualRent / 12;
+
+    // Mortgage on owned share (assume 10% deposit, so loan is 90% of ownedValue, 25-yr term)
+    const loanP = ownedValue * 0.90;
+    const r = (ratePct / 100) / 12;
+    const n = 25 * 12;
+    const monthlyMortgage = pmtr(r, n, loanP);
+
+    const grandTotal = monthlyRent + monthlyMortgage + serviceCharge;
+
+    (document.getElementById('shared-grand-total-monthly') as HTMLElement).textContent = '£' + grandTotal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    (document.getElementById('ha-rent-monthly-val') as HTMLElement).textContent = '£' + monthlyRent.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month (' + rentPct + '% rate)';
+    (document.getElementById('mortgage-repayment-monthly') as HTMLElement).textContent = '£' + monthlyMortgage.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month (90% LTV)';
+    (document.getElementById('service-charge-display') as HTMLElement).textContent = '£' + serviceCharge.toFixed(2) + ' / month';
+    (document.getElementById('purchased-share-value') as HTMLElement).textContent = '£' + ownedValue.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' (' + sharePct + '% share)';
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateSharedOwnership);
+  calculateSharedOwnership();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

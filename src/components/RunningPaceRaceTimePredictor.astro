@@ -1,0 +1,146 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    <h2 class="calc-title">Running Pace & Race Finish Time Predictor (5k, 10k, Half & Full Marathon)</h2>
+    <p class="calc-desc">Calculate required running pace per km or per mile, predict race finish times using Riegel's formula, and split times for popular UK distance events.</p>
+
+    <div class="field-group">
+      <div class="field-label"><span>Select Race Event Distance</span></div>
+      <select id="race-distance-select">
+        <option value="5" selected>5k Parkrun (5 km / 3.1 miles)</option>
+        <option value="10">10k Race (10 km / 6.2 miles)</option>
+        <option value="21.0975">Half Marathon (21.1 km / 13.1 miles)</option>
+        <option value="42.195">Full London Marathon (42.2 km / 26.2 miles)</option>
+        <option value="custom">Custom Distance (km)</option>
+      </select>
+    </div>
+
+    <div class="field-group" id="group-custom-km" style="display: none;">
+      <div class="field-label"><span>Custom Distance (Kilometres)</span></div>
+      <div class="amount-field"><input type="number" id="custom-distance-km" value="15" min="0.5" step="0.5" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Target Time Hours</span></div>
+      <div class="amount-field"><input type="number" id="target-finish-hours" value="0" min="0" max="10" step="1" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Target Time Minutes</span></div>
+      <div class="amount-field"><input type="number" id="target-finish-minutes" value="25" min="0" max="59" step="1" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Target Time Seconds</span></div>
+      <div class="amount-field"><input type="number" id="target-finish-seconds" value="0" min="0" max="59" step="1" /></div>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <h3>Running Pace & Prediction Results</h3>
+      <div class="breakdown-row net">
+        <span>Required Pace Per Kilometre:</span>
+        <strong id="pace-per-km-val">0:00 / km</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Required Pace Per Mile:</span>
+        <strong id="pace-per-mile-val">0:00 / mile</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Average Speed (km/h & mph):</span>
+        <strong id="speed-kph-mph">0.0 km/h (0.0 mph)</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Riegel's Predicted 10k Finish Time:</span>
+        <strong id="riegel-10k-prediction">00:00:00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Riegel's Predicted Half Marathon Time:</span>
+        <strong id="riegel-half-prediction">00:00:00</strong>
+      
+  </div>
+</div>
+
+<script>
+  function toggleCustomKm() {
+    const distChoice = (document.getElementById('race-distance-select') as HTMLSelectElement).value;
+    const customGroup = document.getElementById('group-custom-km') as HTMLElement;
+    if (distChoice === 'custom') {
+      customGroup.style.display = 'block';
+    } else {
+      customGroup.style.display = 'none';
+    }
+  }
+
+  function formatTime(totalSec: number) {
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = Math.floor(totalSec % 60);
+
+    const mm = m.toString().padStart(2, '0');
+    const ss = s.toString().padStart(2, '0');
+    if (h > 0) {
+      return `${h}:${mm}:${ss}`;
+    }
+    return `${m}:${ss}`;
+  }
+
+  function calculateRunningPace() {
+    const distChoice = (document.getElementById('race-distance-select') as HTMLSelectElement).value;
+    const customKm = parseFloat((document.getElementById('custom-distance-km') as HTMLInputElement).value) || 10;
+    const h = parseInt((document.getElementById('target-finish-hours') as HTMLInputElement).value) || 0;
+    const m = parseInt((document.getElementById('target-finish-minutes') as HTMLInputElement).value) || 0;
+    const s = parseInt((document.getElementById('target-finish-seconds') as HTMLInputElement).value) || 0;
+
+    let distKm = 5;
+    if (distChoice === 'custom') distKm = customKm;
+    else distKm = parseFloat(distChoice);
+
+    const totalSeconds = (h * 3600) + (m * 60) + s;
+    if (totalSeconds <= 0 || distKm <= 0) return;
+
+    const secPerKm = totalSeconds / distKm;
+    const distMiles = distKm / 1.609344;
+    const secPerMile = totalSeconds / distMiles;
+
+    const kph = distKm / (totalSeconds / 3600);
+    const mph = distMiles / (totalSeconds / 3600);
+
+    // Riegel's Formula: T2 = T1 * (D2 / D1)^1.06
+    // Predict 10k from current distKm
+    const t2_10k_sec = totalSeconds * Math.pow(10 / distKm, 1.06);
+    // Predict Half Marathon (21.0975km)
+    const t2_half_sec = totalSeconds * Math.pow(21.0975 / distKm, 1.06);
+
+    (document.getElementById('pace-per-km-val') as HTMLElement).textContent = formatTime(secPerKm) + ' / km';
+    (document.getElementById('pace-per-mile-val') as HTMLElement).textContent = formatTime(secPerMile) + ' / mile';
+    (document.getElementById('speed-kph-mph') as HTMLElement).textContent = kph.toFixed(1) + ' km/h (' + mph.toFixed(1) + ' mph)';
+    (document.getElementById('riegel-10k-prediction') as HTMLElement).textContent = formatTime(t2_10k_sec);
+    (document.getElementById('riegel-half-prediction') as HTMLElement).textContent = formatTime(t2_half_sec);
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('race-distance-select')?.addEventListener('change', toggleCustomKm);
+  document.getElementById('calc-btn')?.addEventListener('click', calculateRunningPace);
+  calculateRunningPace();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

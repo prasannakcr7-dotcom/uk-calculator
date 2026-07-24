@@ -1,0 +1,96 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Previous Tax Year Total Self-Assessment Liability (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="prev-year-tax-bill" value="6500" min="0" step="500" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Payments on Account Already Paid for Current Year (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="poa-already-paid" value="3250" min="0" step="250" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>HMRC Payment on Account Schedule</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>First Payment on Account (Due 31 January)</span>
+          <strong id="poa-first-installment">£3,250.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Second Payment on Account (Due 31 July)</span>
+          <strong id="poa-second-installment">£3,250.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Balancing Payment / Adjustment (Due 31 January following)</span>
+          <strong id="balancing-payment-due">£0.00</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Total Combined 31 January Outlay</span>
+          <strong id="january-31-total-outlay">£6,500.00</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="impuestos" />
+  </div>
+</div>
+
+<script>
+  function calculatePaymentOnAccount() {
+    const prevBillEl = document.getElementById('prev-year-tax-bill') as HTMLInputElement;
+    const paidEl = document.getElementById('poa-already-paid') as HTMLInputElement;
+
+    if (!prevBillEl || !paidEl) return;
+
+    const prevBill = parseFloat(prevBillEl.value) || 0;
+    const paid = parseFloat(paidEl.value) || 0;
+
+    // HMRC Rules:
+    // If tax bill > £1,000 and < 80% collected via PAYE:
+    // Each POA = 50% of previous year's bill.
+    const poaEach = prevBill * 0.50;
+    const balancingPayment = Math.max(0, prevBill - paid);
+    const jan31Total = balancingPayment + poaEach;
+
+    const firstEl = document.getElementById('poa-first-installment');
+    const secondEl = document.getElementById('poa-second-installment');
+    const balanceEl = document.getElementById('balancing-payment-due');
+    const janTotalEl = document.getElementById('january-31-total-outlay');
+
+    if (firstEl) firstEl.textContent = '£' + poaEach.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (secondEl) secondEl.textContent = '£' + poaEach.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (balanceEl) balanceEl.textContent = '£' + balancingPayment.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (janTotalEl) janTotalEl.textContent = '£' + jan31Total.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['prev-year-tax-bill', 'poa-already-paid'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculatePaymentOnAccount);
+    document.getElementById(id)?.addEventListener('change', calculatePaymentOnAccount);
+  });
+  calculatePaymentOnAccount();
+</script>

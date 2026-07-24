@@ -1,0 +1,88 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Carer's Allowance Supplement (Scotland) Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Social Security Scotland Qualifying Date Eligibility</span></div>
+        <select id="scotland-qualifying-status" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="both" selected>Qualifying for Both June & December Payments</option>
+          <option value="single">Qualifying for One Payment Date Only</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--social-1), var(--social-2) 80%);">
+      <div class="result-label">Annual Scottish Carer's Supplement Total</div>
+      <div class="result-amount"><span id="mainResultDisplay">£577.00 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Lump Sum Payments Per Year:</span>
+        <span class="val" id="subResultValue">2 Payments of £288.50</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Supplement Payment Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>June Lump Sum Payment</span>
+          <span class="val" id="junePaymentDisplay">£288.50</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>December Lump Sum Payment</span>
+          <span class="val" id="decemberPaymentDisplay">£288.50</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Extra Scottish Government Grant</span>
+          <span class="val" id="totalScottishSupplementDisplay" style="font-weight: 700; font-size: 18px;">£577.00 / year</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="social" />
+  </div>
+</div>
+
+<script>
+  function calculateScottishCarerSupplement() {
+    const statusEl = document.getElementById('scotland-qualifying-status') as HTMLSelectElement;
+    if (!statusEl) return;
+
+    const isBoth = statusEl.value === 'both';
+    const singlePayment = 288.50;
+    const total = isBoth ? singlePayment * 2 : singlePayment;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const juneRes = document.getElementById('junePaymentDisplay');
+    const decRes = document.getElementById('decemberPaymentDisplay');
+    const totalRes = document.getElementById('totalScottishSupplementDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + total.toFixed(2) + ' / year';
+    if (subVal) subVal.textContent = isBoth ? '2 Payments of £288.50' : '1 Payment of £288.50';
+    if (juneRes) juneRes.textContent = '£' + singlePayment.toFixed(2);
+    if (decRes) decRes.textContent = isBoth ? '£' + singlePayment.toFixed(2) : '£0.00 (Ineligible)';
+    if (totalRes) totalRes.textContent = '£' + total.toFixed(2) + ' / year';
+  }
+
+  const selectEl = document.getElementById('scotland-qualifying-status');
+  selectEl?.addEventListener('input', calculateScottishCarerSupplement);
+  selectEl?.addEventListener('change', calculateScottishCarerSupplement);
+  calculateScottishCarerSupplement();
+</script>

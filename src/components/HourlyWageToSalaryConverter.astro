@@ -1,0 +1,119 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Hourly Wage Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Hourly Pay Rate (£/hour)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="hourly-pay-rate" value="15.50" min="5" step="0.5" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Hours Worked Per Week</span></div>
+        <div class="amount-field">
+          <input type="number" id="hours-worked-per-week" value="37.5" min="1" max="80" step="0.5" />
+          <span class="cur">hrs/wk</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Paid Weeks Per Year (52 Weeks Standard)</span></div>
+        <div class="amount-field">
+          <input type="number" id="paid-weeks-per-year" value="52" min="1" max="52" step="1" />
+          <span class="cur">wks/yr</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--work-1), var(--work-2) 80%);">
+      <div class="result-label">Equivalent Annual Gross Salary</div>
+      <div class="result-amount"><span id="mainResultDisplay">£30,225.00 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Monthly Gross Pay Equivalent:</span>
+        <span class="val" id="subResultValue">£2,518.75 / month</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Equivalent Pay Period Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Daily Earnings (7.5 hrs/day)</span>
+          <span class="val" id="grossDailyEarningsDisplay">£116.25 / day</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Gross Weekly Earnings (37.5 hrs/wk)</span>
+          <span class="val" id="grossWeeklyEarningsDisplay">£581.25 / week</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Gross Monthly Earnings (1/12th Year)</span>
+          <span class="val" id="grossMonthlyEarningsDisplay">£2,518.75 / month</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Equivalent Annual Gross Salary</span>
+          <span class="val" id="grossAnnualSalaryDisplay" style="font-weight: 700; font-size: 18px;">£30,225.00 / year</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="trabajo" />
+  </div>
+</div>
+
+<script>
+  function calculateHourlyToSalary() {
+    const rateEl = document.getElementById('hourly-pay-rate') as HTMLInputElement;
+    const hoursEl = document.getElementById('hours-worked-per-week') as HTMLInputElement;
+    const weeksEl = document.getElementById('paid-weeks-per-year') as HTMLInputElement;
+
+    if (!rateEl || !hoursEl || !weeksEl) return;
+
+    const rate = parseFloat(rateEl.value) || 0;
+    const hours = parseFloat(hoursEl.value) || 37.5;
+    const weeks = parseFloat(weeksEl.value) || 52;
+
+    const daily = rate * (hours / 5);
+    const weekly = rate * hours;
+    const annual = weekly * weeks;
+    const monthly = annual / 12;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const dailyRes = document.getElementById('grossDailyEarningsDisplay');
+    const weekRes = document.getElementById('grossWeeklyEarningsDisplay');
+    const monthRes = document.getElementById('grossMonthlyEarningsDisplay');
+    const annualRes = document.getElementById('grossAnnualSalaryDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + annual.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (subVal) subVal.textContent = '£' + monthly.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (dailyRes) dailyRes.textContent = '£' + daily.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / day';
+    if (weekRes) weekRes.textContent = '£' + weekly.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / week';
+    if (monthRes) monthRes.textContent = '£' + monthly.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (annualRes) annualRes.textContent = '£' + annual.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+  }
+
+  ['hourly-pay-rate', 'hours-worked-per-week', 'paid-weeks-per-year'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateHourlyToSalary);
+    document.getElementById(id)?.addEventListener('change', calculateHourlyToSalary);
+  });
+  calculateHourlyToSalary();
+</script>

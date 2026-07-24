@@ -1,0 +1,110 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>NI Marginal Transition Zone Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Annual Gross Salary (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="transition-gross-salary" value="48000" min="10000" step="1000" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">Marginal Combined Tax + NI Rate</div>
+      <div class="result-amount"><span id="mainResultDisplay">28.0% Marginal Rate</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Upper Earnings Limit (UEL) Distance:</span>
+        <span class="val" id="subResultValue">£2,270.00 Under £50,270 UEL</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Marginal Rates & Transition Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Income Tax Marginal Rate</span>
+          <span class="val" id="incomeTaxRateDisplay">20.0% (Basic Rate)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Class 1 Primary NI Marginal Rate</span>
+          <span class="val" id="niRateDisplay">8.0% (Primary Rate)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Transition Zone Status</span>
+          <span class="val" id="transitionStatusDisplay">Basic Rate + 8% NI Zone</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Combined Marginal Deduction Rate</span>
+          <span class="val" id="combinedMarginalRateDisplay" style="font-weight: 700; font-size: 18px;">28.0% (72.0% Net Retention)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="impuestos" />
+  </div>
+</div>
+
+<script>
+  function calculateTransitionZone() {
+    const salaryEl = document.getElementById('transition-gross-salary') as HTMLInputElement;
+    if (!salaryEl) return;
+
+    const salary = parseFloat(salaryEl.value) || 0;
+    const uel = 50270;
+
+    let incomeTaxRate = 0.20;
+    let niRate = 0.08;
+
+    if (salary > 125140) {
+      incomeTaxRate = 0.45;
+      niRate = 0.02;
+    } else if (salary > 50270) {
+      incomeTaxRate = 0.40;
+      niRate = 0.02;
+    } else if (salary <= 12570) {
+      incomeTaxRate = 0.0;
+      niRate = 0.0;
+    }
+
+    const combined = incomeTaxRate + niRate;
+    const distanceToUel = uel - salary;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const taxRes = document.getElementById('incomeTaxRateDisplay');
+    const niRes = document.getElementById('niRateDisplay');
+    const statusRes = document.getElementById('transitionStatusDisplay');
+    const combinedRes = document.getElementById('combinedMarginalRateDisplay');
+
+    if (mainRes) mainRes.textContent = (combined * 100).toFixed(1) + '% Marginal Rate';
+    if (subVal) subVal.textContent = distanceToUel >= 0 ? '£' + distanceToUel.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Under £50.27k UEL' : '£' + Math.abs(distanceToUel).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Over £50.27k UEL';
+    if (taxRes) taxRes.textContent = (incomeTaxRate * 100).toFixed(1) + '%';
+    if (niRes) niRes.textContent = (niRate * 100).toFixed(1) + '%';
+    if (statusRes) statusRes.textContent = salary > 50270 ? 'Higher Rate (40% Tax + 2% NI)' : 'Basic Rate (20% Tax + 8% NI)';
+    if (combinedRes) combinedRes.textContent = (combined * 100).toFixed(1) + `% (${((1 - combined)*100).toFixed(1)}% Net Retention)`;
+  }
+
+  const salaryInput = document.getElementById('transition-gross-salary');
+  salaryInput?.addEventListener('input', calculateTransitionZone);
+  salaryInput?.addEventListener('change', calculateTransitionZone);
+  calculateTransitionZone();
+</script>

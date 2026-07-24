@@ -1,0 +1,209 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label">
+          <span>Vehicle Type Used for Business Travel</span>
+        </div>
+        <select id="vehicle-type-amap" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="car_van" selected>Car or Light Commercial Van</option>
+          <option value="motorcycle">Motorcycle / Motorbike</option>
+          <option value="bicycle">Bicycle / Pushbike</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">
+          <span>Total Business Miles Driven in Tax Year</span>
+        </div>
+        <div class="amount-field" style="margin-top: 0; margin-bottom: 0;">
+          <input type="number" id="annual-business-miles" value="12500" min="1" step="500" />
+          <span class="cur">mi</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">
+          <span>Employer Payment Rate (Pence Per Mile - e.g. 45p or 0p)</span>
+        </div>
+        <div class="amount-field" style="margin-top: 0; margin-bottom: 0;">
+          <input type="number" id="employer-reimbursement-rate" value="30" min="0" max="100" step="1" />
+          <span class="cur">p</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">
+          <span>Your Personal Tax Bracket</span>
+        </div>
+        <select id="tax-bracket-amap" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="0.20" selected>Basic Rate (20%)</option>
+          <option value="0.40">Higher Rate (40%)</option>
+          <option value="0.45">Additional Rate (45%)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>HMRC AMAP & Tax Relief Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Maximum Tax-Free AMAP Allowance</span>
+          <strong id="max-tax-free-amap">£0.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Total Employer Payments Received</span>
+          <strong id="employer-paid-total">£0.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Unreimbursed Mileage Balance</span>
+          <strong id="unreimbursed-amap-balance">£0.00</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>HMRC Tax Relief Refund Claim Value</span>
+          <strong id="hmrc-tax-refund-val">£0.00</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>
+
+<script>
+  function calculateAmap() {
+    const vType = (document.getElementById('vehicle-type-amap') as HTMLSelectElement).value;
+    const miles = parseFloat((document.getElementById('annual-business-miles') as HTMLInputElement).value) || 0;
+    const employerRatePence = parseFloat((document.getElementById('employer-reimbursement-rate') as HTMLInputElement).value) || 0;
+    const taxRate = parseFloat((document.getElementById('tax-bracket-amap') as HTMLSelectElement).value) || 0.20;
+
+    let maxAllowedPounds = 0;
+
+    if (vType === 'car_van') {
+      const first10k = Math.min(10000, miles);
+      const excess10k = Math.max(0, miles - 10000);
+      maxAllowedPounds = (first10k * 0.45) + (excess10k * 0.25);
+    } else if (vType === 'motorcycle') {
+      maxAllowedPounds = miles * 0.24;
+    } else if (vType === 'bicycle') {
+      maxAllowedPounds = miles * 0.20;
+    }
+
+    const employerPaidPounds = miles * (employerRatePence / 100);
+    const shortfallPounds = Math.max(0, maxAllowedPounds - employerPaidPounds);
+    const taxRefundPounds = shortfallPounds * taxRate;
+
+    (document.getElementById('max-tax-free-amap') as HTMLElement).textContent = '£' + maxAllowedPounds.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('employer-paid-total') as HTMLElement).textContent = '£' + employerPaidPounds.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('unreimbursed-amap-balance') as HTMLElement).textContent = '£' + shortfallPounds.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('hmrc-tax-refund-val') as HTMLElement).textContent = '£' + taxRefundPounds.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateAmap);
+  calculateAmap();
+</script>
+
+<style>
+  .calculator-container {
+    width: 100%;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  .calculator-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e5e7eb;
+  }
+  .calc-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 8px;
+  }
+  .calc-desc {
+    color: #4b5563;
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+  }
+  .input-group {
+    margin-bottom: 16px;
+  }
+  .input-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #374151;
+    font-size: 0.9rem;
+  }
+  .input-group input, .input-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+  .calc-button {
+    width: 100%;
+    background-color: #2563eb;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.2s;
+  }
+  .calc-button:hover {
+    background-color: #1d4ed8;
+  }
+  .results-card {
+    margin-top: 24px;
+    padding: 18px;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border-radius: 8px;
+    border: 1px solid #bfdbfe;
+  }
+  .results-card h3 {
+    margin-top: 0;
+    color: #1e40af;
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+  }
+  .result-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #93c5fd;
+    color: #1e3a8a;
+    font-size: 0.95rem;
+  }
+  .result-item:last-child {
+    border-bottom: none;
+  }
+  .result-item.highlight {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #1e40af;
+  }
+</style>

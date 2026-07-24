@@ -1,0 +1,413 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+import Layout from '../layouts/Layout.astro';
+import { categoryHubContent } from '../data/categoryHubContent';
+import NationFlagIcon from '../components/NationFlagIcon.astro';
+
+type CategoryKey = 'work' | 'taxes' | 'family' | 'housing' | 'mobility' | 'health' | 'social' | 'finance' | 'alltag';
+
+export async function getStaticPaths() {
+  return [
+    { params: { category: 'work-and-salary' }, props: { key: 'work' as CategoryKey, title: 'Work & Salary', icon: '💼', dotClass: 'work', desc: 'Manage your pay, income tax, NI contributions, overtime, and work benefits.' } },
+    { params: { category: 'taxes-and-fees' }, props: { key: 'taxes' as CategoryKey, title: 'Taxes & Duties', icon: '🧾', dotClass: 'taxes', desc: 'Calculate VAT, Stamp Duty, capital gains, and self-assessment tax obligations.' } },
+    { params: { category: 'family-and-maternity' }, props: { key: 'family' as CategoryKey, title: 'Family & Children', icon: '👶', dotClass: 'family', desc: 'Plan maternity pay, child maintenance, and statutory family allowances.' } },
+    { params: { category: 'housing-and-rent' }, props: { key: 'housing' as CategoryKey, title: 'Housing & Property', icon: '🏠', dotClass: 'housing', desc: 'Estimate mortgage payments, landlord tax, rental yields, and property values.' } },
+    { params: { category: 'mobility-and-vehicles' }, props: { key: 'mobility' as CategoryKey, title: 'Car & Mobility', icon: '🚗', dotClass: 'mobility', desc: 'Calculate vehicle taxation, company car tax, fuel usage, and business mileage.' } },
+    { params: { category: 'health-and-wellbeing' }, props: { key: 'health' as CategoryKey, title: 'Health & Fitness', icon: '❤️', dotClass: 'health', desc: 'Assess body mass index, daily calorie requirements, and healthy lifestyles.' } },
+    { params: { category: 'social-and-benefits' }, props: { key: 'social' as CategoryKey, title: 'Benefits & Pensions', icon: '🛡️', dotClass: 'social', desc: 'Estimate universal credit eligibility, state pension forecasts, and redundancy relief.' } },
+    { params: { category: 'finance-and-credit' }, props: { key: 'finance' as CategoryKey, title: 'Finance & Savings', icon: '📈', dotClass: 'finance', desc: 'Compare credit costs, loan options, compound interest returns, and savings schemes.' } },
+    { params: { category: 'daily-life' }, props: { key: 'alltag' as CategoryKey, title: 'Everyday & School/College', icon: '☀️', dotClass: 'reside', desc: 'Calculate everyday units, tuition costs, student budgets, and lifestyle metrics.' } },
+  ];
+}
+
+const { category } = Astro.params;
+const { key, title, icon, dotClass, desc } = Astro.props;
+
+interface CalculatorItem {
+  name: string;
+  slug: string;
+  urlPath: string;
+  category: CategoryKey;
+  emoji: string;
+  desc: string;
+  isDevolved: boolean;
+  isCompleted: boolean;
+}
+
+const fallbackEmojis: Record<CategoryKey, string[]> = {
+  work: ['💶', '⏱️', '📦', '🧾', '📅', '🏛️', '🌙', '🧮'],
+  taxes: ['📊', '🧾', '🏛️', '🎁', '🏘️', '🚘', '💼', '📈'],
+  family: ['🤱', '👶', '👪', '🎒', '🧸', '📅', '⚖️', '🏫'],
+  housing: ['🏦', '🏠', '🔑', '📐', '🧱', '☀️', '🎨', '🧰'],
+  mobility: ['🚗', '⛽', '🔌', '🚲', '🚨', '🛞', '🅿️', '⚡'],
+  health: ['⚖️', '❤️', '🔥', '🩺', '💧', '🏃', '😴', '🧬'],
+  social: ['🛡️', '💶', '👵', '📋', '🎓', '🏡', '🌾', '📆'],
+  finance: ['💳', '📈', '🏦', '🪙', '📉', '🎯', '💱', '🧾'],
+  alltag: ['🧮', '🏷️', '🎓', '📅', '📏', '🎁', '🔐', '✈️'],
+};
+
+function describeUK(title: string) {
+  const lower = title.toLowerCase();
+  if (lower.includes('tax') || lower.includes('vat')) return 'Estimate the tax amount, filing impact, and taxable thresholds.';
+  if (lower.includes('salary') || lower.includes('wage')) return 'Break down pay figures, national insurance, and take-home pay.';
+  if (lower.includes('mortgage') || lower.includes('loan')) return 'Compare monthly payments, interest rates, and loan terms.';
+  if (lower.includes('rent') || lower.includes('property') || lower.includes('housing')) return 'Calculate property tax, landlord yields, and housing costs.';
+  if (lower.includes('car') || lower.includes('vehicle') || lower.includes('mileage')) return 'Estimate vehicle costs, fuel consumption, or mileage allowance.';
+  if (lower.includes('child') || lower.includes('maternity') || lower.includes('parental')) return 'Calculate benefits, statutory pay, or maintenance obligations.';
+  if (lower.includes('bmi') || lower.includes('calorie') || lower.includes('health')) return 'Assess fitness metrics with standard health calculators.';
+  if (lower.includes('interest') || lower.includes('savings')) return 'Model compound growth, returns, and financial planning.';
+  return 'Get a quick, focused estimate with the relevant UK inputs and parameters.';
+}
+
+import { getCollection } from 'astro:content';
+
+function normalizeCategoryKey(rawCat: string): CategoryKey {
+  const cat = (rawCat || '').toLowerCase().trim();
+  if (cat === 'trabajo' || cat === 'work') return 'work';
+  if (cat === 'impuestos' || cat === 'taxes') return 'taxes';
+  if (cat === 'familia' || cat === 'family') return 'family';
+  if (cat === 'vivienda' || cat === 'housing') return 'housing';
+  if (cat === 'movilidad' || cat === 'mobility') return 'mobility';
+  if (cat === 'salud' || cat === 'health') return 'health';
+  if (cat === 'social' || cat === 'benefits') return 'social';
+  if (cat === 'finanzas' || cat === 'finance') return 'finance';
+  if (cat === 'alltag' || cat === 'everyday' || cat === 'reside') return 'alltag';
+  return 'work';
+}
+
+const allCalcEntries = await getCollection('calculators');
+
+const calculators: CalculatorItem[] = allCalcEntries
+  .filter(entry => normalizeCategoryKey(entry.data.category) === key)
+  .map((entry, idx) => {
+    const slug = entry.id.split('/').pop()?.replace(/\.(md|mdx)$/, '') || entry.id;
+    let displayName = entry.data.title;
+    displayName = displayName.replace(/\s*UK\s*2026\/27.*$/i, '');
+    displayName = displayName.replace(/\s*—.*$/, '');
+    displayName = displayName.trim();
+
+    return {
+      name: displayName,
+      slug,
+      urlPath: `/${slug}`,
+      category: key,
+      emoji: fallbackEmojis[key][idx % fallbackEmojis[key].length],
+      desc: entry.data.description,
+      isDevolved: !!entry.data.isDevolved,
+      isCompleted: true
+    };
+  });
+const content = categoryHubContent[key]?.default || categoryHubContent['work'].default;
+
+// Map categories for dynamic colors matching global.css variables
+const categoryMeta: Record<CategoryKey, { color1: string; color2: string; soft: string }> = {
+  work:    { color1: 'var(--work-1)', color2: 'var(--work-2)', soft: 'var(--work-soft)' },
+  taxes:   { color1: 'var(--taxes-1)', color2: 'var(--taxes-2)', soft: 'var(--taxes-soft)' },
+  family:  { color1: 'var(--family-1)', color2: 'var(--family-2)', soft: 'var(--family-soft)' },
+  housing: { color1: 'var(--housing-1)', color2: 'var(--housing-2)', soft: 'var(--housing-soft)' },
+  social:  { color1: 'var(--social-1)', color2: 'var(--social-2)', soft: 'var(--social-soft)' },
+  health:  { color1: 'var(--health-1)', color2: 'var(--health-2)', soft: 'var(--health-soft)' },
+  mobility:{ color1: 'var(--mobility-1)', color2: 'var(--mobility-2)', soft: 'var(--mobility-soft)' },
+  finance: { color1: 'var(--finance-1)', color2: 'var(--finance-2)', soft: 'var(--finance-soft)' },
+  alltag:  { color1: 'var(--reside-1)', color2: 'var(--reside-2)', soft: 'var(--reside-soft)' },
+};
+
+const meta = categoryMeta[key];
+const cssVars = [
+  `--cat-1:${meta.color1}`,
+  `--cat-2:${meta.color2}`,
+  `--cat-soft:${meta.soft}`,
+].join(';');
+
+const allCategoryLinks = [
+  { key: 'work',    emoji: '💼', label: 'Work & Salary',        slug: '/work-and-salary/' },
+  { key: 'taxes',   emoji: '🧾', label: 'Taxes & Duties',       slug: '/taxes-and-fees/' },
+  { key: 'family',  emoji: '👶', label: 'Family & Children',     slug: '/family-and-maternity/' },
+  { key: 'housing', emoji: '🏠', label: 'Housing & Property',     slug: '/housing-and-rent/' },
+  { key: 'mobility',emoji: '🚗', label: 'Car & Mobility',        slug: '/mobility-and-vehicles/' },
+  { key: 'health',  emoji: '❤️', label: 'Health & Wellbeing',     slug: '/health-and-wellbeing/' },
+  { key: 'social',  emoji: '🛡️', label: 'Benefits & Pensions',   slug: '/social-and-benefits/' },
+  { key: 'finance', emoji: '📈', label: 'Finance & Savings',     slug: '/finance-and-credit/' },
+  { key: 'alltag',  emoji: '☀️', label: 'Everyday & College',      slug: '/daily-life/' },
+];
+
+const otherCategories = allCategoryLinks.filter(c => c.key !== key);
+---
+
+<Layout 
+  title={`${title} Calculators UK — 2026/27`} 
+  description={`${desc} Accurate, free calculators tailored for UK regions.`}
+>
+  <div style={cssVars}>
+    <!-- BREADCRUMBS -->
+    <div class="ch-crumb">
+      <a href="/">Home</a>
+      <span class="ch-sep">›</span>
+      <span class="ch-cur">{title}</span>
+    </div>
+
+    <!-- HERO BANNER -->
+    <div class="ch-hero">
+      <div class="ch-hero-inner">
+        <a href="/calculators/" class="ch-hero-back">‹ All calculators</a>
+        <span class="ch-hero-emoji">{icon}</span>
+        <h1>{title}</h1>
+        <p class="ch-sub">{desc}</p>
+
+        <!-- REGION SELECTOR TABS EMBEDDED IN HERO GRADIENT -->
+        <div style="margin-top: 24px; display: flex; gap: 8px; flex-wrap: wrap;" id="categoryRegionTabs">
+          <button class="tab-btn active" data-nation="all"><NationFlagIcon nation="uk" width="18px" height="12px" /> UK Wide</button>
+          <button class="tab-btn" data-nation="england"><NationFlagIcon nation="england" width="18px" height="12px" /> England</button>
+          <button class="tab-btn" data-nation="scotland"><NationFlagIcon nation="scotland" width="18px" height="12px" /> Scotland</button>
+          <button class="tab-btn" data-nation="wales"><NationFlagIcon nation="wales" width="18px" height="12px" /> Wales</button>
+          <button class="tab-btn" data-nation="northern-ireland"><NationFlagIcon nation="northern-ireland" width="18px" height="12px" /> N. Ireland</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOCALIZATION ALERT BANNER -->
+    <div id="localizationAlert" class="hidden" style="max-width: 1400px; margin: 16px auto 0; padding: 0 48px; box-sizing: border-box;">
+      <div style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; border-radius: 12px; padding: 12px 16px; font-size: 13.5px; font-weight: 500; display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 18px;">ℹ️</span>
+        <span id="localizationAlertText">Showing calculators for Scotland. Regional tools will automatically use Scottish rates and rules.</span>
+      </div>
+    </div>
+
+    <!-- DUAL COLUMN BODY -->
+    <div class="ch-body">
+      <!-- LEFT SIDEBAR -->
+      <aside class="ch-sidebar">
+        <div class="ch-sidebar-sticky">
+          <div class="ch-side-section">
+            <div class="ch-side-label">On this page</div>
+            <a href="#intro" class="ch-side-link ch-side-active">
+              <span class="ch-dot"></span> Overview
+            </a>
+            <a href="#calculators" class="ch-side-link">
+              <span class="ch-dot"></span> Calculators
+            </a>
+            <a href="#tips" class="ch-side-link">
+              <span class="ch-dot"></span> Tips & Mistakes
+            </a>
+            <a href="#figures" class="ch-side-link">
+              <span class="ch-dot"></span> Key Figures
+            </a>
+            <a href="#faq" class="ch-side-link">
+              <span class="ch-dot"></span> FAQ
+            </a>
+            <a href="#sources" class="ch-side-link">
+              <span class="ch-dot"></span> Sources
+            </a>
+          </div>
+
+          {otherCategories.length > 0 && (
+            <div class="ch-side-section ch-side-other">
+              <div class="ch-side-label">Other categories</div>
+              {otherCategories.map(c => (
+                <a href={c.slug} class="ch-side-link">
+                  <span class="ch-cat-ico">{c.emoji}</span>
+                  {c.label}
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      </aside>
+
+      <!-- RIGHT MAIN CONTENT -->
+      <main class="ch-main">
+        <!-- 1. INTRO CARD -->
+        <section id="intro" class="ch-card ch-intro-card">
+          <h2>{content.introTitle}</h2>
+          <Fragment set:html={content.introHtml} />
+        </section>
+
+        <!-- 2. CALCULATORS GRID -->
+        <div id="calculators" class="ch-sec-head">
+          <h2>All {title} Calculators</h2>
+          <span class="ch-count">{calculators.length} calculators</span>
+        </div>
+        
+        <div class="ch-calc-grid">
+          {calculators.map(c => {
+            const targetUrl = c.isDevolved ? `/${c.slug}/england/` : `/${c.slug}/`;
+            return (
+              <a 
+                href={c.isCompleted ? targetUrl : '#'} 
+                class={`ch-calc-card ${c.isCompleted ? '' : 'disabled'}`} 
+                data-devolved={c.isDevolved ? "true" : "false"} 
+                data-slug={c.slug}
+                style={c.isCompleted ? '' : 'opacity: 0.65; pointer-events: none; cursor: default;'}
+              >
+                <span class="ch-calc-ico">{c.emoji}</span>
+                <div class="ch-calc-body">
+                  <h3>{c.name} {!c.isCompleted && <span class="badge" style="margin-left: 6px;">Soon</span>}</h3>
+                  <p>{c.desc}</p>
+                </div>
+                <span class="ch-arr">→</span>
+              </a>
+            );
+          })}
+        </div>
+
+        <!-- 3. TIPS CARD -->
+        <section id="tips" class="ch-card ch-tips-card">
+          <h2>{content.tipsTitle}</h2>
+          {content.tips.map(t => (
+            <div class="ch-tip">
+              <div class="ch-tip-ico">{t.icon}</div>
+              <div>
+                <h4>{t.title}</h4>
+                <p set:html={t.body}></p>
+              </div>
+            </div>
+          ))}
+        </section>
+
+        <!-- 4. KEY FIGURES CARD -->
+        <section id="figures" class="ch-card ch-figures-card">
+          <h2>{content.figuresTitle}</h2>
+          <div class="ch-changes-grid">
+            {content.figureGroups.map(fg => (
+              <div class={`ch-change-block ${fg.isHighlighted ? 'ch-block-good' : ''}`}>
+                <h4 class={fg.isHighlighted ? 'ch-label-cat' : ''}>{fg.label}</h4>
+                {fg.items.map(item => (
+                  <div class="ch-change-item">
+                    <span>{item.term}:</span>
+                    <span class="ch-bl">{item.value}</span>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <!-- 5. FAQ CARD -->
+        <section id="faq" class="ch-card ch-faq-card">
+          <h2>{content.faqTitle}</h2>
+          {content.faq.map(item => (
+            <div class="ch-faq-item">
+              <h4>{item.question}</h4>
+              <p set:html={item.answer}></p>
+            </div>
+          ))}
+        </section>
+
+        <!-- 6. SOURCES CARD -->
+        <section id="sources" class="ch-sources-card">
+          <div class="ch-sources-lbl">{content.sourcesTitle}</div>
+          {content.sources.map(s => (
+            <a href={s.url} class="ch-src-link" target="_blank" rel="noopener noreferrer">
+              ↗ {s.label}
+            </a>
+          ))}
+        </section>
+      </main>
+    </div>
+  </div>
+</Layout>
+
+<script is:inline>
+  // Client-side Nation Filter Logic & Scroll Highlight
+  const regionTabs = document.querySelectorAll('#categoryRegionTabs button');
+  const calcRows = document.querySelectorAll('.ch-calc-card');
+  const alertBanner = document.getElementById('localizationAlert');
+  const alertText = document.getElementById('localizationAlertText');
+
+  const countries = {
+    england: { name: 'England', flagHtml: '<svg width="18" height="12" viewBox="0 0 36 36" style="border-radius:2px; vertical-align:middle; display:inline-block; margin-right:4px;"><path fill="#EEE" d="M32 5H4a4 4 0 0 0-4 4v18a4 4 0 0 0 4 4h28a4 4 0 0 0 4-4V9a4 4 0 0 0-4-4z"/><path fill="#CE1124" d="M21 5h-6v10H0v6h15v10h6V21h15v-6H21z"/></svg>' },
+    scotland: { name: 'Scotland', flagHtml: '<svg width="18" height="12" viewBox="0 0 36 36" style="border-radius:2px; vertical-align:middle; display:inline-block; margin-right:4px;"><path fill="#EEE" d="M32 5H4a4 4 0 0 0-4 4v18a4 4 0 0 0 4 4h28a4 4 0 0 0 4-4V9a4 4 0 0 0-4-4z"/><path d="M13 18S0 8.586 0 8.895v18.21C0 27.414 13 18 13 18zm5 3S3.697 31 4.07 31h27.859C32.303 31 18 21 18 21zm5-3s13 9.414 13 9.105V8.895C36 8.586 23 18 23 18zm-5-3S3.697 5 4.07 5h27.859C32.303 5 18 15 18 15z" fill="#0065BD"/></svg>' },
+    wales: { name: 'Wales', flagHtml: '<svg width="18" height="12" viewBox="0 0 36 36" style="border-radius:2px; vertical-align:middle; display:inline-block; margin-right:4px;"><path fill="#EEE" d="M36 27a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V9a4 4 0 0 1 4-4h28a4 4 0 0 1 4 4v18z"/><path fill="#3E9A00" d="M0 27a4 4 0 0 0 4 4h28a4 4 0 0 0 4-4v-9H0v9z"/><path fill="#DD2E44" d="M31.719 12.812c.031-1.125.081-1.993.081-2.087c0-.094-.956 1.087-1.581 1.743a93.954 93.954 0 0 1-1.791 1.794c.713.165 1.572-.043 1.572-.043l-.406.875s-.531-.375-1.469-.375s-1.594.594-1.781 1.25c-.188.656.688 1.469 1.344 1.5c.656.031 1.375-.219 1.375-.219c-.938 1.438-2.906.438-3.906.375s-2.086-.005-2.086-.005c.875-1.125 2.242-.933 2.367-.933s-.822-1.436-.061-2.409c.659-.842 2.092-1.466 2.092-1.466s-1-.312-.938-.938s2.241-2.412 2.241-2.412s-5.212 2.494-5.443 1.6c-.282-1.09.329-2.055.329-2.055c-1.938.812-5.846 3.68-6.565 4.367c-.719.688-.562 1.812-.562 2.344c0 .531-.438.906-.844 1.125c-.406.219-1.687.345-1.687.345s-.223-.338-.067-.682c.156-.344.723-.1.723-.1c-.062-.625-.525-.821-.781-.844c-.153-.014-.168-.625.082-.657c.25-.031.949.375.949.375s.047-.736-.377-.869c-.283-.089-.65-.44-.494-.722c.156-.281 1.043.094 1.043.094c.102-.878-.91-.911-.91-1.161s.832-.124.832-.124c-.094-.658-.869-.807-.869-.807s-.034-.049-.159-.205c-.125-.156-.171-.793.11-.886c.281-.094.839-.526.839-.526l-.361-.032l.064-.949c-.156.188-.938.531-1.375.562s-.728.418-.728.418c-.438.094-2.053-.168-2.647-.012c-.594.156-.53.6-.53.6s-.72.025-1.595.15s-1.503.849-1.425.901c.118.078.865-.078 1.428-.109c.435-.024.811.255.833.432c-.013.155.037.156.069.211c.031.055.235.008.235.008l.173.165l.078-.235l.212.141l-.03-.276l.258.175l-.031-.298l.282.204l.023-.302c.969-.016 1.052.392 1.052.392c-1.469.406-4.75.25-4.75.25l.71-.332c-.875.031-2.585-.981-2.585-.981s.469 1.125.875 1.594c.406.469 1.281.844 1.281.844l-.25-.562s1.75.156 2.25.156c.073 0 .167-.002.271-.006c-.011.382.339.865.339.865c-.203.328.109.703.109.703s.094-.141.146-.312c.053-.172.239-.63.239-.63l.287.395c.117-.561.561-.88 1.014-1.002c.083.195.19.424.19.424c-.657.241-.453.984-.453.984c-.516.297-.438.906-.438.906s-.25.094-.422.438s0 .562 0 .562s-.312.172-.416.516c-.104.344 0 .766 0 .766s-.365.031-.318.734c.047.703.438.922.438.922c-.391.047-.391.469-.391.469s-.062-.078-.188-.031c-.125.047-.197.137-.197.137s-.15-.173-.275-.251c-.125-.078-.404.036-.404.036s-.109-.314-.343-.423c-.234-.109-.406-.094-.406-.094c.078-.141-.001-.377-.172-.531c-.138-.125-.406-.166-.406-.166s.038-.48-.009-.855s-.303-.667-.397-.87s.109-.375.328-.531c.188-.141.312-.153.375-.387C7 15.722 7 15.5 7 15.5s-.031-.109.016-.422c.047-.312-.312-.5-.312-.5s.078.266 0 .469c-.078.203-.25.328-.25.328c-.125-.062-.188.141-.188.141l.078-.328c.094-.375-.078-.359-.312-.906c-.234-.547-.953-.359-.953-.359c.438.109.641.688.453.875s-.219.719-.219.719c-.297-.453-.484-.453-.484-.453s-.188-.203-.469-.359c-.281-.156-.484 0-.484 0c.406.109.406.562.406.562c-.25.172.094.516.094.516s.016.375.125.531c.109.156.484.328.484.328s-.125 1.531-.156 1.656s-.173.218-.282.302c-.109.084-.188.4-.391.572c-.203.172.031.297.031.297s0 .281-.203.391c-.203.109-.484.156-.484.156s.281.172.578.109c.297-.062.484-.281.484-.281c.219-.016.344-.297.344-.484s.125-.297.25-.484s.172-.406.172-.406c-.016.624.969 2.03 1.344 2.28s.719.656 1.141 1.312c.422.656.578 1.828.578 1.828c.719-.531.641-1.359.641-1.359s.453-.078.859-.125c.406-.047.891 0 .891 0c-.312.438.016.547.016.547s-.344.031-.469.219s.078.562.078.562c-.688.234-.488.875-.488.875s-.436.85-1.233.944c-.797.094-1.107-.366-1.388-.413c-.281-.047-.328.047-.328.047c-.172-.109-.141-.281-.531-.281c-.391 0-.422.562-.422.562s.203-.219.391-.203c.188.016.281.188.281.188c-.125.109.016.266.016.266l-.156.234s-.198-.106-.641 0c-.369.088-.408.485-.408.485s.144-.081.363-.128s.575.034.575.034l.25.156l-.056.218c-.609 0-.6.782-.6.782s.152-.226.324-.335c.172-.109.488-.078.488-.078c.344.384.997.139 1.356-.142c.359-.281.581-.195.769-.133s.487.014.659-.142c.172-.156.435-.218.654-.03c.219.188.453.375.875.438c.422.062.438-.219.656-.25c.219-.031.5.25.5.25c.109-.672-.672-.688-.672-.688c.016-.109-.242-.23-.554-.183c-.312.047-.618-.164-.618-.164c.141-.688.657-1.45 1.063-1.747c.406-.297.859-.891 1.094-1.203c.053-.071.11-.133.167-.19c.03.218.062.409.068.502c.016.25.516 1.047.516 1.047s.125-.375.234-.609c.109-.234.234-.625.234-.625c.266-.078.656-.422.656-.422s.359.109.781-.016c.422-.125.891-.594.891-.594c.281.141.734-.047.734-.047s-.172.328.047.703c.219.375.797.609.797.609s.062.359.484.484s.812.047.812.047c-.016.281.375.359.375.359c-.422.094-.344.531-.344.531c-.484-.062-.578.406-.578.406c-.297-.047-.641.031-.844.078c-.203.047-.97-.124-1.095-.202c-.125-.078-.495-.573-.745-.651c-.25-.078-.269.119-.269.119s-.219-.125-.562-.062c-.344.062-.375.484-.375.484s.203-.156.391-.188c.188-.031.312.172.312.172c-.016.109.062.234.219.281c.156.047.516.047.703.203c.188.156.297.359.297.359s-.328-.016-.547-.016c-.219 0-.5-.203-.688-.25s-.422.109-.422.109s-.25-.125-.562.094c-.312.219-.281.547-.281.547s.172-.203.312-.266c.141-.062.297.016.297.016s-.016.172.108.203c.124.031.407.266.407.266c-.688.156-.297.672-.297.672s.141-.203.328-.281a.405.405 0 0 1 .344.016c.062.156.293.039.496-.102s.723-.253 1.161-.29c.364-.031.609.048.734.064s.405-.119.639-.103c.234.016.66.44 1.067.518c.406.078.341-.149.591-.149s.594.328.594.328s-.094-.375-.234-.547c-.141-.172-.589-.209-.589-.209c-.188-.297-.457-.201-.674-.18c-.171.016-.338-.09-.338-.09s.774-.177 1.828-.895c1.055-.719 1.351-1.531 1.351-1.531c.266.219 1.212.466 1.212.466c.047-.672-.458-1.16-1.02-1.106c-.249.024-.59-.275-.965-.337s-.525-.351-.572-.648s.125-.609.375-.766c.25-.156.453-.469.453-.469c.203.312.647.319.647.319c.203.516 1.144.512 1.144.512c.312.5 1.323.16 1.323.16c.359.438 1.105.15 1.105.15c.125.281.703.156.703.156c0 .203.391.453.391.453c-.096.417.172.953.172.953c-.203.25-.078.688-.078.688s-.281.109-.328.315c-.047.206.109.435.109.435s-.065.182-.534.479c-.469.297-.817-.016-1.145-.157s-.743-.681-.946-.744c-.203-.06-.203.127-.203.127s-.145-.064-.373-.005c-.321.083-.455.49-.455.49s.182-.109.401-.14c.219-.031.318.093.318.093s-.094.203.094.219s.422.172.422.172s-.344-.016-.594 0c-.136.009-.195.111-.223.206c-.048.013-.081.01-.136.029c-.719.25-.578.719-.578.719c.344-.469.719-.281.719-.281c.004.057.3.154.606-.003c.159-.082.623-.054.776.063c.038.028-.156.104-.367.128c-.329.037-.359.297-.359.297c-.688.188-.656.734-.656.734s.281-.125.531-.24c.25-.115.554.076.773-.143c.219-.219.486-.376.808-.416c.354-.043.45.189.825.204c.156.006.384-.111.728-.236c.344-.125.679.017.96.173c.281.156.375.188.688.094c.312-.094.688.219.719.312c.031.094-.066-.373-.316-.591c-.25-.219-.711-.395-1.028-.471c-.182-.044-.332-.682-.175-.788c.114-.076.269-1.275.363-2.087c.094-.812-.35-1.504-.35-1.504s.287.129.506.316c.219.188.684.397.903.304c.219-.094-.325-.663-1.013-1.069c-.688-.406-2.297-1.297-2.297-1.297c3.094-.156 4.108-1.741 4.358-2.678s-.17-1.572-.17-1.572l.411-1.275c.281.5 1.371.775 1.371.775s-.502-1.375-.471-2.501z"/><path fill="#FFF" d="M10.047 10.812s.247-.047.482 0s.459.118.459.118s-.153.412-.541.365c-.388-.048-.4-.483-.4-.483z"/><path d="M10.529 10.812a1.269 1.269 0 0 0-.275-.019c0 .007-.008.011-.008.019c0 .162.132.294.294.294c.137 0 .234-.102.267-.228a3.738 3.738 0 0 0-.278-.066z" fill="#000000"/></svg>' },
+    'northern-ireland': { name: 'Northern Ireland', flagHtml: '<svg width="18" height="12" viewBox="0 0 512 512" style="border-radius:2px; vertical-align:middle; display:inline-block; margin-right:4px;"><path fill="#41479B" d="M473.655 88.276H38.345C17.167 88.276 0 105.443 0 126.621V385.38c0 21.177 17.167 38.345 38.345 38.345h435.31c21.177 0 38.345-17.167 38.345-38.345V126.621C512 105.443 494.833 88.276 473.655 88.276z"/><path fill="#F5F5F5" d="M511.469 120.282c-3.022-18.159-18.797-32.007-37.814-32.007h-9.977l-163.54 107.147V88.276h-88.276v107.147L48.322 88.276h-9.977c-19.017 0-34.792 13.847-37.814 32.007l139.778 91.58H0v88.276h140.309L0.531 391.717c3.022 18.159 18.797 32.007 37.814 32.007h9.977l163.54-107.147v107.147h88.276V316.577l163.54 107.147h9.977c19.017 0 34.792-13.847 37.814-32.007l-139.778-91.58H512v-88.276H371.691L511.469 120.282z"/><polygon fill="#FF4B55" points="282.483,88.276 229.517,88.276 229.517,229.517 0,229.517 0,282.483 229.517,282.483 229.517,423.724 282.483,423.724 282.483,282.483 512,282.483 512,229.517 282.483,229.517"/></svg>' }
+  };
+
+  function updateLinksAndBanners(selectedNation) {
+    regionTabs.forEach(btn => {
+      if (btn.getAttribute('data-nation') === selectedNation) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+    calcRows.forEach(row => {
+      const isDevolved = row.getAttribute('data-devolved') === 'true';
+      if (!isDevolved) return;
+
+      const slug = row.getAttribute('data-slug');
+      const isCompleted = !row.classList.contains('disabled');
+      if (!isCompleted) return;
+
+      const targetNation = (selectedNation === 'all') ? 'england' : selectedNation;
+      row.setAttribute('href', `/${slug}/${targetNation}/`);
+    });
+
+    if (selectedNation === 'all') {
+      if (alertBanner) {
+        alertBanner.classList.add('hidden');
+        alertBanner.style.display = 'none';
+      }
+    } else {
+      const info = countries[selectedNation];
+      if (info && alertText && alertBanner) {
+        alertText.innerHTML = `Showing calculators for ${info.flagHtml} <strong>${info.name}</strong>. Regional tools will automatically use ${info.name} rates and rules.`;
+        alertBanner.classList.remove('hidden');
+        alertBanner.style.display = 'block';
+      }
+    }
+
+    const url = new URL(window.location);
+    if (selectedNation === 'all') {
+      url.searchParams.delete('nation');
+    } else {
+      url.searchParams.set('nation', selectedNation);
+    }
+    window.history.replaceState({}, '', url);
+  }
+
+  // Bind clicks
+  regionTabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const nation = btn.getAttribute('data-nation');
+      updateLinksAndBanners(nation);
+    });
+  });
+
+  // Load initial query state
+  const params = new URLSearchParams(window.location.search);
+  const initialNation = params.get('nation') || 'all';
+  updateLinksAndBanners(initialNation);
+
+  // TOC scroll highlights
+  document.addEventListener('DOMContentLoaded', () => {
+    const links = document.querySelectorAll('.ch-side-section:not(.ch-side-other) .ch-side-link');
+    const sections = Array.from(links).map(link => {
+      const id = link.getAttribute('href').substring(1);
+      return document.getElementById(id);
+    });
+
+    function updateActiveLink() {
+      let activeIndex = 0;
+      const scrollPos = window.scrollY + 120;
+
+      sections.forEach((sec, idx) => {
+        if (!sec) return;
+        if (scrollPos >= sec.offsetTop) {
+          activeIndex = idx;
+        }
+      });
+
+      links.forEach((link, idx) => {
+        if (idx === activeIndex) {
+          link.classList.add('ch-side-active');
+        } else {
+          link.classList.remove('ch-side-active');
+        }
+      });
+    }
+
+    window.addEventListener('scroll', updateActiveLink);
+    updateActiveLink();
+  });
+</script>

@@ -1,0 +1,51 @@
+/* Style overrides for category-themed hyperlinks and sidebar interactions */
+/* New file — do NOT modify calculator.css to avoid regressions */
+
+/* ── Article body links (markdown content) ─────────────────────────── */
+.writeup a,
+.writeup a:visited {
+  color: var(--theme-link) !important;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+.writeup a:hover {
+  opacity: 0.85;
+}
+
+/* ── Auth-box portal links (Responsible organizations card) ────────── */
+.auth-box a,
+.auth-box a:visited {
+  color: var(--theme-link) !important;
+}
+.auth-box a:hover {
+  opacity: 0.82;
+  text-decoration: underline;
+}
+
+/* ── Official sources links ─────────────────────────────────────────── */
+.sources a,
+.sources a:visited {
+  color: var(--theme-link) !important;
+}
+.sources a:hover {
+  text-decoration: underline;
+  opacity: 0.85;
+}
+
+/* ── Related calculators sidebar (hover = theme color, not violet) ─── */
+.related-link {
+  color: var(--ink);
+  transition: color 0.15s;
+}
+.related-link:hover {
+  color: var(--theme-link) !important;
+}
+.related-link .arrow {
+  color: var(--theme-link) !important;
+  transition: color 0.15s;
+}
+.related-link:hover .arrow {
+  color: var(--theme-link) !important;
+}

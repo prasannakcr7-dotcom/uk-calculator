@@ -1,0 +1,112 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    <h2 class="calc-title">US GPA to UK Degree & Percentage Grade Converter (2026/27)</h2>
+    <p class="calc-desc">Convert US 4.0 GPA scores to UK university degree classifications (1st, 2:1, 2:2, 3rd) and UK percentage equivalents for international applications.</p>
+
+    <div class="field-group">
+      <div class="field-label"><span>US Cumulative GPA Score (4.0 Scale)</span></div>
+      <div class="amount-field"><input type="number" id="us-gpa-input" value="3.6" min="0.0" max="4.0" step="0.05" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Conversion Mode</span></div>
+      <select id="conversion-direction-gpa">
+        <option value="gpa_to_uk" selected>US 4.0 GPA -&gt; UK Degree &amp; Percentage</option>
+        <option value="uk_to_gpa">UK Percentage % -&gt; US 4.0 GPA Equivalent</option>
+      </select>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <h3>Grade Conversion Summary</h3>
+      <div class="breakdown-row net">
+        <span>UK Degree Classification:</span>
+        <strong id="uk-degree-class-val">First Class Honours (1st)</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Estimated UK Percentage Equivalent:</span>
+        <strong id="uk-percentage-equiv-val">70% - 75%</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>US Letter Grade Equivalent:</span>
+        <strong id="us-letter-grade-val">A / A-</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>UK Postgraduate Entry Eligibility:</span>
+        <strong id="uk-postgrad-eligibility">Meets Top UK Master's Entry Requirements</strong>
+      
+  </div>
+</div>
+
+<script>
+  function convertGpa() {
+    const gpa = parseFloat((document.getElementById('us-gpa-input') as HTMLInputElement).value) || 0;
+
+    let ukClass = '';
+    let ukPctStr = '';
+    let letter = '';
+    let eligibility = '';
+
+    if (gpa >= 3.7) {
+      ukClass = 'First Class Honours (1st - 70%+)';
+      ukPctStr = '75% - 85%';
+      letter = 'A / A+';
+      eligibility = 'Eligible for Oxbridge, Imperial, LSE & Top UK Master\'s programmes';
+    } else if (gpa >= 3.3) {
+      ukClass = 'Upper Second Class Honours (2:1 - 60-69%)';
+      ukPctStr = '65% - 69%';
+      letter = 'B+ / A-';
+      eligibility = 'Meets standard UK Master\'s degree entry requirements (2:1 benchmark)';
+    } else if (gpa >= 3.0) {
+      ukClass = 'Upper Second Class Honours (Lower 2:1)';
+      ukPctStr = '60% - 64%';
+      letter = 'B';
+      eligibility = 'Eligible for most UK Russell Group Master\'s courses';
+    } else if (gpa >= 2.7) {
+      ukClass = 'Lower Second Class Honours (2:2 - 50-59%)';
+      ukPctStr = '55% - 59%';
+      letter = 'B-';
+      eligibility = 'Meets 2:2 entry threshold for select UK Master\'s courses';
+    } else if (gpa >= 2.0) {
+      ukClass = 'Third Class Honours (3rd - 40-49%)';
+      ukPctStr = '45% - 49%';
+      letter = 'C / C+';
+      eligibility = 'UK Undergraduate Pass Equivalent';
+    } else {
+      ukClass = 'Fail / Below Passing Threshold';
+      ukPctStr = '< 40%';
+      letter = 'F';
+      eligibility = 'Ineligible for UK postgraduate admission';
+    }
+
+    (document.getElementById('uk-degree-class-val') as HTMLElement).textContent = ukClass;
+    (document.getElementById('uk-percentage-equiv-val') as HTMLElement).textContent = ukPctStr;
+    (document.getElementById('us-letter-grade-val') as HTMLElement).textContent = letter;
+    (document.getElementById('uk-postgrad-eligibility') as HTMLElement).textContent = eligibility;
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', convertGpa);
+  convertGpa();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

@@ -1,0 +1,83 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Dependent Child / Pregnancy Status at Partner Death Date</span></div>
+        <select id="bereavement-dependent-status" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="higher" selected>Eligible for Child Benefit / Pregnant (Higher Rate)</option>
+          <option value="standard">No Dependent Children (Standard Rate)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Bereavement Support Payment Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Initial Lump Sum Tax-Free Payment</span>
+          <strong id="bereavement-lump-sum">£3,500.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Monthly Tax-Free Payment Amount</span>
+          <strong id="bereavement-monthly-payment">£350.00 / month</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Monthly Payment Duration Limit</span>
+          <strong id="bereavement-duration-limit">18 Monthly Payments</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Total Statutory Support Payment Package</span>
+          <strong id="total-bereavement-package-val">£9,800.00</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="social" />
+  </div>
+</div>
+
+<script>
+  function calculateBereavementSupport() {
+    const statusEl = document.getElementById('bereavement-dependent-status') as HTMLSelectElement;
+    if (!statusEl) return;
+
+    const isHigher = statusEl.value === 'higher';
+
+    // DWP 2026/27 Rates:
+    // Higher Rate (with dependent children): £3,500 lump sum + £350/mo for 18 months
+    // Standard Rate (no dependent children): £2,500 lump sum + £100/mo for 18 months
+
+    const lumpSum = isHigher ? 3500 : 2500;
+    const monthly = isHigher ? 350 : 100;
+    const totalPackage = lumpSum + (monthly * 18);
+
+    const lumpResEl = document.getElementById('bereavement-lump-sum');
+    const monthResEl = document.getElementById('bereavement-monthly-payment');
+    const totalResEl = document.getElementById('total-bereavement-package-val');
+
+    if (lumpResEl) lumpResEl.textContent = '£' + lumpSum.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (monthResEl) monthResEl.textContent = '£' + monthly.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (totalResEl) totalResEl.textContent = '£' + totalPackage.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  const selectEl = document.getElementById('bereavement-dependent-status');
+  selectEl?.addEventListener('input', calculateBereavementSupport);
+  selectEl?.addEventListener('change', calculateBereavementSupport);
+  calculateBereavementSupport();
+</script>

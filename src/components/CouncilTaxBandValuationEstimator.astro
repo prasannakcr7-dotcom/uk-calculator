@@ -1,0 +1,142 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Council Tax Band & Property Valuation Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>UK Region / Nation</span></div>
+        <select id="council-tax-region" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="england" selected>England (1991 Valuation Basis)</option>
+          <option value="wales">Wales (2003 Revaluation Basis)</option>
+          <option value="scotland">Scotland (1991 Valuation Basis)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Estimated 1991 Property Valuation (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="prop-1991-valuation" value="72000" min="15000" step="5000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Single Person Discount (25% Discount)</span></div>
+        <select id="single-person-discount-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="no" selected>No - Standard Multi-Adult Occupancy</option>
+          <option value="yes">Yes - Single Adult Occupant (25% Off)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Estimated Council Tax Band Assignment</div>
+      <div class="result-amount"><span id="mainResultDisplay">Band D (Ratio 9/9)</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Estimated Average Annual Bill:</span>
+        <span class="val" id="subResultValue">£2,171.00 / year</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Council Tax Band Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Assigned Valuation Band</span>
+          <span class="val" id="assignedBandDisplay">Band D</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Band Proportional Charge Ratio</span>
+          <span class="val" id="bandRatioDisplay">9/9ths (Base Benchmark)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Single Person Discount Applied</span>
+          <span class="val" id="spdDiscountDisplay">£0.00 (0%)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Estimated Annual Council Tax Bill</span>
+          <span class="val" id="estimatedAnnualBillDisplay" style="font-weight: 700; font-size: 18px;">£2,171.00 / year (£217.10/mo for 10 mths)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateCouncilTaxBand() {
+    const valEl = document.getElementById('prop-1991-valuation') as HTMLInputElement;
+    const regionEl = document.getElementById('council-tax-region') as HTMLSelectElement;
+    const spdEl = document.getElementById('single-person-discount-select') as HTMLSelectElement;
+
+    if (!valEl || !regionEl || !spdEl) return;
+
+    const val1991 = parseFloat(valEl.value) || 0;
+    const hasSpd = spdEl.value === 'yes';
+
+    // 1991 England Band Valuation Thresholds:
+    // A: up to £40k (6/9)
+    // B: £40k-£52k (7/9)
+    // C: £52k-£68k (8/9)
+    // D: £68k-£88k (9/9)
+    // E: £88k-£120k (11/9)
+    // F: £120k-£160k (13/9)
+    // G: £160k-£320k (15/9)
+    // H: over £320k (18/9)
+
+    let band = 'D';
+    let ratioNum = 9;
+
+    if (val1991 <= 40000) { band = 'A'; ratioNum = 6; }
+    else if (val1991 <= 52000) { band = 'B'; ratioNum = 7; }
+    else if (val1991 <= 68000) { band = 'C'; ratioNum = 8; }
+    else if (val1991 <= 88000) { band = 'D'; ratioNum = 9; }
+    else if (val1991 <= 120000) { band = 'E'; ratioNum = 11; }
+    else if (val1991 <= 160000) { band = 'F'; ratioNum = 13; }
+    else if (val1991 <= 320000) { band = 'G'; ratioNum = 15; }
+    else { band = 'H'; ratioNum = 18; }
+
+    const bandDBaseAverage = 2171; // 2026/27 Average Band D Bill
+    const grossBill = bandDBaseAverage * (ratioNum / 9);
+    const spdDiscount = hasSpd ? grossBill * 0.25 : 0;
+    const netBill = Math.max(0, grossBill - spdDiscount);
+    const monthlyInstallment = netBill / 10;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const bandRes = document.getElementById('assignedBandDisplay');
+    const ratioRes = document.getElementById('bandRatioDisplay');
+    const spdRes = document.getElementById('spdDiscountDisplay');
+    const billRes = document.getElementById('estimatedAnnualBillDisplay');
+
+    if (mainRes) mainRes.textContent = `Band ${band} (${ratioNum}/9ths)`;
+    if (subVal) subVal.textContent = '£' + netBill.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (bandRes) bandRes.textContent = `Band ${band}`;
+    if (ratioRes) ratioRes.textContent = `${ratioNum}/9ths of Band D Base`;
+    if (spdRes) spdRes.textContent = hasSpd ? `-£${spdDiscount.toFixed(2)} (25% SPD Claimed)` : '£0.00 (0%)';
+    if (billRes) billRes.textContent = '£' + netBill.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` / year (£${monthlyInstallment.toFixed(2)}/mo for 10mths)`;
+  }
+
+  ['prop-1991-valuation', 'council-tax-region', 'single-person-discount-select'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateCouncilTaxBand);
+    document.getElementById(id)?.addEventListener('change', calculateCouncilTaxBand);
+  });
+  calculateCouncilTaxBand();
+</script>

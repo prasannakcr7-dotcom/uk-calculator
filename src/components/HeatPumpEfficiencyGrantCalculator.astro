@@ -1,0 +1,155 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Heat Pump & Installation Details'}</h2>
+
+      <!-- Total Installation Cost -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.installCostLabel || 'Total Heat Pump System Installation Cost (£)'}</span>
+          <span class="hint" id="installCostVal">£12,500</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="12,500" id="installCostInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="6000" max="25000" step="500" value="12500" id="installCostSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£6,000</span><span>£25,000</span></div>
+      </div>
+
+      <!-- Heat Pump Type & Grant Scheme -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.grantSchemeLabel || 'Heat Pump Type & Statutory Grant Scheme'}</span>
+          <span class="hint" id="grantSchemeVal">Air Source Heat Pump (£7,500 BUS Grant)</span>
+        </div>
+        <select id="grantSchemeSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="ASHP_BUS" selected>Air Source Heat Pump — Boiler Upgrade Scheme (£7,500 Grant)</option>
+          <option value="GSHP_BUS">Ground Source Heat Pump — Boiler Upgrade Scheme (£7,500 Grant)</option>
+          <option value="SCOTLAND_ASHP">Scotland Home Energy Scheme — Air Source (£7,500 + £2.5k Rural)</option>
+          <option value="NO_GRANT">No Grant Scheme (£0 Grant)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Net Out-of-Pocket Customer Installation Cost'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£5,000.00 Net Cost</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.grantAmountLabel || 'Statutory Government Grant Voucher Applied:'}</span>
+        <span class="val" id="subResultValue">-£7,500.00 Government Grant</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Heat Pump Grant Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Installation & Equipment Cost</span>
+          <span class="val" id="grossCostDisplay">£12,500.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Government Grant Voucher Applied</span>
+          <span class="val" id="grantAppliedDisplay">-£7,500.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>0% VAT Rate Saving on Heat Pump Works</span>
+          <span class="val" style="color:#059669;">0% VAT Applies (Saved ~£625)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Out-of-Pocket Cost to Homeowner</span>
+          <span class="val" id="netCostDisplay" style="font-weight: 700; font-size: 18px;">£5,000.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>£7,500 BUS Grant:</strong> Available for Air Source and Ground Source Heat Pumps in England & Wales.<br/>
+        • <strong>0% VAT Relief:</strong> Heat pump installation materials and labor carry 0% VAT.<br/>
+        • <strong>Fossil Fuel Replacement:</strong> Must replace an existing fossil fuel system (gas, oil, or direct electric).<br/>
+        • <strong>MCS Certification:</strong> Must be installed by an MCS-accredited installer.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const installCostInput = document.getElementById('installCostInput') as HTMLInputElement;
+  const installCostSlider = document.getElementById('installCostSlider') as HTMLInputElement;
+  const installCostVal = document.getElementById('installCostVal') as HTMLElement;
+  const grantSchemeSelect = document.getElementById('grantSchemeSelect') as HTMLSelectElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const grossCostDisplay = document.getElementById('grossCostDisplay') as HTMLElement;
+  const grantAppliedDisplay = document.getElementById('grantAppliedDisplay') as HTMLElement;
+  const netCostDisplay = document.getElementById('netCostDisplay') as HTMLElement;
+
+  const grantAmounts: Record<string, number> = {
+    ASHP_BUS: 7500,
+    GSHP_BUS: 7500,
+    SCOTLAND_ASHP: 10000,
+    NO_GRANT: 0
+  };
+
+  function calculate() {
+    const grossCost = parseInputVal(installCostInput.value);
+    const grantKey = grantSchemeSelect.value;
+    const grant = grantAmounts[grantKey] || 7500;
+
+    const netCost = Math.max(0, grossCost - grant);
+
+    installCostVal.innerText = formatCurrency(grossCost).slice(0, -3);
+
+    mainResultDisplay.innerText = `${formatCurrency(netCost)} Net Cost`;
+    subResultValue.innerText = grant > 0 ? `-${formatCurrency(grant)} Government Grant` : 'No Grant Applied';
+
+    grossCostDisplay.innerText = formatCurrency(grossCost);
+    grantAppliedDisplay.innerText = grant > 0 ? `-${formatCurrency(grant)}` : '£0.00';
+    netCostDisplay.innerText = formatCurrency(netCost);
+  }
+
+  installCostInput.addEventListener('input', () => {
+    const val = parseInputVal(installCostInput.value);
+    installCostSlider.value = String(val);
+    calculate();
+  });
+
+  installCostSlider.addEventListener('input', () => {
+    installCostInput.value = parseInt(installCostSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  grantSchemeSelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

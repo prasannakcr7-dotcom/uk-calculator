@@ -1,0 +1,126 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout finance-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Pet Insurance Cost Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Pet Species</span></div>
+        <select id="pet-species-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="dog" selected>Dog (Canine)</option>
+          <option value="cat">Cat (Feline)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Pet Age (Years)</span></div>
+        <div class="amount-field">
+          <input type="number" id="pet-age-years" value="3" min="0" max="18" step="1" />
+          <span class="cur">yrs</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Policy Cover Level</span></div>
+        <select id="pet-cover-level-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="lifetime" selected>Lifetime Cover (Recommended - Reinstating Annual Limit £4,000+)</option>
+          <option value="maximum_benefit">Maximum Benefit (Per Condition Limit)</option>
+          <option value="time_limited">Time Limited (12 Months per Condition)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--finance-1), var(--finance-2) 80%);">
+      <div class="result-label">Estimated Monthly Pet Insurance Premium</div>
+      <div class="result-amount"><span id="mainResultDisplay">£24.50 / month</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Annual Premium Total:</span>
+        <span class="val" id="subResultValue">£294.00 / year</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Premium & Policy Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Base Species Rate (Dog/Cat)</span>
+          <span class="val" id="baseRateDisplay">£18.00 / month</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Age Loading Multiplier</span>
+          <span class="val" id="ageLoadingDisplay">1.0x (Young Pet)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Standard Policy Excess Claim Fee</span>
+          <span class="val" id="excessFeeDisplay">£95.00 per claim</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Estimated Monthly Insurance Outlay</span>
+          <span class="val" id="monthlyOutlayDisplay" style="font-weight: 700; font-size: 18px;">£24.50 / month</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="finanzas" />
+  </div>
+</div>
+
+<script>
+  function calculatePetInsurance() {
+    const speciesEl = document.getElementById('pet-species-select') as HTMLSelectElement;
+    const ageEl = document.getElementById('pet-age-years') as HTMLInputElement;
+    const coverEl = document.getElementById('pet-cover-level-select') as HTMLSelectElement;
+
+    if (!speciesEl || !ageEl || !coverEl) return;
+
+    const species = speciesEl.value;
+    const age = parseInt(ageEl.value) || 3;
+    const cover = coverEl.value;
+
+    let baseMonthly = species === 'dog' ? 22 : 12;
+    if (cover === 'lifetime') baseMonthly *= 1.25;
+    if (cover === 'time_limited') baseMonthly *= 0.85;
+
+    let ageMult = 1.0;
+    if (age >= 8) ageMult = 1.8;
+    else if (age >= 5) ageMult = 1.35;
+
+    const monthlyTotal = baseMonthly * ageMult;
+    const annualTotal = monthlyTotal * 12;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const baseRes = document.getElementById('baseRateDisplay');
+    const ageRes = document.getElementById('ageLoadingDisplay');
+    const excessRes = document.getElementById('excessFeeDisplay');
+    const netRes = document.getElementById('monthlyOutlayDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + monthlyTotal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (subVal) subVal.textContent = '£' + annualTotal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (baseRes) baseRes.textContent = '£' + baseMonthly.toFixed(2) + ' / month';
+    if (ageRes) ageRes.textContent = ageMult.toFixed(2) + 'x (' + (age >= 8 ? 'Senior Pet' : 'Standard') + ')';
+    if (excessRes) excessRes.textContent = age >= 8 ? '£125.00 + 20% Co-payment' : '£95.00 per claim';
+    if (netRes) netRes.textContent = '£' + monthlyTotal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+  }
+
+  ['pet-species-select', 'pet-age-years', 'pet-cover-level-select'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculatePetInsurance);
+    document.getElementById(id)?.addEventListener('change', calculatePetInsurance);
+  });
+  calculatePetInsurance();
+</script>

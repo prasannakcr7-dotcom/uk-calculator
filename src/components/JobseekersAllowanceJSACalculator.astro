@@ -1,0 +1,109 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Jobseeker's Allowance (JSA) Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Applicant Age Group</span></div>
+        <select id="jsa-age-group-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="25_plus" selected>Aged 25 or Over (£90.50 / week)</option>
+          <option value="under_25">Aged 18 to 24 (£71.70 / week)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>National Insurance Contributions (Class 1) Paid in Last 2 Tax Years</span></div>
+        <select id="jsa-ni-contributions-status" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="yes" selected>Yes - Full Qualifying NI Contributions Paid (New Style JSA)</option>
+          <option value="no">No - Insufficient NI Contributions</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--social-1), var(--social-2) 80%);">
+      <div class="result-label">Weekly New Style JSA Entitlement</div>
+      <div class="result-amount"><span id="mainResultDisplay">£90.50 / week</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Maximum Payment Duration:</span>
+        <span class="val" id="subResultValue">Up to 182 Days (26 Weeks)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 JSA Benefit Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Weekly Benefit Personal Rate</span>
+          <span class="val" id="weeklyPersonalRateDisplay">£90.50 / week</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Fortnightly Payment Amount</span>
+          <span class="val" id="fortnightlyPaymentDisplay">£181.00 every 2 weeks</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Max Duration Limit</span>
+          <span class="val" id="maxDurationDisplay">26 Weeks (182 Days)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Potential Claim Value</span>
+          <span class="val" id="totalPotentialClaimDisplay" style="font-weight: 700; font-size: 18px;">£2,353.00 (over 26 wks)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="social" />
+  </div>
+</div>
+
+<script>
+  function calculateJsa() {
+    const ageEl = document.getElementById('jsa-age-group-select') as HTMLSelectElement;
+    const niEl = document.getElementById('jsa-ni-contributions-status') as HTMLSelectElement;
+
+    if (!ageEl || !niEl) return;
+
+    const is25Plus = ageEl.value === '25_plus';
+    const hasNi = niEl.value === 'yes';
+
+    // 2026/27 New Style JSA Weekly Rates: £90.50 for 25+, £71.70 for 18-24
+    const weeklyRate = hasNi ? (is25Plus ? 90.50 : 71.70) : 0;
+    const fortnightly = weeklyRate * 2;
+    const totalMax = weeklyRate * 26;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const rateRes = document.getElementById('weeklyPersonalRateDisplay');
+    const fortRes = document.getElementById('fortnightlyPaymentDisplay');
+    const durRes = document.getElementById('maxDurationDisplay');
+    const totalRes = document.getElementById('totalPotentialClaimDisplay');
+
+    if (mainRes) mainRes.textContent = hasNi ? '£' + weeklyRate.toFixed(2) + ' / week' : '£0.00 (Ineligible)';
+    if (subVal) subVal.textContent = hasNi ? 'Up to 182 Days (26 Weeks)' : 'Ineligible - Insufficient NI';
+    if (rateRes) rateRes.textContent = '£' + weeklyRate.toFixed(2) + ' / week';
+    if (fortRes) fortRes.textContent = '£' + fortnightly.toFixed(2) + ' every 2 weeks';
+    if (durRes) durRes.textContent = '26 Weeks (182 Days)';
+    if (totalRes) totalRes.textContent = hasNi ? '£' + totalMax.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' (over 26 wks)' : '£0.00';
+  }
+
+  ['jsa-age-group-select', 'jsa-ni-contributions-status'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateJsa);
+    document.getElementById(id)?.addEventListener('change', calculateJsa);
+  });
+  calculateJsa();
+</script>

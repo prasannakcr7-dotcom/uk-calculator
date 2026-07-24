@@ -1,0 +1,119 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout finance-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Phased Retirement Pay & Pension Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Original Full-Time Salary (£/year)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="phased-fulltime-salary" value="50000" min="15000" step="2500" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Part-Time Working Hours Ratio (%)</span></div>
+        <div class="amount-field">
+          <input type="number" id="phased-work-ratio-pct" value="60" min="20" max="80" step="10" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Annual Pension Drawdown Top-Up (£/year)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="phased-pension-drawdown" value="15000" min="0" step="1000" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--finance-1), var(--finance-2) 80%);">
+      <div class="result-label">Total Gross Phased Retirement Income</div>
+      <div class="result-amount"><span id="mainResultDisplay">£45,000.00 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Monthly Combined Gross Income:</span>
+        <span class="val" id="subResultValue">£3,750.00 / month</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Phased Income Sources Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Part-Time Salary Income (60% Work)</span>
+          <span class="val" id="partTimeSalaryDisplay">£30,000.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Pension Drawdown Income Top-Up</span>
+          <span class="val" id="pensionTopupDisplay">£15,000.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Comparison vs Full-Time Pre-Retirement Salary</span>
+          <span class="val" id="salaryComparisonDisplay">90.0% of Full Salary</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Combined Phased Annual Income</span>
+          <span class="val" id="totalPhasedIncomeDisplay" style="font-weight: 700; font-size: 18px;">£45,000.00 / year (£3,750.00/mo)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="finanzas" />
+  </div>
+</div>
+
+<script>
+  function calculatePhasedRetirement() {
+    const fullSalaryEl = document.getElementById('phased-fulltime-salary') as HTMLInputElement;
+    const ratioEl = document.getElementById('phased-work-ratio-pct') as HTMLInputElement;
+    const drawdownEl = document.getElementById('phased-pension-drawdown') as HTMLInputElement;
+
+    if (!fullSalaryEl || !ratioEl || !drawdownEl) return;
+
+    const fullSalary = parseFloat(fullSalaryEl.value) || 0;
+    const ratio = (parseFloat(ratioEl.value) || 60) / 100;
+    const drawdown = parseFloat(drawdownEl.value) || 0;
+
+    const ptSalary = fullSalary * ratio;
+    const totalIncome = ptSalary + drawdown;
+    const monthlyIncome = totalIncome / 12;
+    const pctOfFull = fullSalary > 0 ? (totalIncome / fullSalary) * 100 : 0;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const ptSalaryRes = document.getElementById('partTimeSalaryDisplay');
+    const topupRes = document.getElementById('pensionTopupDisplay');
+    const compRes = document.getElementById('salaryComparisonDisplay');
+    const totalRes = document.getElementById('totalPhasedIncomeDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + totalIncome.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (subVal) subVal.textContent = '£' + monthlyIncome.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (ptSalaryRes) ptSalaryRes.textContent = '£' + ptSalary.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (topupRes) topupRes.textContent = '£' + drawdown.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (compRes) compRes.textContent = pctOfFull.toFixed(1) + '% of Full Salary';
+    if (totalRes) totalRes.textContent = '£' + totalIncome.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` / year (£${monthlyIncome.toFixed(2)}/mo)`;
+  }
+
+  ['phased-fulltime-salary', 'phased-work-ratio-pct', 'phased-pension-drawdown'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculatePhasedRetirement);
+    document.getElementById(id)?.addEventListener('change', calculatePhasedRetirement);
+  });
+  calculatePhasedRetirement();
+</script>

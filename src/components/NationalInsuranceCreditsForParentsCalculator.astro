@@ -1,0 +1,107 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Child Benefit NI Credits Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Child Benefit Registered Status</span></div>
+        <select id="ni-credits-cb-status" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="registered" selected>Registered for Child Benefit (Claiming or Opted-Out of Cash Payment for HICBC)</option>
+          <option value="not_registered">Not Registered for Child Benefit At All</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Youngest Child Age</span></div>
+        <div class="amount-field">
+          <input type="number" id="ni-credits-child-age" value="4" min="0" max="18" step="1" />
+          <span class="cur">yrs old</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--social-1), var(--social-2) 80%);">
+      <div class="result-label">Class 3 National Insurance Credit Entitlement</div>
+      <div class="result-amount"><span id="mainResultDisplay">Eligible for NI Credits</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">State Pension Qualifying Year Added:</span>
+        <span class="val" id="subResultValue">+1 Qualifying Year / year</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 NI Parent Credit Summary</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Child Age Qualification (Under 12)</span>
+          <span class="val" id="childAgeCheckDisplay">PASS (4 yrs old)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Child Benefit Registration Check</span>
+          <span class="val" id="cbRegistrationCheckDisplay">PASS</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Equivalent Value of Class 3 Voluntary NI Saved</span>
+          <span class="val" id="equivalentNiSavedDisplay">£907.40 / year Saved</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>State Pension Protection Benefit</span>
+          <span class="val" id="statePensionProtectionDisplay" style="font-weight: 700; font-size: 18px;">Full Class 3 Credit Awarded</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="social" />
+  </div>
+</div>
+
+<script>
+  function calculateNiParentCredits() {
+    const cbEl = document.getElementById('ni-credits-cb-status') as HTMLSelectElement;
+    const ageEl = document.getElementById('ni-credits-child-age') as HTMLInputElement;
+
+    if (!cbEl || !ageEl) return;
+
+    const isRegistered = cbEl.value === 'registered';
+    const childAge = parseInt(ageEl.value) || 0;
+
+    const agePass = childAge < 12;
+    const isEligible = isRegistered && agePass;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const ageRes = document.getElementById('childAgeCheckDisplay');
+    const cbRes = document.getElementById('cbRegistrationCheckDisplay');
+    const savedRes = document.getElementById('equivalentNiSavedDisplay');
+    const protectRes = document.getElementById('statePensionProtectionDisplay');
+
+    if (mainRes) mainRes.textContent = isEligible ? 'Eligible for NI Credits' : 'Ineligible for NI Credits';
+    if (subVal) subVal.textContent = isEligible ? '+1 Qualifying Year / year' : '0 Qualifying Years Awarded';
+    if (ageRes) ageRes.textContent = agePass ? `PASS (${childAge} yrs old < 12)` : `FAIL (${childAge} yrs old >= 12)`;
+    if (cbRes) cbRes.textContent = isRegistered ? 'PASS' : 'FAIL (Must Register for Child Benefit)';
+    if (savedRes) savedRes.textContent = isEligible ? '£907.40 / year Saved' : '£0.00';
+    if (protectRes) protectRes.textContent = isEligible ? 'Full Class 3 Credit Awarded' : 'No Credit Awarded';
+  }
+
+  ['ni-credits-cb-status', 'ni-credits-child-age'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateNiParentCredits);
+    document.getElementById(id)?.addEventListener('change', calculateNiParentCredits);
+  });
+  calculateNiParentCredits();
+</script>

@@ -1,0 +1,131 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Roof Surface & Tile Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Total Roof Surface Area (Square Metres - sq m)</span></div>
+        <div class="amount-field">
+          <input type="number" id="roof-surface-area-sqm" value="85" min="10" max="1000" step="5" />
+          <span class="cur">sq m</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Roof Tile Material & Format</span></div>
+        <select id="roof-tile-type-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="concrete_interlocking" selected>Concrete Interlocking Tiles (10 tiles / sq m - £1.80/tile)</option>
+          <option value="clay_plain">Clay Plain Plain Tiles (60 tiles / sq m - £0.75/tile)</option>
+          <option value="natural_slate">Natural Spanish Slate (20 slates / sq m - £2.40/slate)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Wastage Allowance Factor (%)</span></div>
+        <div class="amount-field">
+          <input type="number" id="roof-wastage-pct" value="10" min="5" max="25" step="5" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Total Roof Tiles Required (inc. Wastage)</div>
+      <div class="result-amount"><span id="mainResultDisplay">935 Tiles</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Total Tile Material Cost:</span>
+        <span class="val" id="subResultValue">£1,683.00 Total</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Roof Material Quantity Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Net Roof Surface Area</span>
+          <span class="val" id="netRoofAreaDisplay">85.00 sq m</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Base Tile Coverage Count (10 tiles/sq m)</span>
+          <span class="val" id="baseTileCountDisplay">850 Tiles</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Wastage Allowance (10%)</span>
+          <span class="val" id="tileWastageCountDisplay">+85 Tiles</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Tiles to Order</span>
+          <span class="val" id="totalTilesToOrderDisplay" style="font-weight: 700; font-size: 18px;">935 Tiles (£1,683.00 Total)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateRoofingTiles() {
+    const areaEl = document.getElementById('roof-surface-area-sqm') as HTMLInputElement;
+    const typeEl = document.getElementById('roof-tile-type-select') as HTMLSelectElement;
+    const wastageEl = document.getElementById('roof-wastage-pct') as HTMLInputElement;
+
+    if (!areaEl || !typeEl || !wastageEl) return;
+
+    const area = parseFloat(areaEl.value) || 0;
+    const type = typeEl.value;
+    const wastagePct = (parseFloat(wastageEl.value) || 10) / 100;
+
+    let tilesPerSqm = 10;
+    let unitPrice = 1.80; // Concrete interlocking
+
+    if (type === 'clay_plain') {
+      tilesPerSqm = 60;
+      unitPrice = 0.75;
+    } else if (type === 'natural_slate') {
+      tilesPerSqm = 20;
+      unitPrice = 2.40;
+    }
+
+    const baseTiles = area * tilesPerSqm;
+    const wastageTiles = Math.ceil(baseTiles * wastagePct);
+    const totalTiles = Math.ceil(baseTiles + wastageTiles);
+    const totalCost = totalTiles * unitPrice;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const areaRes = document.getElementById('netRoofAreaDisplay');
+    const baseCountRes = document.getElementById('baseTileCountDisplay');
+    const wasteCountRes = document.getElementById('tileWastageCountDisplay');
+    const totalRes = document.getElementById('totalTilesToOrderDisplay');
+
+    if (mainRes) mainRes.textContent = `${totalTiles} Tiles`;
+    if (subVal) subVal.textContent = '£' + totalCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Total';
+    if (areaRes) areaRes.textContent = area.toFixed(2) + ' sq m';
+    if (baseCountRes) baseCountRes.textContent = `${baseTiles} Tiles (${tilesPerSqm}/sq m)`;
+    if (wasteCountRes) wasteCountRes.textContent = `+${wastageTiles} Tiles (${(wastagePct*100).toFixed(0)}%)`;
+    if (totalRes) totalRes.textContent = `${totalTiles} Tiles (£${totalCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Total)`;
+  }
+
+  ['roof-surface-area-sqm', 'roof-tile-type-select', 'roof-wastage-pct'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateRoofingTiles);
+    document.getElementById(id)?.addEventListener('change', calculateRoofingTiles);
+  });
+  calculateRoofingTiles();
+</script>

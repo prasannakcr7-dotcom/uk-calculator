@@ -1,0 +1,148 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Remortgage vs Product Transfer Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Mortgage Balance Outstanding (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="remortgage-balance" value="220000" min="20000" step="5000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>New Lender Remortgage Interest Rate (%)</span></div>
+        <div class="amount-field">
+          <input type="number" id="remortgage-new-lender-rate" value="4.2" min="0.5" max="15" step="0.1" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Existing Lender Product Transfer Rate (%)</span></div>
+        <div class="amount-field">
+          <input type="number" id="remortgage-transfer-rate" value="4.5" min="0.5" max="15" step="0.1" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>New Lender Fees (£ - Arrangement & Legal Fees)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="remortgage-new-lender-fees" value="1200" min="0" step="100" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Fixed Deal Term Duration (Years)</span></div>
+        <div class="amount-field">
+          <input type="number" id="remortgage-fixed-years" value="2" min="2" max="10" step="1" />
+          <span class="cur">yrs</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Net 2-Year Deal Savings Advantage</div>
+      <div class="result-amount"><span id="mainResultDisplay">New Lender saves £120.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Monthly Repayment Difference:</span>
+        <span class="val" id="subResultValue">New Lender is £55.00/mo lower</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Remortgage vs Transfer Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>New Lender Monthly Repayment (4.2%)</span>
+          <span class="val" id="newLenderMonthlyDisplay">£1,185.00 / month</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Product Transfer Monthly Repayment (4.5%)</span>
+          <span class="val" id="productTransferMonthlyDisplay">£1,240.00 / month</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>New Lender Upfront Fees Offset (£1,200)</span>
+          <span class="val" id="feesOffsetDisplay">-£1,200.00 Fee</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Savings Over Fixed Deal Term</span>
+          <span class="val" id="netDealSavingsDisplay" style="font-weight: 700; font-size: 18px;">New Lender saves £120.00 net</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateRemortgageVsTransfer() {
+    const balanceEl = document.getElementById('remortgage-balance') as HTMLInputElement;
+    const newRateEl = document.getElementById('remortgage-new-lender-rate') as HTMLInputElement;
+    const transferRateEl = document.getElementById('remortgage-transfer-rate') as HTMLInputElement;
+    const feesEl = document.getElementById('remortgage-new-lender-fees') as HTMLInputElement;
+    const termYearsEl = document.getElementById('remortgage-fixed-years') as HTMLInputElement;
+
+    if (!balanceEl || !newRateEl || !transferRateEl || !feesEl || !termYearsEl) return;
+
+    const balance = parseFloat(balanceEl.value) || 0;
+    const newRate = (parseFloat(newRateEl.value) || 0) / 100;
+    const transferRate = (parseFloat(transferRateEl.value) || 0) / 100;
+    const fees = parseFloat(feesEl.value) || 0;
+    const dealYears = parseInt(termYearsEl.value) || 2;
+
+    const n = 25 * 12; // 25 year base term
+    const rNew = newRate / 12;
+    const rTrans = transferRate / 12;
+
+    const monthlyNew = rNew > 0 ? balance * (rNew * Math.pow(1 + rNew, n)) / (Math.pow(1 + rNew, n) - 1) : balance / n;
+    const monthlyTrans = rTrans > 0 ? balance * (rTrans * Math.pow(1 + rTrans, n)) / (Math.pow(1 + rTrans, n) - 1) : balance / n;
+
+    const dealMonths = dealYears * 12;
+    const totalNewLenderRepayments = (monthlyNew * dealMonths) + fees;
+    const totalTransferRepayments = monthlyTrans * dealMonths;
+
+    const netSavings = totalTransferRepayments - totalNewLenderRepayments;
+    const monthlyDiff = Math.abs(monthlyTrans - monthlyNew);
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const newRes = document.getElementById('newLenderMonthlyDisplay');
+    const transRes = document.getElementById('productTransferMonthlyDisplay');
+    const feeRes = document.getElementById('feesOffsetDisplay');
+    const totalRes = document.getElementById('netDealSavingsDisplay');
+
+    if (mainRes) mainRes.textContent = netSavings >= 0 ? 'New Lender saves £' + netSavings.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 'Product Transfer saves £' + Math.abs(netSavings).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = monthlyNew <= monthlyTrans ? `New Lender is £${monthlyDiff.toFixed(2)}/mo lower` : `Transfer is £${monthlyDiff.toFixed(2)}/mo lower`;
+    if (newRes) newRes.textContent = '£' + monthlyNew.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (transRes) transRes.textContent = '£' + monthlyTrans.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (feeRes) feeRes.textContent = '-£' + fees.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Upfront Fees';
+    if (totalRes) totalRes.textContent = netSavings >= 0 ? 'New Lender saves £' + netSavings.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' net' : 'Product Transfer saves £' + Math.abs(netSavings).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' net';
+  }
+
+  ['remortgage-balance', 'remortgage-new-lender-rate', 'remortgage-transfer-rate', 'remortgage-new-lender-fees', 'remortgage-fixed-years'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateRemortgageVsTransfer);
+    document.getElementById(id)?.addEventListener('change', calculateRemortgageVsTransfer);
+  });
+  calculateRemortgageVsTransfer();
+</script>

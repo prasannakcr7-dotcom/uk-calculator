@@ -1,0 +1,181 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Conveyancing & Search Details'}</h2>
+
+      <!-- Property Value -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.propertyValueLabel || 'Property Value (£)'}</span>
+          <span class="hint" id="propertyValueVal">£350,000</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="350,000" id="propertyValueInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="50000" max="1500000" step="25000" value="350000" id="propertyValueSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£50,000</span><span>£1,500,000</span></div>
+      </div>
+
+      <!-- Tenure Type -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.tenureLabel || 'Property Tenure Type'}</span>
+          <span class="hint" id="tenureVal">Freehold Property</span>
+        </div>
+        <select id="tenureSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="FREEHOLD" selected>Freehold Property (Standard Legal Fees)</option>
+          <option value="LEASEHOLD">Leasehold Property (+£350 Legal & Management Fee)</option>
+        </select>
+      </div>
+
+      <!-- Transaction Type -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.transactionLabel || 'Transaction Type'}</span>
+          <span class="hint" id="transactionVal">Purchase Only</span>
+        </div>
+        <select id="transactionSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="PURCHASE" selected>Purchase Only (Includes Local Searches & Land Registry)</option>
+          <option value="SALE">Sale Only (Lower Legal Fees, No Searches)</option>
+          <option value="SALE_AND_PURCHASE">Sale & Purchase Combined (2x Legal Representation)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Total Conveyancing Fees & Disbursements'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£1,820.00 Total</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.landRegistryLabel || 'HM Land Registry Scale Fee Included:'}</span>
+        <span class="val" id="subResultValue">£150.00 Land Registry Fee (Scale 1 Digital)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Conveyancing Cost Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Solicitor Legal Professional Fee (Incl. 20% VAT)</span>
+          <span class="val" id="legalFeeDisplay">£1,320.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Local Authority, Water & Environmental Searches</span>
+          <span class="val" id="searchesFeeDisplay">£350.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>HM Land Registry Registration Scale Fee</span>
+          <span class="val" id="landRegistryFeeDisplay">£150.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Conveyancing Costs & Disbursements</span>
+          <span class="val" id="netTotalDisplay" style="font-weight: 700; font-size: 18px;">£1,820.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>CLC / SRA Regulated:</strong> Use conveyancers regulated by CLC or Solicitors Regulation Authority.<br/>
+        • <strong>HM Land Registry Scale 1:</strong> Digital submission fees range from £45 (£100k) to £500 (£1m+).<br/>
+        • <strong>Leasehold Supplements:</strong> Leasehold purchases add ~£300–£500 for management packs.<br/>
+        • <strong>Disbursements:</strong> Mandatory third-party costs (searches, Land Registry, CHAPS transfers).
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const propertyValueInput = document.getElementById('propertyValueInput') as HTMLInputElement;
+  const propertyValueSlider = document.getElementById('propertyValueSlider') as HTMLInputElement;
+  const propertyValueVal = document.getElementById('propertyValueVal') as HTMLElement;
+  const tenureSelect = document.getElementById('tenureSelect') as HTMLSelectElement;
+  const transactionSelect = document.getElementById('transactionSelect') as HTMLSelectElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const legalFeeDisplay = document.getElementById('legalFeeDisplay') as HTMLElement;
+  const searchesFeeDisplay = document.getElementById('searchesFeeDisplay') as HTMLElement;
+  const landRegistryFeeDisplay = document.getElementById('landRegistryFeeDisplay') as HTMLElement;
+  const netTotalDisplay = document.getElementById('netTotalDisplay') as HTMLElement;
+
+  function calculateLandRegistryFee(val: number): number {
+    if (val <= 100000) return 45;
+    if (val <= 200000) return 95;
+    if (val <= 500000) return 150;
+    if (val <= 1000000) return 295;
+    return 500;
+  }
+
+  function calculate() {
+    const val = parseInputVal(propertyValueInput.value);
+    const tenure = tenureSelect.value;
+    const transaction = transactionSelect.value;
+
+    let baseLegalFee = 1100; // Base purchase fee incl VAT
+    if (transaction === 'SALE') baseLegalFee = 900;
+    if (transaction === 'SALE_AND_PURCHASE') baseLegalFee = 1900;
+
+    if (tenure === 'LEASEHOLD') baseLegalFee += 350;
+
+    let searchesFee = 350; // Local search + drainage + environmental
+    if (transaction === 'SALE') searchesFee = 0; // Seller doesn't pay searches
+
+    const landRegistryFee = transaction !== 'SALE' ? calculateLandRegistryFee(val) : 0;
+    const totalCost = baseLegalFee + searchesFee + landRegistryFee;
+
+    propertyValueVal.innerText = formatCurrency(val).slice(0, -3);
+
+    mainResultDisplay.innerText = `${formatCurrency(totalCost)} Total`;
+    subResultValue.innerText = landRegistryFee > 0 ? `${formatCurrency(landRegistryFee)} Land Registry Fee (Scale 1 Digital)` : 'No Land Registry Fee (Sale Only)';
+
+    legalFeeDisplay.innerText = formatCurrency(baseLegalFee);
+    searchesFeeDisplay.innerText = formatCurrency(searchesFee);
+    landRegistryFeeDisplay.innerText = formatCurrency(landRegistryFee);
+    netTotalDisplay.innerText = formatCurrency(totalCost);
+  }
+
+  propertyValueInput.addEventListener('input', () => {
+    const val = parseInputVal(propertyValueInput.value);
+    propertyValueSlider.value = String(val);
+    calculate();
+  });
+
+  propertyValueSlider.addEventListener('input', () => {
+    propertyValueInput.value = parseInt(propertyValueSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  tenureSelect.addEventListener('change', calculate);
+  transactionSelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

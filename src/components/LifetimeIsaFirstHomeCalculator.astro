@@ -1,0 +1,110 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout finance-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Annual LISA Deposit (£4,000 Cap per Tax Year)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="lisa-annual-deposit" value="4000" min="100" max="4000" step="100" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Years Saving in LISA Before Property Purchase</span></div>
+        <div class="amount-field">
+          <input type="number" id="lisa-saving-years" value="5" min="1" max="32" step="1" />
+          <span class="cur">yrs</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Assumed Annual Investment / Interest Growth (% p.a.)</span></div>
+        <div class="amount-field">
+          <input type="number" id="lisa-growth-rate-pct" value="4.0" min="0" max="15" step="0.5" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Lifetime ISA (LISA) First Home Deposit Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Total Own Cash Saved</span>
+          <strong id="lisa-total-own-cash">£20,000.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>25% Government Bonus Added</span>
+          <strong id="lisa-total-gov-bonus">£5,000.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Estimated Investment / Interest Growth</span>
+          <strong id="lisa-estimated-growth">£2,666.00</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Total LISA Property Deposit Fund</span>
+          <strong id="lisa-total-fund-amount">£27,666.00</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="finanzas" />
+  </div>
+</div>
+
+<script>
+  function calculateLisaFund() {
+    const depEl = document.getElementById('lisa-annual-deposit') as HTMLInputElement;
+    const yearsEl = document.getElementById('lisa-saving-years') as HTMLInputElement;
+    const rateEl = document.getElementById('lisa-growth-rate-pct') as HTMLInputElement;
+
+    if (!depEl || !yearsEl || !rateEl) return;
+
+    const annualDep = Math.min(4000, parseFloat(depEl.value) || 0);
+    const years = parseInt(yearsEl.value) || 0;
+    const rate = (parseFloat(rateEl.value) || 0) / 100;
+
+    const annualGovBonus = annualDep * 0.25;
+    const totalOwnCash = annualDep * years;
+    const totalGovBonus = annualGovBonus * years;
+
+    let fundValue = 0;
+    for (let y = 1; y <= years; y++) {
+      fundValue = (fundValue + annualDep + annualGovBonus) * (1 + rate);
+    }
+
+    const growthVal = Math.max(0, fundValue - totalOwnCash - totalGovBonus);
+
+    const ownResEl = document.getElementById('lisa-total-own-cash');
+    const bonusResEl = document.getElementById('lisa-total-gov-bonus');
+    const growthResEl = document.getElementById('lisa-estimated-growth');
+    const totalResEl = document.getElementById('lisa-total-fund-amount');
+
+    if (ownResEl) ownResEl.textContent = '£' + totalOwnCash.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (bonusResEl) bonusResEl.textContent = '£' + totalGovBonus.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (growthResEl) growthResEl.textContent = '£' + growthVal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (totalResEl) totalResEl.textContent = '£' + fundValue.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['lisa-annual-deposit', 'lisa-saving-years', 'lisa-growth-rate-pct'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateLisaFund);
+    document.getElementById(id)?.addEventListener('change', calculateLisaFund);
+  });
+  calculateLisaFund();
+</script>

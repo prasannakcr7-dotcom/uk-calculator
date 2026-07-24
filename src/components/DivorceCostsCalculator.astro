@@ -1,0 +1,110 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout family-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Divorce Legal & Court Details'}</h2>
+
+      <!-- Solicitor Hours -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.hoursLabel || 'Estimated Solicitor Hours'}</span>
+          <span class="hint" id="hoursVal">10 Hours</span>
+        </div>
+        <input type="range" min="2" max="50" step="2" value="10" id="hoursSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>2 Hours (Uncontested)</span><span>50 Hours (Complex)</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--family-1), var(--family-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Total Divorce Cost'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£2,793.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.courtFeeLabel || 'Mandatory Court Fee:'}</span>
+        <span class="val" id="subResultValue">£593.00</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Cost Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>HMCTS Court Application Fee</span>
+          <span class="val" id="courtFeeDisplay">£593.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Solicitor Legal Fees (£220/hr avg)</span>
+          <span class="val" id="solicitorCostDisplay">£2,200.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Estimated Total Divorce Cost</span>
+          <span class="val" id="totalCostDisplay" style="font-weight: 700; font-size: 18px;">£2,793.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • Court Fee: <strong>£593</strong> (England & Wales)<br/>
+        • Uncontested Average: <strong>£1,000 - £2,500</strong><br/>
+        • Mediation: Can reduce legal fees by up to <strong>30%</strong>.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const hoursSlider = document.getElementById('hoursSlider') as HTMLInputElement;
+  const hoursVal = document.getElementById('hoursVal') as HTMLElement;
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const courtFeeDisplay = document.getElementById('courtFeeDisplay') as HTMLElement;
+  const solicitorCostDisplay = document.getElementById('solicitorCostDisplay') as HTMLElement;
+  const totalCostDisplay = document.getElementById('totalCostDisplay') as HTMLElement;
+
+  hoursSlider.addEventListener('input', calculate);
+
+  function calculate() {
+    const hours = parseInt(hoursSlider.value, 10);
+    hoursVal.textContent = `${hours} Hours`;
+
+    const courtFee = 593;
+    const solicitorRate = 220;
+    const solicitorTotal = hours * solicitorRate;
+    const total = courtFee + solicitorTotal;
+
+    mainResultDisplay.textContent = formatCurrency(total);
+    subResultValue.textContent = formatCurrency(courtFee);
+    courtFeeDisplay.textContent = formatCurrency(courtFee);
+    solicitorCostDisplay.textContent = formatCurrency(solicitorTotal);
+    totalCostDisplay.textContent = formatCurrency(total);
+  }
+
+  calculate();
+</script>

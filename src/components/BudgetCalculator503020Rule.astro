@@ -1,0 +1,125 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout finance-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Monthly Net Take-Home Salary (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="monthly-takehome-pay" value="2500" min="500" step="50" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Current Actual Needs Monthly Expenditure (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="actual-needs-spend" value="1300" min="0" step="50" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Current Actual Wants Monthly Expenditure (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="actual-wants-spend" value="700" min="0" step="50" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Current Actual Savings & Extra Debt Monthly Contribution (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="actual-savings-spend" value="500" min="0" step="50" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>50-30-20 Recommended vs Actual Breakdown</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Needs Target (50%)</span>
+          <strong id="target-needs">£1,250.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Wants Target (30%)</span>
+          <strong id="target-wants">£750.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Needs Spending Variance</span>
+          <strong id="variance-needs">+£50.00 (Over budget)</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Savings Goal Variance</span>
+          <strong id="variance-savings">£0.00 (On target)</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Savings/Debt Target (20%)</span>
+          <strong id="target-savings">£500.00 / month</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="finanzas" />
+  </div>
+</div>
+
+<script>
+  function calculate503020Budget() {
+    const netPayEl = document.getElementById('monthly-takehome-pay') as HTMLInputElement;
+    const actNeedsEl = document.getElementById('actual-needs-spend') as HTMLInputElement;
+    const actWantsEl = document.getElementById('actual-wants-spend') as HTMLInputElement;
+    const actSavingsEl = document.getElementById('actual-savings-spend') as HTMLInputElement;
+
+    if (!netPayEl || !actNeedsEl || !actWantsEl || !actSavingsEl) return;
+
+    const netPay = parseFloat(netPayEl.value) || 0;
+    const actNeeds = parseFloat(actNeedsEl.value) || 0;
+    const actSavings = parseFloat(actSavingsEl.value) || 0;
+
+    const targetNeeds = netPay * 0.50;
+    const targetWants = netPay * 0.30;
+    const targetSavings = netPay * 0.20;
+
+    const varNeeds = actNeeds - targetNeeds;
+    const varSavings = actSavings - targetSavings;
+
+    const needsEl = document.getElementById('target-needs');
+    const wantsEl = document.getElementById('target-wants');
+    const savingsEl = document.getElementById('target-savings');
+    const varNeedsEl = document.getElementById('variance-needs');
+    const varSavingsEl = document.getElementById('variance-savings');
+
+    if (needsEl) needsEl.textContent = '£' + targetNeeds.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (wantsEl) wantsEl.textContent = '£' + targetWants.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (savingsEl) savingsEl.textContent = '£' + targetSavings.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+
+    const varNeedsText = varNeeds > 0 ? '+£' + varNeeds.toFixed(2) + ' (Over budget)' : '£' + varNeeds.toFixed(2) + ' (Under budget)';
+    const varSavingsText = varSavings >= 0 ? '+£' + varSavings.toFixed(2) + ' (Above target!)' : '£' + varSavings.toFixed(2) + ' (Below target)';
+
+    if (varNeedsEl) varNeedsEl.textContent = varNeedsText;
+    if (varSavingsEl) varSavingsEl.textContent = varSavingsText;
+  }
+
+  ['monthly-takehome-pay', 'actual-needs-spend', 'actual-wants-spend', 'actual-savings-spend'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculate503020Budget);
+    document.getElementById(id)?.addEventListener('change', calculate503020Budget);
+  });
+  calculate503020Budget();
+</script>

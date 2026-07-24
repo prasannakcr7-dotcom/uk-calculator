@@ -1,0 +1,164 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Quarterly VAT Return Details'}</h2>
+
+      <!-- Output Sales VAT -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.salesVatLabel || 'Quarterly Sales Output VAT Charged (£)'}</span>
+          <span class="hint" id="salesVatVal">£6,000</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="6,000" id="salesVatInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="0" max="50000" step="500" value="6000" id="salesVatSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£0</span><span>£50,000</span></div>
+      </div>
+
+      <!-- Input Expenses VAT -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.purchaseVatLabel || 'Quarterly Purchases Input VAT Reclaimable (£)'}</span>
+          <span class="hint" id="purchaseVatVal">£2,200</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="2,200" id="purchaseVatInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="0" max="50000" step="500" value="2200" id="purchaseVatSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£0</span><span>£50,000</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Net Quarterly VAT Payable to HMRC'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£3,800.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.deadlineLabel || 'Quarterly Return & Payment Deadline:'}</span>
+        <span class="val" id="subResultValue">1 Month + 7 Days After Quarter</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'VAT Return Box Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Box 1: Output VAT Charged on Sales</span>
+          <span class="val" id="box1Display">£6,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Box 4: Input VAT Reclaimed on Purchases</span>
+          <span class="val" id="box4Display">-£2,200.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Box 5: Net VAT Payable to HMRC</span>
+          <span class="val" id="box5Display" style="font-weight: 700; font-size: 18px;">£3,800.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Making Tax Digital (MTD):</strong> Mandatory digital filings for all VAT-registered businesses.<br/>
+        • <strong>Box 1:</strong> VAT charged on sales.<br/>
+        • <strong>Box 4:</strong> VAT paid on valid business expense receipts.<br/>
+        • <strong>Box 5:</strong> Net VAT due (Box 1 minus Box 4).<br/>
+        • <strong>Submission Deadline:</strong> 1 calendar month and 7 days following quarter end.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const salesVatInput = document.getElementById('salesVatInput') as HTMLInputElement;
+  const salesVatSlider = document.getElementById('salesVatSlider') as HTMLInputElement;
+  const salesVatVal = document.getElementById('salesVatVal') as HTMLElement;
+  const purchaseVatInput = document.getElementById('purchaseVatInput') as HTMLInputElement;
+  const purchaseVatSlider = document.getElementById('purchaseVatSlider') as HTMLInputElement;
+  const purchaseVatVal = document.getElementById('purchaseVatVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const box1Display = document.getElementById('box1Display') as HTMLElement;
+  const box4Display = document.getElementById('box4Display') as HTMLElement;
+  const box5Display = document.getElementById('box5Display') as HTMLElement;
+
+  function calculate() {
+    const box1 = parseInputVal(salesVatInput.value);
+    const box4 = parseInputVal(purchaseVatInput.value);
+
+    const netVat = box1 - box4;
+
+    salesVatVal.innerText = formatCurrency(box1).slice(0, -3);
+    purchaseVatVal.innerText = formatCurrency(box4).slice(0, -3);
+
+    if (netVat >= 0) {
+      mainResultDisplay.innerText = formatCurrency(netVat);
+      mainResultDisplay.style.color = '#ffffff';
+      subResultValue.innerText = 'Payable to HMRC via Direct Debit';
+      box5Display.innerText = formatCurrency(netVat);
+    } else {
+      mainResultDisplay.innerText = `${formatCurrency(Math.abs(netVat))} Refund`;
+      mainResultDisplay.style.color = '#ffffff';
+      subResultValue.innerText = 'HMRC Repayment Due to Business';
+      box5Display.innerText = `${formatCurrency(Math.abs(netVat))} Refund`;
+    }
+
+    box1Display.innerText = formatCurrency(box1);
+    box4Display.innerText = box4 > 0 ? `-${formatCurrency(box4)}` : '£0.00';
+  }
+
+  salesVatInput.addEventListener('input', () => {
+    const val = parseInputVal(salesVatInput.value);
+    salesVatSlider.value = String(val);
+    calculate();
+  });
+
+  salesVatSlider.addEventListener('input', () => {
+    salesVatInput.value = parseInt(salesVatSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  purchaseVatInput.addEventListener('input', () => {
+    const val = parseInputVal(purchaseVatInput.value);
+    purchaseVatSlider.value = String(val);
+    calculate();
+  });
+
+  purchaseVatSlider.addEventListener('input', () => {
+    purchaseVatInput.value = parseInt(purchaseVatSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  calculate();
+</script>

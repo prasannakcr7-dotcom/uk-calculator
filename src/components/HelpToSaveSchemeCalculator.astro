@@ -1,0 +1,85 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout finance-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Monthly Contribution (£50 Maximum)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="hts-monthly-savings" value="50" min="1" max="50" step="5" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Help to Save Government Bonus Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Year 2 Highest Balance Bonus (50%)</span>
+          <strong id="hts-year2-bonus">£600.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Year 4 Final Bonus (50% on Growth)</span>
+          <strong id="hts-year4-bonus">£600.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Total Own Savings Deposited (4 Years)</span>
+          <strong id="hts-total-own-savings">£2,400.00</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Total Combined Savings + Tax-Free Bonus</span>
+          <strong id="hts-total-payout-amount">£3,600.00</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="finanzas" />
+  </div>
+</div>
+
+<script>
+  function calculateHelpToSave() {
+    const monthlyEl = document.getElementById('hts-monthly-savings') as HTMLInputElement;
+    if (!monthlyEl) return;
+
+    const monthly = Math.min(50, Math.max(1, parseFloat(monthlyEl.value) || 50));
+
+    const year2Savings = monthly * 24;
+    const year2Bonus = year2Savings * 0.50;
+
+    const totalOwnSavings = monthly * 48;
+    const year4Bonus = (totalOwnSavings - year2Savings) * 0.50;
+    const totalBonus = year2Bonus + year4Bonus;
+    const totalPayout = totalOwnSavings + totalBonus;
+
+    const y2El = document.getElementById('hts-year2-bonus');
+    const y4El = document.getElementById('hts-year4-bonus');
+    const ownEl = document.getElementById('hts-total-own-savings');
+    const payEl = document.getElementById('hts-total-payout-amount');
+
+    if (y2El) y2El.textContent = '£' + year2Bonus.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (y4El) y4El.textContent = '£' + year4Bonus.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (ownEl) ownEl.textContent = '£' + totalOwnSavings.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (payEl) payEl.textContent = '£' + totalPayout.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  const inputEl = document.getElementById('hts-monthly-savings');
+  inputEl?.addEventListener('input', calculateHelpToSave);
+  inputEl?.addEventListener('change', calculateHelpToSave);
+  calculateHelpToSave();
+</script>

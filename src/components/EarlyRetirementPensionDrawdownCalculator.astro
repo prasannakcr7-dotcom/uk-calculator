@@ -1,0 +1,124 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Pension Pot & Drawdown Details'}</h2>
+
+      <!-- Pension Pot -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.potLabel || 'Total Accumulated Pension Pot (£)'}</span>
+          <span class="hint" id="potVal">£400,000</span>
+        </div>
+        <div class="amount-field" style="margin-top: 0; margin-bottom: 0;">
+          <input type="text" value="400,000" id="potInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="50000" max="1500000" step="25000" value="400000" id="potSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£50,000</span><span>£1,500,000</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--work-1), var(--work-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Sustainable Annual Drawdown Income (4% Rule)'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£16,000.00/yr</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.monthlyLabel || 'Monthly Drawdown Income:'}</span>
+        <span class="val" id="subResultValue">£1,333.33/mo</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Pension Drawdown Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Max 25% Tax-Free Lump Sum (Capped £268,275)</span>
+          <span class="val" id="taxFreeLumpDisplay">£100,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Sustainable Annual Drawdown (4% Rule)</span>
+          <span class="val" id="annualDrawdownDisplay">£16,000.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Sustainable Monthly Drawdown Income</span>
+          <span class="val" id="monthlyDrawdownDisplay" style="font-weight: 700; font-size: 18px;">£1,333.33</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • Minimum pension age: <strong>55 (rising to 57 in 2028)</strong>.<br/>
+        • Tax-Free Lump Sum: <strong>25%</strong> (capped at £268,275).<br/>
+        • Remaining 75% taxed as income under PAYE.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const potInput = document.getElementById('potInput') as HTMLInputElement;
+  const potSlider = document.getElementById('potSlider') as HTMLInputElement;
+  const potVal = document.getElementById('potVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const taxFreeLumpDisplay = document.getElementById('taxFreeLumpDisplay') as HTMLElement;
+  const annualDrawdownDisplay = document.getElementById('annualDrawdownDisplay') as HTMLElement;
+  const monthlyDrawdownDisplay = document.getElementById('monthlyDrawdownDisplay') as HTMLElement;
+
+  potInput.addEventListener('input', () => {
+    const val = parseInputVal(potInput.value);
+    potSlider.value = String(Math.min(1500000, Math.max(50000, val)));
+    calculate();
+  });
+
+  potSlider.addEventListener('input', () => {
+    potInput.value = potSlider.value;
+    calculate();
+  });
+
+  function calculate() {
+    const pot = parseInputVal(potInput.value);
+    potVal.textContent = formatCurrency(pot);
+
+    const taxFree = Math.min(268275, pot * 0.25);
+    const annualDrawdown = pot * 0.04;
+    const monthlyDrawdown = annualDrawdown / 12;
+
+    mainResultDisplay.textContent = `${formatCurrency(annualDrawdown)}/yr`;
+    subResultValue.textContent = `${formatCurrency(monthlyDrawdown)}/mo`;
+    taxFreeLumpDisplay.textContent = formatCurrency(taxFree);
+    annualDrawdownDisplay.textContent = formatCurrency(annualDrawdown);
+    monthlyDrawdownDisplay.textContent = formatCurrency(monthlyDrawdown);
+  }
+
+  calculate();
+</script>

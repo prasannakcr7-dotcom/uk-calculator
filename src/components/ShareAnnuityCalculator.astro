@@ -1,0 +1,126 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout finance-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Annuity Purchase Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Total Pension Pot Annuity Purchase Price (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="annuity-pot-amount" value="150000" min="10000" step="10000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Annuitant Age at Purchase</span></div>
+        <div class="amount-field">
+          <input type="number" id="annuity-purchaser-age" value="65" min="55" max="85" step="1" />
+          <span class="cur">yrs old</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Annuity Type & Indexation</span></div>
+        <select id="annuity-type-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="level_single" selected>Level Single Life Annuity (~7.2% Rate - £10,800/yr)</option>
+          <option value="inflation_linked">RPI Inflation-Linked Annuity (~4.5% Initial Rate - £6,750/yr)</option>
+          <option value="joint_50">Joint Life 50% Survivor Annuity (~6.4% Rate - £9,600/yr)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--finance-1), var(--finance-2) 80%);">
+      <div class="result-label">Guaranteed Gross Annual Annuity Income</div>
+      <div class="result-amount"><span id="mainResultDisplay">£10,800.00 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Monthly Guaranteed Payout:</span>
+        <span class="val" id="subResultValue">£900.00 / month</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Guaranteed Annuity Income Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Annuity Purchase Price Pot</span>
+          <span class="val" id="annuityPurchasePotDisplay">£150,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Annuity Annuity Rate (Age 65)</span>
+          <span class="val" id="annuityRateDisplay">7.20% Annuity Rate</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Monthly Guaranteed Income</span>
+          <span class="val" id="monthlyAnnuityIncomeDisplay">£900.00 / month</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Guaranteed Annual Income for Life</span>
+          <span class="val" id="totalAnnualAnnuityDisplay" style="font-weight: 700; font-size: 18px;">£10,800.00 / year</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="finanzas" />
+  </div>
+</div>
+
+<script>
+  function calculateAnnuity() {
+    const potEl = document.getElementById('annuity-pot-amount') as HTMLInputElement;
+    const ageEl = document.getElementById('annuity-purchaser-age') as HTMLInputElement;
+    const typeEl = document.getElementById('annuity-type-select') as HTMLSelectElement;
+
+    if (!potEl || !ageEl || !typeEl) return;
+
+    const pot = parseFloat(potEl.value) || 0;
+    const age = parseInt(ageEl.value) || 65;
+    const type = typeEl.value;
+
+    let baseRate = 0.072; // Level single 65
+    if (type === 'inflation_linked') baseRate = 0.045;
+    else if (type === 'joint_50') baseRate = 0.064;
+
+    // Age adjustment (~0.3% per year above/below 65)
+    const ageAdj = (age - 65) * 0.003;
+    const finalRate = Math.max(0.02, baseRate + ageAdj);
+
+    const annualIncome = pot * finalRate;
+    const monthlyIncome = annualIncome / 12;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const potRes = document.getElementById('annuityPurchasePotDisplay');
+    const rateRes = document.getElementById('annuityRateDisplay');
+    const monthRes = document.getElementById('monthlyAnnuityIncomeDisplay');
+    const totalRes = document.getElementById('totalAnnualAnnuityDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + annualIncome.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (subVal) subVal.textContent = '£' + monthlyIncome.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (potRes) potRes.textContent = '£' + pot.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (rateRes) rateRes.textContent = (finalRate * 100).toFixed(2) + `% Annuity Rate (Age ${age})`;
+    if (monthRes) monthRes.textContent = '£' + monthlyIncome.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (totalRes) totalRes.textContent = '£' + annualIncome.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+  }
+
+  ['annuity-pot-amount', 'annuity-purchaser-age', 'annuity-type-select'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateAnnuity);
+    document.getElementById(id)?.addEventListener('change', calculateAnnuity);
+  });
+  calculateAnnuity();
+</script>

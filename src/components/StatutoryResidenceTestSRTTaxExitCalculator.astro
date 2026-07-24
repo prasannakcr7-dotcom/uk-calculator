@@ -1,0 +1,166 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Statutory Residence Test (SRT) Details'}</h2>
+
+      <!-- Days Spent in UK -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.daysInUkLabel || 'Days Spent in the UK During Tax Year'}</span>
+          <span class="hint" id="daysInUkVal">45 Days</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="45" id="daysInUkInput" inputmode="decimal" />
+          <span class="cur">Days</span>
+        </div>
+        <input type="range" min="0" max="365" step="1" value="45" id="daysInUkSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>0 Days</span><span>365 Days</span></div>
+      </div>
+
+      <!-- UK Ties Count -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.tiesLabel || 'Number of UK Ties (Family, Accommodation, Work, 90-Day)'}</span>
+          <span class="hint" id="tiesVal">2 UK Ties</span>
+        </div>
+        <input type="range" min="0" max="4" step="1" value="2" id="tiesSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>0 Ties</span><span>4 Ties</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'HMRC Statutory UK Residence Status'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">Non-UK Resident</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.ruleAppliedLabel || 'SRT Test Tier Result:'}</span>
+        <span class="val" id="subResultValue">Automatic Overseas Test Met (&lt;46 Days)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'SRT Multi-Tier Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Days Spent in UK (Midnight Count)</span>
+          <span class="val" id="daysDisplay">45 Days</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Sufficient UK Ties Count</span>
+          <span class="val" id="tiesDisplay">2 Ties</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Final UK Tax Residence Status</span>
+          <span class="val" id="finalStatusDisplay" style="font-weight: 700; font-size: 18px; color: var(--success, #10b981);">Non-UK Resident (Exempt Foreign Income)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Automatic Overseas (&lt;16 Days):</strong> Automatically non-resident if in UK under 16 days.<br/>
+        • <strong>Automatic UK (183+ Days):</strong> Automatically UK resident if in UK 183+ days.<br/>
+        • <strong>Midnight Rule:</strong> A day counts if present in UK at midnight.<br/>
+        • <strong>Sufficient Ties Test:</strong> Evaluates family, accommodation, work, and 90-day ties.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  const daysInUkInput = document.getElementById('daysInUkInput') as HTMLInputElement;
+  const daysInUkSlider = document.getElementById('daysInUkSlider') as HTMLInputElement;
+  const daysInUkVal = document.getElementById('daysInUkVal') as HTMLElement;
+  const tiesSlider = document.getElementById('tiesSlider') as HTMLInputElement;
+  const tiesVal = document.getElementById('tiesVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const daysDisplay = document.getElementById('daysDisplay') as HTMLElement;
+  const tiesDisplay = document.getElementById('tiesDisplay') as HTMLElement;
+  const finalStatusDisplay = document.getElementById('finalStatusDisplay') as HTMLElement;
+
+  function calculate() {
+    const days = parseInputVal(daysInUkInput.value);
+    const ties = parseInt(tiesSlider.value, 10);
+
+    let isResident = false;
+    let ruleText = '';
+
+    if (days < 16) {
+      isResident = false;
+      ruleText = 'Automatic Overseas Test (<16 Days)';
+    } else if (days >= 183) {
+      isResident = true;
+      ruleText = 'Automatic UK Test (183+ Days)';
+    } else {
+      // Sufficient Ties Test for Leavers (assuming previously UK resident)
+      if (days >= 16 && days <= 45) {
+        isResident = ties >= 4;
+      } else if (days >= 46 && days <= 90) {
+        isResident = ties >= 3;
+      } else if (days >= 91 && days <= 120) {
+        isResident = ties >= 2;
+      } else if (days >= 121 && days <= 182) {
+        isResident = ties >= 1;
+      }
+      ruleText = `Sufficient Ties Test (${ties} Ties, ${days} Days)`;
+    }
+
+    daysInUkVal.innerText = `${days} Day${days === 1 ? '' : 's'}`;
+    tiesVal.innerText = `${ties} UK Tie${ties === 1 ? '' : 's'}`;
+
+    daysDisplay.innerText = `${days} Days`;
+    tiesDisplay.innerText = `${ties} Ties`;
+
+    if (isResident) {
+      mainResultDisplay.innerText = 'UK Tax Resident';
+      subResultValue.innerText = ruleText;
+      finalStatusDisplay.innerText = 'UK TAX RESIDENT (Worldwide Income Taxed)';
+      finalStatusDisplay.style.color = 'var(--error, #ef4444)';
+    } else {
+      mainResultDisplay.innerText = 'Non-UK Resident';
+      subResultValue.innerText = ruleText;
+      finalStatusDisplay.innerText = 'NON-UK RESIDENT (Exempt Foreign Income)';
+      finalStatusDisplay.style.color = 'var(--success, #10b981)';
+    }
+  }
+
+  daysInUkInput.addEventListener('input', () => {
+    const val = parseInputVal(daysInUkInput.value);
+    daysInUkSlider.value = String(val);
+    calculate();
+  });
+
+  daysInUkSlider.addEventListener('input', () => {
+    daysInUkInput.value = String(parseInt(daysInUkSlider.value, 10));
+    calculate();
+  });
+
+  tiesSlider.addEventListener('input', calculate);
+
+  calculate();
+</script>

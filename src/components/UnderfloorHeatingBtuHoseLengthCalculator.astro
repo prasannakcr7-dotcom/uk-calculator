@@ -1,0 +1,174 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'UFH Room Area & Pipe Spacing Details'}</h2>
+
+      <!-- Heated Floor Area (sq m) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.areaLabel || 'Heated Room Floor Area (sq m)'}</span>
+          <span class="hint" id="areaVal">30.0 sq m</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="30.0" id="areaInput" inputmode="decimal" />
+          <span class="cur">sq m</span>
+        </div>
+        <input type="range" min="5" max="150" step="5" value="30" id="areaSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>5 sq m</span><span>150 sq m</span></div>
+      </div>
+
+      <!-- UFH Pipe Spacing Center-to-Center -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.spacingLabel || 'Pipe Center-to-Center Spacing (mm)'}</span>
+          <span class="hint" id="spacingVal">150mm Spacing (Standard Screed / Heat Pump)</span>
+        </div>
+        <select id="spacingSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="150" selected>150mm Pipe Spacing (6.67m pipe / sq m — Standard Screed / Heat Pump)</option>
+          <option value="200">200mm Pipe Spacing (5.00m pipe / sq m — High Output Gas Boiler)</option>
+          <option value="100">100mm Pipe Spacing (10.0m pipe / sq m — Perimeter Zones / Low Flow Temp)</option>
+        </select>
+      </div>
+
+      <!-- Distance to Manifold (m) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.manifoldDistLabel || 'Distance from Room to UFH Manifold (Metres)'}</span>
+          <span class="hint" id="manifoldDistVal">8.0 Metres</span>
+        </div>
+        <input type="range" min="1" max="25" step="1" value="8" id="manifoldDistSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1m</span><span>25m</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Total PERT/PEX Pipe Length & Loops Required'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">216 Metres Pipe (2 Loops)</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.heatOutputLabel || 'Estimated Thermal Heat Output Rating:'}</span>
+        <span class="val" id="subResultValue">2,100 Watts (7,165 BTU/hr @ 70 W/sq m Heat Density)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Underfloor Heating System Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Room Floor Area Pipe Coverage</span>
+          <span class="val" id="floorPipeDisplay">200.0 Metres (150mm Spacing)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Manifold Flow & Return Tails (8m × 2)</span>
+          <span class="val" id="tailsPipeDisplay">+16.0 Metres</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Recommended Manifold Port Loops</span>
+          <span class="val" id="loopsDisplay">2 Manifold Circuit Ports (108m / loop)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total 16mm UFH Pipe Coil Length</span>
+          <span class="val" id="totalPipeDisplay" style="font-weight: 700; font-size: 18px;">216 Metres (Order 250m Coil)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Max Loop Length:</strong> Maximum 100m to 110m per 16mm pipe circuit loop to limit pressure drop.<br/>
+        • <strong>Pipe Spacing:</strong> 150mm spacing standard for heat pumps (45°C flow temp).<br/>
+        • <strong>Pipe Consumption:</strong> 150mm spacing = 6.67m pipe/sq m; 200mm spacing = 5.0m pipe/sq m.<br/>
+        • <strong>Floor Finish Thermal Resistance:</strong> Carpet + Underlay TOG must not exceed 2.5 TOG total.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  const areaInput = document.getElementById('areaInput') as HTMLInputElement;
+  const areaSlider = document.getElementById('areaSlider') as HTMLInputElement;
+  const areaVal = document.getElementById('areaVal') as HTMLElement;
+  const spacingSelect = document.getElementById('spacingSelect') as HTMLSelectElement;
+  const manifoldDistSlider = document.getElementById('manifoldDistSlider') as HTMLInputElement;
+  const manifoldDistVal = document.getElementById('manifoldDistVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const floorPipeDisplay = document.getElementById('floorPipeDisplay') as HTMLElement;
+  const tailsPipeDisplay = document.getElementById('tailsPipeDisplay') as HTMLElement;
+  const loopsDisplay = document.getElementById('loopsDisplay') as HTMLElement;
+  const totalPipeDisplay = document.getElementById('totalPipeDisplay') as HTMLElement;
+
+  function calculate() {
+    const areaSqm = parseInputVal(areaInput.value);
+    const spacingMm = parseInt(spacingSelect.value, 10);
+    const manifoldDistM = parseInt(manifoldDistSlider.value, 10);
+
+    // Pipe consumption rates
+    let pipePerSqm = 6.67;
+    if (spacingMm === 200) pipePerSqm = 5.00;
+    if (spacingMm === 100) pipePerSqm = 10.00;
+
+    const floorPipeLength = areaSqm * pipePerSqm;
+    const tailsLength = manifoldDistM * 2; // Flow and return tails
+    const netPipeLength = floorPipeLength + tailsLength;
+
+    // Max loop length for 16mm pipe is 100m - 110m
+    const numLoops = Math.max(1, Math.ceil(netPipeLength / 105));
+    const lengthPerLoop = netPipeLength / numLoops;
+
+    // Heat output estimation (~70 Watts per sq m for 150mm spacing in screed)
+    const heatWatts = Math.round(areaSqm * 70);
+    const heatBtu = Math.round(heatWatts * 3.41214);
+
+    areaVal.innerText = `${areaSqm.toFixed(1)} sq m`;
+    manifoldDistVal.innerText = `${manifoldDistM} Metres`;
+
+    mainResultDisplay.innerText = `${Math.round(netPipeLength)} Metres Pipe (${numLoops} Loop${numLoops === 1 ? '' : 's'})`;
+    subResultValue.innerText = `${heatWatts.toLocaleString('en-GB')} Watts (${heatBtu.toLocaleString('en-GB')} BTU/hr @ 70W/sq m)`;
+
+    floorPipeDisplay.innerText = `${Math.round(floorPipeLength)} Metres (${spacingMm}mm Spacing)`;
+    tailsPipeDisplay.innerText = `+${tailsLength} Metres (${manifoldDistM}m Flow & Return)`;
+    loopsDisplay.innerText = `${numLoops} Circuit Loop${numLoops === 1 ? '' : 's'} (~${Math.round(lengthPerLoop)}m / loop)`;
+    totalPipeDisplay.innerText = `${Math.round(netPipeLength)} Metres (${Math.ceil(netPipeLength / 50) * 50}m Coil Size)`;
+  }
+
+  areaInput.addEventListener('input', () => {
+    const val = parseInputVal(areaInput.value);
+    areaSlider.value = String(val);
+    calculate();
+  });
+
+  areaSlider.addEventListener('input', () => {
+    areaInput.value = parseInt(areaSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  spacingSelect.addEventListener('change', calculate);
+  manifoldDistSlider.addEventListener('input', calculate);
+
+  calculate();
+</script>

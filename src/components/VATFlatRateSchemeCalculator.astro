@@ -1,0 +1,191 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'VAT Flat Rate Scheme Details'}</h2>
+
+      <!-- Gross VAT-Inclusive Revenue -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.grossRevenueLabel || 'Gross VAT-Inclusive Annual Revenue (£)'}</span>
+          <span class="hint" id="grossRevenueVal">£120,000</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="120,000" id="grossRevenueInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="0" max="150000" step="2500" value="120000" id="grossRevenueSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£0</span><span>£150,000 (Max Flat Rate Cap)</span></div>
+      </div>
+
+      <!-- Flat Rate Percentage -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.sectorRateLabel || 'FRS Sector Percentage (e.g. IT Consultancy 14.5%)'}</span>
+          <span class="hint" id="sectorRateVal">14.5% (IT Consultancy)</span>
+        </div>
+        <select id="sectorRateSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="14.5" selected>14.5% — IT Consultancy & Computer Services</option>
+          <option value="12.0">12.0% — Management Consultancy</option>
+          <option value="11.0">11.0% — Advertising & Photography</option>
+          <option value="9.5">9.5% — Building & Construction Services</option>
+          <option value="16.5">16.5% — Limited Cost Trader Rate (Low Expense)</option>
+        </select>
+      </div>
+
+      <!-- First Year 1% Discount -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.firstYearLabel || 'First Year of VAT Registration (1% Discount)?'}</span>
+          <span class="hint" id="firstYearVal">No</span>
+        </div>
+        <div style="display:flex; gap:12px; margin-top:8px;">
+          <button type="button" class="preset-btn active" id="firstYearNoBtn">No (Standard Flat Rate)</button>
+          <button type="button" class="preset-btn" id="firstYearYesBtn">Yes (-1% First-Year Discount)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Net Annual Flat Rate VAT Payable'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£17,400.00/yr</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.quarterlyLabel || 'Quarterly Flat Rate VAT Payment:'}</span>
+        <span class="val" id="subResultValue">£4,350.00 / quarter</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Flat Rate VAT Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Turnover (Including 20% VAT Charged)</span>
+          <span class="val" id="grossTurnoverDisplay">£120,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Applied Flat Rate Percentage</span>
+          <span class="val" id="appliedRateDisplay">14.5%</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>VAT Collected from Clients (20% on £100k Net)</span>
+          <span class="val" id="vatCollectedDisplay">£20,000.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Flat Rate VAT Payable to HMRC</span>
+          <span class="val" id="netVatDisplay" style="font-weight: 700; font-size: 18px;">£17,400.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Eligibility Limit:</strong> Annual taxable turnover under £150,000.<br/>
+        • <strong>1% First-Year Discount:</strong> Reduce flat rate by 1% during 1st year of VAT registration.<br/>
+        • <strong>Limited Cost Trader (16.5%):</strong> Triggers if relevant goods purchases are under 2% of turnover.<br/>
+        • <strong>Capital Asset Reclaim:</strong> Reclaim input VAT on single capital assets costing £2,000+ (incl. VAT).
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const grossRevenueInput = document.getElementById('grossRevenueInput') as HTMLInputElement;
+  const grossRevenueSlider = document.getElementById('grossRevenueSlider') as HTMLInputElement;
+  const grossRevenueVal = document.getElementById('grossRevenueVal') as HTMLElement;
+  const sectorRateSelect = document.getElementById('sectorRateSelect') as HTMLSelectElement;
+
+  const firstYearNoBtn = document.getElementById('firstYearNoBtn') as HTMLButtonElement;
+  const firstYearYesBtn = document.getElementById('firstYearYesBtn') as HTMLButtonElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const grossTurnoverDisplay = document.getElementById('grossTurnoverDisplay') as HTMLElement;
+  const appliedRateDisplay = document.getElementById('appliedRateDisplay') as HTMLElement;
+  const vatCollectedDisplay = document.getElementById('vatCollectedDisplay') as HTMLElement;
+  const netVatDisplay = document.getElementById('netVatDisplay') as HTMLElement;
+
+  let isFirstYear = false;
+
+  function calculate() {
+    const gross = parseInputVal(grossRevenueInput.value);
+    let baseRate = parseFloat(sectorRateSelect.value);
+
+    if (isFirstYear) {
+      baseRate = Math.max(0, baseRate - 1.0);
+    }
+
+    const rateFraction = baseRate / 100;
+    const flatRateVat = gross * rateFraction;
+    const quarterlyVat = flatRateVat / 4;
+
+    // Estimate VAT collected assuming 20% standard rate on net
+    const netSales = gross / 1.20;
+    const vatCollected = gross - netSales;
+
+    grossRevenueVal.innerText = formatCurrency(gross).slice(0, -3);
+
+    mainResultDisplay.innerText = `${formatCurrency(flatRateVat)}/yr`;
+    subResultValue.innerText = `${formatCurrency(quarterlyVat)} / quarter`;
+
+    grossTurnoverDisplay.innerText = formatCurrency(gross);
+    appliedRateDisplay.innerText = `${baseRate.toFixed(1)}%`;
+    vatCollectedDisplay.innerText = formatCurrency(vatCollected);
+    netVatDisplay.innerText = formatCurrency(flatRateVat);
+  }
+
+  firstYearNoBtn.addEventListener('click', () => {
+    isFirstYear = false;
+    firstYearNoBtn.classList.add('active');
+    firstYearYesBtn.classList.remove('active');
+    calculate();
+  });
+
+  firstYearYesBtn.addEventListener('click', () => {
+    isFirstYear = true;
+    firstYearYesBtn.classList.add('active');
+    firstYearNoBtn.classList.remove('active');
+    calculate();
+  });
+
+  grossRevenueInput.addEventListener('input', () => {
+    const val = parseInputVal(grossRevenueInput.value);
+    grossRevenueSlider.value = String(val);
+    calculate();
+  });
+
+  grossRevenueSlider.addEventListener('input', () => {
+    grossRevenueInput.value = parseInt(grossRevenueSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  sectorRateSelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

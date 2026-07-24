@@ -1,0 +1,179 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Room Dimension Details'}</h2>
+
+      <!-- Length (Metres) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.lengthLabel || 'Room Length (Metres)'}</span>
+          <span class="hint" id="lengthVal">5.0 m (16.4 ft)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="5.0" id="lengthInput" inputmode="decimal" />
+          <span class="cur">m</span>
+        </div>
+        <input type="range" min="1" max="25" step="0.1" value="5.0" id="lengthSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1.0m</span><span>25.0m</span></div>
+      </div>
+
+      <!-- Width (Metres) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.widthLabel || 'Room Width (Metres)'}</span>
+          <span class="hint" id="widthVal">4.0 m (13.1 ft)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="4.0" id="widthInput" inputmode="decimal" />
+          <span class="cur">m</span>
+        </div>
+        <input type="range" min="1" max="25" step="0.1" value="4.0" id="widthSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1.0m</span><span>25.0m</span></div>
+      </div>
+
+      <!-- Waste Allowance (%) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.wasteLabel || 'Cutting Waste Allowance (%)'}</span>
+          <span class="hint" id="wasteVal">10% Standard Waste</span>
+        </div>
+        <input type="range" min="0" max="20" step="5" value="10" id="wasteSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>0%</span><span>20%</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Calculated Total Room Floor Area'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">20.00 sq m</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.sqftResultLabel || 'Imperial Area & Area + Waste:'}</span>
+        <span class="val" id="subResultValue">215.28 sq ft (22.00 sq m incl. 10% Waste)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Floor Area Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Net Room Floor Area (Metric)</span>
+          <span class="val" id="netSqmDisplay">20.00 sq m</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Net Room Floor Area (Imperial)</span>
+          <span class="val" id="netSqftDisplay">215.28 sq ft</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Cutting Waste Allowance (10%)</span>
+          <span class="val" id="wasteSqmDisplay">+2.00 sq m</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Recommended Materials Order Area</span>
+          <span class="val" id="grossSqmDisplay" style="font-weight: 700; font-size: 18px;">22.00 sq m (236.81 sq ft)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Rectangular Area:</strong> Length (m) × Width (m) = Floor Area (sq m).<br/>
+        • <strong>Imperial Conversion:</strong> Multiply sq m by 10.7639 to get sq ft.<br/>
+        • <strong>Standard Waste Allowance:</strong> Add 10% for straight layouts; 15% for diagonal tiling.<br/>
+        • <strong>Irregular L-Shaped Rooms:</strong> Divide room into separate rectangular zones and add together.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  const lengthInput = document.getElementById('lengthInput') as HTMLInputElement;
+  const lengthSlider = document.getElementById('lengthSlider') as HTMLInputElement;
+  const lengthVal = document.getElementById('lengthVal') as HTMLElement;
+  const widthInput = document.getElementById('widthInput') as HTMLInputElement;
+  const widthSlider = document.getElementById('widthSlider') as HTMLInputElement;
+  const widthVal = document.getElementById('widthVal') as HTMLElement;
+  const wasteSlider = document.getElementById('wasteSlider') as HTMLInputElement;
+  const wasteVal = document.getElementById('wasteVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const netSqmDisplay = document.getElementById('netSqmDisplay') as HTMLElement;
+  const netSqftDisplay = document.getElementById('netSqftDisplay') as HTMLElement;
+  const wasteSqmDisplay = document.getElementById('wasteSqmDisplay') as HTMLElement;
+  const grossSqmDisplay = document.getElementById('grossSqmDisplay') as HTMLElement;
+
+  const SQM_TO_SQFT = 10.7639;
+
+  function calculate() {
+    const length = parseInputVal(lengthInput.value);
+    const width = parseInputVal(widthInput.value);
+    const wastePercent = parseInt(wasteSlider.value, 10);
+
+    const netSqm = length * width;
+    const netSqft = netSqm * SQM_TO_SQFT;
+    const wasteSqm = netSqm * (wastePercent / 100);
+    const grossSqm = netSqm + wasteSqm;
+    const grossSqft = grossSqm * SQM_TO_SQFT;
+
+    lengthVal.innerText = `${length.toFixed(1)} m (${(length * 3.28084).toFixed(1)} ft)`;
+    widthVal.innerText = `${width.toFixed(1)} m (${(width * 3.28084).toFixed(1)} ft)`;
+    wasteVal.innerText = `${wastePercent}% Waste Allowance`;
+
+    mainResultDisplay.innerText = `${netSqm.toFixed(2)} sq m`;
+    subResultValue.innerText = `${netSqft.toFixed(2)} sq ft (${grossSqm.toFixed(2)} sq m incl. ${wastePercent}% Waste)`;
+
+    netSqmDisplay.innerText = `${netSqm.toFixed(2)} sq m`;
+    netSqftDisplay.innerText = `${netSqft.toFixed(2)} sq ft`;
+    wasteSqmDisplay.innerText = `+${wasteSqm.toFixed(2)} sq m`;
+    grossSqmDisplay.innerText = `${grossSqm.toFixed(2)} sq m (${grossSqft.toFixed(1)} sq ft)`;
+  }
+
+  lengthInput.addEventListener('input', () => {
+    const val = parseInputVal(lengthInput.value);
+    lengthSlider.value = String(val);
+    calculate();
+  });
+
+  lengthSlider.addEventListener('input', () => {
+    lengthInput.value = parseFloat(lengthSlider.value).toFixed(1);
+    calculate();
+  });
+
+  widthInput.addEventListener('input', () => {
+    const val = parseInputVal(widthInput.value);
+    widthSlider.value = String(val);
+    calculate();
+  });
+
+  widthSlider.addEventListener('input', () => {
+    widthInput.value = parseFloat(widthSlider.value).toFixed(1);
+    calculate();
+  });
+
+  wasteSlider.addEventListener('input', calculate);
+
+  calculate();
+</script>

@@ -1,0 +1,160 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Tax Refund & Overpayment Details'}</h2>
+
+      <!-- Actual Tax Paid -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.taxPaidLabel || 'Total Tax Paid in Tax Year (£)'}</span>
+          <span class="hint" id="taxPaidVal">£4,500</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="4,500" id="taxPaidInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="0" max="25000" step="250" value="4500" id="taxPaidSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£0</span><span>£25,000</span></div>
+      </div>
+
+      <!-- Correct Tax Due -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.taxDueLabel || 'Correct Tax Due (£)'}</span>
+          <span class="hint" id="taxDueVal">£3,800</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="3,800" id="taxDueInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="0" max="25000" step="250" value="3800" id="taxDueSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£0</span><span>£25,000</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated HMRC Tax Refund Due'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£700.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.claimWindowLabel || 'HMRC Claim Form Required:'}</span>
+        <span class="val" id="subResultValue">Form P50 / P53 / P87</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Tax Overpayment Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Total Tax Deducted via PAYE</span>
+          <span class="val" id="taxPaidDisplay">£4,500.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Actual Correct Tax Due</span>
+          <span class="val" id="taxDueDisplay">£3,800.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Estimated Tax Overpayment Refund</span>
+          <span class="val" id="netRefundDisplay" style="font-weight: 700; font-size: 18px;">£700.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Claim Window:</strong> Backdate claims up to 4 tax years.<br/>
+        • <strong>P800 Tax Calculation:</strong> Sent automatically by HMRC between June & October.<br/>
+        • <strong>Form P50:</strong> Used if stopped working and have no income.<br/>
+        • <strong>Form P53:</strong> Used for pension small pot lump sum over-taxation.<br/>
+        • <strong>Zero Fee:</strong> Claim 100% free via GOV.UK personal tax account.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const taxPaidInput = document.getElementById('taxPaidInput') as HTMLInputElement;
+  const taxPaidSlider = document.getElementById('taxPaidSlider') as HTMLInputElement;
+  const taxPaidVal = document.getElementById('taxPaidVal') as HTMLElement;
+  const taxDueInput = document.getElementById('taxDueInput') as HTMLInputElement;
+  const taxDueSlider = document.getElementById('taxDueSlider') as HTMLInputElement;
+  const taxDueVal = document.getElementById('taxDueVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const taxPaidDisplay = document.getElementById('taxPaidDisplay') as HTMLElement;
+  const taxDueDisplay = document.getElementById('taxDueDisplay') as HTMLElement;
+  const netRefundDisplay = document.getElementById('netRefundDisplay') as HTMLElement;
+
+  function calculate() {
+    const taxPaid = parseInputVal(taxPaidInput.value);
+    const taxDue = parseInputVal(taxDueInput.value);
+
+    const refund = Math.max(0, taxPaid - taxDue);
+
+    taxPaidVal.innerText = formatCurrency(taxPaid).slice(0, -3);
+    taxDueVal.innerText = formatCurrency(taxDue).slice(0, -3);
+
+    mainResultDisplay.innerText = formatCurrency(refund);
+    taxPaidDisplay.innerText = formatCurrency(taxPaid);
+    taxDueDisplay.innerText = formatCurrency(taxDue);
+    netRefundDisplay.innerText = formatCurrency(refund);
+
+    if (refund > 0) {
+      subResultValue.innerText = 'Form P50 / P53 / P87 or P800 Notice';
+    } else {
+      subResultValue.innerText = 'No Tax Refund Due';
+    }
+  }
+
+  taxPaidInput.addEventListener('input', () => {
+    const val = parseInputVal(taxPaidInput.value);
+    taxPaidSlider.value = String(val);
+    calculate();
+  });
+
+  taxPaidSlider.addEventListener('input', () => {
+    taxPaidInput.value = parseInt(taxPaidSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  taxDueInput.addEventListener('input', () => {
+    const val = parseInputVal(taxDueInput.value);
+    taxDueSlider.value = String(val);
+    calculate();
+  });
+
+  taxDueSlider.addEventListener('input', () => {
+    taxDueInput.value = parseInt(taxDueSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  calculate();
+</script>

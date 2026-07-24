@@ -1,0 +1,146 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Residential Property CGT Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Property Gross Sale / Disposal Proceeds (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="prop-cgt-sale-price" value="320000" min="10000" step="5000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Original Acquisition Purchase Cost (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="prop-cgt-purchase-price" value="210000" min="0" step="5000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Allowable Capital Improvements & Legal Costs (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="prop-cgt-allowable-costs" value="15000" min="0" step="1000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Other Annual Taxable Income (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="prop-cgt-taxable-income" value="45000" min="0" step="1000" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">Estimated Property Capital Gains Tax (60-Day HMRC Return)</div>
+      <div class="result-amount"><span id="mainResultDisplay">£21,840.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">CGT Annual Tax-Free Allowance Claimed:</span>
+        <span class="val" id="subResultValue">£3,000.00 Exempt</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Property CGT Calculation Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Capital Gain Realised</span>
+          <span class="val" id="grossCapitalGainDisplay">£95,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Net Taxable Gain (After £3,000 Allowance)</span>
+          <span class="val" id="taxableGainDisplay">£92,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Applicable Residential CGT Rates</span>
+          <span class="val" id="cgtRatesAppliedDisplay">18% / 24% Residential Rates</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Residential Property CGT Payable</span>
+          <span class="val" id="totalPropertyCgtDisplay" style="font-weight: 700; font-size: 18px;">£21,840.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="impuestos" />
+  </div>
+</div>
+
+<script>
+  function calculatePropertyCgt() {
+    const saleEl = document.getElementById('prop-cgt-sale-price') as HTMLInputElement;
+    const buyEl = document.getElementById('prop-cgt-purchase-price') as HTMLInputElement;
+    const costsEl = document.getElementById('prop-cgt-allowable-costs') as HTMLInputElement;
+    const incomeEl = document.getElementById('prop-cgt-taxable-income') as HTMLInputElement;
+
+    if (!saleEl || !buyEl || !costsEl || !incomeEl) return;
+
+    const sale = parseFloat(saleEl.value) || 0;
+    const buy = parseFloat(buyEl.value) || 0;
+    const costs = parseFloat(costsEl.value) || 0;
+    const income = parseFloat(incomeEl.value) || 0;
+
+    const grossGain = Math.max(0, sale - buy - costs);
+    const annualAllowance = 3000;
+    const taxableGain = Math.max(0, grossGain - annualAllowance);
+
+    // Residential Property CGT Rates 2026/27:
+    // Basic Rate: 18%, Higher Rate: 24%
+    const basicThreshold = 50270;
+    const pa = 12570;
+    const taxableIncomeOverPa = Math.max(0, income - pa);
+    const basicRateSpaceLeft = Math.max(0, basicThreshold - (pa + taxableIncomeOverPa));
+
+    let cgtPayable = 0;
+    if (taxableGain > 0) {
+      if (taxableGain <= basicRateSpaceLeft) {
+        cgtPayable = taxableGain * 0.18;
+      } else {
+        const inBasic = basicRateSpaceLeft;
+        const inHigher = taxableGain - inBasic;
+        cgtPayable = (inBasic * 0.18) + (inHigher * 0.24);
+      }
+    }
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const grossRes = document.getElementById('grossCapitalGainDisplay');
+    const taxGainRes = document.getElementById('taxableGainDisplay');
+    const ratesRes = document.getElementById('cgtRatesAppliedDisplay');
+    const totalRes = document.getElementById('totalPropertyCgtDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + cgtPayable.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = '£' + Math.min(annualAllowance, grossGain).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Exempt';
+    if (grossRes) grossRes.textContent = '£' + grossGain.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (taxGainRes) taxGainRes.textContent = '£' + taxableGain.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (ratesRes) ratesRes.textContent = basicRateSpaceLeft > 0 ? '18% / 24% Residential Rates' : '24% Higher Residential Rate';
+    if (totalRes) totalRes.textContent = '£' + cgtPayable.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['prop-cgt-sale-price', 'prop-cgt-purchase-price', 'prop-cgt-allowable-costs', 'prop-cgt-taxable-income'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculatePropertyCgt);
+    document.getElementById(id)?.addEventListener('change', calculatePropertyCgt);
+  });
+  calculatePropertyCgt();
+</script>

@@ -1,0 +1,125 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Bathroom Size Grade</span></div>
+        <select id="bathroom-size-grade" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="small" selected>Small / En-Suite Bathroom (under 4 sq m)</option>
+          <option value="medium">Medium Family Bathroom (4 - 7 sq m)</option>
+          <option value="large">Large Master / Luxury Bathroom (over 7 sq m)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Fixtures & Sanitaryware Quality Tier</span></div>
+        <select id="bathroom-fixtures-tier" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="standard" selected>Standard Mid-Range (Victorian Plumbing / B&Q)</option>
+          <option value="premium">Premium Designer (Laufen / Grohe / Roca)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Tiling Coverage</span></div>
+        <select id="bathroom-tiling-extent" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="half" selected>Splashback & Wet Areas Only (Half Tiled)</option>
+          <option value="full">Floor-to-Ceiling Fully Tiled Bathroom</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Bathroom Renovation Cost Breakdown</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Sanitaryware Suite & Brassware Fittings</span>
+          <strong id="sanitaryware-cost-val">£1,200.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Tiling, Materials & Wall Coverings</span>
+          <strong id="tiling-materials-cost-val">£800.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Trade Labor (Plumbing, Tiling, Electrical)</span>
+          <strong id="trade-labor-cost-val">£2,500.00</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Total Estimated Renovation Outlay</span>
+          <strong id="total-bathroom-renovation-cost">£4,500.00</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateBathroomCost() {
+    const sizeEl = document.getElementById('bathroom-size-grade') as HTMLSelectElement;
+    const tierEl = document.getElementById('bathroom-fixtures-tier') as HTMLSelectElement;
+    const tilingEl = document.getElementById('bathroom-tiling-extent') as HTMLSelectElement;
+
+    if (!sizeEl || !tierEl || !tilingEl) return;
+
+    const size = sizeEl.value;
+    const tier = tierEl.value;
+    const tiling = tilingEl.value;
+
+    let baseSuite = 1200;
+    let baseTiling = 800;
+    let baseLabor = 2500;
+
+    if (size === 'medium') {
+      baseSuite *= 1.35;
+      baseTiling *= 1.4;
+      baseLabor *= 1.3;
+    } else if (size === 'large') {
+      baseSuite *= 1.8;
+      baseTiling *= 1.9;
+      baseLabor *= 1.7;
+    }
+
+    if (tier === 'premium') {
+      baseSuite *= 2.2;
+    }
+
+    if (tiling === 'full') {
+      baseTiling *= 1.6;
+      baseLabor += 600;
+    }
+
+    const total = baseSuite + baseTiling + baseLabor;
+
+    const suiteResEl = document.getElementById('sanitaryware-cost-val');
+    const tilingResEl = document.getElementById('tiling-materials-cost-val');
+    const laborResEl = document.getElementById('trade-labor-cost-val');
+    const totalResEl = document.getElementById('total-bathroom-renovation-cost');
+
+    if (suiteResEl) suiteResEl.textContent = '£' + baseSuite.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (tilingResEl) tilingResEl.textContent = '£' + baseTiling.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (laborResEl) laborResEl.textContent = '£' + baseLabor.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (totalResEl) totalResEl.textContent = '£' + total.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['bathroom-size-grade', 'bathroom-fixtures-tier', 'bathroom-tiling-extent'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateBathroomCost);
+    document.getElementById(id)?.addEventListener('change', calculateBathroomCost);
+  });
+  calculateBathroomCost();
+</script>

@@ -1,0 +1,133 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout health-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Private Medical Insurance (PMI) Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Policyholder Age</span></div>
+        <div class="amount-field">
+          <input type="number" id="pmi-policyholder-age" value="45" min="18" max="85" step="1" />
+          <span class="cur">yrs old</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Cover Level Scope</span></div>
+        <select id="pmi-cover-scope-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="individual" selected>Individual Cover Only (£75 - £120/mo)</option>
+          <option value="couples">Couples Policy (Two Adults - £140 - £220/mo)</option>
+          <option value="family">Family Policy (Adults + Dependent Children - £180 - £290/mo)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Selected Excess Level (£ per claim year)</span></div>
+        <select id="pmi-excess-level-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="250" selected>£250 Excess (Standard Premium Discount)</option>
+          <option value="0">£0 Excess (Higher Premium)</option>
+          <option value="500">£500 Excess (Maximum Premium Discount)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--health-1), var(--health-2) 80%);">
+      <div class="result-label">Estimated Monthly Health Insurance Premium</div>
+      <div class="result-amount"><span id="mainResultDisplay">£92.50 / month</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Annual PMI Premium Total:</span>
+        <span class="val" id="subResultValue">£1,110.00 / year</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 PMI Premium Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Base Cover Premium</span>
+          <span class="val" id="pmiBasePremiumDisplay">£85.00 / month</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Age Loading Factor</span>
+          <span class="val" id="pmiAgeFactorDisplay">1.25x (Age 45)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Insurance Premium Tax (IPT 12%) Included</span>
+          <span class="val" id="iptAmountDisplay">£9.91 / month</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Estimated Net Monthly Premium</span>
+          <span class="val" id="netPmiPremiumDisplay" style="font-weight: 700; font-size: 18px;">£92.50 / month (£1,110.00/yr)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="salud" />
+  </div>
+</div>
+
+<script>
+  function calculatePmiPremium() {
+    const ageEl = document.getElementById('pmi-policyholder-age') as HTMLInputElement;
+    const scopeEl = document.getElementById('pmi-cover-scope-select') as HTMLSelectElement;
+    const excessEl = document.getElementById('pmi-excess-level-select') as HTMLSelectElement;
+
+    if (!ageEl || !scopeEl || !excessEl) return;
+
+    const age = parseInt(ageEl.value) || 45;
+    const scope = scopeEl.value;
+    const excess = parseInt(excessEl.value) || 250;
+
+    let baseMonthly = 75;
+    if (scope === 'couples') baseMonthly = 145;
+    else if (scope === 'family') baseMonthly = 195;
+
+    let ageFactor = 1.0;
+    if (age >= 65) ageFactor = 2.2;
+    else if (age >= 50) ageFactor = 1.5;
+    else if (age >= 40) ageFactor = 1.25;
+
+    let excessDiscount = 0.90; // £250 excess
+    if (excess === 0) excessDiscount = 1.10;
+    if (excess === 500) excessDiscount = 0.80;
+
+    const monthlyNet = baseMonthly * ageFactor * excessDiscount;
+    const iptMonthly = monthlyNet * (12 / 112); // 12% IPT share
+    const annualTotal = monthlyNet * 12;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const baseRes = document.getElementById('pmiBasePremiumDisplay');
+    const ageRes = document.getElementById('pmiAgeFactorDisplay');
+    const iptRes = document.getElementById('iptAmountDisplay');
+    const netRes = document.getElementById('netPmiPremiumDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + monthlyNet.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (subVal) subVal.textContent = '£' + annualTotal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (baseRes) baseRes.textContent = '£' + baseMonthly.toFixed(2) + ' / month';
+    if (ageRes) ageRes.textContent = ageFactor.toFixed(2) + `x (Age ${age})`;
+    if (iptRes) iptRes.textContent = '£' + iptMonthly.toFixed(2) + ' / month';
+    if (netRes) netRes.textContent = '£' + monthlyNet.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` / month (£${annualTotal.toFixed(2)}/yr)`;
+  }
+
+  ['pmi-policyholder-age', 'pmi-cover-scope-select', 'pmi-excess-level-select'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculatePmiPremium);
+    document.getElementById(id)?.addEventListener('change', calculatePmiPremium);
+  });
+  calculatePmiPremium();
+</script>

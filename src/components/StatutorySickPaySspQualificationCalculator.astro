@@ -1,0 +1,217 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout health-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Employee Earnings & Sickness Absence Details'}</h2>
+
+      <!-- Weekly Gross Earnings (£) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.weeklyEarningsLabel || 'Average Weekly Gross Earnings (£)'}</span>
+          <span class="hint" id="weeklyEarningsVal">£450.00 / week (Exceeds £123 LEL Threshold)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="450.00" id="weeklyEarningsInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="80" max="1500" step="10" value="450" id="weeklyEarningsSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£80/wk</span><span>£1,500/wk</span></div>
+      </div>
+
+      <!-- Consecutive Days Off Sick -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.sickDaysLabel || 'Consecutive Days Off Sick'}</span>
+          <span class="hint" id="sickDaysVal">10 Consecutive Days Off Sick</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="10" id="sickDaysInput" inputmode="decimal" />
+          <span class="cur">days</span>
+        </div>
+        <input type="range" min="1" max="40" step="1" value="10" id="sickDaysSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1 Day</span><span>40 Days</span></div>
+      </div>
+
+      <!-- Qualifying Working Days per Week -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.qualifyingDaysLabel || 'Qualifying Working Days per Week'}</span>
+          <span class="hint" id="qualifyingDaysVal">5 Days / week (Monday to Friday)</span>
+        </div>
+        <input type="range" min="1" max="7" step="1" value="5" id="qualifyingDaysSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1 Day</span><span>7 Days</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--health-1), var(--health-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Total Statutory Sick Pay (SSP) Payable'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£175.13 SSP</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.waitingDaysLabel || 'SSP Qualification & Waiting Days Rules:'}</span>
+        <span class="val" id="subResultValue">3 Waiting Days (Unpaid) + 7 Payable Days @ £25.02 / day</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'SSP Qualification Financial Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Lower Earnings Limit (LEL £123/wk) Qualification</span>
+          <span class="val" id="lelStatusDisplay">QUALIFIED (Earnings > £123/wk)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>PIW 4-Day Period Threshold Status</span>
+          <span class="val" id="piwStatusDisplay">QUALIFIED (PIW Met: 10 Days >= 4 Days)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Unpaid Waiting Days (First 3 Qualifying Days)</span>
+          <span class="val" id="waitingDaysDisplay">3 Days Unpaid (£0.00)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Statutory Sick Pay (7 Payable Days @ £125.10/wk)</span>
+          <span class="val" id="totalSspDisplay" style="font-weight: 700; font-size: 18px;">£175.13 Total SSP</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Statutory SSP Weekly Rate:</strong> £125.10 per week (2026/27 statutory rate).<br/>
+        • <strong>Lower Earnings Limit (LEL):</strong> Must earn at least £123.00 gross per week.<br/>
+        • <strong>PIW 4-Day Rule:</strong> Period of Incapacity for Work (PIW) requires at least 4 consecutive days sick.<br/>
+        • <strong>3 Waiting Days:</strong> First 3 qualifying working days of sick leave are unpaid.<br/>
+        • <strong>Maximum Duration:</strong> Paid for up to 28 weeks maximum per sickness period.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const SSP_WEEKLY_RATE = 125.10; // Statutory SSP weekly rate 2026/27
+  const LEL_THRESHOLD = 123.00; // Lower Earnings Limit
+
+  const weeklyEarningsInput = document.getElementById('weeklyEarningsInput') as HTMLInputElement;
+  const weeklyEarningsSlider = document.getElementById('weeklyEarningsSlider') as HTMLInputElement;
+  const weeklyEarningsVal = document.getElementById('weeklyEarningsVal') as HTMLElement;
+
+  const sickDaysInput = document.getElementById('sickDaysInput') as HTMLInputElement;
+  const sickDaysSlider = document.getElementById('sickDaysSlider') as HTMLInputElement;
+  const sickDaysVal = document.getElementById('sickDaysVal') as HTMLElement;
+
+  const qualifyingDaysSlider = document.getElementById('qualifyingDaysSlider') as HTMLInputElement;
+  const qualifyingDaysVal = document.getElementById('qualifyingDaysVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const lelStatusDisplay = document.getElementById('lelStatusDisplay') as HTMLElement;
+  const piwStatusDisplay = document.getElementById('piwStatusDisplay') as HTMLElement;
+  const waitingDaysDisplay = document.getElementById('waitingDaysDisplay') as HTMLElement;
+  const totalSspDisplay = document.getElementById('totalSspDisplay') as HTMLElement;
+
+  function calculate() {
+    const weeklyEarnings = parseInputVal(weeklyEarningsInput.value);
+    const totalSickDays = parseInt(sickDaysSlider.value, 10);
+    const qualifyingDaysPerWeek = parseInt(qualifyingDaysSlider.value, 10);
+
+    const meetsLel = weeklyEarnings >= LEL_THRESHOLD;
+    const meetsPiw = totalSickDays >= 4;
+
+    const dailySspRate = SSP_WEEKLY_RATE / qualifyingDaysPerWeek;
+
+    let payableDays = 0;
+    let waitingDaysCount = 0;
+
+    if (meetsLel && meetsPiw) {
+      // First 3 qualifying days are unpaid waiting days
+      waitingDaysCount = Math.min(3, totalSickDays);
+      payableDays = Math.max(0, totalSickDays - 3);
+    }
+
+    const totalSsp = payableDays * dailySspRate;
+
+    weeklyEarningsVal.innerText = `${formatCurrency(weeklyEarnings)} / week (${meetsLel ? 'Qualifies > £123 LEL' : 'DOES NOT QUALIFY < £123 LEL'})`;
+    sickDaysVal.innerText = `${totalSickDays} Consecutive Days Off Sick`;
+    qualifyingDaysVal.innerText = `${qualifyingDaysPerWeek} Working Days / week`;
+
+    if (!meetsLel) {
+      mainResultDisplay.innerText = `£0.00 (Ineligible)`;
+      subResultValue.innerText = `Earnings below £123/wk Lower Earnings Limit (LEL). Ask employer for Form SSP1 to claim ESA.`;
+      lelStatusDisplay.innerText = `INELIGIBLE (Earnings < £123/wk LEL)`;
+      piwStatusDisplay.innerText = `N/A`;
+      waitingDaysDisplay.innerText = `0 Days`;
+      totalSspDisplay.innerText = `£0.00 (Form SSP1 Required)`;
+      return;
+    }
+
+    if (!meetsPiw) {
+      mainResultDisplay.innerText = `£0.00 (PIW Not Met)`;
+      subResultValue.innerText = `Sickness absence under 4 consecutive days (PIW threshold not met). First 3 days unpaid.`;
+      lelStatusDisplay.innerText = `QUALIFIED (Earnings > £123/wk LEL)`;
+      piwStatusDisplay.innerText = `INELIGIBLE (Sick leave under 4 days)`;
+      waitingDaysDisplay.innerText = `${totalSickDays} Unpaid Waiting Days`;
+      totalSspDisplay.innerText = `£0.00`;
+      return;
+    }
+
+    mainResultDisplay.innerText = formatCurrency(totalSsp);
+    subResultValue.innerText = `3 Waiting Days (Unpaid) + ${payableDays} Payable Days @ ${formatCurrency(dailySspRate)} / day`;
+
+    lelStatusDisplay.innerText = `QUALIFIED (Earnings > £123/wk LEL)`;
+    piwStatusDisplay.innerText = `QUALIFIED (PIW Met: ${totalSickDays} Days >= 4 Days)`;
+    waitingDaysDisplay.innerText = `3 Days Unpaid (£0.00)`;
+    totalSspDisplay.innerText = `${formatCurrency(totalSsp)} (${payableDays} Days @ £${dailySspRate.toFixed(2)}/day)`;
+  }
+
+  weeklyEarningsInput.addEventListener('input', () => {
+    const val = parseInputVal(weeklyEarningsInput.value);
+    weeklyEarningsSlider.value = String(val);
+    calculate();
+  });
+
+  weeklyEarningsSlider.addEventListener('input', () => {
+    weeklyEarningsInput.value = parseFloat(weeklyEarningsSlider.value).toFixed(2);
+    calculate();
+  });
+
+  sickDaysInput.addEventListener('input', () => {
+    const val = parseInputVal(sickDaysInput.value);
+    sickDaysSlider.value = String(val);
+    calculate();
+  });
+
+  sickDaysSlider.addEventListener('input', () => {
+    sickDaysInput.value = parseInt(sickDaysSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  qualifyingDaysSlider.addEventListener('input', calculate);
+
+  calculate();
+</script>

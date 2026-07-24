@@ -1,0 +1,155 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout family-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Child Maintenance Details'}</h2>
+
+      <!-- Gross Weekly Income -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.incomeLabel || 'Paying Parent Gross Weekly Income'}</span>
+          <span class="hint" id="incomeVal">£600.00</span>
+        </div>
+        <div class="amount-field" style="margin-top: 0; margin-bottom: 0;">
+          <input type="text" value="600" id="incomeInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="50" max="3000" step="25" value="600" id="incomeSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£50/wk</span><span>£3,000/wk</span></div>
+      </div>
+
+      <!-- Children Count -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.childrenLabel || 'Qualifying Children'}</span>
+          <span class="hint" id="childrenVal">1 Child</span>
+        </div>
+        <input type="range" min="1" max="4" step="1" value="1" id="childrenSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1 Child</span><span>4+ Children</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--family-1), var(--family-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Weekly Child Maintenance Payment'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£72.00/wk</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.monthlyLabel || 'Monthly Equivalent:'}</span>
+        <span class="val" id="subResultValue">£312.00/mo</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Maintenance Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Applicable Rate Percentage</span>
+          <span class="val" id="ratePctDisplay">12%</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Weekly Payment</span>
+          <span class="val" id="weeklyPaymentDisplay">£72.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Monthly Payment</span>
+          <span class="val" id="monthlyPaymentDisplay">£312.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Annual Total Payment</span>
+          <span class="val" id="annualPaymentDisplay" style="font-weight: 700; font-size: 18px;">£3,744.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • 1 Child: <strong>12%</strong> of gross weekly income<br/>
+        • 2 Children: <strong>16%</strong> of gross weekly income<br/>
+        • 3+ Children: <strong>19%</strong> of gross weekly income<br/>
+        • Gross income capped at <strong>£800/wk</strong> on basic tier.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const incomeInput = document.getElementById('incomeInput') as HTMLInputElement;
+  const incomeSlider = document.getElementById('incomeSlider') as HTMLInputElement;
+  const incomeVal = document.getElementById('incomeVal') as HTMLElement;
+  const childrenSlider = document.getElementById('childrenSlider') as HTMLInputElement;
+  const childrenVal = document.getElementById('childrenVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const ratePctDisplay = document.getElementById('ratePctDisplay') as HTMLElement;
+  const weeklyPaymentDisplay = document.getElementById('weeklyPaymentDisplay') as HTMLElement;
+  const monthlyPaymentDisplay = document.getElementById('monthlyPaymentDisplay') as HTMLElement;
+  const annualPaymentDisplay = document.getElementById('annualPaymentDisplay') as HTMLElement;
+
+  incomeInput.addEventListener('input', () => {
+    const val = parseInputVal(incomeInput.value);
+    incomeSlider.value = String(Math.min(3000, Math.max(50, val)));
+    calculate();
+  });
+
+  incomeSlider.addEventListener('input', () => {
+    incomeInput.value = incomeSlider.value;
+    calculate();
+  });
+
+  childrenSlider.addEventListener('input', () => {
+    calculate();
+  });
+
+  function calculate() {
+    const grossWk = parseInputVal(incomeInput.value);
+    const kids = parseInt(childrenSlider.value, 10);
+
+    incomeVal.textContent = formatCurrency(grossWk);
+    childrenVal.textContent = kids === 1 ? '1 Child' : `${kids} Children`;
+
+    let rate = 0.12;
+    if (kids === 2) rate = 0.16;
+    if (kids >= 3) rate = 0.19;
+
+    const cappedGross = Math.min(800, grossWk);
+    const weekly = cappedGross * rate;
+    const monthly = (weekly * 52) / 12;
+    const annual = weekly * 52;
+
+    mainResultDisplay.textContent = `${formatCurrency(weekly)}/wk`;
+    subResultValue.textContent = `${formatCurrency(monthly)}/mo`;
+    ratePctDisplay.textContent = `${(rate * 100).toFixed(0)}%`;
+    weeklyPaymentDisplay.textContent = formatCurrency(weekly);
+    monthlyPaymentDisplay.textContent = formatCurrency(monthly);
+    annualPaymentDisplay.textContent = formatCurrency(annual);
+  }
+
+  calculate();
+</script>

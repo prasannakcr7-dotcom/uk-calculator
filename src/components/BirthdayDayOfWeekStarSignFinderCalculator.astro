@@ -1,0 +1,115 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout reside-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Enter Your Full Date of Birth</span></div>
+        <input type="date" id="birth-date-finder" value="1998-08-24" style="width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:10px; font-size:15px; background:#fff; color:var(--ink);" />
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Birth Profile Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Western Zodiac Star Sign</span>
+          <strong id="zodiac-sign-str">Leo ♌ (Lion)</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Official Birthstone</span>
+          <strong id="birthstone-str">Peridot</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Chinese Zodiac Animal</span>
+          <strong id="chinese-zodiac-str">Tiger</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Date Turning 50 Years Old</span>
+          <strong id="turn-50-date-str">Thursday, 24 August 2048</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Day of the Week Born On</span>
+          <strong id="day-of-week-str">Monday</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="alltag" />
+  </div>
+</div>
+
+<script>
+  function findBirthdayDetails() {
+    const dobInput = document.getElementById('birth-date-finder') as HTMLInputElement;
+    if (!dobInput || !dobInput.value) return;
+
+    const dob = new Date(dobInput.value);
+    
+    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const dayName = daysOfWeek[dob.getDay()];
+
+    const month = dob.getMonth() + 1;
+    const day = dob.getDate();
+
+    let zodiac = '';
+    if ((month === 3 && day >= 21) || (month === 4 && day <= 19)) zodiac = 'Aries ♈ (Ram)';
+    else if ((month === 4 && day >= 20) || (month === 5 && day <= 20)) zodiac = 'Taurus ♉ (Bull)';
+    else if ((month === 5 && day >= 21) || (month === 6 && day <= 20)) zodiac = 'Gemini ♊ (Twins)';
+    else if ((month === 6 && day >= 21) || (month === 7 && day <= 22)) zodiac = 'Cancer ♋ (Crab)';
+    else if ((month === 7 && day >= 23) || (month === 8 && day <= 22)) zodiac = 'Leo ♌ (Lion)';
+    else if ((month === 8 && day >= 23) || (month === 9 && day <= 22)) zodiac = 'Virgo ♍ (Virgin)';
+    else if ((month === 9 && day >= 23) || (month === 10 && day <= 22)) zodiac = 'Libra ♎ (Scales)';
+    else if ((month === 10 && day >= 23) || (month === 11 && day <= 21)) zodiac = 'Scorpio ♏ (Scorpion)';
+    else if ((month === 11 && day >= 22) || (month === 12 && day <= 21)) zodiac = 'Sagittarius ♐ (Archer)';
+    else if ((month === 12 && day >= 22) || (month === 1 && day <= 19)) zodiac = 'Capricorn ♑ (Goat)';
+    else if ((month === 1 && day >= 20) || (month === 2 && day <= 18)) zodiac = 'Aquarius ♒ (Water Bearer)';
+    else zodiac = 'Pisces ♓ (Fish)';
+
+    const birthstones = [
+      'Garnet', 'Amethyst', 'Aquamarine', 'Diamond', 'Emerald', 'Pearl / Alexandrite',
+      'Ruby', 'Peridot', 'Sapphire', 'Opal / Tourmaline', 'Topaz / Citrine', 'Tanzanite / Turquoise'
+    ];
+    const stone = birthstones[month - 1];
+
+    const chineseAnimals = ['Rat', 'Ox', 'Tiger', 'Rabbit', 'Dragon', 'Snake', 'Horse', 'Goat', 'Monkey', 'Rooster', 'Dog', 'Pig'];
+    const year = dob.getFullYear();
+    const cIndex = (year - 4) % 12;
+    const chineseZodiac = chineseAnimals[cIndex < 0 ? cIndex + 12 : cIndex];
+
+    const turn50 = new Date(dob);
+    turn50.setFullYear(dob.getFullYear() + 50);
+    const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+
+    const dayEl = document.getElementById('day-of-week-str');
+    const zodiacEl = document.getElementById('zodiac-sign-str');
+    const stoneEl = document.getElementById('birthstone-str');
+    const chineseEl = document.getElementById('chinese-zodiac-str');
+    const turn50El = document.getElementById('turn-50-date-str');
+
+    if (dayEl) dayEl.textContent = dayName;
+    if (zodiacEl) zodiacEl.textContent = zodiac;
+    if (stoneEl) stoneEl.textContent = stone;
+    if (chineseEl) chineseEl.textContent = chineseZodiac;
+    if (turn50El) turn50El.textContent = turn50.toLocaleDateString('en-GB', options);
+  }
+
+  const birthInput = document.getElementById('birth-date-finder');
+  birthInput?.addEventListener('input', findBirthdayDetails);
+  birthInput?.addEventListener('change', findBirthdayDetails);
+  findBirthdayDetails();
+</script>

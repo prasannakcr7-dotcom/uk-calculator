@@ -1,0 +1,190 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Pension Income & Tax Details'}</h2>
+
+      <!-- Total Annual Pension Drawdown -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.pensionDrawdownLabel || 'Gross Annual Private Pension Drawdown (£)'}</span>
+          <span class="hint" id="pensionDrawdownVal">£25,000</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="25,000" id="pensionDrawdownInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="0" max="100000" step="1000" value="25000" id="pensionDrawdownSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£0</span><span>£100,000</span></div>
+      </div>
+
+      <!-- State Pension Received -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.statePensionLabel || 'Annual State Pension Received (£)'}</span>
+          <span class="hint" id="statePensionVal">£11,502</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="11,502" id="statePensionInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="0" max="15000" step="500" value="11502" id="statePensionSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£0</span><span>£15,000</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--social-1), var(--social-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Net Annual Post-Tax Pension Income'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£33,766.00/yr</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.taxLabel || 'Income Tax Paid on Pension Drawdown:'}</span>
+        <span class="val" id="subResultValue">£2,736.00 Income Tax</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Pension Taxation Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>25% Tax-Free Lump Sum Portion</span>
+          <span class="val" id="taxFreePortionDisplay">£6,250.00 (0% Tax)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Taxable Private Pension (75% Portion)</span>
+          <span class="val" id="taxablePrivateDisplay">£18,750.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Gross State Pension (Uses Personal Allowance)</span>
+          <span class="val" id="statePensionDisplay">£11,502.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Income Tax Paid (20% Basic Rate)</span>
+          <span class="val" id="taxPaidDisplay">-£2,736.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Take-Home Pension Income</span>
+          <span class="val" id="netPensionDisplay" style="font-weight: 700; font-size: 18px;">£33,766.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>25% Tax-Free Lump Sum:</strong> Up to 25% of your private pension pot can be drawn 100% tax-free.<br/>
+        • <strong>75% Taxable Portion:</strong> Taxed as standard Income Tax via PAYE.<br/>
+        • <strong>Personal Allowance:</strong> £12,570 tax-free allowance applies.<br/>
+        • <strong>No National Insurance:</strong> Pension income is 100% EXEMPT from National Insurance.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const pensionDrawdownInput = document.getElementById('pensionDrawdownInput') as HTMLInputElement;
+  const pensionDrawdownSlider = document.getElementById('pensionDrawdownSlider') as HTMLInputElement;
+  const pensionDrawdownVal = document.getElementById('pensionDrawdownVal') as HTMLElement;
+  const statePensionInput = document.getElementById('statePensionInput') as HTMLInputElement;
+  const statePensionSlider = document.getElementById('statePensionSlider') as HTMLInputElement;
+  const statePensionVal = document.getElementById('statePensionVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const taxFreePortionDisplay = document.getElementById('taxFreePortionDisplay') as HTMLElement;
+  const taxablePrivateDisplay = document.getElementById('taxablePrivateDisplay') as HTMLElement;
+  const statePensionDisplay = document.getElementById('statePensionDisplay') as HTMLElement;
+  const taxPaidDisplay = document.getElementById('taxPaidDisplay') as HTMLElement;
+  const netPensionDisplay = document.getElementById('netPensionDisplay') as HTMLElement;
+
+  function calculate() {
+    const privateDrawdown = parseInputVal(pensionDrawdownInput.value);
+    const statePension = parseInputVal(statePensionInput.value);
+
+    // 25% is tax-free; 75% is taxable
+    const taxFreePortion = privateDrawdown * 0.25;
+    const taxablePrivate = privateDrawdown * 0.75;
+
+    const totalTaxableIncome = statePension + taxablePrivate;
+    let pa = 12570;
+    if (totalTaxableIncome > 100000) {
+      pa = Math.max(0, 12570 - (totalTaxableIncome - 100000) / 2);
+    }
+
+    let incomeTax = 0;
+    if (totalTaxableIncome > pa) {
+      const taxable = totalTaxableIncome - pa;
+      if (taxable <= 37700) {
+        incomeTax = taxable * 0.20;
+      } else if (taxable <= 112570) {
+        incomeTax = (37700 * 0.20) + ((taxable - 37700) * 0.40);
+      } else {
+        incomeTax = (37700 * 0.20) + ((112570 - 37700) * 0.40) + ((taxable - 112570) * 0.45);
+      }
+    }
+
+    const totalGross = privateDrawdown + statePension;
+    const totalNet = totalGross - incomeTax;
+
+    pensionDrawdownVal.innerText = formatCurrency(privateDrawdown).slice(0, -3);
+    statePensionVal.innerText = formatCurrency(statePension).slice(0, -3);
+
+    mainResultDisplay.innerText = `${formatCurrency(totalNet)}/yr`;
+    subResultValue.innerText = `${formatCurrency(incomeTax)} Income Tax`;
+
+    taxFreePortionDisplay.innerText = `${formatCurrency(taxFreePortion)} (0% Tax)`;
+    taxablePrivateDisplay.innerText = formatCurrency(taxablePrivate);
+    statePensionDisplay.innerText = formatCurrency(statePension);
+    taxPaidDisplay.innerText = incomeTax > 0 ? `-${formatCurrency(incomeTax)}` : '£0.00';
+    netPensionDisplay.innerText = formatCurrency(totalNet);
+  }
+
+  pensionDrawdownInput.addEventListener('input', () => {
+    const val = parseInputVal(pensionDrawdownInput.value);
+    pensionDrawdownSlider.value = String(val);
+    calculate();
+  });
+
+  pensionDrawdownSlider.addEventListener('input', () => {
+    pensionDrawdownInput.value = parseInt(pensionDrawdownSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  statePensionInput.addEventListener('input', () => {
+    const val = parseInputVal(statePensionInput.value);
+    statePensionSlider.value = String(val);
+    calculate();
+  });
+
+  statePensionSlider.addEventListener('input', () => {
+    statePensionInput.value = parseInt(statePensionSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  calculate();
+</script>

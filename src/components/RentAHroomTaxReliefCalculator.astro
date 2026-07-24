@@ -1,0 +1,129 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Rent a Room Relief Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Gross Annual Rent Received (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="rentaroom-gross-rent" value="9500" min="1000" step="500" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Actual Allowable Expenses Spent (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="rentaroom-actual-expenses" value="1200" min="0" step="100" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Homeowner / Tenant Tax Band</span></div>
+        <select id="rentaroom-tax-band-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="0.20" selected>Basic Rate (20% Income Tax)</option>
+          <option value="0.40">Higher Rate (40% Income Tax)</option>
+          <option value="0.45">Additional Rate (45% Income Tax)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">Net Income Tax Due (With Rent a Room Scheme)</div>
+      <div class="result-amount"><span id="mainResultDisplay">£400.00 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Statutory Tax-Free Allowance:</span>
+        <span class="val" id="subResultValue">£7,500.00 Rent a Room Relief</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Rent a Room Tax Comparison</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Room Rental Income</span>
+          <span class="val" id="grossRoomRentDisplay">£9,500.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Rent a Room Relief Deduction (£7,500 Cap)</span>
+          <span class="val" id="rentARoomDeductionDisplay">-£7,500.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Net Taxable Rental Profit</span>
+          <span class="val" id="taxableRoomProfitDisplay">£2,000.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Income Tax Due (20%)</span>
+          <span class="val" id="netRentARoomTaxDisplay" style="font-weight: 700; font-size: 18px;">£400.00 / year (£33.33/mo)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="impuestos" />
+  </div>
+</div>
+
+<script>
+  function calculateRentARoom() {
+    const rentEl = document.getElementById('rentaroom-gross-rent') as HTMLInputElement;
+    const expEl = document.getElementById('rentaroom-actual-expenses') as HTMLInputElement;
+    const bandEl = document.getElementById('rentaroom-tax-band-select') as HTMLSelectElement;
+
+    if (!rentEl || !expEl || !bandEl) return;
+
+    const rent = parseFloat(rentEl.value) || 0;
+    const actualExp = parseFloat(expEl.value) || 0;
+    const taxRate = parseFloat(bandEl.value) || 0.20;
+
+    const reliefAllowance = 7500.00;
+
+    // Method A: Rent a Room scheme (£7,500 deduction)
+    const taxableScheme = Math.max(0, rent - reliefAllowance);
+    const taxScheme = taxableScheme * taxRate;
+
+    // Method B: Standard Expenses (£rent - actualExp)
+    const taxableStandard = Math.max(0, rent - actualExp);
+    const taxStandard = taxableStandard * taxRate;
+
+    const useScheme = taxScheme <= taxStandard;
+    const netTax = useScheme ? taxScheme : taxStandard;
+    const monthlyTax = netTax / 12;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const rentRes = document.getElementById('grossRoomRentDisplay');
+    const dedRes = document.getElementById('rentARoomDeductionDisplay');
+    const profitRes = document.getElementById('taxableRoomProfitDisplay');
+    const taxRes = document.getElementById('netRentARoomTaxDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + netTax.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (subVal) subVal.textContent = useScheme ? '£7,500.00 Rent a Room Relief' : 'Actual Expenses Method Cheaper';
+    if (rentRes) rentRes.textContent = '£' + rent.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (dedRes) dedRes.textContent = useScheme ? '-£7,500.00 (Rent a Room Cap)' : '-£' + actualExp.toFixed(2) + ' (Actual Expenses)';
+    if (profitRes) profitRes.textContent = '£' + (useScheme ? taxableScheme : taxableStandard).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (taxRes) taxRes.textContent = '£' + netTax.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` / year (£${monthlyTax.toFixed(2)}/mo)`;
+  }
+
+  ['rentaroom-gross-rent', 'rentaroom-actual-expenses', 'rentaroom-tax-band-select'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateRentARoom);
+    document.getElementById(id)?.addEventListener('change', calculateRentARoom);
+  });
+  calculateRentARoom();
+</script>

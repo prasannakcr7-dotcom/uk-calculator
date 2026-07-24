@@ -1,0 +1,173 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Intellectual Property Right & Classification Details'}</h2>
+
+      <!-- IP Right Type Selection -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.ipTypeLabel || 'Select Intellectual Property (IP) Right Type'}</span>
+          <span class="hint" id="ipTypeVal">UK Trademark Registration (UK IPO £170 Online)</span>
+        </div>
+        <select id="ipTypeSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="TRADEMARK" selected>UK Trade Mark Registration (UK IPO — £170 1st Class)</option>
+          <option value="PATENT">UK Patent Application (Search + Examination — £310 Statutory Fees)</option>
+          <option value="REGISTERED_DESIGN">UK Registered Design Application (UK IPO — £50 Single Design)</option>
+          <option value="COPYRIGHT">UK Copyright Registration (Automatic Protection — £0 Official Fee)</option>
+        </select>
+      </div>
+
+      <!-- Trademark Classes / Extra Items Count -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.classCountLabel || 'Nice Classification Classes / Additional Designs Count'}</span>
+          <span class="hint" id="classCountVal">2 Classes (1 Base + 1 Extra Class @ £50)</span>
+        </div>
+        <input type="range" min="1" max="10" step="1" value="2" id="classCountSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1 Class</span><span>10 Classes</span></div>
+      </div>
+
+      <!-- Professional Attorney Filing Route -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.filingRouteLabel || 'Filing Route & Professional Attorney Assistance'}</span>
+          <span class="hint" id="filingRouteVal">Trade Mark Attorney Filing Assistance (+£450)</span>
+        </div>
+        <select id="filingRouteSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="DIY">Direct DIY Filing via UK IPO Online Portal (£0 Legal Fees)</option>
+          <option value="ATTORNEY" selected>Chartered Trade Mark / Patent Attorney Filing (+£450 Legal Fee)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--social-1), var(--social-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Total IP Registration & Legal Cost'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£670.00 Total</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.ipoFeeSplitLabel || 'Statutory UK IPO Fees & Attorney Fee Split:'}</span>
+        <span class="val" id="subResultValue">£220 UK IPO Fees (£170 base + £50 extra class) + £450 Attorney Fee</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'IP Registration Cost Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Base Statutory UK IPO Official Filing Fee</span>
+          <span class="val" id="baseIpoFeeDisplay">£170.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Additional Nice Class / Item Fees</span>
+          <span class="val" id="extraClassFeeDisplay">£50.00 (1 Extra Class @ £50)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Chartered Attorney Legal Professional Fee</span>
+          <span class="val" id="attorneyFeeDisplay">£450.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Combined Intellectual Property Registration Investment</span>
+          <span class="val" id="totalIpCostDisplay" style="font-weight: 700; font-size: 18px;">£670.00 Total</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>UK Trade Mark (£170):</strong> £170 online UK IPO fee for 1st class + £50 per extra class.<br/>
+        • <strong>Automatic Copyright (£0):</strong> Copyright exists automatically upon creation under UK law.<br/>
+        • <strong>UK Patent Fees (£310):</strong> £60 filing + £150 search + £100 examination statutory UK IPO fees.<br/>
+        • <strong>10-Year Protection:</strong> UK Trade Marks last 10 years and are renewable indefinitely.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const ipTypeSelect = document.getElementById('ipTypeSelect') as HTMLSelectElement;
+  const classCountSlider = document.getElementById('classCountSlider') as HTMLInputElement;
+  const classCountVal = document.getElementById('classCountVal') as HTMLElement;
+  const filingRouteSelect = document.getElementById('filingRouteSelect') as HTMLSelectElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const baseIpoFeeDisplay = document.getElementById('baseIpoFeeDisplay') as HTMLElement;
+  const extraClassFeeDisplay = document.getElementById('extraClassFeeDisplay') as HTMLElement;
+  const attorneyFeeDisplay = document.getElementById('attorneyFeeDisplay') as HTMLElement;
+  const totalIpCostDisplay = document.getElementById('totalIpCostDisplay') as HTMLElement;
+
+  function calculate() {
+    const ipKey = ipTypeSelect.value;
+    const classCount = parseInt(classCountSlider.value, 10);
+    const isAttorney = filingRouteSelect.value === 'ATTORNEY';
+
+    let baseFee = 170.00; // Trademark
+    let extraClassRate = 50.00;
+    let attorneyFee = isAttorney ? 450.00 : 0.00;
+
+    if (ipKey === 'TRADEMARK') {
+      baseFee = 170.00;
+      extraClassRate = 50.00;
+    } else if (ipKey === 'PATENT') {
+      baseFee = 310.00; // Filing £60 + Search £150 + Exam £100
+      extraClassRate = 0.00;
+      if (isAttorney) attorneyFee = 1800.00; // Patent attorney fees
+    } else if (ipKey === 'REGISTERED_DESIGN') {
+      baseFee = 50.00;
+      extraClassRate = 20.00;
+      if (isAttorney) attorneyFee = 300.00;
+    } else if (ipKey === 'COPYRIGHT') {
+      baseFee = 0.00;
+      extraClassRate = 0.00;
+      attorneyFee = 0.00;
+    }
+
+    const extraClassesCount = Math.max(0, classCount - 1);
+    const extraFeeTotal = ipKey === 'PATENT' || ipKey === 'COPYRIGHT' ? 0 : extraClassesCount * extraClassRate;
+    const totalIpoFee = baseFee + extraFeeTotal;
+    const totalCost = totalIpoFee + attorneyFee;
+
+    classCountVal.innerText = `${classCount} Class${classCount === 1 ? '' : 'es'} / Item${classCount === 1 ? '' : 's'}`;
+
+    mainResultDisplay.innerText = formatCurrency(totalCost);
+    subResultValue.innerText = `${formatCurrency(totalIpoFee)} UK IPO Statutory Fees + ${formatCurrency(attorneyFee)} Legal Attorney Fee`;
+
+    baseIpoFeeDisplay.innerText = formatCurrency(baseFee);
+    extraClassFeeDisplay.innerText = `${formatCurrency(extraFeeTotal)} (${extraClassesCount} extra @ £${extraClassRate}/ea)`;
+    attorneyFeeDisplay.innerText = formatCurrency(attorneyFee);
+    totalIpCostDisplay.innerText = formatCurrency(totalCost);
+  }
+
+  ipTypeSelect.addEventListener('change', calculate);
+  classCountSlider.addEventListener('input', calculate);
+  filingRouteSelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

@@ -1,0 +1,148 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Annual Taxable Self-Employed Profit / Gross Salary (£)</span></div>
+      <div class="amount-field"><input type="number" id="annual-taxable-income-scot" value="48000" min="10000" step="1000" /></div>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <div class="breakdown-row net">
+        <span>Scottish Income Tax Liability:</span>
+        <strong id="scot-income-tax-total-val">£0.00 / year</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Rest of UK (rUK) Income Tax Liability:</span>
+        <strong id="ruk-income-tax-total-val">£0.00 / year</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Annual Tax Difference:</span>
+        <strong id="scot-vs-ruk-tax-difference">Loading...</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Scottish Marginal Tax Bracket:</span>
+        <strong id="scot-marginal-tax-bracket-str">Advanced Rate (45%)</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculateScottishTaxDiff() {
+    const gross = parseFloat((document.getElementById('annual-taxable-income-scot') as HTMLInputElement).value) || 0;
+
+    // Personal Allowance with £100k tapering:
+    let pa = 12570;
+    if (gross > 100000) {
+      pa = Math.max(0, 12570 - ((gross - 100000) / 2));
+    }
+
+    const taxable = Math.max(0, gross - pa);
+
+    // Rest of UK (rUK) Income Tax Rates 2026/27:
+    // Basic Rate 20%: £0 - £37,700 (over PA)
+    // Higher Rate 40%: £37,701 - £125,140
+    // Additional Rate 45%: Over £125,140
+    let rukTax = 0;
+    if (taxable > 112570) { // £125,140 - £12,570 = £112,570
+      rukTax += 37700 * 0.20;
+      rukTax += (112570 - 37700) * 0.40;
+      rukTax += (taxable - 112570) * 0.45;
+    } else if (taxable > 37700) {
+      rukTax += 37700 * 0.20;
+      rukTax += (taxable - 37700) * 0.40;
+    } else {
+      rukTax += taxable * 0.20;
+    }
+
+    // Scottish Income Tax Bands 2026/27 (6 Tiers):
+    // Starter Rate 19%: £12,571 - £14,876 (Taxable £1 - £2,306)
+    // Basic Rate 20%: £14,877 - £26,561 (Taxable £2,307 - £13,991)
+    // Intermediate Rate 21%: £26,562 - £43,662 (Taxable £13,992 - £31,092)
+    // Higher Rate 42%: £43,663 - £75,000 (Taxable £31,093 - £62,430)
+    // Advanced Rate 45%: £75,001 - £125,140 (Taxable £62,431 - £112,570)
+    // Top Rate 48%: Over £125,140 (Taxable over £112,570)
+
+    let scotTax = 0;
+    let scotBracket = '';
+
+    if (gross > 125140) {
+      scotBracket = 'Top Rate (48%)';
+      scotTax += 2306 * 0.19;
+      scotTax += (13991 - 2306) * 0.20;
+      scotTax += (31092 - 13991) * 0.21;
+      scotTax += (62430 - 31092) * 0.42;
+      scotTax += (112570 - 62430) * 0.45;
+      scotTax += (taxable - 112570) * 0.48;
+    } else if (gross > 75000) {
+      scotBracket = 'Advanced Rate (45%)';
+      scotTax += 2306 * 0.19;
+      scotTax += (13991 - 2306) * 0.20;
+      scotTax += (31092 - 13991) * 0.21;
+      scotTax += (62430 - 31092) * 0.42;
+      scotTax += (taxable - 62430) * 0.45;
+    } else if (gross > 43662) {
+      scotBracket = 'Higher Rate (42%)';
+      scotTax += 2306 * 0.19;
+      scotTax += (13991 - 2306) * 0.20;
+      scotTax += (31092 - 13991) * 0.21;
+      scotTax += (taxable - 31092) * 0.42;
+    } else if (gross > 26561) {
+      scotBracket = 'Intermediate Rate (21%)';
+      scotTax += 2306 * 0.19;
+      scotTax += (13991 - 2306) * 0.20;
+      scotTax += (taxable - 13991) * 0.21;
+    } else if (gross > 14876) {
+      scotBracket = 'Basic Rate (20%)';
+      scotTax += 2306 * 0.19;
+      scotTax += (taxable - 2306) * 0.20;
+    } else if (gross > 12570) {
+      scotBracket = 'Starter Rate (19%)';
+      scotTax += taxable * 0.19;
+    } else {
+      scotBracket = 'Personal Allowance (0%)';
+      scotTax = 0;
+    }
+
+    const diff = Math.abs(scotTax - rukTax);
+    let diffStr = '';
+    if (scotTax > rukTax) {
+      diffStr = '🔴 Pay £' + diff.toFixed(2) + ' MORE tax per year in Scotland than Rest of UK';
+    } else if (rukTax > scotTax) {
+      diffStr = '🟢 Pay £' + diff.toFixed(2) + ' LESS tax per year in Scotland than Rest of UK';
+    } else {
+      diffStr = 'Income tax is identical in Scotland and Rest of UK';
+    }
+
+    (document.getElementById('scot-income-tax-total-val') as HTMLElement).textContent = '£' + scotTax.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    (document.getElementById('ruk-income-tax-total-val') as HTMLElement).textContent = '£' + rukTax.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    (document.getElementById('scot-vs-ruk-tax-difference') as HTMLElement).textContent = diffStr;
+    (document.getElementById('scot-marginal-tax-bracket-str') as HTMLElement).textContent = scotBracket;
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateScottishTaxDiff);
+  calculateScottishTaxDiff();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

@@ -1,0 +1,109 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout finance-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Total Invoice Amount (£ Gross)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="invoice-gross-amount" value="5000" min="100" step="250" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Early Settlement Discount (%)</span></div>
+        <div class="amount-field">
+          <input type="number" id="early-discount-pct" value="2.0" min="0.1" max="20" step="0.1" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Early Settlement Window (Days)</span></div>
+        <div class="amount-field">
+          <input type="number" id="early-discount-days" value="10" min="1" max="60" step="1" />
+          <span class="cur">days</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Standard Credit Net Term (Days)</span></div>
+        <div class="amount-field">
+          <input type="number" id="standard-net-days" value="30" min="15" max="120" step="5" />
+          <span class="cur">days</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Early Settlement Discount Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Discount Amount Saved (£)</span>
+          <strong id="discount-savings-amount">£100.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Equivalent Effective Annualized Interest Rate (APR)</span>
+          <strong id="equivalent-annual-apr">37.24% APR</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Net Amount Payable if Paid Early</span>
+          <strong id="net-amount-paid-early">£4,900.00</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="finanzas" />
+  </div>
+</div>
+
+<script>
+  function calculateEarlyPaymentDiscount() {
+    const grossEl = document.getElementById('invoice-gross-amount') as HTMLInputElement;
+    const discPctEl = document.getElementById('early-discount-pct') as HTMLInputElement;
+    const earlyDaysEl = document.getElementById('early-discount-days') as HTMLInputElement;
+    const netDaysEl = document.getElementById('standard-net-days') as HTMLInputElement;
+
+    if (!grossEl || !discPctEl || !earlyDaysEl || !netDaysEl) return;
+
+    const gross = parseFloat(grossEl.value) || 0;
+    const discPct = (parseFloat(discPctEl.value) || 0) / 100;
+    const earlyDays = parseInt(earlyDaysEl.value) || 10;
+    const netDays = parseInt(netDaysEl.value) || 30;
+
+    const discountAmount = gross * discPct;
+    const netPaidEarly = Math.max(0, gross - discountAmount);
+
+    const daysDifference = Math.max(1, netDays - earlyDays);
+    const equivalentApr = (discPct / (1 - discPct)) * (365 / daysDifference) * 100;
+
+    const discountEl = document.getElementById('discount-savings-amount');
+    const aprEl = document.getElementById('equivalent-annual-apr');
+    const netEl = document.getElementById('net-amount-paid-early');
+
+    if (discountEl) discountEl.textContent = '£' + discountAmount.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (aprEl) aprEl.textContent = equivalentApr.toFixed(2) + '% APR';
+    if (netEl) netEl.textContent = '£' + netPaidEarly.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['invoice-gross-amount', 'early-discount-pct', 'early-discount-days', 'standard-net-days'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateEarlyPaymentDiscount);
+    document.getElementById(id)?.addEventListener('change', calculateEarlyPaymentDiscount);
+  });
+  calculateEarlyPaymentDiscount();
+</script>

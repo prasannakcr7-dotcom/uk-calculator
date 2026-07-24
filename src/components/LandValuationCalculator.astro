@@ -1,0 +1,138 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Land Area & Valuation Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Land Area Value</span></div>
+        <div class="amount-field">
+          <input type="number" id="land-val-area-size" value="0.5" min="0.1" step="0.1" />
+          <span class="cur">units</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Area Measurement Unit</span></div>
+        <select id="land-val-unit-type" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="acres" selected>Acres (1 Acre = 4,046.86 sq m)</option>
+          <option value="hectares">Hectares (1 Hectare = 10,000 sq m)</option>
+          <option value="sqm">Square Metres (sq m)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Land Classification / Planning Designation</span></div>
+        <select id="land-val-class-type" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="residential_building" selected>Residential Building Plot (Outline Planning £300k - £600k/acre)</option>
+          <option value="agricultural">Agricultural Arable Farmland (£10k - £15k/acre)</option>
+          <option value="paddock">Amenity Land / Horse Paddock (£20k - £35k/acre)</option>
+          <option value="commercial">Commercial / Industrial Land (£400k - £800k/acre)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Estimated Total Land Valuation</div>
+      <div class="result-amount"><span id="mainResultDisplay">£225,000.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Benchmark Value Per Acre:</span>
+        <span class="val" id="subResultValue">£450,000.00 / acre</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Land Valuation Summary</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Converted Size in Acres</span>
+          <span class="val" id="sizeInAcresDisplay">0.50 Acres (2,023.43 sq m)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Benchmark Class Price Per Acre</span>
+          <span class="val" id="pricePerAcreDisplay">£450,000.00 / acre</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Planning Status Classification</span>
+          <span class="val" id="planningStatusDisplay">Residential Building Plot</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Estimated Total Land Asset Valuation</span>
+          <span class="val" id="totalLandValuationDisplay" style="font-weight: 700; font-size: 18px;">£225,000.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateLandValuation() {
+    const areaEl = document.getElementById('land-val-area-size') as HTMLInputElement;
+    const unitEl = document.getElementById('land-val-unit-type') as HTMLSelectElement;
+    const classEl = document.getElementById('land-val-class-type') as HTMLSelectElement;
+
+    if (!areaEl || !unitEl || !classEl) return;
+
+    const rawArea = parseFloat(areaEl.value) || 0;
+    const unit = unitEl.value;
+    const landClass = classEl.value;
+
+    let acres = rawArea;
+    if (unit === 'hectares') acres = rawArea * 2.47105;
+    if (unit === 'sqm') acres = rawArea / 4046.86;
+
+    let pricePerAcre = 450000;
+    let statusStr = 'Residential Building Plot';
+
+    if (landClass === 'agricultural') {
+      pricePerAcre = 12000;
+      statusStr = 'Agricultural Farmland';
+    } else if (landClass === 'paddock') {
+      pricePerAcre = 27500;
+      statusStr = 'Amenity Land / Paddock';
+    } else if (landClass === 'commercial') {
+      pricePerAcre = 600000;
+      statusStr = 'Commercial Industrial Plot';
+    }
+
+    const totalValuation = acres * pricePerAcre;
+    const sqmTotal = acres * 4046.86;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const sizeRes = document.getElementById('sizeInAcresDisplay');
+    const priceRes = document.getElementById('pricePerAcreDisplay');
+    const statusRes = document.getElementById('planningStatusDisplay');
+    const totalRes = document.getElementById('totalLandValuationDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + totalValuation.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = '£' + pricePerAcre.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / acre';
+    if (sizeRes) sizeRes.textContent = `${acres.toFixed(2)} Acres (${sqmTotal.toLocaleString('en-GB', { maximumFractionDigits: 0 })} sq m)`;
+    if (priceRes) priceRes.textContent = '£' + pricePerAcre.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / acre';
+    if (statusRes) statusRes.textContent = statusStr;
+    if (totalRes) totalRes.textContent = '£' + totalValuation.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['land-val-area-size', 'land-val-unit-type', 'land-val-class-type'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateLandValuation);
+    document.getElementById(id)?.addEventListener('change', calculateLandValuation);
+  });
+  calculateLandValuation();
+</script>

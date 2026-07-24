@@ -1,0 +1,111 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Employee Age at Redundancy Date (Years)</span></div>
+      <div class="amount-field"><input type="number" id="employee-age-years" value="45" min="18" max="75" step="1" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Full Completed Years of Continuous Service</span></div>
+      <div class="amount-field"><input type="number" id="completed-years-service" value="8" min="2" max="20" step="1" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Gross Weekly Pay (£)</span></div>
+      <div class="amount-field"><input type="number" id="gross-weekly-pay" value="650" min="100" step="25" /></div>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <div class="breakdown-row net">
+        <span>Total Statutory Redundancy Pay:</span>
+        <strong id="statutory-redundancy-total-val">£0.00</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Tax-Free Status:</span>
+        <strong id="tax-free-status-val">100% Tax-Free (Under £30,000 limit)</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Capped Weekly Pay Used:</span>
+        <strong id="capped-weekly-pay-used">£650.00 / week (Max Statutory Cap: £700/wk)</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Total Calculated Weeks of Pay Entitlement:</span>
+        <strong id="total-weeks-entitlement">0.0 Weeks</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculateRedundancy() {
+    const age = parseInt((document.getElementById('employee-age-years') as HTMLInputElement).value) || 18;
+    const years = Math.min(20, parseInt((document.getElementById('completed-years-service') as HTMLInputElement).value) || 0);
+    const grossWeekly = parseFloat((document.getElementById('gross-weekly-pay') as HTMLInputElement).value) || 0;
+
+    // 2026/27 Statutory Redundancy Limits:
+    // Max Weekly Pay Cap: £700/week (updated April 2026)
+    // Max Statutory Pay Cap: £21,000 (20 years x 1.5 x £700)
+    // Tax Free Exemption: Up to £30,000
+
+    const statWeeklyCap = 700.0;
+    const effectiveWeeklyPay = Math.min(statWeeklyCap, grossWeekly);
+
+    // Calculate multiplier per year of service:
+    // Age 41+: 1.5 weeks' pay per year
+    // Age 22 - 40: 1.0 week's pay per year
+    // Under 22: 0.5 week's pay per year
+    // Calculation steps backward from current age for each completed year:
+    let totalWeeks = 0;
+    let currAge = age;
+
+    for (let i = 0; i < years; i++) {
+      if (currAge >= 41) {
+        totalWeeks += 1.5;
+      } else if (currAge >= 22) {
+        totalWeeks += 1.0;
+      } else {
+        totalWeeks += 0.5;
+      }
+      currAge--;
+    }
+
+    const totalStatPay = totalWeeks * effectiveWeeklyPay;
+
+    let taxFreeStr = '🟢 100% Tax-Free & NI-Free (Under £30,000 exemption limit)';
+    if (totalStatPay > 30000) {
+      taxFreeStr = '⚠️ Exceeds £30,000 limit (Excess subject to Income Tax)';
+    }
+
+    (document.getElementById('statutory-redundancy-total-val') as HTMLElement).textContent = '£' + totalStatPay.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('tax-free-status-val') as HTMLElement).textContent = taxFreeStr;
+    (document.getElementById('capped-weekly-pay-used') as HTMLElement).textContent = '£' + effectiveWeeklyPay.toFixed(2) + ' / week ' + (grossWeekly > statWeeklyCap ? '(Capped at £700/wk)' : '(Actual pay)');
+    (document.getElementById('total-weeks-entitlement') as HTMLElement).textContent = totalWeeks.toFixed(1) + ' Weeks of Pay';
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateRedundancy);
+  calculateRedundancy();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

@@ -1,0 +1,128 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Loft Conversion Construction Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Loft Conversion Type</span></div>
+        <select id="loft-conversion-type-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="dormer" selected>Rear Dormer Conversion (£40k - £55k)</option>
+          <option value="velux">Roof Light / Velux Conversion (£25k - £35k)</option>
+          <option value="hip_to_gable">Hip-to-Gable Conversion (£45k - £65k)</option>
+          <option value="mansard">Mansard Conversion (£55k - £80k)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>En-Suite Bathroom Included?</span></div>
+        <select id="loft-ensuite-included-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="yes" selected>Yes - En-Suite Shower Room Included (+£6,500)</option>
+          <option value="no">No En-Suite Bathroom</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Internal Floor Area (Square Metres - sq m)</span></div>
+        <div class="amount-field">
+          <input type="number" id="loft-floor-area-sqm" value="30" min="15" max="80" step="5" />
+          <span class="cur">sq m</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Estimated Total Loft Conversion Cost</div>
+      <div class="result-amount"><span id="mainResultDisplay">£51,500.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Effective Cost Per Sq Metre:</span>
+        <span class="val" id="subResultValue">£1,716.67 / sq m</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Loft Conversion Cost Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Structural Steelwork, Floor Joists & Roof Work</span>
+          <span class="val" id="structuralCostDisplay">£28,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Staircase Installation, Insulation & Plastering</span>
+          <span class="val" id="internalFitoutDisplay">£17,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>En-Suite Bathroom Installation</span>
+          <span class="val" id="ensuiteCostDisplay">£6,500.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Estimated Construction Outlay</span>
+          <span class="val" id="totalLoftCostDisplay" style="font-weight: 700; font-size: 18px;">£51,500.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateLoftCost() {
+    const typeEl = document.getElementById('loft-conversion-type-select') as HTMLSelectElement;
+    const ensuiteEl = document.getElementById('loft-ensuite-included-select') as HTMLSelectElement;
+    const areaEl = document.getElementById('loft-floor-area-sqm') as HTMLInputElement;
+
+    if (!typeEl || !ensuiteEl || !areaEl) return;
+
+    const convType = typeEl.value;
+    const hasEnsuite = ensuiteEl.value === 'yes';
+    const area = parseFloat(areaEl.value) || 30;
+
+    let baseRate = 1500; // Dormer
+    if (convType === 'velux') baseRate = 1000;
+    else if (convType === 'hip_to_gable') baseRate = 1650;
+    else if (convType === 'mansard') baseRate = 2000;
+
+    const structural = area * baseRate * 0.60;
+    const fitout = area * baseRate * 0.40;
+    const ensuite = hasEnsuite ? 6500 : 0;
+
+    const total = structural + fitout + ensuite;
+    const costPerSqm = area > 0 ? total / area : 0;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const structRes = document.getElementById('structuralCostDisplay');
+    const fitRes = document.getElementById('internalFitoutDisplay');
+    const ensuiteRes = document.getElementById('ensuiteCostDisplay');
+    const totalRes = document.getElementById('totalLoftCostDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + total.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = '£' + costPerSqm.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / sq m';
+    if (structRes) structRes.textContent = '£' + structural.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (fitRes) fitRes.textContent = '£' + fitout.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (ensuiteRes) ensuiteRes.textContent = hasEnsuite ? '£6,500.00' : '£0.00 (None)';
+    if (totalRes) totalRes.textContent = '£' + total.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['loft-conversion-type-select', 'loft-ensuite-included-select', 'loft-floor-area-sqm'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateLoftCost);
+    document.getElementById(id)?.addEventListener('change', calculateLoftCost);
+  });
+  calculateLoftCost();
+</script>

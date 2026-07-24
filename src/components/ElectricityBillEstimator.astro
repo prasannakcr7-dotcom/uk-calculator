@@ -1,0 +1,189 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Electricity Consumption Details'}</h2>
+
+      <!-- Annual kWh Consumption -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.kwhLabel || 'Annual Electricity Usage (kWh)'}</span>
+          <span class="hint" id="kwhVal">2,700 kWh (Medium Home)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="2,700" id="kwhInput" inputmode="decimal" />
+          <span class="cur">kWh</span>
+        </div>
+        <input type="range" min="500" max="10000" step="100" value="2700" id="kwhSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>500 kWh</span><span>10,000 kWh</span></div>
+      </div>
+
+      <!-- Unit Rate (p/kWh) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.unitRateLabel || 'Electricity Unit Rate (p / kWh)'}</span>
+          <span class="hint" id="unitRateVal">24.5p / kWh</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="24.5" id="unitRateInput" inputmode="decimal" />
+          <span class="cur">p</span>
+        </div>
+        <input type="range" min="10" max="50" step="0.5" value="24.5" id="unitRateSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>10p</span><span>50p</span></div>
+      </div>
+
+      <!-- Daily Standing Charge (p/day) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.standingChargeLabel || 'Daily Standing Charge (p / day)'}</span>
+          <span class="hint" id="standingChargeVal">60.1p / day</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="60.1" id="standingChargeInput" inputmode="decimal" />
+          <span class="cur">p</span>
+        </div>
+        <input type="range" min="20" max="100" step="1" value="60.1" id="standingChargeSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>20p</span><span>100p</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Annual Electricity Bill'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£880.87/yr</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.monthlyBillLabel || 'Estimated Monthly Payment:'}</span>
+        <span class="val" id="subResultValue">£73.41 / month</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Electricity Cost Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Energy Unit Usage Charge (2,700 kWh × 24.5p)</span>
+          <span class="val" id="unitCostDisplay">£661.50</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Annual Standing Charge (365 days × 60.1p)</span>
+          <span class="val" id="standingCostDisplay">£219.37</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Annual Electricity Bill (Incl. 5% VAT)</span>
+          <span class="val" id="netAnnualDisplay" style="font-weight: 700; font-size: 18px;">£880.87</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Ofgem Energy Price Cap:</strong> Protects standard variable tariff customers from unfair pricing.<br/>
+        • <strong>5% Domestic VAT:</strong> Domestic energy is charged at a reduced 5% VAT rate.<br/>
+        • <strong>Ofgem Averages:</strong> 1-2 bed (1,800 kWh); 3-bed (2,700 kWh); 4+ bed (4,200 kWh).<br/>
+        • <strong>Standing Charge:</strong> Fixed daily fee charged regardless of energy usage.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const kwhInput = document.getElementById('kwhInput') as HTMLInputElement;
+  const kwhSlider = document.getElementById('kwhSlider') as HTMLInputElement;
+  const kwhVal = document.getElementById('kwhVal') as HTMLElement;
+  const unitRateInput = document.getElementById('unitRateInput') as HTMLInputElement;
+  const unitRateSlider = document.getElementById('unitRateSlider') as HTMLInputElement;
+  const unitRateVal = document.getElementById('unitRateVal') as HTMLElement;
+  const standingChargeInput = document.getElementById('standingChargeInput') as HTMLInputElement;
+  const standingChargeSlider = document.getElementById('standingChargeSlider') as HTMLInputElement;
+  const standingChargeVal = document.getElementById('standingChargeVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const unitCostDisplay = document.getElementById('unitCostDisplay') as HTMLElement;
+  const standingCostDisplay = document.getElementById('standingCostDisplay') as HTMLElement;
+  const netAnnualDisplay = document.getElementById('netAnnualDisplay') as HTMLElement;
+
+  function calculate() {
+    const kwh = parseInputVal(kwhInput.value);
+    const unitRatePence = parseInputVal(unitRateInput.value);
+    const standingPence = parseInputVal(standingChargeInput.value);
+
+    const unitCostPounds = (kwh * unitRatePence) / 100;
+    const standingCostPounds = (365 * standingPence) / 100;
+
+    const totalBill = unitCostPounds + standingCostPounds;
+    const monthlyBill = totalBill / 12;
+
+    kwhVal.innerText = `${kwh.toLocaleString('en-GB')} kWh`;
+    unitRateVal.innerText = `${unitRatePence.toFixed(1)}p / kWh`;
+    standingChargeVal.innerText = `${standingPence.toFixed(1)}p / day`;
+
+    mainResultDisplay.innerText = `${formatCurrency(totalBill)}/yr`;
+    subResultValue.innerText = `${formatCurrency(monthlyBill)} / month`;
+
+    unitCostDisplay.innerText = formatCurrency(unitCostPounds);
+    standingCostDisplay.innerText = formatCurrency(standingCostPounds);
+    netAnnualDisplay.innerText = formatCurrency(totalBill);
+  }
+
+  kwhInput.addEventListener('input', () => {
+    const val = parseInputVal(kwhInput.value);
+    kwhSlider.value = String(val);
+    calculate();
+  });
+
+  kwhSlider.addEventListener('input', () => {
+    kwhInput.value = parseInt(kwhSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  unitRateInput.addEventListener('input', () => {
+    const val = parseInputVal(unitRateInput.value);
+    unitRateSlider.value = String(val);
+    calculate();
+  });
+
+  unitRateSlider.addEventListener('input', () => {
+    unitRateInput.value = unitRateSlider.value;
+    calculate();
+  });
+
+  standingChargeInput.addEventListener('input', () => {
+    const val = parseInputVal(standingChargeInput.value);
+    standingChargeSlider.value = String(val);
+    calculate();
+  });
+
+  standingChargeSlider.addEventListener('input', () => {
+    standingChargeInput.value = standingChargeSlider.value;
+    calculate();
+  });
+
+  calculate();
+</script>

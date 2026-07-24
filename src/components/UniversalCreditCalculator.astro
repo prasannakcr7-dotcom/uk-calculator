@@ -1,0 +1,194 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Universal Credit Household Details'}</h2>
+
+      <!-- Claimant Age & Relationship Status -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.statusLabel || 'Claimant Age & Household Status'}</span>
+          <span class="hint" id="statusVal">Single (25 or Over)</span>
+        </div>
+        <select id="statusSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="SINGLE_UNDER25">Single (Under 25 — £311.68/mo)</option>
+          <option value="SINGLE_OVER25" selected>Single (25 or Over — £393.45/mo)</option>
+          <option value="COUPLE_UNDER25">Couple (Both Under 25 — £489.23/mo)</option>
+          <option value="COUPLE_OVER25">Couple (Either 25 or Over — £617.60/mo)</option>
+        </select>
+      </div>
+
+      <!-- Number of Dependent Children -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.childrenLabel || 'Number of Dependent Children'}</span>
+          <span class="hint" id="childrenVal">1 Child</span>
+        </div>
+        <input type="range" min="0" max="4" step="1" value="1" id="childrenSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>0 Children</span><span>4 Children (2-Child Limit)</span></div>
+      </div>
+
+      <!-- Monthly Take-Home Net Wages -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.wagesLabel || 'Monthly Take-Home Earned Income (£)'}</span>
+          <span class="hint" id="wagesVal">£800</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="800" id="wagesInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="0" max="3000" step="50" value="800" id="wagesSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£0</span><span>£3,000</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--social-1), var(--social-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Monthly Universal Credit Payment'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£494.53/mo</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.taperDeductionLabel || '55% Earnings Taper Deduction Applied:'}</span>
+        <span class="val" id="subResultValue">-£228.80 Deduction</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Universal Credit Entitlement Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Standard Allowance (Household)</span>
+          <span class="val" id="standardAllowanceDisplay">£393.45</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Child Element (1st Child Rate)</span>
+          <span class="val" id="childElementDisplay">+£329.88</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Work Allowance (Deducted Before Taper)</span>
+          <span class="val" id="workAllowanceDisplay">-£384.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Earned Income 55% Taper Reduction</span>
+          <span class="val" id="taperDisplay">-£228.80</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Monthly Universal Credit Entitlement</span>
+          <span class="val" id="netUcDisplay" style="font-weight: 700; font-size: 18px;">£494.53</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>55% Taper Rate:</strong> UC payment reduces by 55p for every £1 earned above Work Allowance.<br/>
+        • <strong>Work Allowance (£384/mo):</strong> Tax-free earnings buffer if you have children or limited capability for work.<br/>
+        • <strong>2-Child Limit:</strong> Child element paid for first 2 children born after 6 April 2017.<br/>
+        • <strong>Capital Limit (£16,000):</strong> Savings over £16k disqualify household from UC.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const statusSelect = document.getElementById('statusSelect') as HTMLSelectElement;
+  const childrenSlider = document.getElementById('childrenSlider') as HTMLInputElement;
+  const childrenVal = document.getElementById('childrenVal') as HTMLElement;
+  const wagesInput = document.getElementById('wagesInput') as HTMLInputElement;
+  const wagesSlider = document.getElementById('wagesSlider') as HTMLInputElement;
+  const wagesVal = document.getElementById('wagesVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const standardAllowanceDisplay = document.getElementById('standardAllowanceDisplay') as HTMLElement;
+  const childElementDisplay = document.getElementById('childElementDisplay') as HTMLElement;
+  const workAllowanceDisplay = document.getElementById('workAllowanceDisplay') as HTMLElement;
+  const taperDisplay = document.getElementById('taperDisplay') as HTMLElement;
+  const netUcDisplay = document.getElementById('netUcDisplay') as HTMLElement;
+
+  const standardRates: Record<string, number> = {
+    SINGLE_UNDER25: 311.68,
+    SINGLE_OVER25: 393.45,
+    COUPLE_UNDER25: 489.23,
+    COUPLE_OVER25: 617.60
+  };
+
+  function calculate() {
+    const statusKey = statusSelect.value;
+    const stdAllowance = standardRates[statusKey] || standardRates['SINGLE_OVER25'];
+    const numChildren = parseInt(childrenSlider.value, 10);
+    const netWages = parseInputVal(wagesInput.value);
+
+    // Child Element Rates (2-child limit assumption after April 2017)
+    let childElement = 0;
+    if (numChildren >= 1) {
+      childElement += 329.88; // 1st Child rate
+    }
+    if (numChildren >= 2) {
+      childElement += 281.72; // 2nd Child rate
+    }
+
+    const grossMaxUc = stdAllowance + childElement;
+
+    // Work Allowance (£384/mo if housing element claimed; £657/mo if no housing element)
+    const workAllowance = numChildren > 0 ? 384.00 : 0;
+    const assessableWages = Math.max(0, netWages - workAllowance);
+    const taperReduction = assessableWages * 0.55; // 55% taper rate
+
+    const netUc = Math.max(0, grossMaxUc - taperReduction);
+
+    childrenVal.innerText = `${numChildren} Child${numChildren === 1 ? '' : 'ren'}`;
+    wagesVal.innerText = formatCurrency(netWages).slice(0, -3);
+
+    mainResultDisplay.innerText = `${formatCurrency(netUc)}/mo`;
+    subResultValue.innerText = taperReduction > 0 ? `-${formatCurrency(taperReduction)} Taper Deduction` : 'No Taper Deduction';
+
+    standardAllowanceDisplay.innerText = formatCurrency(stdAllowance);
+    childElementDisplay.innerText = childElement > 0 ? `+${formatCurrency(childElement)}` : '£0.00';
+    workAllowanceDisplay.innerText = workAllowance > 0 ? `-${formatCurrency(workAllowance)}` : '£0.00';
+    taperDisplay.innerText = taperReduction > 0 ? `-${formatCurrency(taperReduction)}` : '£0.00';
+    netUcDisplay.innerText = formatCurrency(netUc);
+  }
+
+  statusSelect.addEventListener('change', calculate);
+  childrenSlider.addEventListener('input', calculate);
+
+  wagesInput.addEventListener('input', () => {
+    const val = parseInputVal(wagesInput.value);
+    wagesSlider.value = String(val);
+    calculate();
+  });
+
+  wagesSlider.addEventListener('input', () => {
+    wagesInput.value = parseInt(wagesSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  calculate();
+</script>

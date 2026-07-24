@@ -1,0 +1,133 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>EV Home Charger Installation Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Charger Power Output Rating</span></div>
+        <select id="ev-charger-rating-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="7" selected>7kW Single-Phase Smart Wallbox (£650 - £950)</option>
+          <option value="22">22kW Three-Phase Fast Charger (£1,200 - £1,800)</option>
+          <option value="3">3.4kW Slow Charger Plug (£350 - £500)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Cable Run Distance from Consumer Unit to Location</span></div>
+        <select id="ev-cable-run-length" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="standard" selected>Standard Cable Run (under 10 metres)</option>
+          <option value="extended">Extended Cable Run (10 - 25 metres - +£180)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>EV Chargepoint Grant (OZEV Tenant/Flat Owner Grant)</span></div>
+        <select id="ozev-grant-eligible-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="no" selected>Not Eligible (Standard Freehold Homeowner)</option>
+          <option value="yes">Eligible for OZEV Grant (£350 Off Approved Installation)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Net Home EV Charger Installation Cost</div>
+      <div class="result-amount"><span id="mainResultDisplay">£850.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">0% VAT Relief Saved:</span>
+        <span class="val" id="subResultValue">£170.00 Saved</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 EV Charger Installation Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Smart Wallbox Charger Unit & Cable</span>
+          <span class="val" id="chargerUnitCostDisplay">£550.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>OLES / NICEIC Electrician Installation Labor</span>
+          <span class="val" id="installationLaborDisplay">£300.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>OZEV EV Chargepoint Grant Discount</span>
+          <span class="val" id="ozevGrantDiscountDisplay">£0.00 (None)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Customer Out-of-Pocket Outlay</span>
+          <span class="val" id="totalNetCostDisplay" style="font-weight: 700; font-size: 18px;">£850.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateEvChargerCost() {
+    const ratingEl = document.getElementById('ev-charger-rating-select') as HTMLSelectElement;
+    const cableEl = document.getElementById('ev-cable-run-length') as HTMLSelectElement;
+    const grantEl = document.getElementById('ozev-grant-eligible-select') as HTMLSelectElement;
+
+    if (!ratingEl || !cableEl || !grantEl) return;
+
+    const rating = ratingEl.value;
+    const isExtended = cableEl.value === 'extended';
+    const hasGrant = grantEl.value === 'yes';
+
+    let unitCost = 550;
+    let laborCost = 300;
+
+    if (rating === '22') {
+      unitCost = 950;
+      laborCost = 550;
+    } else if (rating === '3') {
+      unitCost = 250;
+      laborCost = 150;
+    }
+
+    if (isExtended) laborCost += 180;
+
+    const grossTotal = unitCost + laborCost;
+    const grantDiscount = hasGrant ? 350 : 0;
+    const netTotal = Math.max(0, grossTotal - grantDiscount);
+    const vatReliefSaved = netTotal * 0.20;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const unitRes = document.getElementById('chargerUnitCostDisplay');
+    const laborRes = document.getElementById('installationLaborDisplay');
+    const grantRes = document.getElementById('ozevGrantDiscountDisplay');
+    const netRes = document.getElementById('totalNetCostDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + netTotal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = '£' + vatReliefSaved.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Saved (0% VAT)';
+    if (unitRes) unitRes.textContent = '£' + unitCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (laborRes) laborRes.textContent = '£' + laborCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (grantRes) grantRes.textContent = hasGrant ? '-£350.00 (OZEV Grant Approved)' : '£0.00 (None)';
+    if (netRes) netRes.textContent = '£' + netTotal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['ev-charger-rating-select', 'ev-cable-run-length', 'ozev-grant-eligible-select'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateEvChargerCost);
+    document.getElementById(id)?.addEventListener('change', calculateEvChargerCost);
+  });
+  calculateEvChargerCost();
+</script>

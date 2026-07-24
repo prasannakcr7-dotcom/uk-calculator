@@ -1,0 +1,148 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Crypto Disposal & CGT Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Total Crypto Disposal / Sale Proceeds (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="crypto-disposal-proceeds" value="18000" min="500" step="500" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Section 104 Pool Acquisition Cost Basis (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="crypto-cost-basis" value="8500" min="0" step="500" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Allowable Exchange Trading Fees (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="crypto-exchange-fees" value="90" min="0" step="10" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Other Taxable Income (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="crypto-taxable-income" value="38000" min="0" step="1000" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">Estimated HMRC Crypto Capital Gains Tax</div>
+      <div class="result-amount"><span id="mainResultDisplay">£641.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">CGT Annual Tax-Free Allowance Claimed:</span>
+        <span class="val" id="subResultValue">£3,000.00 Exempt</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Crypto CGT Calculation Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Capital Gain Realised</span>
+          <span class="val" id="grossCryptoGainDisplay">£9,410.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Net Taxable Gain (After £3,000 Allowance)</span>
+          <span class="val" id="taxableCryptoGainDisplay">£6,410.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Marginal CGT Rate Applied</span>
+          <span class="val" id="cryptoRateAppliedDisplay">10% (Basic Rate Band)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Estimated Total Crypto CGT Payable</span>
+          <span class="val" id="totalCryptoCgtDisplay" style="font-weight: 700; font-size: 18px;">£641.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="impuestos" />
+  </div>
+</div>
+
+<script>
+  function calculateCryptoCgt() {
+    const proceedsEl = document.getElementById('crypto-disposal-proceeds') as HTMLInputElement;
+    const costEl = document.getElementById('crypto-cost-basis') as HTMLInputElement;
+    const feesEl = document.getElementById('crypto-exchange-fees') as HTMLInputElement;
+    const incomeEl = document.getElementById('crypto-taxable-income') as HTMLInputElement;
+
+    if (!proceedsEl || !costEl || !feesEl || !incomeEl) return;
+
+    const proceeds = parseFloat(proceedsEl.value) || 0;
+    const cost = parseFloat(costEl.value) || 0;
+    const fees = parseFloat(feesEl.value) || 0;
+    const income = parseFloat(incomeEl.value) || 0;
+
+    const grossGain = Math.max(0, proceeds - cost - fees);
+    const annualAllowance = 3000;
+    const taxableGain = Math.max(0, grossGain - annualAllowance);
+
+    const basicThreshold = 50270;
+    const pa = 12570;
+    const taxableIncomeOverPa = Math.max(0, income - pa);
+    const basicRateSpaceLeft = Math.max(0, basicThreshold - (pa + taxableIncomeOverPa));
+
+    let cgtPayable = 0;
+    let rateStr = '0%';
+
+    if (taxableGain > 0) {
+      if (taxableGain <= basicRateSpaceLeft) {
+        cgtPayable = taxableGain * 0.10;
+        rateStr = '10% (Basic Rate Band)';
+      } else {
+        const inBasic = basicRateSpaceLeft;
+        const inHigher = taxableGain - inBasic;
+        cgtPayable = (inBasic * 0.10) + (inHigher * 0.20);
+        rateStr = inBasic > 0 ? '10% / 20% Split' : '20% (Higher Rate Band)';
+      }
+    }
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const grossRes = document.getElementById('grossCryptoGainDisplay');
+    const taxGainRes = document.getElementById('taxableCryptoGainDisplay');
+    const rateRes = document.getElementById('cryptoRateAppliedDisplay');
+    const totalRes = document.getElementById('totalCryptoCgtDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + cgtPayable.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = '£' + Math.min(annualAllowance, grossGain).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Exempt';
+    if (grossRes) grossRes.textContent = '£' + grossGain.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (taxGainRes) taxGainRes.textContent = '£' + taxableGain.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (rateRes) rateRes.textContent = rateStr;
+    if (totalRes) totalRes.textContent = '£' + cgtPayable.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['crypto-disposal-proceeds', 'crypto-cost-basis', 'crypto-exchange-fees', 'crypto-taxable-income'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateCryptoCgt);
+    document.getElementById(id)?.addEventListener('change', calculateCryptoCgt);
+  });
+  calculateCryptoCgt();
+</script>

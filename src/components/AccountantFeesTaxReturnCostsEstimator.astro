@@ -1,0 +1,127 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Business Legal Structure</span></div>
+        <select id="accountant-biz-structure" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="sole_trader" selected>Sole Trader / Self-Employed (SA100)</option>
+          <option value="ltd_company">Limited Company (CT600 + Accounts + PAYE)</option>
+          <option value="partnership">Partnership (SA800 + Individual Returns)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Annual Turnover / Revenue (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="accountant-annual-turnover" value="65000" min="5000" step="5000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>VAT Registered & Quarterly VAT Returns Required?</span></div>
+        <select id="accountant-vat-required" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="no" selected>No VAT Returns</option>
+          <option value="yes">Yes - 4 Quarterly MTD VAT Submissions</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Payroll Processing (Number of Employees)</span></div>
+        <div class="amount-field">
+          <input type="number" id="accountant-payroll-employees" value="0" min="0" max="20" step="1" />
+          <span class="cur">staff</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Accountancy Cost Breakdown</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Annual Tax Return & Accounts Preparation</span>
+          <strong id="annual-accounts-fee">£275.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Quarterly VAT Return Submissions</span>
+          <strong id="vat-returns-fee">£0.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Payroll & RTI Submissions</span>
+          <strong id="payroll-fee-val">£0.00</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Estimated Total Annual Accountancy Fees</span>
+          <strong id="total-annual-accountant-cost">£275.00 / year (£22.92/mo)</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="trabajo" />
+  </div>
+</div>
+
+<script>
+  function calculateAccountantFees() {
+    const structEl = document.getElementById('accountant-biz-structure') as HTMLSelectElement;
+    const turnoverEl = document.getElementById('accountant-annual-turnover') as HTMLInputElement;
+    const vatEl = document.getElementById('accountant-vat-required') as HTMLSelectElement;
+    const payrollEl = document.getElementById('accountant-payroll-employees') as HTMLInputElement;
+
+    if (!structEl || !turnoverEl || !vatEl || !payrollEl) return;
+
+    const structure = structEl.value;
+    const turnover = parseFloat(turnoverEl.value) || 0;
+    const hasVat = vatEl.value === 'yes';
+    const employees = parseInt(payrollEl.value) || 0;
+
+    let baseAccountsFee = 250;
+    if (structure === 'ltd_company') {
+      baseAccountsFee = 900;
+      if (turnover > 100000) baseAccountsFee += 300;
+      if (turnover > 250000) baseAccountsFee += 400;
+    } else if (structure === 'partnership') {
+      baseAccountsFee = 500;
+    } else {
+      if (turnover > 85000) baseAccountsFee += 150;
+    }
+
+    const vatFee = hasVat ? 300 : 0;
+    const payrollFee = employees * 120; // ~£10/mo per employee
+
+    const totalAnnual = baseAccountsFee + vatFee + payrollFee;
+    const monthlyEquivalent = totalAnnual / 12;
+
+    const accountsResEl = document.getElementById('annual-accounts-fee');
+    const vatResEl = document.getElementById('vat-returns-fee');
+    const payrollResEl = document.getElementById('payroll-fee-val');
+    const totalResEl = document.getElementById('total-annual-accountant-cost');
+
+    if (accountsResEl) accountsResEl.textContent = '£' + baseAccountsFee.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (vatResEl) vatResEl.textContent = '£' + vatFee.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (payrollResEl) payrollResEl.textContent = '£' + payrollFee.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (totalResEl) totalResEl.textContent = '£' + totalAnnual.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` / year (£${monthlyEquivalent.toFixed(2)}/mo)`;
+  }
+
+  ['accountant-biz-structure', 'accountant-annual-turnover', 'accountant-vat-required', 'accountant-payroll-employees'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateAccountantFees);
+    document.getElementById(id)?.addEventListener('change', calculateAccountantFees);
+  });
+  calculateAccountantFees();
+</script>

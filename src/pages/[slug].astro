@@ -1,0 +1,757 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import Sidebar from '../components/Sidebar.astro';
+
+import VATCalculator from '../components/VATCalculator.astro';
+import SalaryCalculator from '../components/SalaryCalculator.astro';
+
+// Family Category Components
+import ChildBenefitCalculator from '../components/ChildBenefitCalculator.astro';
+import StatutoryMaternityPaternityPayCalculator from '../components/StatutoryMaternityPaternityPayCalculator.astro';
+import ChildMaintenanceCalculator from '../components/ChildMaintenanceCalculator.astro';
+import UniversalCreditChildElementCalculator from '../components/UniversalCreditChildElementCalculator.astro';
+import MaternityLeavePlanner from '../components/MaternityLeavePlanner.astro';
+import SharedParentalLeavePayCalculator from '../components/SharedParentalLeavePayCalculator.astro';
+import PregnancyDueDateCalculator from '../components/PregnancyDueDateCalculator.astro';
+import DivorceCostsCalculator from '../components/DivorceCostsCalculator.astro';
+import SpousalMaintenanceEstimator from '../components/SpousalMaintenanceEstimator.astro';
+import PocketMoneyCalculator from '../components/PocketMoneyCalculator.astro';
+import ChildHeightPredictor from '../components/ChildHeightPredictor.astro';
+import ScottishChildPaymentCalculator from '../components/ScottishChildPaymentCalculator.astro';
+import ChildcareFundingGrantsCalculator from '../components/ChildcareFundingGrantsCalculator.astro';
+
+// Work Category Components
+import HMRCMileageClaimCalculator from '../components/HMRCMileageClaimCalculator.astro';
+import NationalInsuranceThresholdPartTimeEarningsCalculator from '../components/NationalInsuranceThresholdPartTimeEarningsCalculator.astro';
+import NationalInsuranceTransitionZoneCalculator from '../components/NationalInsuranceTransitionZoneCalculator.astro';
+import ApprenticeMinimumWageCalculator from '../components/ApprenticeMinimumWageCalculator.astro';
+import StatutoryRedundancyPayCalculator from '../components/StatutoryRedundancyPayCalculator.astro';
+import HourlyWageToSalaryConverter from '../components/HourlyWageToSalaryConverter.astro';
+import SalaryComparisonCalculator from '../components/SalaryComparisonCalculator.astro';
+import RedundancyPackageTaxCalculator from '../components/RedundancyPackageTaxCalculator.astro';
+import HolidayEntitlementCalculator from '../components/HolidayEntitlementCalculator.astro';
+import StatutoryNoticePeriodCalculator from '../components/StatutoryNoticePeriodCalculator.astro';
+import ProbationaryPeriodCalculator from '../components/ProbationaryPeriodCalculator.astro';
+import OvertimePayCalculator from '../components/OvertimePayCalculator.astro';
+import PartTimeProRataSalaryCalculator from '../components/PartTimeProRataSalaryCalculator.astro';
+import NightShiftPayPremiumCalculator from '../components/NightShiftPayPremiumCalculator.astro';
+import WorkingDaysCalculator from '../components/WorkingDaysCalculator.astro';
+import NationalMinimumWageCalculator from '../components/NationalMinimumWageCalculator.astro';
+import SabbaticalCareerBreakSavingsCalculator from '../components/SabbaticalCareerBreakSavingsCalculator.astro';
+import WorkingFromHomeTaxReliefCalculator from '../components/WorkingFromHomeTaxReliefCalculator.astro';
+import BusinessSubsistenceAllowanceCalculator from '../components/BusinessSubsistenceAllowanceCalculator.astro';
+import EarlyRetirementPensionDrawdownCalculator from '../components/EarlyRetirementPensionDrawdownCalculator.astro';
+import PhasedRetirementCalculator from '../components/PhasedRetirementCalculator.astro';
+import TimesheetHoursWorkedCalculator from '../components/TimesheetHoursWorkedCalculator.astro';
+import DecimalTimeIndustrialMinutesConverter from '../components/DecimalTimeIndustrialMinutesConverter.astro';
+import NHSAgendaForChangePayScalesCalculator from '../components/NHSAgendaForChangePayScalesCalculator.astro';
+import TeacherPayScalesCalculator from '../components/TeacherPayScalesCalculator.astro';
+import BonusTaxNetPayCalculator from '../components/BonusTaxNetPayCalculator.astro';
+import BankHolidayOptimizerAnnualLeavePlanner from '../components/BankHolidayOptimizerAnnualLeavePlanner.astro';
+import PayRiseNetIncomeCalculator from '../components/PayRiseNetIncomeCalculator.astro';
+import StudentLoanRepaymentCalculator from '../components/StudentLoanRepaymentCalculator.astro';
+import SalarySacrificePensionCalculator from '../components/SalarySacrificePensionCalculator.astro';
+
+// Taxes Category Components
+import IncomeTaxCalculator from '../components/IncomeTaxCalculator.astro';
+import PropertyTransactionTaxCalculator from '../components/PropertyTransactionTaxCalculator.astro';
+import PropertyIncomeTaxBuyToLetTaxCalculator from '../components/PropertyIncomeTaxBuyToLetTaxCalculator.astro';
+import InheritanceTaxIHTCalculator from '../components/InheritanceTaxIHTCalculator.astro';
+import DividendTaxAllowanceCalculator from '../components/DividendTaxAllowanceCalculator.astro';
+import CapitalGainsTaxCGTCalculator from '../components/CapitalGainsTaxCGTCalculator.astro';
+import ValueAddedTaxVATCalculator from '../components/ValueAddedTaxVATCalculator.astro';
+import GiftTaxIHT7YearRuleCalculator from '../components/GiftTaxIHT7YearRuleCalculator.astro';
+import CouncilTaxDomesticRatesCalculator from '../components/CouncilTaxDomesticRatesCalculator.astro';
+import BusinessRatesCalculator from '../components/BusinessRatesCalculator.astro';
+import MarriageAllowanceCalculator from '../components/MarriageAllowanceCalculator.astro';
+import TaxRefundRebateEstimator from '../components/TaxRefundRebateEstimator.astro';
+import CarryForwardTaxLossesCalculator from '../components/CarryForwardTaxLossesCalculator.astro';
+import PAYETaxCalculator from '../components/PAYETaxCalculator.astro';
+import CapitalAllowancesDepreciationCalculator from '../components/CapitalAllowancesDepreciationCalculator.astro';
+import NannyDomesticStaffPayrollCalculator from '../components/NannyDomesticStaffPayrollCalculator.astro';
+import EnergySavingRenovationVATCalculator from '../components/EnergySavingRenovationVATCalculator.astro';
+import DualResidencySecondHomeWorkExpensesCalculator from '../components/DualResidencySecondHomeWorkExpensesCalculator.astro';
+import OffshoreFundsExcessReportableIncomeERICalculator from '../components/OffshoreFundsExcessReportableIncomeERICalculator.astro';
+import HighIncomeChildBenefitChargeCalculator from '../components/HighIncomeChildBenefitChargeCalculator.astro';
+import VATRegistrationThresholdCalculator from '../components/VATRegistrationThresholdCalculator.astro';
+import VATReturnEstimator from '../components/VATReturnEstimator.astro';
+import SoleTraderTaxNICalculator from '../components/SoleTraderTaxNICalculator.astro';
+import VATMarginSchemeCalculator from '../components/VATMarginSchemeCalculator.astro';
+import CorporationTaxCalculator from '../components/CorporationTaxCalculator.astro';
+import SelfAssessmentTaxCalculator from '../components/SelfAssessmentTaxCalculator.astro';
+import LimitedCompanyVsSoleTraderTaxComparison from '../components/LimitedCompanyVsSoleTraderTaxComparison.astro';
+import AnnualInvestmentAllowanceAIACalculator from '../components/AnnualInvestmentAllowanceAIACalculator.astro';
+import AccountantFeesTaxReturnCostsEstimator from '../components/AccountantFeesTaxReturnCostsEstimator.astro';
+import StatutoryResidenceTestSRTTaxExitCalculator from '../components/StatutoryResidenceTestSRTTaxExitCalculator.astro';
+import SoleTraderVsLimitedCompanyCalculator from '../components/SoleTraderVsLimitedCompanyCalculator.astro';
+import BuyToLetMortgageSection24TaxCalculator from '../components/BuyToLetMortgageSection24TaxCalculator.astro';
+import FirstTimeBuyerStampDutyCalculator from '../components/FirstTimeBuyerStampDutyCalculator.astro';
+import DividendVsSalaryLtdCompanyDirectorTaxCalculator from '../components/DividendVsSalaryLtdCompanyDirectorTaxCalculator.astro';
+import SelfAssessmentPaymentsOnAccountCalculator from '../components/SelfAssessmentPaymentsOnAccountCalculator.astro';
+import VATFlatRateSchemeCalculator from '../components/VATFlatRateSchemeCalculator.astro';
+
+// Benefits / Social Category Components
+import UniversalCreditCalculator from '../components/UniversalCreditCalculator.astro';
+import JobseekersAllowanceJSACalculator from '../components/JobseekersAllowanceJSACalculator.astro';
+import HousingBenefitCouncilTaxSupportCalculator from '../components/HousingBenefitCouncilTaxSupportCalculator.astro';
+import StudentLoanRepaymentFinanceCalculator from '../components/StudentLoanRepaymentFinanceCalculator.astro';
+import StatePensionForecastCalculator from '../components/StatePensionForecastCalculator.astro';
+import RetirementPensionGapCalculator from '../components/RetirementPensionGapCalculator.astro';
+import TaxOnPensionIncomeCalculator from '../components/TaxOnPensionIncomeCalculator.astro';
+import LifetimeISALISACalculator from '../components/LifetimeISALISACalculator.astro';
+import LifetimeISAWithdrawalPenaltyCalculator from '../components/LifetimeISAWithdrawalPenaltyCalculator.astro';
+import EmploymentAndSupportAllowanceESAPIPCalculator from '../components/EmploymentAndSupportAllowanceESAPIPCalculator.astro';
+import StatutorySickPaySSPExtensionCalculator from '../components/StatutorySickPaySSPExtensionCalculator.astro';
+import BereavementSupportPaymentCalculator from '../components/BereavementSupportPaymentCalculator.astro';
+import PensionCreditCalculator from '../components/PensionCreditCalculator.astro';
+import NationalInsuranceCreditsForParentsCalculator from '../components/NationalInsuranceCreditsForParentsCalculator.astro';
+import StatePensionAgeCalculator from '../components/StatePensionAgeCalculator.astro';
+import NationalInsuranceQualifyingYearsCalculator from '../components/NationalInsuranceQualifyingYearsCalculator.astro';
+
+// Housing Category Components
+import MortgagePaymentCalculator from '../components/MortgagePaymentCalculator.astro';
+import FairRentRentIncreaseLimiter from '../components/FairRentRentIncreaseLimiter.astro';
+import TenantRentIncreaseCalculator from '../components/TenantRentIncreaseCalculator.astro';
+import ServiceChargeUtilityCostEstimator from '../components/ServiceChargeUtilityCostEstimator.astro';
+import ElectricityBillEstimator from '../components/ElectricityBillEstimator.astro';
+import HeatingFuelCostComparisonCalculator from '../components/HeatingFuelCostComparisonCalculator.astro';
+import GasBillEstimator from '../components/GasBillEstimator.astro';
+import HeatPumpEfficiencyGrantCalculator from '../components/HeatPumpEfficiencyGrantCalculator.astro';
+import TenancyDepositCapSchemeFeeCalculator from '../components/TenancyDepositCapSchemeFeeCalculator.astro';
+import RemovalHomeMovingCostCalculator from '../components/RemovalHomeMovingCostCalculator.astro';
+import PricePerSquareFootMetreCalculator from '../components/PricePerSquareFootMetreCalculator.astro';
+import PropertyBuyingCostsCalculator from '../components/PropertyBuyingCostsCalculator.astro';
+import RentalYieldCalculator from '../components/RentalYieldCalculator.astro';
+import CommercialPropertyValuationYieldCapitalisationCalculator from '../components/CommercialPropertyValuationYieldCapitalisationCalculator.astro';
+import ConveyancingFeesLandRegistryCostCalculator from '../components/ConveyancingFeesLandRegistryCostCalculator.astro';
+import EstateAgentCommissionCalculator from '../components/EstateAgentCommissionCalculator.astro';
+import MortgageAmortisationCalculator from '../components/MortgageAmortisationCalculator.astro';
+import MortgageDepositLTVCalculator from '../components/MortgageDepositLTVCalculator.astro';
+import RentVsBuyCalculator from '../components/RentVsBuyCalculator.astro';
+import SolarPanelPaybackSmartExportGuaranteeSegCalculator from '../components/SolarPanelPaybackSmartExportGuaranteeSegCalculator.astro';
+import MortgageEarlyRepaymentChargeErcCalculator from '../components/MortgageEarlyRepaymentChargeErcCalculator.astro';
+import GasUnitConverterMToKwh from '../components/GasUnitConverterMToKwh.astro';
+import ApplianceRunningCostCalculator from '../components/ApplianceRunningCostCalculator.astro';
+import RoomFloorAreaCalculator from '../components/RoomFloorAreaCalculator.astro';
+import LeaseholdServiceChargeAllocationCalculator from '../components/LeaseholdServiceChargeAllocationCalculator.astro';
+import TileCalculator from '../components/TileCalculator.astro';
+import WallpaperCalculator from '../components/WallpaperCalculator.astro';
+import PaintCalculator from '../components/PaintCalculator.astro';
+import LaminateWoodFlooringCalculator from '../components/LaminateWoodFlooringCalculator.astro';
+import ConcreteMixCalculator from '../components/ConcreteMixCalculator.astro';
+import FloorScreedCalculator from '../components/FloorScreedCalculator.astro';
+import BrickCalculator from '../components/BrickCalculator.astro';
+import PlasterRenderQuantityCalculator from '../components/PlasterRenderQuantityCalculator.astro';
+import BlockPavingPatioCalculator from '../components/BlockPavingPatioCalculator.astro';
+import RoofPitchCalculator from '../components/RoofPitchCalculator.astro';
+import DrainageGradientSlopeCalculator from '../components/DrainageGradientSlopeCalculator.astro';
+import HumidityDewPointCalculator from '../components/HumidityDewPointCalculator.astro';
+import StaircaseDimensionsCalculatorUkBuildingRegsPartK from '../components/StaircaseDimensionsCalculatorUkBuildingRegsPartK.astro';
+import HeatingOilTankLifespanConsumptionCalculator from '../components/HeatingOilTankLifespanConsumptionCalculator.astro';
+import RoomBtuRadiatorCalculator from '../components/RoomBtuRadiatorCalculator.astro';
+import LandValuationCalculator from '../components/LandValuationCalculator.astro';
+import LandPlotPriceCalculator from '../components/LandPlotPriceCalculator.astro';
+import PlanningPermissionFeesEstimator from '../components/PlanningPermissionFeesEstimator.astro';
+import BuildingRegulationsFeesEstimator from '../components/BuildingRegulationsFeesEstimator.astro';
+import PartyWallActCostEstimator from '../components/PartyWallActCostEstimator.astro';
+import LoftConversionCostAreaEstimator from '../components/LoftConversionCostAreaEstimator.astro';
+import GarageConversionFeasibilityCostEstimator from '../components/GarageConversionFeasibilityCostEstimator.astro';
+import HouseExtensionCostPerSquareMetreCalculator from '../components/HouseExtensionCostPerSquareMetreCalculator.astro';
+import SelfBuildHouseCostEstimator from '../components/SelfBuildHouseCostEstimator.astro';
+import KitchenRenovationCostEstimator from '../components/KitchenRenovationCostEstimator.astro';
+import BathroomRenovationCostEstimator from '../components/BathroomRenovationCostEstimator.astro';
+import UnderfloorHeatingBtuHoseLengthCalculator from '../components/UnderfloorHeatingBtuHoseLengthCalculator.astro';
+import WindowReplacementEnergyEfficiencyUValueSavingsCalculator from '../components/WindowReplacementEnergyEfficiencyUValueSavingsCalculator.astro';
+import SolarPvPanelBatteryStorageSystemCalculator from '../components/SolarPvPanelBatteryStorageSystemCalculator.astro';
+import HomeEvChargerInstallationCostCalculator from '../components/HomeEvChargerInstallationCostCalculator.astro';
+import CarBreakdownServiceCoverCalculator from '../components/CarBreakdownServiceCoverCalculator.astro';
+import UsedCarDepreciationResaleValueCalculator from '../components/UsedCarDepreciationResaleValueCalculator.astro';
+import CarLeaseVsBuyPcpHpFinanceCalculator from '../components/CarLeaseVsBuyPcpHpFinanceCalculator.astro';
+import P11dCompanyCarBenefitInKindTaxCalculator from '../components/P11dCompanyCarBenefitInKindTaxCalculator.astro';
+import ElectricVehicleChargingCostMileageCalculator from '../components/ElectricVehicleChargingCostMileageCalculator.astro';
+import CommuteCostCalculatorFuelVsPublicTransport from '../components/CommuteCostCalculatorFuelVsPublicTransport.astro';
+import PetrolVsDieselFuelEconomyCostCalculator from '../components/PetrolVsDieselFuelEconomyCostCalculator.astro';
+import VehicleExciseDutyVedRoadTaxCalculator from '../components/VehicleExciseDutyVedRoadTaxCalculator.astro';
+import LondonUlezCongestionChargeCostCalculator from '../components/LondonUlezCongestionChargeCostCalculator.astro';
+import DrivingLessonCostTotalPassCostCalculator from '../components/DrivingLessonCostTotalPassCostCalculator.astro';
+import TaxiFareUberTripCostEstimator from '../components/TaxiFareUberTripCostEstimator.astro';
+import MotorwayTollRoadBridgeCostCalculator from '../components/MotorwayTollRoadBridgeCostCalculator.astro';
+import PrivateAviationHelicopterCharterCostCalculator from '../components/PrivateAviationHelicopterCharterCostCalculator.astro';
+import DomesticFlightCarbonFootprintCalculator from '../components/DomesticFlightCarbonFootprintCalculator.astro';
+import MotorcycleRunningCostsCalculator from '../components/MotorcycleRunningCostsCalculator.astro';
+import BicycleEbikeCommuterSavingsCalculator from '../components/BicycleEbikeCommuterSavingsCalculator.astro';
+import MotorhomeCampervanOwnershipCostCalculator from '../components/MotorhomeCampervanOwnershipCostCalculator.astro';
+import BoatYachtMooringMaintenanceCostCalculator from '../components/BoatYachtMooringMaintenanceCostCalculator.astro';
+import PrivateMedicalInsurancePmiPremiumCostEstimator from '../components/PrivateMedicalInsurancePmiPremiumCostEstimator.astro';
+import NhsDentalTreatmentChargesCalculator from '../components/NhsDentalTreatmentChargesCalculator.astro';
+import NhsPrescriptionChargesPpcCertificateSavingsCalculator from '../components/NhsPrescriptionChargesPpcCertificateSavingsCalculator.astro';
+import OpticalGlassesContactLensSubscriptionCalculator from '../components/OpticalGlassesContactLensSubscriptionCalculator.astro';
+import StatutorySickPaySspQualificationCalculator from '../components/StatutorySickPaySspQualificationCalculator.astro';
+import CareHomeFeesLocalAuthorityMeansTestCalculator from '../components/CareHomeFeesLocalAuthorityMeansTestCalculator.astro';
+import DlaToPipMigrationBenefitAssessmentEstimator from '../components/DlaToPipMigrationBenefitAssessmentEstimator.astro';
+import GymMembershipVsHomeGymEquipmentPaybackCalculator from '../components/GymMembershipVsHomeGymEquipmentPaybackCalculator.astro';
+import IvfFertilityTreatmentCostEstimatorUk from '../components/IvfFertilityTreatmentCostEstimatorUk.astro';
+import PersonalInjuryCompensationClaimEstimatorUk from '../components/PersonalInjuryCompensationClaimEstimatorUk.astro';
+import NoWinNoFeeSolicitorLegalCostsSuccessFeeCalculator from '../components/NoWinNoFeeSolicitorLegalCostsSuccessFeeCalculator.astro';
+import DivorceFinancialSettlementAssetDivisionCalculator from '../components/DivorceFinancialSettlementAssetDivisionCalculator.astro';
+import EmploymentTribunalUnfairDismissalCompensationEstimator from '../components/EmploymentTribunalUnfairDismissalCompensationEstimator.astro';
+import WillWritingProbateLegalFeeCostCalculator from '../components/WillWritingProbateLegalFeeCostCalculator.astro';
+import PowerOfAttorneyOpgRegistrationFeeCalculator from '../components/PowerOfAttorneyOpgRegistrationFeeCalculator.astro';
+import HighCourtSmallClaimsCourtFeeCalculator from '../components/HighCourtSmallClaimsCourtFeeCalculator.astro';
+import FlightDelayCompensationEu261UkRegulationEstimator from '../components/FlightDelayCompensationEu261UkRegulationEstimator.astro';
+import TenantDepositDisputeCompensationClaimsCalculator from '../components/TenantDepositDisputeCompensationClaimsCalculator.astro';
+import CopyrightPatentTrademarkRegistrationFeeCalculator from '../components/CopyrightPatentTrademarkRegistrationFeeCalculator.astro';
+import PersonalLoanCalculator from '../components/PersonalLoanCalculator.astro';
+import CompoundInterestCalculator from '../components/CompoundInterestCalculator.astro';
+import SavingsTargetGrowthCalculator from '../components/SavingsTargetGrowthCalculator.astro';
+import IndexFundEtfInvestmentCalculator from '../components/IndexFundEtfInvestmentCalculator.astro';
+import SelfInvestedPersonalPensionSippCalculator from '../components/SelfInvestedPersonalPensionSippCalculator.astro';
+import SippTaxReliefPensionContributionCalculator from '../components/SippTaxReliefPensionContributionCalculator.astro';
+import WorkplacePensionAutoEnrolmentCalculator from '../components/WorkplacePensionAutoEnrolmentCalculator.astro';
+import BusinessValuationCalculator from '../components/BusinessValuationCalculator.astro';
+import InflationPurchasingPowerCalculator from '../components/InflationPurchasingPowerCalculator.astro';
+import BankOverdraftCostCalculator from '../components/BankOverdraftCostCalculator.astro';
+
+// Batch 5 Components (201-250)
+import CurrencyConverter from '../components/CurrencyConverter.astro';
+import InsolvencyDebtSolutionSelectorCalculator from '../components/InsolvencyDebtSolutionSelectorCalculator.astro';
+import BudgetCalculator503020Rule from '../components/BudgetCalculator503020Rule.astro';
+import SortCodeAccountNumberToIbanConverter from '../components/SortCodeAccountNumberToIbanConverter.astro';
+import CapitalGainsTaxOnSharesCalculator from '../components/CapitalGainsTaxOnSharesCalculator.astro';
+import CryptoTaxCalculatorHmrcRules from '../components/CryptoTaxCalculatorHmrcRules.astro';
+import DividendTaxCalculator from '../components/DividendTaxCalculator.astro';
+import HelpToSaveSchemeCalculator from '../components/HelpToSaveSchemeCalculator.astro';
+import LifetimeIsaFirstHomeCalculator from '../components/LifetimeIsaFirstHomeCalculator.astro';
+import PaypalUkFeesCalculator from '../components/PaypalUkFeesCalculator.astro';
+import ProfitMarginMarkupCalculator from '../components/ProfitMarginMarkupCalculator.astro';
+import EarlyPaymentDiscountCalculator from '../components/EarlyPaymentDiscountCalculator.astro';
+import BitcoinInGbpExchangeCalculator from '../components/BitcoinInGbpExchangeCalculator.astro';
+import SolicitorFeesEstimator from '../components/SolicitorFeesEstimator.astro';
+import RoiReturnOnInvestmentCalculator from '../components/RoiReturnOnInvestmentCalculator.astro';
+import ImportDutyVatCalculator from '../components/ImportDutyVatCalculator.astro';
+import PensionDrawdownCapitalDepletionCalculator from '../components/PensionDrawdownCapitalDepletionCalculator.astro';
+import StatutoryLatePaymentInterestCalculator from '../components/StatutoryLatePaymentInterestCalculator.astro';
+import SoleTraderVsLtdCompanyRegistrationFeesCalculator from '../components/SoleTraderVsLtdCompanyRegistrationFeesCalculator.astro';
+import LimitedCompanySetupCostsCalculator from '../components/LimitedCompanySetupCostsCalculator.astro';
+import HowMuchHouseCanIAffordCalculator from '../components/HowMuchHouseCanIAffordCalculator.astro';
+import RemortgageProductTransferCalculator from '../components/RemortgageProductTransferCalculator.astro';
+import CapitalRepaymentMortgageCalculator from '../components/CapitalRepaymentMortgageCalculator.astro';
+import HomeEnergyEfficiencyGrantsCalculator from '../components/HomeEnergyEfficiencyGrantsCalculator.astro';
+import ForwardMortgageRateLockEstimator from '../components/ForwardMortgageRateLockEstimator.astro';
+import MortgageOverpaymentSavingsCalculator from '../components/MortgageOverpaymentSavingsCalculator.astro';
+import MortgageDelayOfferValidityEstimator from '../components/MortgageDelayOfferValidityEstimator.astro';
+import LtvLoanToValueBracketCalculator from '../components/LtvLoanToValueBracketCalculator.astro';
+import MortgageOutstandingBalanceEstimator from '../components/MortgageOutstandingBalanceEstimator.astro';
+import FixedMortgageRateTermComparatorCalculator from '../components/FixedMortgageRateTermComparatorCalculator.astro';
+import RepaymentVsInterestOnlyMortgageComparisonCalculator from '../components/RepaymentVsInterestOnlyMortgageComparisonCalculator.astro';
+import TippingServiceChargeCalculator from '../components/TippingServiceChargeCalculator.astro';
+import PercentageCalculator from '../components/PercentageCalculator.astro';
+import DiscountSaleSavingsCalculator from '../components/DiscountSaleSavingsCalculator.astro';
+import NorthernIrelandDogLicenceCostCalculator from '../components/NorthernIrelandDogLicenceCostCalculator.astro';
+import RoiRoiPACalculator from '../components/RoiRoiPACalculator.astro';
+import FlightTimeTimeDifferenceCalculator from '../components/FlightTimeTimeDifferenceCalculator.astro';
+import TimeZoneCalculator from '../components/TimeZoneCalculator.astro';
+import AgeCalculator from '../components/AgeCalculator.astro';
+import DateDurationDayCounterCalculator from '../components/DateDurationDayCounterCalculator.astro';
+import ImperialToMetricUnitConverter from '../components/ImperialToMetricUnitConverter.astro';
+import ScaleModelMapConverter from '../components/ScaleModelMapConverter.astro';
+import WeddingBudgetPlanner from '../components/WeddingBudgetPlanner.astro';
+import BirthdayDayOfWeekStarSignFinderCalculator from '../components/BirthdayDayOfWeekStarSignFinderCalculator.astro';
+import RuleOfThreeDreisatzMathCalculator from '../components/RuleOfThreeDreisatzMathCalculator.astro';
+import ElectricityCostApplianceRunningCostCalculator from '../components/ElectricityCostApplianceRunningCostCalculator.astro';
+import FuelCostJourneyMileageCalculator from '../components/FuelCostJourneyMileageCalculator.astro';
+import ElectricVehicleEvChargingCostRangeCalculator from '../components/ElectricVehicleEvChargingCostRangeCalculator.astro';
+import HmrcMileageAllowancePaymentsAmapCalculator from '../components/HmrcMileageAllowancePaymentsAmapCalculator.astro';
+import CarDepreciationEstimator from '../components/CarDepreciationEstimator.astro';
+import CarLeasingVsPcpFinanceComparisonCalculator from '../components/CarLeasingVsPcpFinanceComparisonCalculator.astro';
+import VehicleStatutoryOffRoadNotificationSornEstimator from '../components/VehicleStatutoryOffRoadNotificationSornEstimator.astro';
+import MotCostRepairBudgetCalculator from '../components/MotCostRepairBudgetCalculator.astro';
+import UsedCarInspectionBudgetCalculator from '../components/UsedCarInspectionBudgetCalculator.astro';
+import BmiBmrCalorieCalculator from '../components/BmiBmrCalorieCalculator.astro';
+import BodyFatPercentageEstimator from '../components/BodyFatPercentageEstimator.astro';
+import IdealBodyWeightPredictor from '../components/IdealBodyWeightPredictor.astro';
+import DailyWaterHydrationIntakeCalculator from '../components/DailyWaterHydrationIntakeCalculator.astro';
+import RunningPaceRaceTimePredictor from '../components/RunningPaceRaceTimePredictor.astro';
+import UniversitiesCollegesAdmissionsServiceUcasPointsCalculator from '../components/UniversitiesCollegesAdmissionsServiceUcasPointsCalculator.astro';
+import StudentGradePointAverageGpaPercentageConverter from '../components/StudentGradePointAverageGpaPercentageConverter.astro';
+import DegreeClassificationBoundaryEstimator from '../components/DegreeClassificationBoundaryEstimator.astro';
+import StudentMaintenanceGrantLoanEligibilityCalculator from '../components/StudentMaintenanceGrantLoanEligibilityCalculator.astro';
+import TuitionFeeLoanInterestCompoundingEstimator from '../components/TuitionFeeLoanInterestCompoundingEstimator.astro';
+import MortgageStressTestAffordabilityCalculator from '../components/MortgageStressTestAffordabilityCalculator.astro';
+import BuyToLetStampDutySurchargeCalculator from '../components/BuyToLetStampDutySurchargeCalculator.astro';
+import SharedOwnershipRentAndServiceChargeCalculator from '../components/SharedOwnershipRentAndServiceChargeCalculator.astro';
+import CommercialLeaseServiceChargeSquareFootageCalculator from '../components/CommercialLeaseServiceChargeSquareFootageCalculator.astro';
+import RightToBuyCouncilHouseDiscountCalculator from '../components/RightToBuyCouncilHouseDiscountCalculator.astro';
+import SelfEmployedClass2Class4NationalInsuranceCalculator from '../components/SelfEmployedClass2Class4NationalInsuranceCalculator.astro';
+import SoleTraderTaxReserveBudgetCalculator from '../components/SoleTraderTaxReserveBudgetCalculator.astro';
+import SmallBusinessVatFlatRateSchemeVsStandardCalculator from '../components/SmallBusinessVatFlatRateSchemeVsStandardCalculator.astro';
+import HmrcPaymentOnAccountTaxBillCalculator from '../components/HmrcPaymentOnAccountTaxBillCalculator.astro';
+import HmrcLateTaxPaymentPenaltyInterestCalculator from '../components/HmrcLateTaxPaymentPenaltyInterestCalculator.astro';
+import StatutoryRedundancyPaymentCalculator from '../components/StatutoryRedundancyPaymentCalculator.astro';
+import StatutoryMaternityPaySmpEligibilityCalculator from '../components/StatutoryMaternityPaySmpEligibilityCalculator.astro';
+import StatutoryPaternityPaySppCalculator from '../components/StatutoryPaternityPaySppCalculator.astro';
+import StatutorySickPaySspCalculator from '../components/StatutorySickPaySspCalculator.astro';
+import UnfairDismissalEmploymentTribunalCompensationCalculator from '../components/UnfairDismissalEmploymentTribunalCompensationCalculator.astro';
+import P11dBenefitInKindBiKTaxCalculator from '../components/P11dBenefitInKindBiKTaxCalculator.astro';
+import ChildcareVouchersVsTaxFreeChildcareCalculator from '../components/ChildcareVouchersVsTaxFreeChildcareCalculator.astro';
+import FurloughPayRecalculationHistoricalEstimator from '../components/FurloughPayRecalculationHistoricalEstimator.astro';
+import ArmedForcesPensionSchemeCalculator from '../components/ArmedForcesPensionSchemeCalculator.astro';
+import TeachersPensionSchemeUkCalculator from '../components/TeachersPensionSchemeUkCalculator.astro';
+import FirefightersPensionSchemeUkCalculator from '../components/FirefightersPensionSchemeUkCalculator.astro';
+import PolicePensionSchemeUkCalculator from '../components/PolicePensionSchemeUkCalculator.astro';
+import SocialSecurityScotlandCarersAllowanceSupplementCalculator from '../components/SocialSecurityScotlandCarersAllowanceSupplementCalculator.astro';
+import NorthernIrelandRatesDomesticRatingPropertyTaxCalculator from '../components/NorthernIrelandRatesDomesticRatingPropertyTaxCalculator.astro';
+import WelshLandTransactionTaxLttCalculator from '../components/WelshLandTransactionTaxLttCalculator.astro';
+import ScottishLandAndBuildingsTransactionTaxLbttCalculator from '../components/ScottishLandAndBuildingsTransactionTaxLbttCalculator.astro';
+import ScottishCouncilTaxBandsMultiplierCalculator from '../components/ScottishCouncilTaxBandsMultiplierCalculator.astro';
+import UniversalCreditScottishWorkAllowanceCalculator from '../components/UniversalCreditScottishWorkAllowanceCalculator.astro';
+import ScottishHighersToUcasTariffPointsConverter from '../components/ScottishHighersToUcasTariffPointsConverter.astro';
+import ScottishSelfEmployedIncomeTaxVsRestOfUkCalculator from '../components/ScottishSelfEmployedIncomeTaxVsRestOfUkCalculator.astro';
+import HearingAidPurchaseAudiologistFittingCostCalculator from '../components/HearingAidPurchaseAudiologistFittingCostCalculator.astro';
+import CompanyCarTaxBikCalculator from '../components/CompanyCarTaxBikCalculator.astro';
+
+const componentMap: Record<string, any> = {
+  'vat-calculator': VATCalculator,
+  'salary-income-tax-calculator': SalaryCalculator,
+
+  // Family
+  'child-benefit-calculator': ChildBenefitCalculator,
+  'statutory-maternity-paternity-pay-calculator': StatutoryMaternityPaternityPayCalculator,
+  'child-maintenance-calculator': ChildMaintenanceCalculator,
+  'universal-credit-child-element-calculator': UniversalCreditChildElementCalculator,
+  'maternity-leave-planner': MaternityLeavePlanner,
+  'shared-parental-leave-pay-calculator': SharedParentalLeavePayCalculator,
+  'pregnancy-due-date-calculator': PregnancyDueDateCalculator,
+  'divorce-costs-calculator': DivorceCostsCalculator,
+  'spousal-maintenance-estimator': SpousalMaintenanceEstimator,
+  'pocket-money-calculator': PocketMoneyCalculator,
+  'child-height-predictor': ChildHeightPredictor,
+  'scottish-child-payment-calculator': ScottishChildPaymentCalculator,
+  'childcare-funding-grants-calculator': ChildcareFundingGrantsCalculator,
+
+  // Work
+  'hmrc-mileage-claim-calculator': HMRCMileageClaimCalculator,
+  'national-insurance-threshold-part-time-earnings-calculator': NationalInsuranceThresholdPartTimeEarningsCalculator,
+  'national-insurance-transition-zone-calculator': NationalInsuranceTransitionZoneCalculator,
+  'apprentice-minimum-wage-calculator': ApprenticeMinimumWageCalculator,
+  'statutory-redundancy-pay-calculator': StatutoryRedundancyPayCalculator,
+  'hourly-wage-to-salary-converter': HourlyWageToSalaryConverter,
+  'salary-comparison-calculator': SalaryComparisonCalculator,
+  'redundancy-package-tax-calculator': RedundancyPackageTaxCalculator,
+  'holiday-entitlement-calculator': HolidayEntitlementCalculator,
+  'statutory-notice-period-calculator': StatutoryNoticePeriodCalculator,
+  'probationary-period-calculator': ProbationaryPeriodCalculator,
+  'overtime-pay-calculator': OvertimePayCalculator,
+  'part-time-pro-rata-salary-calculator': PartTimeProRataSalaryCalculator,
+  'night-shift-pay-premium-calculator': NightShiftPayPremiumCalculator,
+  'working-days-calculator': WorkingDaysCalculator,
+  'national-minimum-wage-calculator': NationalMinimumWageCalculator,
+  'sabbatical-career-break-savings-calculator': SabbaticalCareerBreakSavingsCalculator,
+  'working-from-home-tax-relief-calculator': WorkingFromHomeTaxReliefCalculator,
+  'business-subsistence-allowance-calculator': BusinessSubsistenceAllowanceCalculator,
+  'early-retirement-pension-drawdown-calculator': EarlyRetirementPensionDrawdownCalculator,
+  'phased-retirement-calculator': PhasedRetirementCalculator,
+  'timesheet-hours-worked-calculator': TimesheetHoursWorkedCalculator,
+  'decimal-time-industrial-minutes-converter': DecimalTimeIndustrialMinutesConverter,
+  'nhs-agenda-for-change-pay-scales-calculator': NHSAgendaForChangePayScalesCalculator,
+  'teacher-pay-scales-calculator': TeacherPayScalesCalculator,
+  'bonus-tax-net-pay-calculator': BonusTaxNetPayCalculator,
+  'bank-holiday-optimizer-annual-leave-planner': BankHolidayOptimizerAnnualLeavePlanner,
+  'pay-rise-net-income-calculator': PayRiseNetIncomeCalculator,
+  'student-loan-repayment-calculator': StudentLoanRepaymentCalculator,
+  'salary-sacrifice-pension-calculator': SalarySacrificePensionCalculator,
+
+  // Taxes
+  'income-tax-calculator': IncomeTaxCalculator,
+  'property-transaction-tax-calculator': PropertyTransactionTaxCalculator,
+  'property-income-tax-buy-to-let-tax-calculator': PropertyIncomeTaxBuyToLetTaxCalculator,
+  'inheritance-tax-iht-calculator': InheritanceTaxIHTCalculator,
+  'dividend-tax-allowance-calculator': DividendTaxAllowanceCalculator,
+  'capital-gains-tax-cgt-calculator': CapitalGainsTaxCGTCalculator,
+  'value-added-tax-vat-calculator': ValueAddedTaxVATCalculator,
+  'gift-tax-iht-7-year-rule-calculator': GiftTaxIHT7YearRuleCalculator,
+  'council-tax-domestic-rates-calculator': CouncilTaxDomesticRatesCalculator,
+  'business-rates-calculator': BusinessRatesCalculator,
+  'marriage-allowance-calculator': MarriageAllowanceCalculator,
+  'tax-refund-rebate-estimator': TaxRefundRebateEstimator,
+  'carry-forward-tax-losses-calculator': CarryForwardTaxLossesCalculator,
+  'paye-tax-calculator': PAYETaxCalculator,
+  'capital-allowances-depreciation-calculator': CapitalAllowancesDepreciationCalculator,
+  'nanny-domestic-staff-payroll-calculator': NannyDomesticStaffPayrollCalculator,
+  'energy-saving-renovation-vat-calculator': EnergySavingRenovationVATCalculator,
+  'dual-residency-second-home-work-expenses-calculator': DualResidencySecondHomeWorkExpensesCalculator,
+  'offshore-funds-excess-reportable-income-eri-calculator': OffshoreFundsExcessReportableIncomeERICalculator,
+  'high-income-child-benefit-charge-calculator': HighIncomeChildBenefitChargeCalculator,
+  'vat-registration-threshold-calculator': VATRegistrationThresholdCalculator,
+  'vat-return-estimator': VATReturnEstimator,
+  'sole-trader-tax-ni-calculator': SoleTraderTaxNICalculator,
+  'vat-margin-scheme-calculator': VATMarginSchemeCalculator,
+  'corporation-tax-calculator': CorporationTaxCalculator,
+  'self-assessment-tax-calculator': SelfAssessmentTaxCalculator,
+  'limited-company-vs-sole-trader-tax-comparison': LimitedCompanyVsSoleTraderTaxComparison,
+  'annual-investment-allowance-aia-calculator': AnnualInvestmentAllowanceAIACalculator,
+  'accountant-fees-tax-return-costs-estimator': AccountantFeesTaxReturnCostsEstimator,
+  'statutory-residence-test-srt-tax-exit-calculator': StatutoryResidenceTestSRTTaxExitCalculator,
+  'sole-trader-vs-limited-company-calculator': SoleTraderVsLimitedCompanyCalculator,
+  'buy-to-let-mortgage-section-24-tax-calculator': BuyToLetMortgageSection24TaxCalculator,
+  'first-time-buyer-stamp-duty-calculator': FirstTimeBuyerStampDutyCalculator,
+  'dividend-vs-salary-ltd-company-director-tax-calculator': DividendVsSalaryLtdCompanyDirectorTaxCalculator,
+  'self-assessment-payments-on-account-calculator': SelfAssessmentPaymentsOnAccountCalculator,
+  'vat-flat-rate-scheme-calculator': VATFlatRateSchemeCalculator,
+
+  // Benefits & Pensions
+  'universal-credit-calculator': UniversalCreditCalculator,
+  'jobseeker-s-allowance-jsa-calculator': JobseekersAllowanceJSACalculator,
+  'housing-benefit-council-tax-support-calculator': HousingBenefitCouncilTaxSupportCalculator,
+  'student-loan-repayment-finance-calculator': StudentLoanRepaymentFinanceCalculator,
+  'state-pension-forecast-calculator': StatePensionForecastCalculator,
+  'retirement-pension-gap-calculator': RetirementPensionGapCalculator,
+  'tax-on-pension-income-calculator': TaxOnPensionIncomeCalculator,
+  'lifetime-isa-lisa-calculator': LifetimeISALISACalculator,
+  'lifetime-isa-withdrawal-penalty-calculator': LifetimeISAWithdrawalPenaltyCalculator,
+  'employment-and-support-allowance-esa-pip-calculator': EmploymentAndSupportAllowanceESAPIPCalculator,
+  'statutory-sick-pay-ssp-extension-calculator': StatutorySickPaySSPExtensionCalculator,
+  'bereavement-support-payment-calculator': BereavementSupportPaymentCalculator,
+  'pension-credit-calculator': PensionCreditCalculator,
+  'national-insurance-credits-for-parents-calculator': NationalInsuranceCreditsForParentsCalculator,
+  'state-pension-age-calculator': StatePensionAgeCalculator,
+  'national-insurance-qualifying-years-calculator': NationalInsuranceQualifyingYearsCalculator,
+
+  // Housing & Property
+  'mortgage-payment-calculator': MortgagePaymentCalculator,
+  'fair-rent-rent-increase-limiter': FairRentRentIncreaseLimiter,
+  'tenant-rent-increase-calculator': TenantRentIncreaseCalculator,
+  'service-charge-utility-cost-estimator': ServiceChargeUtilityCostEstimator,
+  'electricity-bill-estimator': ElectricityBillEstimator,
+  'heating-fuel-cost-comparison-calculator': HeatingFuelCostComparisonCalculator,
+  'gas-bill-estimator': GasBillEstimator,
+  'heat-pump-efficiency-grant-calculator': HeatPumpEfficiencyGrantCalculator,
+  'tenancy-deposit-cap-scheme-fee-calculator': TenancyDepositCapSchemeFeeCalculator,
+  'removal-home-moving-cost-calculator': RemovalHomeMovingCostCalculator,
+  'price-per-square-foot-metre-calculator': PricePerSquareFootMetreCalculator,
+  'property-buying-costs-calculator': PropertyBuyingCostsCalculator,
+  'rental-yield-calculator': RentalYieldCalculator,
+  'commercial-property-valuation-yield-capitalisation-calculator': CommercialPropertyValuationYieldCapitalisationCalculator,
+  'conveyancing-fees-land-registry-cost-calculator': ConveyancingFeesLandRegistryCostCalculator,
+  'estate-agent-commission-calculator': EstateAgentCommissionCalculator,
+  'mortgage-amortisation-calculator': MortgageAmortisationCalculator,
+  'mortgage-deposit-ltv-calculator': MortgageDepositLTVCalculator,
+  'rent-vs-buy-calculator': RentVsBuyCalculator,
+  'solar-panel-payback-smart-export-guarantee-seg-calculator': SolarPanelPaybackSmartExportGuaranteeSegCalculator,
+  'mortgage-early-repayment-charge-erc-calculator': MortgageEarlyRepaymentChargeErcCalculator,
+  'gas-unit-converter-m-to-kwh': GasUnitConverterMToKwh,
+  'appliance-running-cost-calculator': ApplianceRunningCostCalculator,
+  'room-floor-area-calculator': RoomFloorAreaCalculator,
+  'leasehold-service-charge-allocation-calculator': LeaseholdServiceChargeAllocationCalculator,
+  'tile-calculator': TileCalculator,
+  'wallpaper-calculator': WallpaperCalculator,
+  'paint-calculator': PaintCalculator,
+  'laminate-wood-flooring-calculator': LaminateWoodFlooringCalculator,
+  'concrete-mix-calculator': ConcreteMixCalculator,
+  'floor-screed-calculator': FloorScreedCalculator,
+  'brick-calculator': BrickCalculator,
+  'plaster-render-quantity-calculator': PlasterRenderQuantityCalculator,
+  'block-paving-patio-calculator': BlockPavingPatioCalculator,
+  'roof-pitch-calculator': RoofPitchCalculator,
+  'drainage-gradient-slope-calculator': DrainageGradientSlopeCalculator,
+  'humidity-dew-point-calculator': HumidityDewPointCalculator,
+  'staircase-dimensions-calculator-uk-building-regs-part-k': StaircaseDimensionsCalculatorUkBuildingRegsPartK,
+  'heating-oil-tank-lifespan-consumption-calculator': HeatingOilTankLifespanConsumptionCalculator,
+  'room-btu-radiator-calculator': RoomBtuRadiatorCalculator,
+  'land-valuation-calculator': LandValuationCalculator,
+  'land-plot-price-calculator': LandPlotPriceCalculator,
+  'planning-permission-fees-estimator': PlanningPermissionFeesEstimator,
+  'building-regulations-fees-estimator': BuildingRegulationsFeesEstimator,
+  'party-wall-act-cost-estimator': PartyWallActCostEstimator,
+  'loft-conversion-cost-area-estimator': LoftConversionCostAreaEstimator,
+  'garage-conversion-feasibility-cost-estimator': GarageConversionFeasibilityCostEstimator,
+  'house-extension-cost-per-square-metre-calculator': HouseExtensionCostPerSquareMetreCalculator,
+  'self-build-house-cost-estimator': SelfBuildHouseCostEstimator,
+  'kitchen-renovation-cost-estimator': KitchenRenovationCostEstimator,
+  'bathroom-renovation-cost-estimator': BathroomRenovationCostEstimator,
+  'underfloor-heating-btu-hose-length-calculator': UnderfloorHeatingBtuHoseLengthCalculator,
+  'window-replacement-energy-efficiency-u-value-savings-calculator': WindowReplacementEnergyEfficiencyUValueSavingsCalculator,
+  'solar-pv-panel-battery-storage-system-calculator': SolarPvPanelBatteryStorageSystemCalculator,
+  'home-ev-charger-installation-cost-calculator': HomeEvChargerInstallationCostCalculator,
+  'car-breakdown-service-cover-calculator': CarBreakdownServiceCoverCalculator,
+  'used-car-depreciation-resale-value-calculator': UsedCarDepreciationResaleValueCalculator,
+  'car-lease-vs-buy-pcp-hp-finance-calculator': CarLeaseVsBuyPcpHpFinanceCalculator,
+  'p11d-company-car-benefit-in-kind-tax-calculator': P11dCompanyCarBenefitInKindTaxCalculator,
+  'electric-vehicle-charging-cost-mileage-calculator': ElectricVehicleChargingCostMileageCalculator,
+  'commute-cost-calculator-fuel-vs-public-transport': CommuteCostCalculatorFuelVsPublicTransport,
+  'petrol-vs-diesel-fuel-economy-cost-calculator': PetrolVsDieselFuelEconomyCostCalculator,
+  'vehicle-excise-duty-ved-road-tax-calculator': VehicleExciseDutyVedRoadTaxCalculator,
+  'london-ulez-congestion-charge-cost-calculator': LondonUlezCongestionChargeCostCalculator,
+  'driving-lesson-cost-total-pass-cost-calculator': DrivingLessonCostTotalPassCostCalculator,
+  'taxi-fare-uber-trip-cost-estimator': TaxiFareUberTripCostEstimator,
+  'motorway-toll-road-bridge-cost-calculator': MotorwayTollRoadBridgeCostCalculator,
+  'private-aviation-helicopter-charter-cost-calculator': PrivateAviationHelicopterCharterCostCalculator,
+  'domestic-flight-carbon-footprint-calculator': DomesticFlightCarbonFootprintCalculator,
+  'motorcycle-running-costs-calculator': MotorcycleRunningCostsCalculator,
+  'bicycle-ebike-commuter-savings-calculator': BicycleEbikeCommuterSavingsCalculator,
+  'motorhome-campervan-ownership-cost-calculator': MotorhomeCampervanOwnershipCostCalculator,
+  'boat-yacht-mooring-maintenance-cost-calculator': BoatYachtMooringMaintenanceCostCalculator,
+  'private-medical-insurance-pmi-premium-cost-estimator': PrivateMedicalInsurancePmiPremiumCostEstimator,
+  'nhs-dental-treatment-charges-calculator': NhsDentalTreatmentChargesCalculator,
+  'nhs-prescription-charges-ppc-certificate-savings-calculator': NhsPrescriptionChargesPpcCertificateSavingsCalculator,
+  'optical-glasses-contact-lens-subscription-calculator': OpticalGlassesContactLensSubscriptionCalculator,
+  'statutory-sick-pay-ssp-qualification-calculator': StatutorySickPaySspQualificationCalculator,
+  'care-home-fees-local-authority-means-test-calculator': CareHomeFeesLocalAuthorityMeansTestCalculator,
+  'dla-to-pip-migration-benefit-assessment-estimator': DlaToPipMigrationBenefitAssessmentEstimator,
+  'gym-membership-vs-home-gym-equipment-payback-calculator': GymMembershipVsHomeGymEquipmentPaybackCalculator,
+  'ivf-fertility-treatment-cost-estimator-uk': IvfFertilityTreatmentCostEstimatorUk,
+  'hearing-aid-purchase-audiologist-fitting-cost-calculator': HearingAidPurchaseAudiologistFittingCostCalculator,
+  'personal-injury-compensation-claim-estimator-uk': PersonalInjuryCompensationClaimEstimatorUk,
+  'no-win-no-fee-solicitor-legal-costs-success-fee-calculator': NoWinNoFeeSolicitorLegalCostsSuccessFeeCalculator,
+  'divorce-financial-settlement-asset-division-calculator': DivorceFinancialSettlementAssetDivisionCalculator,
+  'employment-tribunal-unfair-dismissal-compensation-estimator': EmploymentTribunalUnfairDismissalCompensationEstimator,
+  'will-writing-probate-legal-fee-cost-calculator': WillWritingProbateLegalFeeCostCalculator,
+  'power-of-attorney-opg-registration-fee-calculator': PowerOfAttorneyOpgRegistrationFeeCalculator,
+  'high-court-small-claims-court-fee-calculator': HighCourtSmallClaimsCourtFeeCalculator,
+  'flight-delay-compensation-eu261-uk-regulation-estimator': FlightDelayCompensationEu261UkRegulationEstimator,
+  'tenant-deposit-dispute-compensation-claims-calculator': TenantDepositDisputeCompensationClaimsCalculator,
+  'copyright-patent-trademark-registration-fee-calculator': CopyrightPatentTrademarkRegistrationFeeCalculator,
+  'personal-loan-calculator': PersonalLoanCalculator,
+  'compound-interest-calculator': CompoundInterestCalculator,
+  'savings-target-growth-calculator': SavingsTargetGrowthCalculator,
+  'index-fund-etf-investment-calculator': IndexFundEtfInvestmentCalculator,
+  'self-invested-personal-pension-sipp-calculator': SelfInvestedPersonalPensionSippCalculator,
+  'sipp-tax-relief-pension-contribution-calculator': SippTaxReliefPensionContributionCalculator,
+  'workplace-pension-auto-enrolment-calculator': WorkplacePensionAutoEnrolmentCalculator,
+  'business-valuation-calculator': BusinessValuationCalculator,
+  'inflation-purchasing-power-calculator': InflationPurchasingPowerCalculator,
+  'bank-overdraft-cost-calculator': BankOverdraftCostCalculator,
+
+  // Batch 5 Calculators (201-250)
+  'currency-converter': CurrencyConverter,
+  'insolvency-debt-solution-selector-calculator': InsolvencyDebtSolutionSelectorCalculator,
+  'budget-calculator-50-30-20-rule': BudgetCalculator503020Rule,
+  'sort-code-account-number-to-iban-converter': SortCodeAccountNumberToIbanConverter,
+  'capital-gains-tax-on-shares-calculator': CapitalGainsTaxOnSharesCalculator,
+  'crypto-tax-calculator-hmrc-rules': CryptoTaxCalculatorHmrcRules,
+  'dividend-tax-calculator': DividendTaxCalculator,
+  'help-to-save-scheme-calculator': HelpToSaveSchemeCalculator,
+  'lifetime-isa-first-home-calculator': LifetimeIsaFirstHomeCalculator,
+  'paypal-uk-fees-calculator': PaypalUkFeesCalculator,
+  'profit-margin-markup-calculator': ProfitMarginMarkupCalculator,
+  'early-payment-discount-calculator': EarlyPaymentDiscountCalculator,
+  'bitcoin-in-gbp-exchange-calculator': BitcoinInGbpExchangeCalculator,
+  'solicitor-fees-estimator': SolicitorFeesEstimator,
+  'roi-return-on-investment-calculator': RoiReturnOnInvestmentCalculator,
+  'import-duty-vat-calculator': ImportDutyVatCalculator,
+  'pension-drawdown-capital-depletion-calculator': PensionDrawdownCapitalDepletionCalculator,
+  'statutory-late-payment-interest-calculator': StatutoryLatePaymentInterestCalculator,
+  'sole-trader-vs-ltd-company-registration-fees-calculator': SoleTraderVsLtdCompanyRegistrationFeesCalculator,
+  'limited-company-setup-costs-calculator': LimitedCompanySetupCostsCalculator,
+  'how-much-house-can-i-afford-calculator': HowMuchHouseCanIAffordCalculator,
+  'remortgage-product-transfer-calculator': RemortgageProductTransferCalculator,
+  'capital-repayment-mortgage-calculator': CapitalRepaymentMortgageCalculator,
+  'home-energy-efficiency-grants-calculator': HomeEnergyEfficiencyGrantsCalculator,
+  'forward-mortgage-rate-lock-estimator': ForwardMortgageRateLockEstimator,
+  'mortgage-overpayment-savings-calculator': MortgageOverpaymentSavingsCalculator,
+  'mortgage-delay-offer-validity-estimator': MortgageDelayOfferValidityEstimator,
+  'ltv-loan-to-value-bracket-calculator': LtvLoanToValueBracketCalculator,
+  'mortgage-outstanding-balance-estimator': MortgageOutstandingBalanceEstimator,
+  'fixed-mortgage-rate-term-comparator-calculator': FixedMortgageRateTermComparatorCalculator,
+  'repayment-vs-interest-only-mortgage-comparison-calculator': RepaymentVsInterestOnlyMortgageComparisonCalculator,
+  'tipping-service-charge-calculator': TippingServiceChargeCalculator,
+  'percentage-calculator': PercentageCalculator,
+  'discount-sale-savings-calculator': DiscountSaleSavingsCalculator,
+  'northern-ireland-dog-licence-cost-calculator': NorthernIrelandDogLicenceCostCalculator,
+  'roi-roi-p-a-calculator': RoiRoiPACalculator,
+  'flight-time-time-difference-calculator': FlightTimeTimeDifferenceCalculator,
+  'time-zone-calculator': TimeZoneCalculator,
+  'age-calculator': AgeCalculator,
+  'date-duration-day-counter-calculator': DateDurationDayCounterCalculator,
+  'imperial-to-metric-unit-converter': ImperialToMetricUnitConverter,
+  'scale-model-map-converter': ScaleModelMapConverter,
+  'wedding-budget-planner': WeddingBudgetPlanner,
+  'birthday-day-of-week-star-sign-finder-calculator': BirthdayDayOfWeekStarSignFinderCalculator,
+  'rule-of-three-dreisatz-math-calculator': RuleOfThreeDreisatzMathCalculator,
+  'electricity-cost-appliance-running-cost-calculator': ElectricityCostApplianceRunningCostCalculator,
+  'fuel-cost-journey-mileage-calculator': FuelCostJourneyMileageCalculator,
+  'electric-vehicle-ev-charging-cost-range-calculator': ElectricVehicleEvChargingCostRangeCalculator,
+  'hmrc-mileage-allowance-payments-amap-calculator': HmrcMileageAllowancePaymentsAmapCalculator,
+  'company-car-tax-bik-calculator': CompanyCarTaxBikCalculator,
+  'car-depreciation-estimator': CarDepreciationEstimator,
+  'car-leasing-vs-pcp-finance-comparison-calculator': CarLeasingVsPcpFinanceComparisonCalculator,
+  'vehicle-statutory-off-road-notification-sorn-estimator': VehicleStatutoryOffRoadNotificationSornEstimator,
+  'mot-cost-repair-budget-calculator': MotCostRepairBudgetCalculator,
+  'used-car-inspection-budget-calculator': UsedCarInspectionBudgetCalculator,
+  'bmi-bmr-calorie-calculator': BmiBmrCalorieCalculator,
+  'body-fat-percentage-estimator': BodyFatPercentageEstimator,
+  'ideal-body-weight-predictor': IdealBodyWeightPredictor,
+  'daily-water-hydration-intake-calculator': DailyWaterHydrationIntakeCalculator,
+  'running-pace-race-time-predictor': RunningPaceRaceTimePredictor,
+  'universities-colleges-admissions-service-ucas-points-calculator': UniversitiesCollegesAdmissionsServiceUcasPointsCalculator,
+  'student-grade-point-average-gpa-percentage-converter': StudentGradePointAverageGpaPercentageConverter,
+  'degree-classification-boundary-estimator': DegreeClassificationBoundaryEstimator,
+  'student-maintenance-grant-loan-eligibility-calculator': StudentMaintenanceGrantLoanEligibilityCalculator,
+  'tuition-fee-loan-interest-compounding-estimator': TuitionFeeLoanInterestCompoundingEstimator,
+  'mortgage-stress-test-affordability-calculator': MortgageStressTestAffordabilityCalculator,
+  'buy-to-let-stamp-duty-surcharge-calculator': BuyToLetStampDutySurchargeCalculator,
+  'shared-ownership-rent-and-service-charge-calculator': SharedOwnershipRentAndServiceChargeCalculator,
+  'commercial-lease-service-charge-square-footage-calculator': CommercialLeaseServiceChargeSquareFootageCalculator,
+  'right-to-buy-council-house-discount-calculator': RightToBuyCouncilHouseDiscountCalculator,
+  'self-employed-class-2-class-4-national-insurance-calculator': SelfEmployedClass2Class4NationalInsuranceCalculator,
+  'sole-trader-tax-reserve-budget-calculator': SoleTraderTaxReserveBudgetCalculator,
+  'small-business-vat-flat-rate-scheme-vs-standard-calculator': SmallBusinessVatFlatRateSchemeVsStandardCalculator,
+  'hmrc-payment-on-account-tax-bill-calculator': HmrcPaymentOnAccountTaxBillCalculator,
+  'hmrc-late-tax-payment-penalty-interest-calculator': HmrcLateTaxPaymentPenaltyInterestCalculator,
+  'statutory-redundancy-payment-calculator': StatutoryRedundancyPaymentCalculator,
+  'statutory-maternity-pay-smp-eligibility-calculator': StatutoryMaternityPaySmpEligibilityCalculator,
+  'statutory-paternity-pay-spp-calculator': StatutoryPaternityPaySppCalculator,
+  'statutory-sick-pay-ssp-calculator': StatutorySickPaySspCalculator,
+  'unfair-dismissal-employment-tribunal-compensation-calculator': UnfairDismissalEmploymentTribunalCompensationCalculator,
+  'p11d-benefit-in-kind-bik-tax-calculator': P11dBenefitInKindBiKTaxCalculator,
+  'childcare-vouchers-vs-tax-free-childcare-calculator': ChildcareVouchersVsTaxFreeChildcareCalculator,
+  'furlough-pay-recalculation-historical-estimator': FurloughPayRecalculationHistoricalEstimator,
+  'armed-forces-pension-scheme-calculator': ArmedForcesPensionSchemeCalculator,
+  'teachers-pension-scheme-uk-calculator': TeachersPensionSchemeUkCalculator,
+  'firefighters-pension-scheme-uk-calculator': FirefightersPensionSchemeUkCalculator,
+  'police-pension-scheme-uk-calculator': PolicePensionSchemeUkCalculator,
+  'social-security-scotland-carers-allowance-supplement-calculator': SocialSecurityScotlandCarersAllowanceSupplementCalculator,
+  'northern-ireland-rates-domestic-rating-property-tax-calculator': NorthernIrelandRatesDomesticRatingPropertyTaxCalculator,
+  'welsh-land-transaction-tax-ltt-calculator': WelshLandTransactionTaxLttCalculator,
+  'scottish-land-and-buildings-transaction-tax-lbtt-calculator': ScottishLandAndBuildingsTransactionTaxLbttCalculator,
+  'scottish-council-tax-bands-multiplier-calculator': ScottishCouncilTaxBandsMultiplierCalculator,
+  'universal-credit-scottish-work-allowance-calculator': UniversalCreditScottishWorkAllowanceCalculator,
+  'scottish-highers-to-ucas-tariff-points-converter': ScottishHighersToUcasTariffPointsConverter,
+  'scottish-self-employed-income-tax-vs-rest-of-uk-calculator': ScottishSelfEmployedIncomeTaxVsRestOfUkCalculator,
+};
+
+export async function getStaticPaths() {
+  const calculators = await getCollection('calculators');
+  return calculators.map((entry) => {
+    const slug = entry.id.split('/').pop()?.replace(/\.(md|mdx)$/, '');
+    return {
+      params: { slug },
+      props: { entry },
+    };
+  });
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const slug = entry.id.split('/').pop()?.replace(/\.(md|mdx)$/, '');
+
+const categoriesInfo: Record<string, { title: string; url: string; icon: string; class: string; backText: string }> = {
+  trabajo: {
+    title: "Work & Salary",
+    url: "/work-and-salary/",
+    icon: "💼",
+    class: "work-category",
+    backText: "‹ All Work calculators"
+  },
+  impuestos: {
+    title: "Taxes & Duties",
+    url: "/taxes-and-fees/",
+    icon: "🧾",
+    class: "taxes-category",
+    backText: "‹ All Taxes calculators"
+  },
+  familia: {
+    title: "Family & Children",
+    url: "/family-and-maternity/",
+    icon: "👶",
+    class: "family-category",
+    backText: "‹ All Family calculators"
+  },
+  vivienda: {
+    title: "Housing & Property",
+    url: "/housing-and-rent/",
+    icon: "🏠",
+    class: "housing-category",
+    backText: "‹ All Housing calculators"
+  },
+  movilidad: {
+    title: "Car & Mobility",
+    url: "/mobility-and-vehicles/",
+    icon: "🚗",
+    class: "mobility-category",
+    backText: "‹ All Mobility calculators"
+  },
+  salud: {
+    title: "Health & Fitness",
+    url: "/health-and-wellbeing/",
+    icon: "❤️",
+    class: "health-category",
+    backText: "‹ All Health calculators"
+  },
+  social: {
+    title: "Benefits & Pensions",
+    url: "/social-and-benefits/",
+    icon: "🛡️",
+    class: "social-category",
+    backText: "‹ All Benefits calculators"
+  },
+  finanzas: {
+    title: "Finance & Savings",
+    url: "/finance-and-credit/",
+    icon: "📈",
+    class: "finance-category",
+    backText: "‹ All Finance calculators"
+  },
+  alltag: {
+    title: "Everyday & School/College",
+    url: "/daily-life/",
+    icon: "☀️",
+    class: "reside-category",
+    backText: "‹ All Everyday calculators"
+  }
+};
+
+const categoryKey = entry.data.category || 'trabajo';
+const cat = categoriesInfo[categoryKey] || categoriesInfo.trabajo;
+const CalcComponent = slug ? componentMap[slug] : null;
+---
+
+{entry.data.isDevolved ? (
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta http-equiv="refresh" content={`0;url=/${slug}/england/`} />
+      <title>Redirecting...</title>
+    </head>
+    <body>
+      <p>Redirecting to default region... <a href={`/${slug}/england/`}>click here</a>.</p>
+    </body>
+  </html>
+) : (
+  <Layout title={entry.data.title} description={entry.data.description}>
+    <div class="crumb">
+      <a href="/">Home</a>
+      <span class="sep">›</span>
+      <a href={cat.url}>{cat.title}</a>
+      <span class="sep">›</span>
+      <span class="current">{entry.data.title}</span>
+    </div>
+    
+    <div class={`hero ${cat.class}`}>
+      <a href={cat.url} class="hero-back">{cat.backText}</a>
+      <a href={cat.url} class="hero-eyebrow">{cat.icon} {cat.title}</a>
+      <h1>{entry.data.title}</h1>
+      <p class="sub">{entry.data.description}</p>
+    </div>
+
+    <div class={cat.class}>
+      {CalcComponent ? (
+        <CalcComponent labels={entry.data.labels} lang="en">
+          <div class="card writeup">
+            <Content />
+          </div>
+        </CalcComponent>
+      ) : (
+        <div class="layout calculator-layout">
+          <div class="main-col">
+            <div class="card writeup">
+              <Content />
+            </div>
+          </div>
+          <Sidebar category={categoryKey} currentSlug={slug} />
+        </div>
+      )}
+    </div>
+  </Layout>
+)}

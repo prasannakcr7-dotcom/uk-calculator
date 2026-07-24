@@ -1,0 +1,123 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Pay Rise Salary Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Current Annual Gross Salary (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="payrise-current-salary" value="42000" min="10000" step="1000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Pay Increase Amount (£ or %)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="payrise-increase-amount" value="3000" min="100" step="250" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--work-1), var(--work-2) 80%);">
+      <div class="result-label">Net Monthly Take-Home Pay Increase</div>
+      <div class="result-amount"><span id="mainResultDisplay">+£180.00 / month</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Net Retention of Pay Rise:</span>
+        <span class="val" id="subResultValue">72.0% Retention</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Pay Rise Impact Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>New Total Gross Salary</span>
+          <span class="val" id="newGrossSalaryDisplay">£45,000.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Gross Pay Increase Amount</span>
+          <span class="val" id="grossIncreaseAmountDisplay">+£3,000.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Marginal Tax & NI Deductions on Pay Rise</span>
+          <span class="val" id="marginalDeductionsDisplay">-£840.00 (28% Tax+NI)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Actual Net Take-Home Cash Increase</span>
+          <span class="val" id="netPayRiseCashDisplay" style="font-weight: 700; font-size: 18px;">+£2,160.00 / year (+£180.00/mo)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="trabajo" />
+  </div>
+</div>
+
+<script>
+  function calculatePayRise() {
+    const currentEl = document.getElementById('payrise-current-salary') as HTMLInputElement;
+    const incEl = document.getElementById('payrise-increase-amount') as HTMLInputElement;
+
+    if (!currentEl || !incEl) return;
+
+    const currentSalary = parseFloat(currentEl.value) || 0;
+    const incAmount = parseFloat(incEl.value) || 0;
+
+    const newSalary = currentSalary + incAmount;
+
+    // Calculate marginal rate on pay rise
+    // Basic rate: 20% Tax + 8% NI = 28%
+    // Higher rate (>£50,270): 40% Tax + 2% NI = 42%
+    let marginalRate = 0.28;
+    if (currentSalary >= 50270) marginalRate = 0.42;
+    else if (newSalary > 50270) {
+      const inBasic = Math.max(0, 50270 - currentSalary);
+      const inHigher = incAmount - inBasic;
+      const taxNi = (inBasic * 0.28) + (inHigher * 0.42);
+      marginalRate = incAmount > 0 ? taxNi / incAmount : 0.28;
+    }
+
+    const deductions = incAmount * marginalRate;
+    const netIncAnnual = Math.max(0, incAmount - deductions);
+    const netIncMonthly = netIncAnnual / 12;
+    const retentionPct = incAmount > 0 ? (netIncAnnual / incAmount) * 100 : 0;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const newGrossRes = document.getElementById('newGrossSalaryDisplay');
+    const incGrossRes = document.getElementById('grossIncreaseAmountDisplay');
+    const dedRes = document.getElementById('marginalDeductionsDisplay');
+    const netRes = document.getElementById('netPayRiseCashDisplay');
+
+    if (mainRes) mainRes.textContent = '+£' + netIncMonthly.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (subVal) subVal.textContent = retentionPct.toFixed(1) + '% Retention';
+    if (newGrossRes) newGrossRes.textContent = '£' + newSalary.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (incGrossRes) incGrossRes.textContent = '+£' + incAmount.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (dedRes) dedRes.textContent = '-£' + deductions.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` (${(marginalRate*100).toFixed(0)}% Tax+NI)`;
+    if (netRes) netRes.textContent = '+£' + netIncAnnual.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` / year (+£${netIncMonthly.toFixed(2)}/mo)`;
+  }
+
+  ['payrise-current-salary', 'payrise-increase-amount'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculatePayRise);
+    document.getElementById(id)?.addEventListener('change', calculatePayRise);
+  });
+  calculatePayRise();
+</script>

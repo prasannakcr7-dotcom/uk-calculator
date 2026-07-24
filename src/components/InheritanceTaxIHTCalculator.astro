@@ -1,0 +1,126 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Estate Valuation & Inheritance Tax (IHT) Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Total Gross Estate Valuation (£ - Property, Cash, Investments)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="iht-estate-value" value="650000" min="100000" step="25000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Residence Nil Rate Band (RNRB) Eligible Home Passed to Direct Descendants?</span></div>
+        <select id="iht-rnrb-eligible" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="yes" selected>Yes - Passing Main Home to Children/Grandchildren (+£175,000 RNRB)</option>
+          <option value="no">No - Main Home Not Passed to Direct Descendants</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Transferred Allowance from Deceased Spouse / Civil Partner?</span></div>
+        <select id="iht-spouse-transfer" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="no" selected>No - Single Nil Rate Band Only</option>
+          <option value="yes">Yes - 100% Transferred Spouse Nil Rate Bands (Up to £1,000,000 Total Exemption)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">Estimated Inheritance Tax (IHT) Bill</div>
+      <div class="result-amount"><span id="mainResultDisplay">£60,000.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Total Tax-Free Threshold Exemption:</span>
+        <span class="val" id="subResultValue">£500,000.00 Exempt</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Inheritance Tax Calculation Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Standard Nil Rate Band (NRB)</span>
+          <span class="val" id="nrbAllowanceDisplay">£325,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Residence Nil Rate Band (RNRB)</span>
+          <span class="val" id="rnrbAllowanceDisplay">£175,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Net Taxable Estate Above Thresholds</span>
+          <span class="val" id="taxableEstateDisplay">£150,000.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Statutory 40% IHT Payable</span>
+          <span class="val" id="totalIhtPayableDisplay" style="font-weight: 700; font-size: 18px;">£60,000.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="impuestos" />
+  </div>
+</div>
+
+<script>
+  function calculateIht() {
+    const estateEl = document.getElementById('iht-estate-value') as HTMLInputElement;
+    const rnrbEl = document.getElementById('iht-rnrb-eligible') as HTMLSelectElement;
+    const spouseEl = document.getElementById('iht-spouse-transfer') as HTMLSelectElement;
+
+    if (!estateEl || !rnrbEl || !spouseEl) return;
+
+    const estateValue = parseFloat(estateEl.value) || 0;
+    const hasRnrb = rnrbEl.value === 'yes';
+    const hasSpouseTransfer = spouseEl.value === 'yes';
+
+    let nrb = 325000;
+    let rnrb = hasRnrb ? 175000 : 0;
+
+    if (hasSpouseTransfer) {
+      nrb *= 2;
+      rnrb *= 2;
+    }
+
+    const totalExemption = nrb + rnrb;
+    const taxableEstate = Math.max(0, estateValue - totalExemption);
+    const ihtBill = taxableEstate * 0.40;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const nrbRes = document.getElementById('nrbAllowanceDisplay');
+    const rnrbRes = document.getElementById('rnrbAllowanceDisplay');
+    const taxableRes = document.getElementById('taxableEstateDisplay');
+    const totalRes = document.getElementById('totalIhtPayableDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + ihtBill.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = '£' + totalExemption.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Exempt';
+    if (nrbRes) nrbRes.textContent = '£' + nrb.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (rnrbRes) rnrbRes.textContent = '£' + rnrb.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (taxableRes) taxableRes.textContent = '£' + taxableEstate.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (totalRes) totalRes.textContent = '£' + ihtBill.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['iht-estate-value', 'iht-rnrb-eligible', 'iht-spouse-transfer'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateIht);
+    document.getElementById(id)?.addEventListener('change', calculateIht);
+  });
+  calculateIht();
+</script>

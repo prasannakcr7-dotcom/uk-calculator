@@ -1,50 +1,509 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import fs from 'node:fs';
+import path from 'node:path';
+import Layout from '../layouts/Layout.astro';
+import '../styles/home-all-calcs-theme.css';
+import NationFlagIcon from '../components/NationFlagIcon.astro';
+
+type CategoryKey = 'work' | 'taxes' | 'family' | 'housing' | 'mobility' | 'health' | 'social' | 'finance' | 'alltag';
+
+interface CategoryInfo {
+  key: CategoryKey;
+  taskTitle: string;
+  title: string;
+  pillTitle: string;
+  icon: string;
+  dotClass: string;
+  url: string;
+}
+
+interface CalculatorItem {
+  name: string;
+  slug: string;
+  urlPath: string;
+  category: CategoryKey;
+  emoji: string;
+  desc: string;
+  isDevolved: boolean;
+  isCompleted: boolean;
+}
+
+const categories: CategoryInfo[] = [
+  { key: 'work', taskTitle: 'Work & Salary', title: 'Work & Salary', pillTitle: 'Work', icon: '💼', dotClass: 'work', url: '/work-and-salary/' },
+  { key: 'taxes', taskTitle: 'Taxes & Duties', title: 'Taxes & Duties', pillTitle: 'Taxes', icon: '🧾', dotClass: 'taxes', url: '/taxes-and-fees/' },
+  { key: 'family', taskTitle: 'Family & Children', title: 'Family & Children', pillTitle: 'Family', icon: '👶', dotClass: 'family', url: '/family-and-maternity/' },
+  { key: 'housing', taskTitle: 'Housing & Property', title: 'Housing & Property', pillTitle: 'Housing', icon: '🏠', dotClass: 'housing', url: '/housing-and-rent/' },
+  { key: 'mobility', taskTitle: 'Car & Mobility', title: 'Car & Mobility', pillTitle: 'Mobility', icon: '🚗', dotClass: 'mobility', url: '/mobility-and-vehicles/' },
+  { key: 'health', taskTitle: 'Health & Fitness', title: 'Health & Fitness', pillTitle: 'Health', icon: '❤️', dotClass: 'health', url: '/health-and-wellbeing/' },
+  { key: 'social', taskTitle: 'Benefits & Pensions', title: 'Benefits & Pensions', pillTitle: 'Benefits', icon: '🛡️', dotClass: 'social', url: '/social-and-benefits/' },
+  { key: 'finance', taskTitle: 'Finance & Savings', title: 'Finance & Savings', pillTitle: 'Finance', icon: '📈', dotClass: 'finance', url: '/finance-and-credit/' },
+  { key: 'alltag', taskTitle: 'Everyday & School/College', title: 'Everyday & School/College', pillTitle: 'Everyday', icon: '☀️', dotClass: 'reside', url: '/daily-life/' },
+];
+
+const categoryByTaskTitle = new Map(categories.map((c) => [c.taskTitle, c]));
+
+const tasksPath = path.resolve(process.cwd(), '..', 'tasks.md');
+const tasksText = fs.readFileSync(tasksPath, 'utf-8');
+
+const fallbackEmojis: Record<CategoryKey, string[]> = {
+  work: ['💶', '⏱️', '📦', '🧾', '📅', '🏛️', '🌙', '🧮'],
+  taxes: ['📊', '🧾', '🏛️', '🎁', '🏘️', '🚘', '💼', '📈'],
+  family: ['🤱', '👶', '👪', '🎒', '🧸', '📅', '⚖️', '🏫'],
+  housing: ['🏦', '🏠', '🔑', '📐', '🧱', '☀️', '🎨', '🧰'],
+  mobility: ['🚗', '⛽', '🔌', '🚲', '🚨', '🛞', '🅿️', '⚡'],
+  health: ['⚖️', '❤️', '🔥', '🩺', '💧', '🏃', '😴', '🧬'],
+  social: ['🛡️', '💶', '👵', '📋', '🎓', '🏡', '🌾', '📆'],
+  finance: ['💳', '📈', '🏦', '🪙', '📉', '🎯', '💱', '🧾'],
+  alltag: ['🧮', '🏷️', '🎓', '📅', '📏', '🎁', '🔐', '✈️'],
+};
+
+function describeUK(title: string) {
+  const lower = title.toLowerCase();
+  if (lower.includes('tax') || lower.includes('vat')) return 'Estimate the tax amount, filing impact, and taxable thresholds.';
+  if (lower.includes('salary') || lower.includes('wage')) return 'Break down pay figures, national insurance, and take-home pay.';
+  if (lower.includes('mortgage') || lower.includes('loan')) return 'Compare monthly payments, interest rates, and loan terms.';
+  if (lower.includes('rent') || lower.includes('property') || lower.includes('housing')) return 'Calculate property tax, landlord yields, and housing costs.';
+  if (lower.includes('car') || lower.includes('vehicle') || lower.includes('mileage')) return 'Estimate vehicle costs, fuel consumption, or mileage allowance.';
+  if (lower.includes('child') || lower.includes('maternity') || lower.includes('parental')) return 'Calculate benefits, statutory pay, or maintenance obligations.';
+  if (lower.includes('bmi') || lower.includes('calorie') || lower.includes('health')) return 'Assess fitness metrics with standard health calculators.';
+  if (lower.includes('interest') || lower.includes('savings')) return 'Model compound growth, returns, and financial planning.';
+  return 'Get a quick, focused estimate with the relevant UK inputs and parameters.';
+}
+
+import { getCollection } from 'astro:content';
+
+function normalizeCategoryKey(rawCat: string): CategoryKey {
+  const cat = (rawCat || '').toLowerCase().trim();
+  if (cat === 'trabajo' || cat === 'work') return 'work';
+  if (cat === 'impuestos' || cat === 'taxes') return 'taxes';
+  if (cat === 'familia' || cat === 'family') return 'family';
+  if (cat === 'vivienda' || cat === 'housing') return 'housing';
+  if (cat === 'movilidad' || cat === 'mobility') return 'mobility';
+  if (cat === 'salud' || cat === 'health') return 'health';
+  if (cat === 'social' || cat === 'benefits') return 'social';
+  if (cat === 'finanzas' || cat === 'finance') return 'finance';
+  if (cat === 'alltag' || cat === 'everyday' || cat === 'reside') return 'alltag';
+  return 'work';
+}
+
+const allCalcEntries = await getCollection('calculators');
+
+const calculators: CalculatorItem[] = allCalcEntries.map((entry, idx) => {
+  const slug = entry.id.split('/').pop()?.replace(/\.(md|mdx)$/, '') || entry.id;
+  const categoryKey = normalizeCategoryKey(entry.data.category);
+  let displayName = entry.data.title;
+  displayName = displayName.replace(/\s*UK\s*2026\/27.*$/i, '');
+  displayName = displayName.replace(/\s*—.*$/, '');
+  displayName = displayName.trim();
+
+  return {
+    name: displayName,
+    slug,
+    urlPath: `/${slug}`,
+    category: categoryKey,
+    emoji: fallbackEmojis[categoryKey][idx % fallbackEmojis[categoryKey].length],
+    desc: entry.data.description,
+    isDevolved: !!entry.data.isDevolved,
+    isCompleted: true
+  };
+});
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This
-				template serves as a lightweight, minimally-styled starting point for anyone looking to build
-				a personal website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to <a href="https://docs.astro.build/"
-					>read the docs
-				</a> or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out <a
-					href="https://github.com/Charca/astro-blog-template"
-					>astro-blog-template
-				</a> by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
-		</main>
-		<Footer />
-	</body>
-</html>
+<Layout 
+  title="UK Calculator — Free Tools for Salary, Taxes, and Finance" 
+  description="Over 250 free single-purpose calculators tailored for England, Scotland, Wales, and Northern Ireland. Calculate take-home pay, VAT, Stamp Duty, and benefits."
+>
+
+  <!-- HERO BANNER (VIBRANT ROYAL NAVY TO CRIMSON GRADIENT) -->
+  <div class="hero" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #dc2626 100%); color: #ffffff; padding: 64px 48px 60px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);">
+    <div class="hero-inner">
+      <div class="hero-eyebrow" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.35); color: #ffffff; font-weight: 700;"><NationFlagIcon nation="uk" width="22px" height="15px" /> UK Calculator</div>
+      <h1 style="color: #ffffff; font-weight: 800; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);">Every UK calculator you need in one place</h1>
+      <p class="sub" style="color: rgba(255, 255, 255, 0.95); font-weight: 500;">Free, accurate calculators for tax, salary, property, health, and finance. Adjusted for regional bands in England, Scotland, Wales, and Northern Ireland.</p>
+      
+      <!-- Interactive Search Bar -->
+      <div class="hero-search-container" style="position: relative; max-width: 560px; margin: 0 auto;">
+        <div class="hero-search" style="background: #ffffff; border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: 0 16px 36px rgba(0, 0, 0, 0.18);">
+          <input type="text" id="mainSearchInput" placeholder="Search: salary, VAT, Stamp Duty, child benefit..." autocomplete="off">
+          <button id="mainSearchBtn" style="background: #0f172a; color: #ffffff; font-weight: 700;">Search</button>
+        </div>
+        <div class="hero-search-results hidden" id="searchDropdown"></div>
+      </div>
+      
+      <div class="hero-stats" style="color: rgba(255, 255, 255, 0.9); margin-top: 32px;">
+        <div style="color: rgba(255, 255, 255, 0.9);"><span class="n" style="color: #ffffff;">298</span> calculators</div>
+        <div style="color: rgba(255, 255, 255, 0.9);"><span class="n" style="color: #ffffff;">9</span> categories</div>
+        <div style="color: rgba(255, 255, 255, 0.9);"><span class="n" style="color: #ffffff;">100%</span> free & private</div>
+        <div style="color: rgba(255, 255, 255, 0.9);"><span class="n" style="color: #ffffff;">2026/27</span> rates</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REGIONAL NATION BUTTONS OUTSIDE HERO GRADIENT (NO BACKGROUND BOX) -->
+  <div style="padding: 28px 48px 12px; text-align: center;">
+    <div style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; margin-bottom: 14px;">Explore Regional Calculators & Rules</div>
+    <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+      <a href="/calculators/" class="region-nav-btn active">
+        <NationFlagIcon nation="uk" width="18px" height="12px" />
+        <span>UK Wide</span>
+      </a>
+      <a href="/england-calculators/" class="region-nav-btn">
+        <NationFlagIcon nation="england" width="18px" height="12px" />
+        <span>England</span>
+      </a>
+      <a href="/scotland-calculators/" class="region-nav-btn">
+        <NationFlagIcon nation="scotland" width="18px" height="12px" />
+        <span>Scotland</span>
+      </a>
+      <a href="/wales-calculators/" class="region-nav-btn">
+        <NationFlagIcon nation="wales" width="18px" height="12px" />
+        <span>Wales</span>
+      </a>
+      <a href="/northern-ireland-calculators/" class="region-nav-btn">
+        <NationFlagIcon nation="northern-ireland" width="18px" height="12px" />
+        <span>N. Ireland</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- MOST USED CALCULATORS -->
+  <div class="section">
+    <div class="section-head">
+      <div>
+        <h2>Popular Calculators</h2>
+        <p>Start with our most frequently used tools for salary planning, tax estimates, and property purchases.</p>
+      </div>
+    </div>
+    <div class="used-grid">
+      <a href="/salary-income-tax-calculator/england/" class="used-card">
+        <div class="used-icon uwork">💼</div>
+        <div>
+          <h3>Salary / Take-Home Pay</h3>
+          <p>Calculate income tax and NICs</p>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+      <a href="/vat-calculator/" class="used-card">
+        <div class="used-icon utaxes">🧾</div>
+        <div>
+          <h3>VAT Calculator</h3>
+          <p>Add or remove UK Value Added Tax</p>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+      <a href="/stamp-duty-land-tax-calculator/england/" class="used-card">
+        <div class="used-icon uhousing">🏠</div>
+        <div>
+          <h3>Stamp Duty (SDLT)</h3>
+          <p>Calculate property transaction tax</p>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+      <a href="/child-benefit-calculator/" class="used-card">
+        <div class="used-icon ufamily">👶</div>
+        <div>
+          <h3>Child Benefit</h3>
+          <p>Estimate allowances and HICBC charges</p>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- BROWSE BY CATEGORY -->
+  <div class="section" style="padding-top:0;">
+    <div class="section-head">
+      <div>
+        <h2>Browse by Category</h2>
+        <p>Explore all calculators sorted across 9 key areas of UK life admin.</p>
+      </div>
+    </div>
+    <div class="cat-grid">
+      {categories.map((c) => (
+        <a href={c.url} class="cat-card">
+          <div class={`cat-dot ${c.dotClass}`}></div>
+          <span class="cat-icon">{c.icon}</span>
+          <span class="cat-name">{c.title}</span>
+        </a>
+      ))}
+    </div>
+  </div>
+
+  <!-- ALL CALCULATORS INDEX LIST -->
+  <div class="section" style="padding-top:0;" id="allCalculatorsSec">
+    <div class="section-head">
+      <div>
+        <h2>All Calculators Index</h2>
+        <p>Complete directory of free UK financial, tax, property, and everyday calculators.</p>
+      </div>
+    </div>
+    
+    <div class="all-calcs-container">
+      {categories.map((cat) => {
+        const catCalcs = calculators.filter(c => c.category === cat.key);
+        return (
+          <div class="category-block">
+            <h3>{cat.icon} {cat.title}</h3>
+            <div class="category-calcs-list">
+              {catCalcs.map((calc) => {
+                const itemUrl = calc.isDevolved ? `/${calc.slug}/england/` : `/${calc.slug}/`;
+                return (
+                  <div class={`calc-row ${calc.isCompleted ? 'active' : 'pending'}`}>
+                    <span class="calc-emoji">{calc.emoji}</span>
+                    <div class="calc-details">
+                      {calc.isCompleted ? (
+                        <a href={itemUrl} class="calc-title">{calc.name}</a>
+                      ) : (
+                        <span class="calc-title disabled">{calc.name} <span class="badge">Coming Soon</span></span>
+                      )}
+                      <p class="calc-desc">{calc.desc}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+</Layout>
+
+<script is:inline define:vars={{ calculators }}>
+  // Client-Side Search Functionality
+  const searchInput = document.getElementById('mainSearchInput');
+  const searchDropdown = document.getElementById('searchDropdown');
+  const searchBtn = document.getElementById('mainSearchBtn');
+
+  function renderSearchResults(query) {
+    if (!query) {
+      searchDropdown.classList.add('hidden');
+      searchDropdown.innerHTML = '';
+      return;
+    }
+
+    const cleanQuery = query.toLowerCase().trim();
+    const filtered = calculators.filter(c => 
+      c.name.toLowerCase().includes(cleanQuery) || 
+      c.desc.toLowerCase().includes(cleanQuery)
+    ).slice(0, 8);
+
+    if (filtered.length === 0) {
+      searchDropdown.innerHTML = '<div class="search-no-results">No calculators found. Try "salary" or "VAT".</div>';
+      searchDropdown.classList.remove('hidden');
+      return;
+    }
+
+    searchDropdown.innerHTML = filtered.map(c => {
+      const url = c.isDevolved ? `/${c.slug}/england/` : `/${c.slug}/`;
+      if (c.isCompleted) {
+        return `<a href="${url}" class="search-result-item">
+          <span class="res-emoji">${c.emoji}</span>
+          <div>
+            <div class="res-title">${c.name}</div>
+            <div class="res-desc">${c.desc}</div>
+          </div>
+        </a>`;
+      } else {
+        return `<div class="search-result-item pending">
+          <span class="res-emoji">${c.emoji}</span>
+          <div>
+            <div class="res-title">${c.name} <span class="badge">Coming Soon</span></div>
+            <div class="res-desc">${c.desc}</div>
+          </div>
+        </div>`;
+      }
+    }).join('');
+    
+    searchDropdown.classList.remove('hidden');
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      renderSearchResults(e.target.value);
+    });
+
+    searchInput.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (searchInput.value) {
+        renderSearchResults(searchInput.value);
+      }
+    });
+  }
+
+  document.addEventListener('click', () => {
+    if (searchDropdown) {
+      searchDropdown.classList.add('hidden');
+    }
+  });
+
+  if (searchBtn && searchInput) {
+    searchBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const firstActiveLink = searchDropdown.querySelector('a');
+      if (firstActiveLink) {
+        window.location.href = firstActiveLink.getAttribute('href');
+      }
+    });
+  }
+</script>
+
+<style>
+  /* REGION PILL BUTTONS (HIGH CONTRAST PILL CARDS) */
+  .region-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff !important;
+    color: #1F2937 !important;
+    border: 2px solid #cbd5e1 !important;
+    border-radius: 9999px !important;
+    padding: 10px 22px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08) !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    cursor: pointer;
+  }
+  .region-nav-btn:hover {
+    background: #f8fafc !important;
+    border-color: #2563eb !important;
+    color: #2563eb !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.18) !important;
+  }
+  .region-nav-btn.active {
+    background: #1F2937 !important;
+    color: #ffffff !important;
+    border-color: #1F2937 !important;
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.25) !important;
+  }
+
+  /* POPULAR CALCULATORS GRID (2 CARDS PER ROW - NO SHRINKING) */
+  .used-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 20px !important;
+  }
+  @media (max-width: 768px) {
+    .used-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
+
+  /* Index layout */
+  .all-calcs-container {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+  .category-block h3 {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink) !important;
+    margin-top: 0;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--line);
+  }
+  .category-calcs-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  @media (min-width: 768px) {
+    .category-calcs-list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  /* Crisp Modern Homepage Cards */
+  .calc-row, .used-card {
+    display: flex;
+    gap: 14px;
+    padding: 16px 20px;
+    background: #ffffff !important;
+    border: 1.5px solid #e2e8f0 !important;
+    border-radius: 14px !important;
+    align-items: center !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+  }
+  .calc-row:hover, .used-card:hover {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06) !important;
+  }
+  .used-card .arrow {
+    align-self: center !important;
+    margin-left: auto !important;
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #3b82f6 !important;
+    transition: transform 0.2s ease, color 0.2s ease !important;
+  }
+  .used-card:hover .arrow {
+    transform: translateX(4px) !important;
+    color: #2563eb !important;
+  }
+  .calc-emoji {
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+  .calc-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .calc-title {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink) !important;
+    text-decoration: none !important;
+    transition: color 0.2s ease;
+  }
+  .calc-row:hover .calc-title {
+    color: #2563eb !important;
+    text-decoration: none !important;
+  }
+  .calc-title.disabled {
+    text-decoration: none;
+    color: rgba(26,46,40,0.5);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .calc-desc {
+    font-size: 13.5px;
+    color: rgba(26, 46, 40, 0.68) !important;
+    margin: 0;
+    line-height: 1.45;
+  }
+  .badge {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: var(--paper-dim);
+    color: rgba(26,46,40,0.6);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+  .calc-row.active:hover {
+    background: #fff;
+    border-color: var(--ink);
+    box-shadow: 0 4px 12px rgba(26,46,40,0.04);
+  }
+  
+  /* Dropdown search styling overrides */
+  .search-result-item.pending {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  .search-result-item.pending .res-title {
+    color: rgba(26,46,40,0.6);
+  }
+</style>

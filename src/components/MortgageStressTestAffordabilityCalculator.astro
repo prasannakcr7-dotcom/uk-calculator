@@ -1,0 +1,121 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Mortgage Loan Amount (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="stress-loan-amount" value="230000" min="10000" step="5000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Initial Fixed Interest Rate (% p.a.)</span></div>
+        <div class="amount-field">
+          <input type="number" id="stress-initial-rate" value="4.5" min="0.5" max="15" step="0.1" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Lender Mandatory Stress Test Buffer (+% above Pay-Rate)</span></div>
+        <div class="amount-field">
+          <input type="number" id="lender-stress-buffer-pct" value="3.0" min="1.0" max="6.0" step="0.5" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Total Mortgage Term (Years)</span></div>
+        <div class="amount-field">
+          <input type="number" id="stress-term-years" value="25" min="5" max="40" step="1" />
+          <span class="cur">yrs</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Lender Stress Test Affordability Breakdown</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Stressed Interest Rate Test Benchmark</span>
+          <strong id="stressed-rate-benchmark">7.50% Stressed Rate</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Actual Initial Monthly Repayment</span>
+          <strong id="actual-initial-monthly-payment">£1,278.43 / month</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Stressed Stress-Tested Monthly Repayment</span>
+          <strong id="stressed-tested-monthly-payment">£1,697.55 / month</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Required Monthly Stress Increase Difference</span>
+          <strong id="monthly-stress-diff-amount">+£419.12 / month buffer needed</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateMortgagePayment(P: number, annualRatePct: number, years: number): number {
+    const r = (annualRatePct / 100) / 12;
+    const n = years * 12;
+    if (r <= 0) return P / n;
+    return P * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+  }
+
+  function calculateStressTest() {
+    const loanEl = document.getElementById('stress-loan-amount') as HTMLInputElement;
+    const rateEl = document.getElementById('stress-initial-rate') as HTMLInputElement;
+    const bufferEl = document.getElementById('lender-stress-buffer-pct') as HTMLInputElement;
+    const termEl = document.getElementById('stress-term-years') as HTMLInputElement;
+
+    if (!loanEl || !rateEl || !bufferEl || !termEl) return;
+
+    const P = parseFloat(loanEl.value) || 0;
+    const initialRate = parseFloat(rateEl.value) || 0;
+    const buffer = parseFloat(bufferEl.value) || 3.0;
+    const years = parseInt(termEl.value) || 25;
+
+    const stressedRate = initialRate + buffer;
+    const actualMonthly = calculateMortgagePayment(P, initialRate, years);
+    const stressedMonthly = calculateMortgagePayment(P, stressedRate, years);
+    const diff = Math.max(0, stressedMonthly - actualMonthly);
+
+    const benchmarkEl = document.getElementById('stressed-rate-benchmark');
+    const actualEl = document.getElementById('actual-initial-monthly-payment');
+    const stressedEl = document.getElementById('stressed-tested-monthly-payment');
+    const diffEl = document.getElementById('monthly-stress-diff-amount');
+
+    if (benchmarkEl) benchmarkEl.textContent = stressedRate.toFixed(2) + '% Stressed Rate';
+    if (actualEl) actualEl.textContent = '£' + actualMonthly.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (stressedEl) stressedEl.textContent = '£' + stressedMonthly.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (diffEl) diffEl.textContent = '+£' + diff.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month buffer needed';
+  }
+
+  ['stress-loan-amount', 'stress-initial-rate', 'lender-stress-buffer-pct', 'stress-term-years'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateStressTest);
+    document.getElementById(id)?.addEventListener('change', calculateStressTest);
+  });
+  calculateStressTest();
+</script>

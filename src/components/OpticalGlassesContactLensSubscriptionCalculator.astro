@@ -1,0 +1,114 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout health-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Contact Lens & Glasses Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Monthly Contact Lens Direct Debit Subscription (£/month)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="eyecare-lens-sub-monthly" value="22.00" min="5" step="2" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Replacement Glasses Purchase Frequency</span></div>
+        <select id="eyecare-glasses-frequency-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="2" selected>Every 2 Years (Standard Frame Upgrade £180)</option>
+          <option value="1">Every 1 Year (Annual Upgrade £180)</option>
+          <option value="3">Every 3 Years (£180)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Average Glasses Frame & Lens Cost (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="eyecare-glasses-cost" value="180" min="30" step="10" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--health-1), var(--health-2) 80%);">
+      <div class="result-label">Total Annual Eyecare & Vision Outlay</div>
+      <div class="result-amount"><span id="mainResultDisplay">£354.00 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Monthly Combined Equivalent Cost:</span>
+        <span class="val" id="subResultValue">£29.50 / month</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Optical Expense Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Annual Contact Lens Subscription (£22/mo)</span>
+          <span class="val" id="annualLensSubDisplay">£264.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Amortised Glasses Cost (£180 every 2 yrs)</span>
+          <span class="val" id="amortisedGlassesDisplay">£90.00 / year</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Combined Annual Eyecare Outlay</span>
+          <span class="val" id="totalEyecareCostDisplay" style="font-weight: 700; font-size: 18px;">£354.00 / year (£29.50/mo)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="salud" />
+  </div>
+</div>
+
+<script>
+  function calculateEyecareCosts() {
+    const subEl = document.getElementById('eyecare-lens-sub-monthly') as HTMLInputElement;
+    const freqEl = document.getElementById('eyecare-glasses-frequency-select') as HTMLSelectElement;
+    const glassesCostEl = document.getElementById('eyecare-glasses-cost') as HTMLInputElement;
+
+    if (!subEl || !freqEl || !glassesCostEl) return;
+
+    const lensMonthly = parseFloat(subEl.value) || 0;
+    const yearsFreq = parseInt(freqEl.value) || 2;
+    const glassesCost = parseFloat(glassesCostEl.value) || 0;
+
+    const annualLens = lensMonthly * 12;
+    const annualGlasses = yearsFreq > 0 ? glassesCost / yearsFreq : 0;
+    const totalAnnual = annualLens + annualGlasses;
+    const monthlyTotal = totalAnnual / 12;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const lensRes = document.getElementById('annualLensSubDisplay');
+    const glassesRes = document.getElementById('amortisedGlassesDisplay');
+    const totalRes = document.getElementById('totalEyecareCostDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + totalAnnual.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (subVal) subVal.textContent = '£' + monthlyTotal.toFixed(2) + ' / month';
+    if (lensRes) lensRes.textContent = '£' + annualLens.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (glassesRes) glassesRes.textContent = '£' + annualGlasses.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (totalRes) totalRes.textContent = '£' + totalAnnual.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` / year (£${monthlyTotal.toFixed(2)}/mo)`;
+  }
+
+  ['eyecare-lens-sub-monthly', 'eyecare-glasses-frequency-select', 'eyecare-glasses-cost'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateEyecareCosts);
+    document.getElementById(id)?.addEventListener('change', calculateEyecareCosts);
+  });
+  calculateEyecareCosts();
+</script>

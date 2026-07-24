@@ -1,0 +1,198 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Retirement Income & Target Details'}</h2>
+
+      <!-- Target Annual Retirement Income -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.targetLabel || 'Target Annual Retirement Income (£)'}</span>
+          <span class="hint" id="targetVal">£30,000</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="30,000" id="targetInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="10000" max="100000" step="2500" value="30000" id="targetSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£10,000</span><span>£100,000</span></div>
+      </div>
+
+      <!-- Forecast State Pension -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.statePensionLabel || 'Forecast Annual State Pension (£)'}</span>
+          <span class="hint" id="statePensionVal">£11,502</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="11,502" id="statePensionInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="0" max="15000" step="500" value="11502" id="statePensionSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£0</span><span>£15,000</span></div>
+      </div>
+
+      <!-- Workplace / Private Pension Income -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.privatePensionLabel || 'Forecast Annual Private / Workplace Pension (£)'}</span>
+          <span class="hint" id="privatePensionVal">£10,000</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="10,000" id="privatePensionInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="0" max="50000" step="1000" value="10000" id="privatePensionSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£0</span><span>£50,000</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--social-1), var(--social-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Annual Retirement Income Shortfall (Gap)'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£8,498.00/yr</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.potRequiredLabel || 'Additional Pension Capital Pot Required (4% Rule):'}</span>
+        <span class="val" id="subResultValue">£212,450.00 Lump Sum Needed</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Retirement Gap Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Target Annual Living Income</span>
+          <span class="val" id="targetDisplay">£30,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>State Pension Contribution</span>
+          <span class="val" id="statePensionDisplay">-£11,502.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Workplace / Private Pension Contribution</span>
+          <span class="val" id="privatePensionDisplay">-£10,000.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Annual Pension Income Shortfall</span>
+          <span class="val" id="netGapDisplay" style="font-weight: 700; font-size: 18px;">£8,498.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>PLSA Retirement Standards:</strong> Moderate lifestyle (~£31,300/yr); Comfortable (~£43,100/yr).<br/>
+        • <strong>4% Safe Withdrawal Rule:</strong> Multiply annual gap by 25 to find lump sum pot needed.<br/>
+        • <strong>State Pension Base:</strong> £11,502.40/yr provides baseline security.<br/>
+        • <strong>Tax Relief Top-Up:</strong> Private pension contributions get 20% to 45% government tax relief.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const targetInput = document.getElementById('targetInput') as HTMLInputElement;
+  const targetSlider = document.getElementById('targetSlider') as HTMLInputElement;
+  const targetVal = document.getElementById('targetVal') as HTMLElement;
+  const statePensionInput = document.getElementById('statePensionInput') as HTMLInputElement;
+  const statePensionSlider = document.getElementById('statePensionSlider') as HTMLInputElement;
+  const statePensionVal = document.getElementById('statePensionVal') as HTMLElement;
+  const privatePensionInput = document.getElementById('privatePensionInput') as HTMLInputElement;
+  const privatePensionSlider = document.getElementById('privatePensionSlider') as HTMLInputElement;
+  const privatePensionVal = document.getElementById('privatePensionVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const targetDisplay = document.getElementById('targetDisplay') as HTMLElement;
+  const statePensionDisplay = document.getElementById('statePensionDisplay') as HTMLElement;
+  const privatePensionDisplay = document.getElementById('privatePensionDisplay') as HTMLElement;
+  const netGapDisplay = document.getElementById('netGapDisplay') as HTMLElement;
+
+  function calculate() {
+    const target = parseInputVal(targetInput.value);
+    const statePension = parseInputVal(statePensionInput.value);
+    const privatePension = parseInputVal(privatePensionInput.value);
+
+    const totalIncome = statePension + privatePension;
+    const gap = Math.max(0, target - totalIncome);
+    const capitalRequired = gap * 25; // 4% safe withdrawal rule (25x annual gap)
+
+    targetVal.innerText = formatCurrency(target).slice(0, -3);
+    statePensionVal.innerText = formatCurrency(statePension).slice(0, -3);
+    privatePensionVal.innerText = formatCurrency(privatePension).slice(0, -3);
+
+    if (gap > 0) {
+      mainResultDisplay.innerText = `${formatCurrency(gap)}/yr`;
+      subResultValue.innerText = `${formatCurrency(capitalRequired)} Lump Sum Needed`;
+    } else {
+      mainResultDisplay.innerText = 'No Shortfall! (Surplus)';
+      subResultValue.innerText = 'Target Income Fully Covered';
+    }
+
+    targetDisplay.innerText = formatCurrency(target);
+    statePensionDisplay.innerText = statePension > 0 ? `-${formatCurrency(statePension)}` : '£0.00';
+    privatePensionDisplay.innerText = privatePension > 0 ? `-${formatCurrency(privatePension)}` : '£0.00';
+    netGapDisplay.innerText = formatCurrency(gap);
+  }
+
+  targetInput.addEventListener('input', () => {
+    const val = parseInputVal(targetInput.value);
+    targetSlider.value = String(val);
+    calculate();
+  });
+
+  targetSlider.addEventListener('input', () => {
+    targetInput.value = parseInt(targetSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  statePensionInput.addEventListener('input', () => {
+    const val = parseInputVal(statePensionInput.value);
+    statePensionSlider.value = String(val);
+    calculate();
+  });
+
+  statePensionSlider.addEventListener('input', () => {
+    statePensionInput.value = parseInt(statePensionSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  privatePensionInput.addEventListener('input', () => {
+    const val = parseInputVal(privatePensionInput.value);
+    privatePensionSlider.value = String(val);
+    calculate();
+  });
+
+  privatePensionSlider.addEventListener('input', () => {
+    privatePensionInput.value = parseInt(privatePensionSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  calculate();
+</script>

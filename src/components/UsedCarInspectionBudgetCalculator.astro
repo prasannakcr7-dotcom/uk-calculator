@@ -1,0 +1,110 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Agreed Vehicle Purchase Price (£)</span></div>
+      <div class="amount-field"><input type="number" id="used-car-agreed-price" value="8500" min="500" step="250" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>HPI Vehicle Provenance Check</span></div>
+      <select id="hpi-check-tier">
+        <option value="full_hpi" selected>Full HPI / CarVertical Check (£19.99 - Checks Outstanding Finance, Stolen, Write-Off)</option>
+        <option value="basic_check">Basic History Check (£9.99)</option>
+        <option value="none">No History Check (£0.00)</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Pre-Purchase Mechanical Inspection</span></div>
+      <select id="inspection-tier">
+        <option value="aa_rac_comprehensive" selected>AA / RAC Comprehensive Vehicle Inspection (£180.00)</option>
+        <option value="local_mechanic">Local Independent Garage Inspection (£80.00)</option>
+        <option value="none">No Professional Inspection (£0.00)</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Immediate Post-Purchase Servicing Reserve (£)</span></div>
+      <div class="amount-field"><input type="number" id="immediate-service-buffer" value="250" min="0" step="50" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Annual Road Tax (VED) Cost (£)</span></div>
+      <div class="amount-field"><input type="number" id="annual-road-tax-setup" value="190" min="0" step="10" /></div>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <h3>Total Used Car Buyer Outlay Summary</h3>
+      <div class="breakdown-row net">
+        <span>Grand Total Cash Required:</span>
+        <strong id="used-car-grand-total">£0.00</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Total Pre-Purchase Vetting Fees:</span>
+        <strong id="vetting-fees-total">£0.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Vehicle Purchase Price:</span>
+        <strong id="purchase-price-display">£0.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Immediate Servicing & Tax Reserves:</span>
+        <strong id="servicing-tax-reserve-total">£0.00</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculateUsedCarBudget() {
+    const price = parseFloat((document.getElementById('used-car-agreed-price') as HTMLInputElement).value) || 0;
+    const hpiChoice = (document.getElementById('hpi-check-tier') as HTMLSelectElement).value;
+    const inspChoice = (document.getElementById('inspection-tier') as HTMLSelectElement).value;
+    const serviceBuffer = parseFloat((document.getElementById('immediate-service-buffer') as HTMLInputElement).value) || 0;
+    const roadTax = parseFloat((document.getElementById('annual-road-tax-setup') as HTMLInputElement).value) || 0;
+
+    let hpiCost = 19.99;
+    if (hpiChoice === 'basic_check') hpiCost = 9.99;
+    if (hpiChoice === 'none') hpiCost = 0;
+
+    let inspCost = 180.0;
+    if (inspChoice === 'local_mechanic') inspCost = 80.0;
+    if (inspChoice === 'none') inspCost = 0;
+
+    const vettingFees = hpiCost + inspCost;
+    const reserves = serviceBuffer + roadTax;
+    const grandTotal = price + vettingFees + reserves;
+
+    (document.getElementById('used-car-grand-total') as HTMLElement).textContent = '£' + grandTotal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('vetting-fees-total') as HTMLElement).textContent = '£' + vettingFees.toFixed(2);
+    (document.getElementById('purchase-price-display') as HTMLElement).textContent = '£' + price.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('servicing-tax-reserve-total') as HTMLElement).textContent = '£' + reserves.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateUsedCarBudget);
+  calculateUsedCarBudget();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

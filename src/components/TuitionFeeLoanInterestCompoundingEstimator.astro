@@ -1,0 +1,136 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label">
+          <span>Student Loan Plan Type</span>
+        </div>
+        <select id="student-loan-plan-type" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="plan5" selected>Plan 5 (Started Uni 2023 onwards - RPI Interest, 40-Yr Write-off, £25k Threshold)</option>
+          <option value="plan2">Plan 2 (Started Uni 2012-2022 - RPI + up to 3% Interest, 30-Yr Write-off, £27,295 Threshold)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">
+          <span>Total Student Debt Balance Upon Graduation (£)</span>
+        </div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="total-grad-debt-balance" value="45000" min="5000" step="5000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">
+          <span>Expected Average Annual Salary (£)</span>
+        </div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="expected-annual-salary" value="35000" min="15000" step="2500" />
+        </div>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Student Debt & Repayment Projection</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Monthly Payroll Repayment</span>
+          <strong id="monthly-salary-repay-val">£75.00 / month</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Annual Payroll Repayment</span>
+          <strong id="annual-salary-repay-val">£900.00 / year</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Current Annual Interest Added (~3.2% RPI)</span>
+          <strong id="annual-interest-added-val">£1,440.00 / year (3.2%)</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Net Debt Trajectory</span>
+          <strong id="debt-growth-trajectory">Interest exceeds repayments</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar />
+  </div>
+</div>
+
+<script>
+  function calculateTuitionInterest() {
+    const planEl = document.getElementById('student-loan-plan-type') as HTMLSelectElement;
+    const debtEl = document.getElementById('total-grad-debt-balance') as HTMLInputElement;
+    const salaryEl = document.getElementById('expected-annual-salary') as HTMLInputElement;
+
+    if (!planEl || !debtEl || !salaryEl) return;
+
+    const plan = planEl.value;
+    const debt = parseFloat(debtEl.value) || 0;
+    const salary = parseFloat(salaryEl.value) || 0;
+
+    let threshold = 25000;
+    let writeoffYears = 40;
+    let rpiRate = 0.032;
+
+    if (plan === 'plan2') {
+      threshold = 27295;
+      writeoffYears = 30;
+      if (salary > 49130) rpiRate = 0.062;
+      else if (salary > 27295) {
+        const excess = salary - 27295;
+        rpiRate = 0.032 + ((excess / (49130 - 27295)) * 0.03);
+      }
+    } else {
+      threshold = 25000;
+      writeoffYears = 40;
+      rpiRate = 0.032;
+    }
+
+    const excessSalary = Math.max(0, salary - threshold);
+    const annualRepayment = excessSalary * 0.09;
+    const monthlyRepayment = annualRepayment / 12;
+    const annualInterestAdded = debt * rpiRate;
+
+    let trajectoryStr = '';
+    if (annualRepayment >= annualInterestAdded) {
+      trajectoryStr = 'Repayments exceed interest (Shrinking)';
+    } else {
+      const netGrowth = annualInterestAdded - annualRepayment;
+      trajectoryStr = 'Interest exceeds repayments (+£' + netGrowth.toFixed(0) + '/yr)';
+    }
+
+    const monthlyEl = document.getElementById('monthly-salary-repay-val');
+    const annualEl = document.getElementById('annual-salary-repay-val');
+    const interestEl = document.getElementById('annual-interest-added-val');
+    const trajEl = document.getElementById('debt-growth-trajectory');
+
+    if (monthlyEl) monthlyEl.textContent = '£' + monthlyRepayment.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (annualEl) annualEl.textContent = '£' + annualRepayment.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (interestEl) interestEl.textContent = '£' + annualInterestAdded.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year (' + (rpiRate * 100).toFixed(1) + '%)';
+    if (trajEl) trajEl.textContent = trajectoryStr;
+  }
+
+  ['student-loan-plan-type', 'total-grad-debt-balance', 'expected-annual-salary'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateTuitionInterest);
+    document.getElementById(id)?.addEventListener('change', calculateTuitionInterest);
+  });
+  calculateTuitionInterest();
+</script>

@@ -1,0 +1,185 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Estate Value & Will / Probate Legal Details'}</h2>
+
+      <!-- Gross Estate Value (£) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.estateValueLabel || 'Total Gross Estate Value (£)'}</span>
+          <span class="hint" id="estateValueVal">£450,000</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="450,000" id="estateValueInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="50000" max="2500000" step="25000" value="450000" id="estateValueSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£50,000</span><span>£2,500,000</span></div>
+      </div>
+
+      <!-- Will Writing Service Type -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.willTypeLabel || 'Will Writing Service Type'}</span>
+          <span class="hint" id="willTypeVal">Mirror Wills for Couple (Solicitor Drafted — £350)</span>
+        </div>
+        <select id="willTypeSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="ONLINE">DIY Online Will Service (£40)</option>
+          <option value="SINGLE_SOLICITOR">Single Will (Solicitor Drafted — £220)</option>
+          <option value="MIRROR_SOLICITOR" selected>Mirror Wills for Couple (Solicitor Drafted — £350)</option>
+          <option value="TRUST_WILL">Trust Will / Discretionary Trust Will (£750)</option>
+        </select>
+      </div>
+
+      <!-- Probate Administration Route -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.probateRouteLabel || 'Probate Estate Administration Route'}</span>
+          <span class="hint" id="probateRouteVal">Full Solicitor Probate Administration (1.5% Fee)</span>
+        </div>
+        <select id="probateRouteSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="DIY">DIY Grant of Probate Application Only (£300 Court Fee)</option>
+          <option value="GRANT_ONLY">Solicitor Grant of Probate Application Only (£950)</option>
+          <option value="FULL_ADMIN" selected>Full Solicitor Estate Administration (1.5% Estate Fee)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--social-1), var(--social-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Total Will & Probate Legal Fees'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£7,400.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.probateFeeSplitLabel || 'Will Writing, Probate Registry & Estate Admin Fees Split:'}</span>
+        <span class="val" id="subResultValue">£350 Mirror Wills + £300 Court Fee + £6,750 Probate Administration</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Will Writing & Probate Cost Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Will Writing Professional Fee</span>
+          <span class="val" id="willFeeDisplay">£350.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>HMCTS Probate Court Grant Application Fee</span>
+          <span class="val" id="courtFeeDisplay">£300.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Solicitor Probate Administration Fee (1.5% Estate Value)</span>
+          <span class="val" id="adminFeeDisplay">£6,750.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Combined Legal & Probate Fees</span>
+          <span class="val" id="totalWillProbateDisplay" style="font-weight: 700; font-size: 18px;">£7,400.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>HMCTS Probate Court Fee:</strong> £300 statutory court fee for estates over £5,000.<br/>
+        • <strong>Probate Threshold:</strong> Probate required if deceased held property or bank accounts > £50,000.<br/>
+        • <strong>Solicitor Admin Fees:</strong> Solicitors charge 1% to 2.5% of gross estate value for full admin.<br/>
+        • <strong>Intestacy Rules:</strong> Dying without a valid Will causes assets to pass via strict statutory rules.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const HMCTS_PROBATE_FEE = 300.00; // Statutory HMCTS probate court application fee
+
+  const estateValueInput = document.getElementById('estateValueInput') as HTMLInputElement;
+  const estateValueSlider = document.getElementById('estateValueSlider') as HTMLInputElement;
+  const estateValueVal = document.getElementById('estateValueVal') as HTMLElement;
+
+  const willTypeSelect = document.getElementById('willTypeSelect') as HTMLSelectElement;
+  const probateRouteSelect = document.getElementById('probateRouteSelect') as HTMLSelectElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const willFeeDisplay = document.getElementById('willFeeDisplay') as HTMLElement;
+  const courtFeeDisplay = document.getElementById('courtFeeDisplay') as HTMLElement;
+  const adminFeeDisplay = document.getElementById('adminFeeDisplay') as HTMLElement;
+  const totalWillProbateDisplay = document.getElementById('totalWillProbateDisplay') as HTMLElement;
+
+  function calculate() {
+    const estateValue = parseInputVal(estateValueInput.value);
+    const willKey = willTypeSelect.value;
+    const probateKey = probateRouteSelect.value;
+
+    let willFee = 350; // Mirror Wills
+    if (willKey === 'ONLINE') willFee = 40;
+    if (willKey === 'SINGLE_SOLICITOR') willFee = 220;
+    if (willKey === 'TRUST_WILL') willFee = 750;
+
+    let probateCourtFee = HMCTS_PROBATE_FEE;
+    let adminFee = 0;
+
+    if (probateKey === 'DIY') {
+      adminFee = 0;
+    } else if (probateKey === 'GRANT_ONLY') {
+      adminFee = 950;
+    } else if (probateKey === 'FULL_ADMIN') {
+      // 1.5% of estate value
+      adminFee = estateValue * 0.015;
+    }
+
+    const totalCost = willFee + probateCourtFee + adminFee;
+
+    estateValueVal.innerText = formatCurrency(estateValue).slice(0, -3);
+
+    mainResultDisplay.innerText = formatCurrency(totalCost);
+    subResultValue.innerText = `${formatCurrency(willFee)} Will + ${formatCurrency(probateCourtFee)} Court Fee + ${formatCurrency(adminFee)} Probate Admin`;
+
+    willFeeDisplay.innerText = formatCurrency(willFee);
+    courtFeeDisplay.innerText = formatCurrency(probateCourtFee);
+    adminFeeDisplay.innerText = formatCurrency(adminFee);
+    totalWillProbateDisplay.innerText = formatCurrency(totalCost);
+  }
+
+  estateValueInput.addEventListener('input', () => {
+    const val = parseInputVal(estateValueInput.value);
+    estateValueSlider.value = String(val);
+    calculate();
+  });
+
+  estateValueSlider.addEventListener('input', () => {
+    estateValueInput.value = parseInt(estateValueSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  willTypeSelect.addEventListener('change', calculate);
+  probateRouteSelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

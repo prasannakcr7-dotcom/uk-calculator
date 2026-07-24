@@ -1,0 +1,172 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Roof Rise & Run Dimensions'}</h2>
+
+      <!-- Roof Rise (Vertical Height in Metres) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.riseLabel || 'Roof Rise / Vertical Height (Metres)'}</span>
+          <span class="hint" id="riseVal">2.0 m</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="2.0" id="riseInput" inputmode="decimal" />
+          <span class="cur">m</span>
+        </div>
+        <input type="range" min="0.5" max="10" step="0.1" value="2.0" id="riseSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>0.5m</span><span>10.0m</span></div>
+      </div>
+
+      <!-- Roof Run (Horizontal Distance in Metres) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.runLabel || 'Roof Run / Horizontal Distance (Metres)'}</span>
+          <span class="hint" id="runVal">3.5 m</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="3.5" id="runInput" inputmode="decimal" />
+          <span class="cur">m</span>
+        </div>
+        <input type="range" min="0.5" max="15" step="0.1" value="3.5" id="runSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>0.5m</span><span>15.0m</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Calculated Roof Pitch Angle'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">29.7° Pitch</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.rafterLengthLabel || 'Calculated Rafter Length & Pitch Slope Ratio:'}</span>
+        <span class="val" id="subResultValue">4.03m Rafter Length (1:1.75 Slope Ratio / 57% Pitch)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Roof Geometry Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Roof Rise (Vertical Height)</span>
+          <span class="val" id="riseDisplay">2.00 m</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Roof Run (Horizontal Span)</span>
+          <span class="val" id="runDisplay">3.50 m</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Calculated Rafter Length (Pythagoras)</span>
+          <span class="val" id="rafterDisplay">4.03 m</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Pitch Classification & Tile Suitability</span>
+          <span class="val" id="tileSuitabilityDisplay" style="font-weight: 700; font-size: 18px;">29.7° (Suitable for Concrete Interlocking Tiles)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Pitch Formula:</strong> Pitch Angle (°) = arctan(Rise ÷ Run) × (180 ÷ π).<br/>
+        • <strong>Rafter Formula:</strong> Rafter Length = √(Rise² + Run²).<br/>
+        • <strong>Minimum Slate Pitch:</strong> Natural slates require minimum 20° to 30° pitch.<br/>
+        • <strong>Low Pitch Tiles:</strong> Specialist low-pitch concrete tiles function down to 12.5° to 15°.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  const riseInput = document.getElementById('riseInput') as HTMLInputElement;
+  const riseSlider = document.getElementById('riseSlider') as HTMLInputElement;
+  const riseVal = document.getElementById('riseVal') as HTMLElement;
+
+  const runInput = document.getElementById('runInput') as HTMLInputElement;
+  const runSlider = document.getElementById('runSlider') as HTMLInputElement;
+  const runVal = document.getElementById('runVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const riseDisplay = document.getElementById('riseDisplay') as HTMLElement;
+  const runDisplay = document.getElementById('runDisplay') as HTMLElement;
+  const rafterDisplay = document.getElementById('rafterDisplay') as HTMLElement;
+  const tileSuitabilityDisplay = document.getElementById('tileSuitabilityDisplay') as HTMLElement;
+
+  function calculate() {
+    const rise = parseInputVal(riseInput.value);
+    const run = parseInputVal(runInput.value);
+
+    let pitchAngle = 0;
+    let rafterLength = 0;
+    let slopePercentage = 0;
+
+    if (run > 0) {
+      pitchAngle = Math.atan(rise / run) * (180 / Math.PI);
+      rafterLength = Math.sqrt(rise * rise + run * run);
+      slopePercentage = (rise / run) * 100;
+    }
+
+    riseVal.innerText = `${rise.toFixed(1)} m`;
+    runVal.innerText = `${run.toFixed(1)} m`;
+
+    mainResultDisplay.innerText = `${pitchAngle.toFixed(1)}° Pitch`;
+    subResultValue.innerText = `${rafterLength.toFixed(2)}m Rafter Length (${slopePercentage.toFixed(0)}% Grade Slope)`;
+
+    riseDisplay.innerText = `${rise.toFixed(2)} m`;
+    runDisplay.innerText = `${run.toFixed(2)} m`;
+    rafterDisplay.innerText = `${rafterLength.toFixed(2)} m`;
+
+    let suitabilityText = 'Low Pitch Flat Roof (Requires Felt/Single-Ply Membrane)';
+    if (pitchAngle >= 35) suitabilityText = `${pitchAngle.toFixed(1)}° Steep Pitch (Suitable for Plain Clay Tiles & Slates)`;
+    else if (pitchAngle >= 22.5) suitabilityText = `${pitchAngle.toFixed(1)}° Standard Pitch (Suitable for Concrete Interlocking Tiles)`;
+    else if (pitchAngle >= 15) suitabilityText = `${pitchAngle.toFixed(1)}° Low Pitch (Specialist Low-Pitch Tiles Required)`;
+
+    tileSuitabilityDisplay.innerText = suitabilityText;
+  }
+
+  riseInput.addEventListener('input', () => {
+    const val = parseInputVal(riseInput.value);
+    riseSlider.value = String(val);
+    calculate();
+  });
+
+  riseSlider.addEventListener('input', () => {
+    riseInput.value = parseFloat(riseSlider.value).toFixed(1);
+    calculate();
+  });
+
+  runInput.addEventListener('input', () => {
+    const val = parseInputVal(runInput.value);
+    runSlider.value = String(val);
+    calculate();
+  });
+
+  runSlider.addEventListener('input', () => {
+    runInput.value = parseFloat(runSlider.value).toFixed(1);
+    calculate();
+  });
+
+  calculate();
+</script>

@@ -1,0 +1,157 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Loss Carry Forward Details'}</h2>
+
+      <!-- Current Profit -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.profitLabel || 'Current Year Net Profit (£)'}</span>
+          <span class="hint" id="profitVal">£40,000</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="40,000" id="profitInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="0" max="200000" step="2500" value="40000" id="profitSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£0</span><span>£200,000</span></div>
+      </div>
+
+      <!-- Carried Forward Losses -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.lossesLabel || 'Unrelieved Losses Carried Forward (£)'}</span>
+          <span class="hint" id="lossesVal">£15,000</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="15,000" id="lossesInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="0" max="200000" step="2500" value="15000" id="lossesSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£0</span><span>£200,000</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Revised Taxable Profit After Loss Offset'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£25,000.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.remainingLossLabel || 'Unused Losses Remaining for Future Years:'}</span>
+        <span class="val" id="subResultValue">£0.00</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Tax Loss Relief Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Trading Profit</span>
+          <span class="val" id="grossProfitDisplay">£40,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Loss Relief Utilized This Year</span>
+          <span class="val" id="lossUsedDisplay">-£15,000.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Adjusted Taxable Profit</span>
+          <span class="val" id="netTaxableDisplay" style="font-weight: 700; font-size: 18px;">£25,000.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Sole Traders:</strong> Offset carried forward losses against future trading profits from same trade.<br/>
+        • <strong>Corporation Tax:</strong> £5 million annual deduction allowance (50% max offset above £5m).<br/>
+        • <strong>Indefinite Carry Forward:</strong> Losses carry forward indefinitely until fully utilized.<br/>
+        • <strong>Self Assessment:</strong> Declare loss carry forward on SA103 box 74.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const profitInput = document.getElementById('profitInput') as HTMLInputElement;
+  const profitSlider = document.getElementById('profitSlider') as HTMLInputElement;
+  const profitVal = document.getElementById('profitVal') as HTMLElement;
+  const lossesInput = document.getElementById('lossesInput') as HTMLInputElement;
+  const lossesSlider = document.getElementById('lossesSlider') as HTMLInputElement;
+  const lossesVal = document.getElementById('lossesVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const grossProfitDisplay = document.getElementById('grossProfitDisplay') as HTMLElement;
+  const lossUsedDisplay = document.getElementById('lossUsedDisplay') as HTMLElement;
+  const netTaxableDisplay = document.getElementById('netTaxableDisplay') as HTMLElement;
+
+  function calculate() {
+    const profit = parseInputVal(profitInput.value);
+    const losses = parseInputVal(lossesInput.value);
+
+    const lossUsed = Math.min(profit, losses);
+    const revisedProfit = Math.max(0, profit - lossUsed);
+    const remainingLoss = Math.max(0, losses - profit);
+
+    profitVal.innerText = formatCurrency(profit).slice(0, -3);
+    lossesVal.innerText = formatCurrency(losses).slice(0, -3);
+
+    mainResultDisplay.innerText = formatCurrency(revisedProfit);
+    subResultValue.innerText = formatCurrency(remainingLoss);
+
+    grossProfitDisplay.innerText = formatCurrency(profit);
+    lossUsedDisplay.innerText = lossUsed > 0 ? `-${formatCurrency(lossUsed)}` : '£0.00';
+    netTaxableDisplay.innerText = formatCurrency(revisedProfit);
+  }
+
+  profitInput.addEventListener('input', () => {
+    const val = parseInputVal(profitInput.value);
+    profitSlider.value = String(val);
+    calculate();
+  });
+
+  profitSlider.addEventListener('input', () => {
+    profitInput.value = parseInt(profitSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  lossesInput.addEventListener('input', () => {
+    const val = parseInputVal(lossesInput.value);
+    lossesSlider.value = String(val);
+    calculate();
+  });
+
+  lossesSlider.addEventListener('input', () => {
+    lossesInput.value = parseInt(lossesSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  calculate();
+</script>

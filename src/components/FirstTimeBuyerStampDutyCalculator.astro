@@ -1,0 +1,145 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>First-Time Buyer Stamp Duty Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Property Purchase Price (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="ftb-property-price" value="380000" min="50000" step="5000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>First-Time Buyer Qualification Status</span></div>
+        <select id="ftb-buyer-status" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="ftb" selected>All Purchasing Applicants are First-Time Buyers</option>
+          <option value="previous_owner">One or More Applicants Previously Owned Property</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>UK Residency Status</span></div>
+        <select id="ftb-residency-status" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="resident" selected>UK Resident</option>
+          <option value="non_resident">Non-UK Resident (+2% Non-Resident Surcharge)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">First-Time Buyer Stamp Duty (SDLT) Payable</div>
+      <div class="result-amount"><span id="mainResultDisplay">£4,000.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">First-Time Buyer Relief Savings:</span>
+        <span class="val" id="subResultValue">£2,500.00 Saved</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 First-Time Buyer SDLT Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>0% Nil-Rate Threshold (Up to £300,000)</span>
+          <span class="val" id="nilRateDisplay">£0.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>5% Tax Band (£300,001 to £380,000)</span>
+          <span class="val" id="fivePctBandDisplay">£4,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>First-Time Buyer Relief Saving</span>
+          <span class="val" id="reliefSavingDisplay">£2,500.00 Saved vs Standard Rates</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Stamp Duty (SDLT) Payable</span>
+          <span class="val" id="totalFtbSdltDisplay" style="font-weight: 700; font-size: 18px;">£4,000.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="impuestos" />
+  </div>
+</div>
+
+<script>
+  function calculateFtbSdlt() {
+    const priceEl = document.getElementById('ftb-property-price') as HTMLInputElement;
+    const statusEl = document.getElementById('ftb-buyer-status') as HTMLSelectElement;
+    const residencyEl = document.getElementById('ftb-residency-status') as HTMLSelectElement;
+
+    if (!priceEl || !statusEl || !residencyEl) return;
+
+    const price = parseFloat(priceEl.value) || 0;
+    const isFtb = statusEl.value === 'ftb';
+    const isNonRes = residencyEl.value === 'non_resident';
+    const nonResPct = isNonRes ? 0.02 : 0;
+
+    let sdlt = 0;
+    let standardSdlt = 0;
+
+    // Standard Rates: 0% to £125k, 2% £125k-£250k, 5% £250k-£925k
+    if (price > 925000) {
+      standardSdlt += (price - 925000) * 0.10;
+      standardSdlt += (925000 - 250000) * 0.05;
+      standardSdlt += (250000 - 125000) * 0.02;
+    } else if (price > 250000) {
+      standardSdlt += (price - 250000) * 0.05;
+      standardSdlt += (250000 - 125000) * 0.02;
+    } else if (price > 125000) {
+      standardSdlt += (price - 125000) * 0.02;
+    }
+
+    if (isFtb && price <= 500000) {
+      // FTB Relief: 0% up to £300,000, 5% on £300,001 - £500,000
+      if (price > 300000) {
+        sdlt = (price - 300000) * 0.05;
+      } else {
+        sdlt = 0;
+      }
+    } else {
+      sdlt = standardSdlt;
+    }
+
+    const nonResSurcharge = price * nonResPct;
+    const totalSdlt = sdlt + nonResSurcharge;
+    const reliefSavings = isFtb && price <= 500000 ? Math.max(0, standardSdlt - sdlt) : 0;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const nilRes = document.getElementById('nilRateDisplay');
+    const fiveRes = document.getElementById('fivePctBandDisplay');
+    const reliefRes = document.getElementById('reliefSavingDisplay');
+    const totalRes = document.getElementById('totalFtbSdltDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + totalSdlt.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = '£' + reliefSavings.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Saved';
+    if (nilRes) nilRes.textContent = '£0.00';
+    if (fiveRes) fiveRes.textContent = '£' + sdlt.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (reliefRes) reliefRes.textContent = '£' + reliefSavings.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Saved vs Standard';
+    if (totalRes) totalRes.textContent = '£' + totalSdlt.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['ftb-property-price', 'ftb-buyer-status', 'ftb-residency-status'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateFtbSdlt);
+    document.getElementById(id)?.addEventListener('change', calculateFtbSdlt);
+  });
+  calculateFtbSdlt();
+</script>

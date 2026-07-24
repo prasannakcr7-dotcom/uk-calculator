@@ -1,0 +1,233 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Concrete Slab Dimensions & Ratio Details'}</h2>
+
+      <!-- Slab Length (m) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.lengthLabel || 'Slab Length (Metres)'}</span>
+          <span class="hint" id="lengthVal">4.0 m</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="4.0" id="lengthInput" inputmode="decimal" />
+          <span class="cur">m</span>
+        </div>
+        <input type="range" min="0.5" max="30" step="0.5" value="4.0" id="lengthSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>0.5m</span><span>30.0m</span></div>
+      </div>
+
+      <!-- Slab Width (m) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.widthLabel || 'Slab Width (Metres)'}</span>
+          <span class="hint" id="widthVal">3.0 m</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="3.0" id="widthInput" inputmode="decimal" />
+          <span class="cur">m</span>
+        </div>
+        <input type="range" min="0.5" max="30" step="0.5" value="3.0" id="widthSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>0.5m</span><span>30.0m</span></div>
+      </div>
+
+      <!-- Slab Depth (mm) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.depthLabel || 'Slab Depth / Thickness (mm)'}</span>
+          <span class="hint" id="depthVal">100 mm (Standard Slab)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="100" id="depthInput" inputmode="decimal" />
+          <span class="cur">mm</span>
+        </div>
+        <input type="range" min="50" max="500" step="10" value="100" id="depthSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>50mm (Path)</span><span>500mm (Foundations)</span></div>
+      </div>
+
+      <!-- Mix Ratio Preset -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.mixRatioLabel || 'Concrete Mix Proportions (Cement : Sand : Aggregate)'}</span>
+          <span class="hint" id="mixRatioVal">1 : 2 : 4 General Purpose (C20)</span>
+        </div>
+        <select id="mixSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="1:2:4" selected>1 : 2 : 4 General Structural / Slabs (C20 Strength)</option>
+          <option value="1:1.5:3">1 : 1.5 : 3 Heavy Duty Structural (C30 Strength)</option>
+          <option value="1:3:6">1 : 3 : 6 Mass Foundations / Footings (C15 Strength)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Total Wet Concrete Volume Required'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">1.20 m³ Concrete</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.bagsLabel || 'Cement Bags & Bulk Aggregates Needed:'}</span>
+        <span class="val" id="subResultValue">14× 25kg Cement Bags + 2.8 Bulk Bags Aggregate</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Concrete Mix Material Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Calculated Wet Concrete Volume</span>
+          <span class="val" id="volumeDisplay">1.20 m³</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Total Concrete Weight (~2,400 kg/m³)</span>
+          <span class="val" id="weightDisplay">2,880 kg</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Cement Required (25kg Bags)</span>
+          <span class="val" id="cementBagsDisplay">14 Bags (350 kg)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Sharp Sand & Ballast Aggregates</span>
+          <span class="val" id="aggregateDisplay">2,530 kg (2.8 Bulk Bags)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Ready-Mix Mini-Mix Alternative</span>
+          <span class="val" id="readyMixDisplay" style="font-weight: 700; font-size: 18px;">1.32 m³ Ready-Mix Truck (Incl. 10% Waste)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Volume Formula:</strong> Volume (m³) = Length (m) × Width (m) × Depth (m).<br/>
+        • <strong>Concrete Density:</strong> Standard wet concrete weighs ~2,400 kg per cubic metre.<br/>
+        • <strong>1:2:4 Mix Proportions:</strong> 1 part Cement to 2 parts Sharp Sand to 4 parts 20mm Shingle.<br/>
+        • <strong>Bulk Bags:</strong> Standard UK aggregate 'Jumbo' bulk bags contain ~850kg (0.6 m³).
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  const lengthInput = document.getElementById('lengthInput') as HTMLInputElement;
+  const lengthSlider = document.getElementById('lengthSlider') as HTMLInputElement;
+  const lengthVal = document.getElementById('lengthVal') as HTMLElement;
+
+  const widthInput = document.getElementById('widthInput') as HTMLInputElement;
+  const widthSlider = document.getElementById('widthSlider') as HTMLInputElement;
+  const widthVal = document.getElementById('widthVal') as HTMLElement;
+
+  const depthInput = document.getElementById('depthInput') as HTMLInputElement;
+  const depthSlider = document.getElementById('depthSlider') as HTMLInputElement;
+  const depthVal = document.getElementById('depthVal') as HTMLElement;
+
+  const mixSelect = document.getElementById('mixSelect') as HTMLSelectElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const volumeDisplay = document.getElementById('volumeDisplay') as HTMLElement;
+  const weightDisplay = document.getElementById('weightDisplay') as HTMLElement;
+  const cementBagsDisplay = document.getElementById('cementBagsDisplay') as HTMLElement;
+  const aggregateDisplay = document.getElementById('aggregateDisplay') as HTMLElement;
+  const readyMixDisplay = document.getElementById('readyMixDisplay') as HTMLElement;
+
+  function calculate() {
+    const length = parseInputVal(lengthInput.value);
+    const width = parseInputVal(widthInput.value);
+    const depthMm = parseInputVal(depthInput.value);
+    const depthM = depthMm / 1000;
+
+    const netVolumeM3 = length * width * depthM;
+    const totalWeightKg = netVolumeM3 * 2400; // 2,400 kg/m3 wet density
+
+    const mixKey = mixSelect.value;
+    let cementRatio = 1;
+    let sandRatio = 2;
+    let stoneRatio = 4;
+
+    if (mixKey === '1:1.5:3') { cementRatio = 1; sandRatio = 1.5; stoneRatio = 3; }
+    if (mixKey === '1:3:6') { cementRatio = 1; sandRatio = 3; stoneRatio = 6; }
+
+    const totalParts = cementRatio + sandRatio + stoneRatio;
+
+    // Weight of dry materials
+    const cementWeightKg = totalWeightKg * (cementRatio / totalParts);
+    const aggregateWeightKg = totalWeightKg - cementWeightKg;
+
+    const cementBags25kg = Math.ceil(cementWeightKg / 25);
+    const bulkBagsAgg = (aggregateWeightKg / 850).toFixed(1);
+
+    const readyMixWithWaste = netVolumeM3 * 1.10;
+
+    lengthVal.innerText = `${length.toFixed(1)} m`;
+    widthVal.innerText = `${width.toFixed(1)} m`;
+    depthVal.innerText = `${depthMm} mm`;
+
+    mainResultDisplay.innerText = `${netVolumeM3.toFixed(2)} m³ Concrete`;
+    subResultValue.innerText = `${cementBags25kg}× 25kg Cement Bags + ${bulkBagsAgg} Bulk Bags Aggregate`;
+
+    volumeDisplay.innerText = `${netVolumeM3.toFixed(2)} m³`;
+    weightDisplay.innerText = `${Math.round(totalWeightKg).toLocaleString('en-GB')} kg`;
+    cementBagsDisplay.innerText = `${cementBags25kg} Bags (${Math.round(cementWeightKg)} kg)`;
+    aggregateDisplay.innerText = `${Math.round(aggregateWeightKg).toLocaleString('en-GB')} kg (${bulkBagsAgg} Bulk Bags)`;
+    readyMixDisplay.innerText = `${readyMixWithWaste.toFixed(2)} m³ Ready-Mix (10% Buffer)`;
+  }
+
+  lengthInput.addEventListener('input', () => {
+    const val = parseInputVal(lengthInput.value);
+    lengthSlider.value = String(val);
+    calculate();
+  });
+
+  lengthSlider.addEventListener('input', () => {
+    lengthInput.value = parseFloat(lengthSlider.value).toFixed(1);
+    calculate();
+  });
+
+  widthInput.addEventListener('input', () => {
+    const val = parseInputVal(widthInput.value);
+    widthSlider.value = String(val);
+    calculate();
+  });
+
+  widthSlider.addEventListener('input', () => {
+    widthInput.value = parseFloat(widthSlider.value).toFixed(1);
+    calculate();
+  });
+
+  depthInput.addEventListener('input', () => {
+    const val = parseInputVal(depthInput.value);
+    depthSlider.value = String(val);
+    calculate();
+  });
+
+  depthSlider.addEventListener('input', () => {
+    depthInput.value = depthSlider.value;
+    calculate();
+  });
+
+  mixSelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

@@ -1,0 +1,98 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout finance-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Original Item Price (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="original-item-price" value="85" min="1" step="5" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Discount Percentage Off (%)</span></div>
+        <div class="amount-field">
+          <input type="number" id="discount-pct-off" value="25" min="1" max="99" step="1" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Additional Extra Coupon / Promo Code Off (%)</span></div>
+        <div class="amount-field">
+          <input type="number" id="extra-promo-pct" value="10" min="0" max="50" step="1" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Discount & Savings Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Total Money Saved Off Original Price</span>
+          <strong id="total-money-saved-val">£27.63</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Combined Total Percentage Off</span>
+          <strong id="effective-discount-pct">32.5% Off</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Final Discounted Sale Price</span>
+          <strong id="final-discounted-price-val">£57.37</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="finanzas" />
+  </div>
+</div>
+
+<script>
+  function calculateDiscountSavings() {
+    const origPriceEl = document.getElementById('original-item-price') as HTMLInputElement;
+    const discPctEl = document.getElementById('discount-pct-off') as HTMLInputElement;
+    const extraPctEl = document.getElementById('extra-promo-pct') as HTMLInputElement;
+
+    if (!origPriceEl || !discPctEl || !extraPctEl) return;
+
+    const orig = parseFloat(origPriceEl.value) || 0;
+    const discPct = parseFloat(discPctEl.value) || 0;
+    const extraPct = parseFloat(extraPctEl.value) || 0;
+
+    const priceAfterFirst = orig * (1 - (discPct / 100));
+    const finalPrice = priceAfterFirst * (1 - (extraPct / 100));
+    const totalSavings = Math.max(0, orig - finalPrice);
+    const effectivePct = orig > 0 ? (totalSavings / orig) * 100 : 0;
+
+    const savedEl = document.getElementById('total-money-saved-val');
+    const pctEl = document.getElementById('effective-discount-pct');
+    const finalEl = document.getElementById('final-discounted-price-val');
+
+    if (savedEl) savedEl.textContent = '£' + totalSavings.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (pctEl) pctEl.textContent = effectivePct.toFixed(1) + '% Off';
+    if (finalEl) finalEl.textContent = '£' + finalPrice.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['original-item-price', 'discount-pct-off', 'extra-promo-pct'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateDiscountSavings);
+    document.getElementById(id)?.addEventListener('change', calculateDiscountSavings);
+  });
+  calculateDiscountSavings();
+</script>

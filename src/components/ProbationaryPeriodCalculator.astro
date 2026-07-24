@@ -1,0 +1,126 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Probationary Period Dates</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Employment Start Date</span></div>
+        <input type="date" id="probation-start-date" value="2026-02-01" style="width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:10px; font-size:15px; background:#fff; color:var(--ink);" />
+      </div>
+
+      <div class="field-group" style="margin-top: 18px;">
+        <div class="field-label"><span>Contractual Probationary Period Length</span></div>
+        <select id="probation-length-months-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="6" selected>6 Months Standard Probation Period</option>
+          <option value="3">3 Months Short Probation Period</option>
+          <option value="1">1 Month Probation Period</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Notice Period During Probation</span></div>
+        <select id="probation-notice-period-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="1_week" selected>1 Week Statutory / Contractual Notice</option>
+          <option value="1_month">1 Month Notice Period</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--work-1), var(--work-2) 80%);">
+      <div class="result-label">Probationary Review Target Date</div>
+      <div class="result-amount"><span id="mainResultDisplay">01 August 2026</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Mid-Point Review Checkpoint:</span>
+        <span class="val" id="subResultValue">01 May 2026</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Probationary Milestones Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Employment Start Date</span>
+          <span class="val" id="probationStartDateDisplay">01 February 2026</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Mid-Term Formal Progress Meeting</span>
+          <span class="val" id="midpointReviewDateDisplay">01 May 2026 (Month 3)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Contractual Notice Period Required</span>
+          <span class="val" id="noticePeriodDisplay">1 Week Statutory Notice</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Final Probation Confirmation Due Date</span>
+          <span class="val" id="finalProbationDateDisplay" style="font-weight: 700; font-size: 18px;">01 August 2026</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="trabajo" />
+  </div>
+</div>
+
+<script>
+  function calculateProbationDates() {
+    const startEl = document.getElementById('probation-start-date') as HTMLInputElement;
+    const lengthEl = document.getElementById('probation-length-months-select') as HTMLSelectElement;
+    const noticeEl = document.getElementById('probation-notice-period-select') as HTMLSelectElement;
+
+    if (!startEl || !lengthEl || !noticeEl) return;
+
+    const startStr = startEl.value;
+    if (!startStr) return;
+
+    const months = parseInt(lengthEl.value) || 6;
+    const notice = noticeEl.value;
+
+    const startDate = new Date(startStr);
+
+    // End date = Start Date + months
+    const endDate = new Date(startDate);
+    endDate.setMonth(endDate.getMonth() + months);
+
+    // Midpoint date
+    const midDate = new Date(startDate);
+    midDate.setMonth(midDate.getMonth() + Math.floor(months / 2));
+
+    const formatDate = (d: Date) => d.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const startRes = document.getElementById('probationStartDateDisplay');
+    const midRes = document.getElementById('midpointReviewDateDisplay');
+    const noticeRes = document.getElementById('noticePeriodDisplay');
+    const finalRes = document.getElementById('finalProbationDateDisplay');
+
+    if (mainRes) mainRes.textContent = formatDate(endDate);
+    if (subVal) subVal.textContent = formatDate(midDate);
+    if (startRes) startRes.textContent = formatDate(startDate);
+    if (midRes) midRes.textContent = formatDate(midDate) + ` (Month ${Math.floor(months/2)})`;
+    if (noticeRes) noticeRes.textContent = notice === '1_week' ? '1 Week Statutory Notice' : '1 Month Contractual Notice';
+    if (finalRes) finalRes.textContent = formatDate(endDate);
+  }
+
+  ['probation-start-date', 'probation-length-months-select', 'probation-notice-period-select'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateProbationDates);
+    document.getElementById(id)?.addEventListener('change', calculateProbationDates);
+  });
+  calculateProbationDates();
+</script>

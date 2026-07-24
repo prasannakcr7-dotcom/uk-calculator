@@ -16,4 +16,17 @@ const blog = defineCollection({
 	}),
 });
 
-export const collections = { blog };
+const calculators = defineCollection({
+  loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/calculators' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    category: z.string(),
+    lang: z.enum(['en']),
+    isDevolved: z.boolean().optional(),
+    translationUrl: z.string().optional(),
+    labels: z.record(z.any()),
+  }),
+});
+
+export const collections = { blog, calculators };

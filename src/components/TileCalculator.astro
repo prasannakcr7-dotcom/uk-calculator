@@ -1,0 +1,174 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Tiling Area & Tile Size Details'}</h2>
+
+      <!-- Total Surface Area to Tile (sq m) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.areaLabel || 'Total Surface Area to Tile (sq m)'}</span>
+          <span class="hint" id="areaVal">12.0 sq m</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="12.0" id="areaInput" inputmode="decimal" />
+          <span class="cur">sq m</span>
+        </div>
+        <input type="range" min="1" max="100" step="1" value="12" id="areaSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1 sq m</span><span>100 sq m</span></div>
+      </div>
+
+      <!-- Tile Size Preset -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.tileSizeLabel || 'Select Individual Tile Dimensions'}</span>
+          <span class="hint" id="tileSizeVal">300mm × 300mm (0.090 sq m)</span>
+        </div>
+        <select id="tileSizeSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="300x300" selected>300mm × 300mm Standard Floor Tile (0.090 sq m)</option>
+          <option value="600x600">600mm × 600mm Large Format Tile (0.360 sq m)</option>
+          <option value="600x300">600mm × 300mm Rectangular Wall/Floor (0.180 sq m)</option>
+          <option value="200x100">200mm × 100mm Metro / Subway Tile (0.020 sq m)</option>
+          <option value="150x150">150mm × 150mm Small Square Tile (0.0225 sq m)</option>
+        </select>
+      </div>
+
+      <!-- Cutting Waste Allowance (%) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.wasteLabel || 'Cutting Waste Allowance (%)'}</span>
+          <span class="hint" id="wasteVal">10% Standard Layout</span>
+        </div>
+        <input type="range" min="5" max="25" step="5" value="10" id="wasteSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>5% (Simple)</span><span>25% (Diagonal / Herringbone)</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Total Individual Tiles Required'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">147 Tiles</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.boxesLabel || 'Estimated Boxes of Tiles to Order:'}</span>
+        <span class="val" id="subResultValue">14 Boxes (11 Tiles/Box — 13.2 sq m)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Tile Quantity Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Net Surface Area to Tile</span>
+          <span class="val" id="netAreaDisplay">12.00 sq m</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Net Tile Count (Before Waste)</span>
+          <span class="val" id="netTilesDisplay">134 Tiles</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Cutting Waste Tiles Added (10%)</span>
+          <span class="val" id="wasteTilesDisplay">+13 Tiles</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Recommended Tiles to Order</span>
+          <span class="val" id="grossTilesDisplay" style="font-weight: 700; font-size: 18px;">147 Tiles (13.20 sq m)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Tile Coverage:</strong> Net Tiles = Surface Area (sq m) ÷ Individual Tile Area (sq m).<br/>
+        • <strong>Waste Allowance:</strong> Add 10% for straight grid layouts; 15% for brick-bond/diagonal.<br/>
+        • <strong>Grout Spacing:</strong> Standard grout joints range from 2mm (walls) to 3mm-5mm (floors).<br/>
+        • <strong>Batch Matching:</strong> Order all tiles in a single batch to ensure matching color dye-lots.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  const areaInput = document.getElementById('areaInput') as HTMLInputElement;
+  const areaSlider = document.getElementById('areaSlider') as HTMLInputElement;
+  const areaVal = document.getElementById('areaVal') as HTMLElement;
+  const tileSizeSelect = document.getElementById('tileSizeSelect') as HTMLSelectElement;
+  const wasteSlider = document.getElementById('wasteSlider') as HTMLInputElement;
+  const wasteVal = document.getElementById('wasteVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const netAreaDisplay = document.getElementById('netAreaDisplay') as HTMLElement;
+  const netTilesDisplay = document.getElementById('netTilesDisplay') as HTMLElement;
+  const wasteTilesDisplay = document.getElementById('wasteTilesDisplay') as HTMLElement;
+  const grossTilesDisplay = document.getElementById('grossTilesDisplay') as HTMLElement;
+
+  const tileSizes: Record<string, { areaSqm: number; label: string; perBox: number }> = {
+    '300x300': { areaSqm: 0.090, label: '300mm × 300mm', perBox: 11 },
+    '600x600': { areaSqm: 0.360, label: '600mm × 600mm', perBox: 4 },
+    '600x300': { areaSqm: 0.180, label: '600mm × 300mm', perBox: 6 },
+    '200x100': { areaSqm: 0.020, label: '200mm × 100mm', perBox: 50 },
+    '150x150': { areaSqm: 0.0225, label: '150mm × 150mm', perBox: 44 }
+  };
+
+  function calculate() {
+    const areaSqm = parseInputVal(areaInput.value);
+    const tileKey = tileSizeSelect.value;
+    const tile = tileSizes[tileKey] || tileSizes['300x300'];
+    const wastePercent = parseInt(wasteSlider.value, 10);
+
+    const netTiles = Math.ceil(areaSqm / tile.areaSqm);
+    const wasteTiles = Math.ceil(netTiles * (wastePercent / 100));
+    const grossTiles = netTiles + wasteTiles;
+    const grossSqm = grossTiles * tile.areaSqm;
+    const boxesRequired = Math.ceil(grossTiles / tile.perBox);
+
+    areaVal.innerText = `${areaSqm.toFixed(1)} sq m`;
+    wasteVal.innerText = `${wastePercent}% Waste Allowance`;
+
+    mainResultDisplay.innerText = `${grossTiles} Tiles`;
+    subResultValue.innerText = `${boxesRequired} Boxes (${tile.perBox} Tiles/Box — ${grossSqm.toFixed(1)} sq m)`;
+
+    netAreaDisplay.innerText = `${areaSqm.toFixed(2)} sq m`;
+    netTilesDisplay.innerText = `${netTiles} Tiles`;
+    wasteTilesDisplay.innerText = `+${wasteTiles} Tiles`;
+    grossTilesDisplay.innerText = `${grossTiles} Tiles (${grossSqm.toFixed(2)} sq m)`;
+  }
+
+  areaInput.addEventListener('input', () => {
+    const val = parseInputVal(areaInput.value);
+    areaSlider.value = String(val);
+    calculate();
+  });
+
+  areaSlider.addEventListener('input', () => {
+    areaInput.value = parseInt(areaSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  tileSizeSelect.addEventListener('change', calculate);
+  wasteSlider.addEventListener('input', calculate);
+
+  calculate();
+</script>

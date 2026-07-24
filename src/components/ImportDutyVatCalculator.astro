@@ -1,0 +1,139 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Item Goods Invoice Value (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="goods-invoice-value" value="450" min="10" step="50" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Shipping, Postage & Insurance Charges (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="shipping-insurance-cost" value="35" min="0" step="5" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>HMRC Customs Commodity Import Duty Rate (%)</span></div>
+        <div class="amount-field">
+          <input type="number" id="customs-duty-rate-pct" value="4.0" min="0" max="50" step="0.5" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>UK Import VAT Rate</span></div>
+        <select id="import-vat-rate-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="20" selected>Standard Rate (20% VAT)</option>
+          <option value="5">Reduced Rate (5% VAT)</option>
+          <option value="0">Zero Rate (0% VAT)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Courier Clearance / Handling Fee (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="courier-clearance-fee" value="12" min="0" step="1" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>UK Import Duty & VAT Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Import Duty Charge</span>
+          <strong id="import-duty-amount">£19.40</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>VAT Taxable Customs Base (Goods + Shipping + Duty)</span>
+          <strong id="vat-taxable-base">£504.40</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Import VAT Charge (20%)</span>
+          <strong id="import-vat-amount">£100.88</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Courier Clearance Fee</span>
+          <strong id="courier-fee-display">£12.00</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Total Import Duties, VAT & Fees Payable</span>
+          <strong id="total-import-tax-payable">£132.28</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="impuestos" />
+  </div>
+</div>
+
+<script>
+  function calculateImportTax() {
+    const goodsEl = document.getElementById('goods-invoice-value') as HTMLInputElement;
+    const shipEl = document.getElementById('shipping-insurance-cost') as HTMLInputElement;
+    const dutyRateEl = document.getElementById('customs-duty-rate-pct') as HTMLInputElement;
+    const vatRateEl = document.getElementById('import-vat-rate-select') as HTMLSelectElement;
+    const courierEl = document.getElementById('courier-clearance-fee') as HTMLInputElement;
+
+    if (!goodsEl || !shipEl || !dutyRateEl || !vatRateEl || !courierEl) return;
+
+    const goods = parseFloat(goodsEl.value) || 0;
+    const shipping = parseFloat(shipEl.value) || 0;
+    const dutyRate = (parseFloat(dutyRateEl.value) || 0) / 100;
+    const vatRate = (parseFloat(vatRateEl.value) || 20) / 100;
+    const courierFee = parseFloat(courierEl.value) || 0;
+
+    // UK Import Threshold Rules:
+    // Goods under £135: 0% Duty applies (VAT charged at POS or checkout).
+    const customsValuationBase = goods + shipping;
+    let dutyAmount = 0;
+
+    if (goods > 135) {
+      dutyAmount = customsValuationBase * dutyRate;
+    }
+
+    const vatBase = customsValuationBase + dutyAmount;
+    const vatAmount = vatBase * vatRate;
+    const totalTax = dutyAmount + vatAmount + courierFee;
+
+    const dutyResEl = document.getElementById('import-duty-amount');
+    const vatBaseEl = document.getElementById('vat-taxable-base');
+    const vatResEl = document.getElementById('import-vat-amount');
+    const courierResEl = document.getElementById('courier-fee-display');
+    const totalResEl = document.getElementById('total-import-tax-payable');
+
+    if (dutyResEl) dutyResEl.textContent = '£' + dutyAmount.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (vatBaseEl) vatBaseEl.textContent = '£' + vatBase.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (vatResEl) vatResEl.textContent = '£' + vatAmount.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (courierResEl) courierResEl.textContent = '£' + courierFee.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (totalResEl) totalResEl.textContent = '£' + totalTax.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['goods-invoice-value', 'shipping-insurance-cost', 'customs-duty-rate-pct', 'import-vat-rate-select', 'courier-clearance-fee'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateImportTax);
+    document.getElementById(id)?.addEventListener('change', calculateImportTax);
+  });
+  calculateImportTax();
+</script>

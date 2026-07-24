@@ -1,0 +1,164 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Statutory Redundancy Details'}</h2>
+
+      <!-- Age at Redundancy -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.ageLabel || 'Age at Redundancy Date'}</span>
+          <span class="hint" id="ageVal">45 Years Old</span>
+        </div>
+        <input type="range" min="18" max="68" step="1" value="45" id="ageSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>18 Years</span><span>68 Years</span></div>
+      </div>
+
+      <!-- Years of Service -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.serviceLabel || 'Complete Years of Continuous Service'}</span>
+          <span class="hint" id="serviceVal">10 Years</span>
+        </div>
+        <input type="range" min="2" max="20" step="1" value="10" id="serviceSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>2 Years (Min)</span><span>20 Years (Max Cap)</span></div>
+      </div>
+
+      <!-- Weekly Pay -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.weeklyPayLabel || 'Gross Weekly Pay (£)'}</span>
+          <span class="hint" id="weeklyPayVal">£750.00</span>
+        </div>
+        <div class="amount-field" style="margin-top: 0; margin-bottom: 0;">
+          <input type="text" value="750" id="weeklyPayInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="200" max="2000" step="25" value="750" id="weeklyPaySlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£200/wk</span><span>£2,000/wk</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--work-1), var(--work-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Total Statutory Redundancy Pay'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£10,500.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.capLabel || 'Statutory Weekly Pay Cap:'}</span>
+        <span class="val" id="subResultValue">£700.00/wk</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Redundancy Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Statutory Capped Weekly Pay (2026/27)</span>
+          <span class="val" id="cappedWeeklyDisplay">£700.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Calculated Weeks Multiplier</span>
+          <span class="val" id="weeksEntitlementDisplay">15.0 Weeks</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Tax-Free Statutory Redundancy Payout</span>
+          <span class="val" id="totalRedundancyDisplay" style="font-weight: 700; font-size: 18px;">£10,500.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • Under 22: <strong>0.5 week's pay</strong> / year<br/>
+        • Age 22–40: <strong>1 week's pay</strong> / year<br/>
+        • Age 41+: <strong>1.5 weeks' pay</strong> / year<br/>
+        • Maximum Service: <strong>20 years</strong><br/>
+        • Statutory Weekly Cap: <strong>£700/wk</strong><br/>
+        • Tax-Free Threshold: First <strong>£30,000</strong>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const ageSlider = document.getElementById('ageSlider') as HTMLInputElement;
+  const ageVal = document.getElementById('ageVal') as HTMLElement;
+  const serviceSlider = document.getElementById('serviceSlider') as HTMLInputElement;
+  const serviceVal = document.getElementById('serviceVal') as HTMLElement;
+  const weeklyPayInput = document.getElementById('weeklyPayInput') as HTMLInputElement;
+  const weeklyPaySlider = document.getElementById('weeklyPaySlider') as HTMLInputElement;
+  const weeklyPayVal = document.getElementById('weeklyPayVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const cappedWeeklyDisplay = document.getElementById('cappedWeeklyDisplay') as HTMLElement;
+  const weeksEntitlementDisplay = document.getElementById('weeksEntitlementDisplay') as HTMLElement;
+  const totalRedundancyDisplay = document.getElementById('totalRedundancyDisplay') as HTMLElement;
+
+  ageSlider.addEventListener('input', calculate);
+  serviceSlider.addEventListener('input', calculate);
+
+  weeklyPayInput.addEventListener('input', () => {
+    const val = parseInputVal(weeklyPayInput.value);
+    weeklyPaySlider.value = String(Math.min(2000, Math.max(200, val)));
+    calculate();
+  });
+
+  weeklyPaySlider.addEventListener('input', () => {
+    weeklyPayInput.value = weeklyPaySlider.value;
+    calculate();
+  });
+
+  function calculate() {
+    const age = parseInt(ageSlider.value, 10);
+    const service = parseInt(serviceSlider.value, 10);
+    const rawWeekly = parseInputVal(weeklyPayInput.value);
+
+    ageVal.textContent = `${age} Years Old`;
+    serviceVal.textContent = `${service} Years`;
+    weeklyPayVal.textContent = formatCurrency(rawWeekly);
+
+    const cappedWeekly = Math.min(700, rawWeekly);
+
+    let mult = 1.0;
+    if (age >= 41) mult = 1.5;
+    if (age < 22) mult = 0.5;
+
+    const totalWeeks = service * mult;
+    const totalPay = totalWeeks * cappedWeekly;
+
+    mainResultDisplay.textContent = formatCurrency(totalPay);
+    subResultValue.textContent = '£700.00 / wk';
+    cappedWeeklyDisplay.textContent = formatCurrency(cappedWeekly);
+    weeksEntitlementDisplay.textContent = `${totalWeeks.toFixed(1)} Weeks`;
+    totalRedundancyDisplay.textContent = formatCurrency(totalPay);
+  }
+
+  calculate();
+</script>

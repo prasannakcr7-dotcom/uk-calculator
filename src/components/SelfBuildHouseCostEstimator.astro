@@ -1,0 +1,180 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Self-Build House Size & Quality Details'}</h2>
+
+      <!-- Gross Internal Floor Area (sq m) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.areaLabel || 'Total Gross Internal Floor Area (GIA sq m)'}</span>
+          <span class="hint" id="areaVal">180 sq m (4-Bed Detached House)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="180" id="areaInput" inputmode="decimal" />
+          <span class="cur">sq m</span>
+        </div>
+        <input type="range" min="80" max="400" step="10" value="180" id="areaSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>80 sq m</span><span>400 sq m</span></div>
+      </div>
+
+      <!-- Construction Specification Quality -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.specLevelLabel || 'Build Specification & Finish Quality'}</span>
+          <span class="hint" id="specLevelVal">Standard Quality Specification (£1,800 / sq m)</span>
+        </div>
+        <select id="specSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="1500">Economy / Basic Builder Spec (£1,500 / sq m)</option>
+          <option value="1800" selected>Standard Quality Finish (£1,800 / sq m)</option>
+          <option value="2300">Premium / High Specification (£2,300 / sq m)</option>
+          <option value="3000">Luxury / Eco Passivhaus Spec (£3,000 / sq m)</option>
+        </select>
+      </div>
+
+      <!-- Self-Build Route / Procurement -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.procurementLabel || 'Self-Build Procurement & Project Management Route'}</span>
+          <span class="hint" id="procurementVal">Main Contractor / Turnkey (1.0x Base Rate)</span>
+        </div>
+        <select id="procurementSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="1.0" selected>Turnkey Main Contractor (1.0x Base Rate)</option>
+          <option value="0.85">Subcontractor Direct Management (-15% Savings)</option>
+          <option value="0.75">Self-Manager Hands-On Labor (-25% Maximum DIY Savings)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Total Self-Build House Construction Cost'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£324,000.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.vatReclaimLabel || 'Statutory DIY Self-Build VAT Reclaim:'}</span>
+        <span class="val" id="subResultValue">£38,880.00 Estimated VAT Reclaim (Zero-Rated New Build)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Self-Build Project Budget Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Substructure & Groundworks (Foundations)</span>
+          <span class="val" id="groundworkDisplay">£48,600.00 (15%)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Superstructure (Walls, Roof, Windows)</span>
+          <span class="val" id="superstructureDisplay">£129,600.00 (40%)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>First & Second Fix Plumbing, Electrics, Plaster</span>
+          <span class="val" id="fitoutDisplay">£97,200.00 (30%)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Finishes, Kitchen, Bathrooms & Decorating</span>
+          <span class="val" id="finishesDisplay">£48,600.00 (15%)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Self-Build Construction Cost</span>
+          <span class="val" id="totalSelfBuildDisplay" style="font-weight: 700; font-size: 18px;">£324,000.00 (£1,800 / sq m)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>HMRC DIY VAT Reclaim Scheme:</strong> Zero-rated VAT on building materials for self-builders.<br/>
+        • <strong>Self-Build Mortgage:</strong> Stage payment mortgages release funds at key build milestones.<br/>
+        • <strong>Community Infrastructure Levy (CIL):</strong> Self-builders exempt from CIL under Form 7 exemption.<br/>
+        • <strong>Building Regs Part L (2025/26):</strong> Requires low-carbon heating (heat pump) & high insulation.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const areaInput = document.getElementById('areaInput') as HTMLInputElement;
+  const areaSlider = document.getElementById('areaSlider') as HTMLInputElement;
+  const areaVal = document.getElementById('areaVal') as HTMLElement;
+  const specSelect = document.getElementById('specSelect') as HTMLSelectElement;
+  const procurementSelect = document.getElementById('procurementSelect') as HTMLSelectElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const groundworkDisplay = document.getElementById('groundworkDisplay') as HTMLElement;
+  const superstructureDisplay = document.getElementById('superstructureDisplay') as HTMLElement;
+  const fitoutDisplay = document.getElementById('fitoutDisplay') as HTMLElement;
+  const finishesDisplay = document.getElementById('finishesDisplay') as HTMLElement;
+  const totalSelfBuildDisplay = document.getElementById('totalSelfBuildDisplay') as HTMLElement;
+
+  function calculate() {
+    const areaSqm = parseInputVal(areaInput.value);
+    const baseRate = parseFloat(specSelect.value);
+    const routeFactor = parseFloat(procurementSelect.value);
+
+    const effectiveRatePerSqm = baseRate * routeFactor;
+    const totalBuildCost = areaSqm * effectiveRatePerSqm;
+
+    const groundwork = totalBuildCost * 0.15;
+    const superstructure = totalBuildCost * 0.40;
+    const fitout = totalBuildCost * 0.30;
+    const finishes = totalBuildCost * 0.15;
+
+    // DIY VAT Reclaim Scheme estimation (~12% of total build cost in VAT on materials)
+    const vatReclaim = totalBuildCost * 0.12;
+
+    areaVal.innerText = `${areaSqm.toFixed(0)} sq m`;
+
+    mainResultDisplay.innerText = formatCurrency(totalBuildCost);
+    subResultValue.innerText = `${formatCurrency(vatReclaim)} Estimated DIY VAT Reclaim (Zero-Rated New Build)`;
+
+    groundworkDisplay.innerText = formatCurrency(groundwork);
+    superstructureDisplay.innerText = formatCurrency(superstructure);
+    fitoutDisplay.innerText = formatCurrency(fitout);
+    finishesDisplay.innerText = formatCurrency(finishes);
+    totalSelfBuildDisplay.innerText = `${formatCurrency(totalBuildCost)} (${formatCurrency(effectiveRatePerSqm).slice(0, -3)} / sq m)`;
+  }
+
+  areaInput.addEventListener('input', () => {
+    const val = parseInputVal(areaInput.value);
+    areaSlider.value = String(val);
+    calculate();
+  });
+
+  areaSlider.addEventListener('input', () => {
+    areaInput.value = parseInt(areaSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  specSelect.addEventListener('change', calculate);
+  procurementSelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

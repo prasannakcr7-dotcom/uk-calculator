@@ -1,0 +1,107 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Personal Injury Claim Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Injury Category & Severity</span></div>
+        <select id="pi-injury-category-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="whiplash_moderate" selected>Moderate Whiplash / Neck Injury (£2,500 - £4,500 Guidelines)</option>
+          <option value="whiplash_minor">Minor Soft Tissue Whiplash (under 12 months - Tariff £1,200)</option>
+          <option value="fracture_leg">Leg / Ankle Fracture (£9,000 - £16,500)</option>
+          <option value="back_severe">Severe Back Injury (£16,000 - £38,000)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Special Damages Financial Losses (£ - Lost Earnings, Medical Expenses)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="pi-special-damages-cost" value="1200" min="0" step="100" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--work-1), var(--work-2) 80%);">
+      <div class="result-label">Estimated Total Compensation Award</div>
+      <div class="result-amount"><span id="mainResultDisplay">£4,700.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Judicial College General Damages:</span>
+        <span class="val" id="subResultValue">£3,500.00 (Pain & Suffering)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Compensation Settlement Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>General Damages (Pain, Suffering & Loss of Amenity)</span>
+          <span class="val" id="generalDamagesDisplay">£3,500.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Special Damages (Out of Pocket & Loss of Earnings)</span>
+          <span class="val" id="specialDamagesDisplay">£1,200.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Estimated Claim Value</span>
+          <span class="val" id="totalCompensationDisplay" style="font-weight: 700; font-size: 18px;">£4,700.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="trabajo" />
+  </div>
+</div>
+
+<script>
+  function calculatePiClaim() {
+    const categoryEl = document.getElementById('pi-injury-category-select') as HTMLSelectElement;
+    const specialEl = document.getElementById('pi-special-damages-cost') as HTMLInputElement;
+
+    if (!categoryEl || !specialEl) return;
+
+    const cat = categoryEl.value;
+    const special = parseFloat(specialEl.value) || 0;
+
+    let generalDamages = 3500; // Moderate whiplash
+    if (cat === 'whiplash_minor') generalDamages = 1200;
+    else if (cat === 'fracture_leg') generalDamages = 12500;
+    else if (cat === 'back_severe') generalDamages = 27000;
+
+    const totalClaim = generalDamages + special;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const genRes = document.getElementById('generalDamagesDisplay');
+    const specRes = document.getElementById('specialDamagesDisplay');
+    const totalRes = document.getElementById('totalCompensationDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + totalClaim.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = '£' + generalDamages.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' (Pain & Suffering)';
+    if (genRes) genRes.textContent = '£' + generalDamages.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (specRes) specRes.textContent = '£' + special.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (totalRes) totalRes.textContent = '£' + totalClaim.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['pi-injury-category-select', 'pi-special-damages-cost'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculatePiClaim);
+    document.getElementById(id)?.addEventListener('change', calculatePiClaim);
+  });
+  calculatePiClaim();
+</script>

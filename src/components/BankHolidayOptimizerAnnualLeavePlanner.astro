@@ -1,0 +1,96 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>UK Nation Jurisdiction</span></div>
+        <select id="bank-holiday-jurisdiction" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="england_wales" selected>England & Wales (8 Statutory Bank Holidays)</option>
+          <option value="scotland">Scotland (9 Statutory Bank Holidays)</option>
+          <option value="ni">Northern Ireland (10 Statutory Bank Holidays)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Target Annual Leave Maximiser Period</span></div>
+        <select id="target-holiday-period" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="easter" selected>Easter Period (Book 4 Days Off for 10 Consecutive Days Rest)</option>
+          <option value="may_bank_hols">May Bank Holidays (Book 4 Days Off for 9 Consecutive Days Rest)</option>
+          <option value="christmas">Christmas & New Year (Book 3 Days Off for 10 Consecutive Days Rest)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Annual Leave Optimization Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Annual Leave Days Required to Book</span>
+          <strong id="annual-leave-days-needed">4 Days Annual Leave</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Statutory Bank Holidays Included</span>
+          <strong id="bank-holidays-gained">2 Bank Holidays</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Total Consecutive Days Away from Work</span>
+          <strong id="total-consecutive-days-off">10 Consecutive Days Off</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="trabajo" />
+  </div>
+</div>
+
+<script>
+  function calculateBankHolidayOptimizer() {
+    const periodEl = document.getElementById('target-holiday-period') as HTMLSelectElement;
+    if (!periodEl) return;
+
+    const period = periodEl.value;
+
+    let daysNeeded = 4;
+    let bankHolsGained = 2;
+    let totalOff = 10;
+
+    if (period === 'may_bank_hols') {
+      daysNeeded = 4;
+      bankHolsGained = 1;
+      totalOff = 9;
+    } else if (period === 'christmas') {
+      daysNeeded = 3;
+      bankHolsGained = 3;
+      totalOff = 10;
+    }
+
+    const neededResEl = document.getElementById('annual-leave-days-needed');
+    const bankResEl = document.getElementById('bank-holidays-gained');
+    const totalResEl = document.getElementById('total-consecutive-days-off');
+
+    if (neededResEl) neededResEl.textContent = `${daysNeeded} Days Annual Leave`;
+    if (bankResEl) bankResEl.textContent = `${bankHolsGained} Bank Holidays`;
+    if (totalResEl) totalResEl.textContent = `${totalOff} Consecutive Days Off`;
+  }
+
+  ['bank-holiday-jurisdiction', 'target-holiday-period'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateBankHolidayOptimizer);
+    document.getElementById(id)?.addEventListener('change', calculateBankHolidayOptimizer);
+  });
+  calculateBankHolidayOptimizer();
+</script>

@@ -1,0 +1,199 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Claim Value & Court Procedure Details'}</h2>
+
+      <!-- Money Claim Value Amount (£) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.claimValueLabel || 'Total Money Claim Amount (£)'}</span>
+          <span class="hint" id="claimValueVal">£3,500 Claim Amount</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="3,500" id="claimValueInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="100" max="250000" step="500" value="3500" id="claimValueSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£100</span><span>£250,000</span></div>
+      </div>
+
+      <!-- Application Method (Online MCOL vs Paper Issue) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.filingMethodLabel || 'Court Filing Method (Money Claim Online MCOL vs Paper)'}</span>
+          <span class="hint" id="filingMethodVal">Money Claim Online MCOL (Discounted Court Fee)</span>
+        </div>
+        <select id="filingSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="MCOL" selected>Money Claim Online MCOL (Discounted Online Filing)</option>
+          <option value="PAPER">Paper County Court Form N1 Issue (Standard Paper Fee)</option>
+        </select>
+      </div>
+
+      <!-- Hearing Fee Inclusion -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.hearingFeeLabel || 'Include Court Hearing Fee (If Claim Proceeds to Trial)'}</span>
+          <span class="hint" id="hearingFeeVal">Include Hearing Fee (£181 for £3.5k claim)</span>
+        </div>
+        <select id="hearingSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="YES" selected>Include Small Claims Hearing / Trial Fee</option>
+          <option value="NO">Issue Fee Only (Exclude Hearing Fee)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--social-1), var(--social-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Total Statutory Court Fee Payable'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£386.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.trackSplitLabel || 'Court Track Allocation & Fee Split:'}</span>
+        <span class="val" id="subResultValue">Small Claims Track (Under £10k): £205 MCOL Issue + £181 Hearing Fee</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Court Fee Financial Breakdown (EX50 Rates)'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Court Allocation Track</span>
+          <span class="val" id="trackDisplay">Small Claims Track (Up to £10,000)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Court Claim Issue Fee (MCOL Discounted)</span>
+          <span class="val" id="issueFeeDisplay">£205.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Small Claims Court Hearing Fee</span>
+          <span class="val" id="hearingFeeDisplay">£181.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Statutory HMCTS Court Fees Payable</span>
+          <span class="val" id="totalCourtFeeDisplay" style="font-weight: 700; font-size: 18px;">£386.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Small Claims Track:</strong> Money claims up to £10,000 (informal, low legal costs).<br/>
+        • <strong>Fast Track (£10k - £25k):</strong> Fixed costs regime; cases listed within 30 weeks.<br/>
+        • <strong>Multi-Track (> £25,000):</strong> High value, complex claims in County Court or High Court.<br/>
+        • <strong>Help with Fees (EX160):</strong> 100% court fee exemption for low income claimants.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const claimValueInput = document.getElementById('claimValueInput') as HTMLInputElement;
+  const claimValueSlider = document.getElementById('claimValueSlider') as HTMLInputElement;
+  const claimValueVal = document.getElementById('claimValueVal') as HTMLElement;
+
+  const filingSelect = document.getElementById('filingSelect') as HTMLSelectElement;
+  const hearingSelect = document.getElementById('hearingSelect') as HTMLSelectElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const trackDisplay = document.getElementById('trackDisplay') as HTMLElement;
+  const issueFeeDisplay = document.getElementById('issueFeeDisplay') as HTMLElement;
+  const hearingFeeDisplay = document.getElementById('hearingFeeDisplay') as HTMLElement;
+  const totalCourtFeeDisplay = document.getElementById('totalCourtFeeDisplay') as HTMLElement;
+
+  function calculate() {
+    const claimVal = parseInputVal(claimValueInput.value);
+    const isMcol = filingSelect.value === 'MCOL';
+    const includeHearing = hearingSelect.value === 'YES';
+
+    let track = 'Small Claims Track (Up to £10,000)';
+    if (claimVal > 10000 && claimVal <= 25000) track = 'Fast Track (£10,000 to £25,000)';
+    if (claimVal > 25000) track = 'Multi-Track / High Court (Over £25,000)';
+
+    let issueFee = 35;
+    let hearingFee = 27;
+
+    // Official EX50 HMCTS Court Fee Table
+    if (claimVal <= 300) {
+      issueFee = isMcol ? 35 : 35;
+      hearingFee = 27;
+    } else if (claimVal <= 500) {
+      issueFee = isMcol ? 35 : 50;
+      hearingFee = 55;
+    } else if (claimVal <= 1000) {
+      issueFee = isMcol ? 60 : 70;
+      hearingFee = 85;
+    } else if (claimVal <= 1500) {
+      issueFee = isMcol ? 70 : 80;
+      hearingFee = 123;
+    } else if (claimVal <= 3000) {
+      issueFee = isMcol ? 105 : 115;
+      hearingFee = 181;
+    } else if (claimVal <= 5000) {
+      issueFee = isMcol ? 185 : 205;
+      hearingFee = 355;
+    } else if (claimVal <= 10000) {
+      issueFee = isMcol ? 410 : 455;
+      hearingFee = 355;
+    } else {
+      // Over £10,000: 5% of claim value (capped at £10,000 max fee)
+      issueFee = Math.min(10000, claimVal * 0.05);
+      hearingFee = claimVal <= 25000 ? 545 : 1090;
+    }
+
+    const actualHearingFee = includeHearing ? hearingFee : 0;
+    const totalCost = issueFee + actualHearingFee;
+
+    claimValueVal.innerText = formatCurrency(claimVal).slice(0, -3);
+
+    mainResultDisplay.innerText = formatCurrency(totalCost);
+    subResultValue.innerText = `${track}: ${formatCurrency(issueFee)} Issue Fee + ${formatCurrency(actualHearingFee)} Hearing Fee`;
+
+    trackDisplay.innerText = track;
+    issueFeeDisplay.innerText = `${formatCurrency(issueFee)} (${isMcol ? 'MCOL Online' : 'Paper Form N1'})`;
+    hearingFeeDisplay.innerText = includeHearing ? formatCurrency(actualHearingFee) : '£0.00 (Excluded)';
+    totalCourtFeeDisplay.innerText = formatCurrency(totalCost);
+  }
+
+  claimValueInput.addEventListener('input', () => {
+    const val = parseInputVal(claimValueInput.value);
+    claimValueSlider.value = String(val);
+    calculate();
+  });
+
+  claimValueSlider.addEventListener('input', () => {
+    claimValueInput.value = parseInt(claimValueSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  filingSelect.addEventListener('change', calculate);
+  hearingSelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

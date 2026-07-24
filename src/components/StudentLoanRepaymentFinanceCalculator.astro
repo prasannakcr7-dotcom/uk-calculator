@@ -1,0 +1,160 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Student Loan Plan & Income Details'}</h2>
+
+      <!-- Salary / Earnings -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.salaryLabel || 'Gross Annual Salary (£)'}</span>
+          <span class="hint" id="salaryVal">£38,000</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="38,000" id="salaryInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="15000" max="150000" step="1000" value="38000" id="salarySlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£15,000</span><span>£150,000</span></div>
+      </div>
+
+      <!-- Student Loan Plan Selection -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.planLabel || 'Student Loan Plan Type'}</span>
+          <span class="hint" id="planVal">Plan 2 (Threshold: £27,295)</span>
+        </div>
+        <select id="planSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="PLAN_1">Plan 1 (Pre-2012 / NI & Scotland — £24,990 Threshold)</option>
+          <option value="PLAN_2" selected>Plan 2 (2012–2023 Eng/Wales — £27,295 Threshold)</option>
+          <option value="PLAN_5">Plan 5 (Post-2023 England — £25,000 Threshold)</option>
+          <option value="POSTGRAD">Postgraduate Loan (6% — £21,000 Threshold)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--social-1), var(--social-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Monthly Student Loan Repayment'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£80.28/mo</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.annualDeductionLabel || 'Annual Student Loan Deductions:'}</span>
+        <span class="val" id="subResultValue">£963.45/yr Deducted</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Student Loan Deduction Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Annual Earnings</span>
+          <span class="val" id="salaryDisplay">£38,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Statutory Repayment Threshold</span>
+          <span class="val" id="thresholdDisplay">£27,295.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Earnings Subject to 9% Repayment</span>
+          <span class="val" id="taxableEarningsDisplay">£10,705.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Monthly PAYE Deduction</span>
+          <span class="val" id="netMonthlyDisplay" style="font-weight: 700; font-size: 18px;">£80.28</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>9% Rate:</strong> Repay 9% of income above plan threshold (Plan 1, 2, 5).<br/>
+        • <strong>6% Postgrad Rate:</strong> Repay 6% of income above £21,000.<br/>
+        • <strong>Plan 1 Threshold:</strong> £24,990 per year.<br/>
+        • <strong>Plan 2 Threshold:</strong> £27,295 per year.<br/>
+        • <strong>Plan 5 Threshold:</strong> £25,000 per year (30-yr / 40-yr cancellation).
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const salaryInput = document.getElementById('salaryInput') as HTMLInputElement;
+  const salarySlider = document.getElementById('salarySlider') as HTMLInputElement;
+  const salaryVal = document.getElementById('salaryVal') as HTMLElement;
+  const planSelect = document.getElementById('planSelect') as HTMLSelectElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const salaryDisplay = document.getElementById('salaryDisplay') as HTMLElement;
+  const thresholdDisplay = document.getElementById('thresholdDisplay') as HTMLElement;
+  const taxableEarningsDisplay = document.getElementById('taxableEarningsDisplay') as HTMLElement;
+  const netMonthlyDisplay = document.getElementById('netMonthlyDisplay') as HTMLElement;
+
+  const plans: Record<string, { threshold: number; rate: number; name: string }> = {
+    PLAN_1: { threshold: 24990, rate: 0.09, name: 'Plan 1 (£24,990)' },
+    PLAN_2: { threshold: 27295, rate: 0.09, name: 'Plan 2 (£27,295)' },
+    PLAN_5: { threshold: 25000, rate: 0.09, name: 'Plan 5 (£25,000)' },
+    POSTGRAD: { threshold: 21000, rate: 0.06, name: 'Postgraduate (£21,000)' }
+  };
+
+  function calculate() {
+    const salary = parseInputVal(salaryInput.value);
+    const planKey = planSelect.value;
+    const plan = plans[planKey] || plans['PLAN_2'];
+
+    const excess = Math.max(0, salary - plan.threshold);
+    const annualDeduction = excess * plan.rate;
+    const monthlyDeduction = annualDeduction / 12;
+
+    salaryVal.innerText = formatCurrency(salary).slice(0, -3);
+
+    mainResultDisplay.innerText = `${formatCurrency(monthlyDeduction)}/mo`;
+    subResultValue.innerText = `${formatCurrency(annualDeduction)}/yr Deducted`;
+
+    salaryDisplay.innerText = formatCurrency(salary);
+    thresholdDisplay.innerText = formatCurrency(plan.threshold);
+    taxableEarningsDisplay.innerText = formatCurrency(excess);
+    netMonthlyDisplay.innerText = formatCurrency(monthlyDeduction);
+  }
+
+  salaryInput.addEventListener('input', () => {
+    const val = parseInputVal(salaryInput.value);
+    salarySlider.value = String(val);
+    calculate();
+  });
+
+  salarySlider.addEventListener('input', () => {
+    salaryInput.value = parseInt(salarySlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  planSelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

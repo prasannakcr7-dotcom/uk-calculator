@@ -1,0 +1,163 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Margin Scheme Trade Details'}</h2>
+
+      <!-- Selling Price -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.sellingPriceLabel || 'Item Selling Price (£)'}</span>
+          <span class="hint" id="sellingPriceVal">£8,000</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="8,000" id="sellingPriceInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="0" max="50000" step="500" value="8000" id="sellingPriceSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£0</span><span>£50,000</span></div>
+      </div>
+
+      <!-- Purchase Price -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.purchasePriceLabel || 'Item Purchase Cost Price (£)'}</span>
+          <span class="hint" id="purchasePriceVal">£5,000</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="5,000" id="purchasePriceInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="0" max="50000" step="500" value="5000" id="purchasePriceSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£0</span><span>£50,000</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Margin Scheme VAT Due (16.67% of Gross Margin)'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£500.00 VAT</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.netMarginLabel || 'Net Profit Margin After Margin VAT:'}</span>
+        <span class="val" id="subResultValue">£2,500.00 Net Profit</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Margin Scheme VAT Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Resale Margin (Selling - Purchase)</span>
+          <span class="val" id="grossMarginDisplay">£3,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>VAT Rate Fraction Applied (1/6th — 16.67%)</span>
+          <span class="val" id="vatRateFractionDisplay">16.67% of Gross Margin</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Margin Scheme VAT Payable to HMRC</span>
+          <span class="val" id="marginVatDisplay">£500.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Profit Retained by Trader</span>
+          <span class="val" id="netProfitDisplay" style="font-weight: 700; font-size: 18px;">£2,500.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Eligible Goods:</strong> Second-hand goods, antiques, artwork, collectors' items.<br/>
+        • <strong>VAT Fraction:</strong> 1/6th (16.67%) applied to gross profit margin.<br/>
+        • <strong>Zero Margin Rule:</strong> If sold at a loss or zero profit, £0.00 VAT is due.<br/>
+        • <strong>Loss Offset Prohibition:</strong> Losses on one item CANNOT offset margins on another.<br/>
+        • <strong>Invoice Requirement:</strong> Must NOT show VAT separately on customer invoices.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const sellingPriceInput = document.getElementById('sellingPriceInput') as HTMLInputElement;
+  const sellingPriceSlider = document.getElementById('sellingPriceSlider') as HTMLInputElement;
+  const sellingPriceVal = document.getElementById('sellingPriceVal') as HTMLElement;
+  const purchasePriceInput = document.getElementById('purchasePriceInput') as HTMLInputElement;
+  const purchasePriceSlider = document.getElementById('purchasePriceSlider') as HTMLInputElement;
+  const purchasePriceVal = document.getElementById('purchasePriceVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const grossMarginDisplay = document.getElementById('grossMarginDisplay') as HTMLElement;
+  const marginVatDisplay = document.getElementById('marginVatDisplay') as HTMLElement;
+  const netProfitDisplay = document.getElementById('netProfitDisplay') as HTMLElement;
+
+  function calculate() {
+    const selling = parseInputVal(sellingPriceInput.value);
+    const purchase = parseInputVal(purchasePriceInput.value);
+
+    const grossMargin = Math.max(0, selling - purchase);
+    // VAT fraction for 20% standard rate is 1/6 (16.67%)
+    const marginVat = grossMargin * (1 / 6);
+    const netProfit = grossMargin - marginVat;
+
+    sellingPriceVal.innerText = formatCurrency(selling).slice(0, -3);
+    purchasePriceVal.innerText = formatCurrency(purchase).slice(0, -3);
+
+    mainResultDisplay.innerText = `${formatCurrency(marginVat)} VAT`;
+    subResultValue.innerText = `${formatCurrency(netProfit)} Net Profit`;
+
+    grossMarginDisplay.innerText = formatCurrency(grossMargin);
+    marginVatDisplay.innerText = formatCurrency(marginVat);
+    netProfitDisplay.innerText = formatCurrency(netProfit);
+  }
+
+  sellingPriceInput.addEventListener('input', () => {
+    const val = parseInputVal(sellingPriceInput.value);
+    sellingPriceSlider.value = String(val);
+    calculate();
+  });
+
+  sellingPriceSlider.addEventListener('input', () => {
+    sellingPriceInput.value = parseInt(sellingPriceSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  purchasePriceInput.addEventListener('input', () => {
+    const val = parseInputVal(purchasePriceInput.value);
+    purchasePriceSlider.value = String(val);
+    calculate();
+  });
+
+  purchasePriceSlider.addEventListener('input', () => {
+    purchasePriceInput.value = parseInt(purchasePriceSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  calculate();
+</script>

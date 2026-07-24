@@ -1,0 +1,146 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout health-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Biological Gender</span></div>
+        <select id="gender-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="male" selected>Male</option>
+          <option value="female">Female</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Age (Years)</span></div>
+        <div class="amount-field">
+          <input type="number" id="person-age-years" value="30" min="15" max="100" step="1" />
+          <span class="cur">yrs</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Height (Centimetres - cm)</span></div>
+        <div class="amount-field">
+          <input type="number" id="person-height-cm" value="175" min="100" max="230" step="1" />
+          <span class="cur">cm</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Weight (Kilograms - kg)</span></div>
+        <div class="amount-field">
+          <input type="number" id="person-weight-kg" value="75" min="30" max="250" step="0.5" />
+          <span class="cur">kg</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Daily Physical Activity Level</span></div>
+        <select id="activity-level-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="1.2">Sedentary (Little or no exercise, desk job)</option>
+          <option value="1.375" selected>Lightly Active (Light exercise 1-3 days/week)</option>
+          <option value="1.55">Moderately Active (Moderate exercise 3-5 days/week)</option>
+          <option value="1.725">Very Active (Hard exercise 6-7 days/week)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Health Metrics Breakdown</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Body Mass Index (BMI)</span>
+          <strong id="bmi-val-display">24.5 kg/m²</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>NHS BMI Category</span>
+          <strong id="bmi-category-display">Normal Weight</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Basal Metabolic Rate (BMR)</span>
+          <strong id="bmr-val-display">1,694 kcal / day</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Weight Loss Target (-500 kcal/day)</span>
+          <strong id="weight-loss-calorie-target">1,829 kcal / day</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Maintenance Calories (TDEE)</span>
+          <strong id="tdee-val-display">2,329 kcal / day</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="salud" />
+  </div>
+</div>
+
+<script>
+  function calculateBmiBmr() {
+    const genderEl = document.getElementById('gender-select') as HTMLSelectElement;
+    const ageEl = document.getElementById('person-age-years') as HTMLInputElement;
+    const heightEl = document.getElementById('person-height-cm') as HTMLInputElement;
+    const weightEl = document.getElementById('person-weight-kg') as HTMLInputElement;
+    const actEl = document.getElementById('activity-level-select') as HTMLSelectElement;
+
+    if (!genderEl || !ageEl || !heightEl || !weightEl || !actEl) return;
+
+    const gender = genderEl.value;
+    const age = parseInt(ageEl.value) || 30;
+    const heightCm = parseFloat(heightEl.value) || 175;
+    const weightKg = parseFloat(weightEl.value) || 75;
+    const actMult = parseFloat(actEl.value) || 1.375;
+
+    const heightM = heightCm / 100;
+    const bmi = heightM > 0 ? weightKg / (heightM * heightM) : 0;
+
+    let bmiCat = '';
+    if (bmi < 18.5) bmiCat = 'Underweight (BMI < 18.5)';
+    else if (bmi < 25.0) bmiCat = 'Normal Weight (BMI 18.5 - 24.9)';
+    else if (bmi < 30.0) bmiCat = 'Overweight (BMI 25.0 - 29.9)';
+    else bmiCat = 'Obese (BMI 30.0+)';
+
+    let bmr = (10 * weightKg) + (6.25 * heightCm) - (5 * age);
+    if (gender === 'male') {
+      bmr += 5;
+    } else {
+      bmr -= 161;
+    }
+
+    const tdee = bmr * actMult;
+    const weightLossTarget = Math.max(1200, tdee - 500);
+
+    const bmiEl = document.getElementById('bmi-val-display');
+    const catEl = document.getElementById('bmi-category-display');
+    const bmrEl = document.getElementById('bmr-val-display');
+    const tdeeEl = document.getElementById('tdee-val-display');
+    const lossEl = document.getElementById('weight-loss-calorie-target');
+
+    if (bmiEl) bmiEl.textContent = bmi.toFixed(1) + ' kg/m²';
+    if (catEl) catEl.textContent = bmiCat;
+    if (bmrEl) bmrEl.textContent = Math.round(bmr).toLocaleString('en-GB') + ' kcal / day';
+    if (tdeeEl) tdeeEl.textContent = Math.round(tdee).toLocaleString('en-GB') + ' kcal / day';
+    if (lossEl) lossEl.textContent = Math.round(weightLossTarget).toLocaleString('en-GB') + ' kcal / day';
+  }
+
+  ['gender-select', 'person-age-years', 'person-height-cm', 'person-weight-kg', 'activity-level-select'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateBmiBmr);
+    document.getElementById(id)?.addEventListener('change', calculateBmiBmr);
+  });
+  calculateBmiBmr();
+</script>

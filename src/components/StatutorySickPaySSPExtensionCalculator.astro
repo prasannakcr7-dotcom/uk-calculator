@@ -1,0 +1,139 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Statutory Sick Pay Details'}</h2>
+
+      <!-- Weeks Off Work -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.weeksLabel || 'Number of Weeks Off Work Due to Sickness'}</span>
+          <span class="hint" id="weeksVal">8 Weeks</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="8" id="weeksInput" inputmode="decimal" />
+          <span class="cur">Wks</span>
+        </div>
+        <input type="range" min="1" max="36" step="1" value="8" id="weeksSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1 Week</span><span>36 Weeks (28-Wk Cap)</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--social-1), var(--social-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Total Statutory Sick Pay (SSP) Paid'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£934.00 Total</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.weeklyRateLabel || 'Statutory SSP Weekly Rate (2026/27):'}</span>
+        <span class="val" id="subResultValue">£116.75 / week</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'SSP Entitlement Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Statutory Weekly SSP Rate</span>
+          <span class="val">£116.75 / week</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Eligible SSP Weeks Paid (Max 28 Weeks)</span>
+          <span class="val" id="weeksPaidDisplay">8 Weeks</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Remaining Statutory SSP Weeks</span>
+          <span class="val" id="weeksRemainingDisplay">20 Weeks Remaining</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Statutory Sick Pay Received</span>
+          <span class="val" id="netSspDisplay" style="font-weight: 700; font-size: 18px;">£934.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Statutory SSP Rate:</strong> £116.75 per week.<br/>
+        • <strong>Maximum Duration:</strong> Paid for up to 28 weeks.<br/>
+        • <strong>Waiting Days:</strong> Paid from 4th qualifying day of sickness.<br/>
+        • <strong>Lower Earnings Limit:</strong> Average earnings must be £123+/wk.<br/>
+        • <strong>Form SSP1:</strong> Issued by employer when 28-week SSP cap is reached.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const weeksInput = document.getElementById('weeksInput') as HTMLInputElement;
+  const weeksSlider = document.getElementById('weeksSlider') as HTMLInputElement;
+  const weeksVal = document.getElementById('weeksVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const weeksPaidDisplay = document.getElementById('weeksPaidDisplay') as HTMLElement;
+  const weeksRemainingDisplay = document.getElementById('weeksRemainingDisplay') as HTMLElement;
+  const netSspDisplay = document.getElementById('netSspDisplay') as HTMLElement;
+
+  const SSP_WEEKLY_RATE = 116.75;
+  const MAX_SSP_WEEKS = 28;
+
+  function calculate() {
+    const totalWeeksOff = parseInputVal(weeksInput.value);
+
+    const paidWeeks = Math.min(MAX_SSP_WEEKS, totalWeeksOff);
+    const totalSsp = paidWeeks * SSP_WEEKLY_RATE;
+    const remainingWeeks = Math.max(0, MAX_SSP_WEEKS - totalWeeksOff);
+
+    weeksVal.innerText = `${totalWeeksOff} Week${totalWeeksOff === 1 ? '' : 's'}`;
+
+    mainResultDisplay.innerText = formatCurrency(totalSsp);
+    if (totalWeeksOff > MAX_SSP_WEEKS) {
+      subResultValue.innerText = 'Form SSP1 Required (Transition to ESA)';
+    } else {
+      subResultValue.innerText = `£116.75/wk (${remainingWeeks} Wks Remaining)`;
+    }
+
+    weeksPaidDisplay.innerText = `${paidWeeks} Weeks`;
+    weeksRemainingDisplay.innerText = remainingWeeks > 0 ? `${remainingWeeks} Weeks` : '0 Weeks (Cap Reached)';
+    netSspDisplay.innerText = formatCurrency(totalSsp);
+  }
+
+  weeksInput.addEventListener('input', () => {
+    const val = parseInputVal(weeksInput.value);
+    weeksSlider.value = String(val);
+    calculate();
+  });
+
+  weeksSlider.addEventListener('input', () => {
+    weeksInput.value = String(parseInt(weeksSlider.value, 10));
+    calculate();
+  });
+
+  calculate();
+</script>

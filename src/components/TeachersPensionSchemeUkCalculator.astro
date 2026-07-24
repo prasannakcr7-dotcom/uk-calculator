@@ -1,0 +1,99 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Gross Annual Teacher Salary (£)</span></div>
+      <div class="amount-field"><input type="number" id="tps-gross-annual-salary" value="41500" min="20000" step="1000" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Projected Years of Teaching Service</span></div>
+      <div class="amount-field"><input type="number" id="tps-teaching-years-service" value="25" min="1" max="45" step="1" /></div>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <div class="breakdown-row net">
+        <span>Estimated Annual Guaranteed Pension:</span>
+        <strong id="tps-annual-pension-accrued">£0.00 / year</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Member Contribution Rate & Cost:</span>
+        <strong id="tps-member-contrib-cost">0.00% (£0.00 / month)</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Employer Contribution Contribution (28.68% Rate):</span>
+        <strong id="tps-employer-contrib-val">£0.00 / year</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Single Year Accrual (1/57th Rate):</span>
+        <strong id="tps-single-year-accrual">£0.00 / year</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculateTps() {
+    const salary = parseFloat((document.getElementById('tps-gross-annual-salary') as HTMLInputElement).value) || 0;
+    const years = parseInt((document.getElementById('tps-teaching-years-service') as HTMLInputElement).value) || 0;
+
+    // TPS CARE Rules 2026/27:
+    // Accrual Rate: 1/57th (1.754%) of gross pensionable pay per year.
+    // Revalued annually by CPI + 1.6%.
+    // Employer contribution rate: 28.68% (updated April 2024 / active in 2026/27).
+    // Member Tiered Contribution Rates:
+    // £0 - £32,135: 7.4%
+    // £32,136 - £43,259: 8.6%
+    // £43,260 - £51,292: 9.6%
+    // £51,293 - £67,979: 10.2%
+    // £67,980 - £92,697: 11.3%
+    // Over £92,697: 11.7%
+
+    let memberRate = 0.074;
+    if (salary > 92697) memberRate = 0.117;
+    else if (salary > 67979) memberRate = 0.113;
+    else if (salary > 51292) memberRate = 0.102;
+    else if (salary > 43259) memberRate = 0.096;
+    else if (salary > 32135) memberRate = 0.086;
+
+    const memberAnnualCost = salary * memberRate;
+    const memberMonthlyCost = memberAnnualCost / 12;
+
+    const employerRate = 0.2868;
+    const employerAnnualVal = salary * employerRate;
+
+    const singleYearAccrual = salary * (1 / 57);
+    const totalAnnualPension = singleYearAccrual * years;
+
+    (document.getElementById('tps-annual-pension-accrued') as HTMLElement).textContent = '£' + totalAnnualPension.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    (document.getElementById('tps-member-contrib-cost') as HTMLElement).textContent = (memberRate * 100).toFixed(1) + '% (£' + memberMonthlyCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month)';
+    (document.getElementById('tps-employer-contrib-val') as HTMLElement).textContent = '£' + employerAnnualVal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year (28.68% rate)';
+    (document.getElementById('tps-single-year-accrual') as HTMLElement).textContent = '£' + singleYearAccrual.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateTps);
+  calculateTps();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

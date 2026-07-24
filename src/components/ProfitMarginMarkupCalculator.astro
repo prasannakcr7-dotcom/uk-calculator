@@ -1,0 +1,108 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout finance-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Cost & Selling Price Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Unit Cost Price (£ ex-VAT)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="margin-cost-price" value="50.00" min="0.01" step="5" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Selling Retail Price (£ ex-VAT)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="margin-selling-price" value="80.00" min="0.01" step="5" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--finance-1), var(--finance-2) 80%);">
+      <div class="result-label">Gross Profit Margin Percentage</div>
+      <div class="result-amount"><span id="mainResultDisplay">37.50% Margin</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Markup Percentage Equivalent:</span>
+        <span class="val" id="subResultValue">60.00% Markup</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Margin & Markup Financial Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Profit Cash Per Unit</span>
+          <span class="val" id="grossProfitPerUnitDisplay">£30.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Profit Margin (% of Selling Price)</span>
+          <span class="val" id="profitMarginPctDisplay">37.50%</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Cost Markup (% over Cost Price)</span>
+          <span class="val" id="costMarkupPctDisplay">60.00%</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Final Unit Selling Price</span>
+          <span class="val" id="finalSellingPriceDisplay" style="font-weight: 700; font-size: 18px;">£80.00 (Profit: £30.00)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="finanzas" />
+  </div>
+</div>
+
+<script>
+  function calculateMarginMarkup() {
+    const costEl = document.getElementById('margin-cost-price') as HTMLInputElement;
+    const sellEl = document.getElementById('margin-selling-price') as HTMLInputElement;
+
+    if (!costEl || !sellEl) return;
+
+    const cost = parseFloat(costEl.value) || 0;
+    const sell = parseFloat(sellEl.value) || 0;
+
+    const profit = sell - cost;
+    const marginPct = sell > 0 ? (profit / sell) * 100 : 0;
+    const markupPct = cost > 0 ? (profit / cost) * 100 : 0;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const profitRes = document.getElementById('grossProfitPerUnitDisplay');
+    const marginRes = document.getElementById('profitMarginPctDisplay');
+    const markupRes = document.getElementById('costMarkupPctDisplay');
+    const sellRes = document.getElementById('finalSellingPriceDisplay');
+
+    if (mainRes) mainRes.textContent = marginPct.toFixed(2) + '% Margin';
+    if (subVal) subVal.textContent = markupPct.toFixed(2) + '% Markup';
+    if (profitRes) profitRes.textContent = '£' + profit.toFixed(2);
+    if (marginRes) marginRes.textContent = marginPct.toFixed(2) + '%';
+    if (markupRes) markupRes.textContent = markupPct.toFixed(2) + '%';
+    if (sellRes) sellRes.textContent = '£' + sell.toFixed(2) + ` (Profit: £${profit.toFixed(2)})`;
+  }
+
+  ['margin-cost-price', 'margin-selling-price'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateMarginMarkup);
+    document.getElementById(id)?.addEventListener('change', calculateMarginMarkup);
+  });
+  calculateMarginMarkup();
+</script>

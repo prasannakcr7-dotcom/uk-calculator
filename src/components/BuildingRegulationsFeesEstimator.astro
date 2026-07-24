@@ -1,0 +1,126 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Building Regulations Project Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Project Type / Scope</span></div>
+        <select id="building-proj-type" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="extension" selected>Home Extension / Garage Conversion</option>
+          <option value="loft">Loft Conversion / Structural Alterations</option>
+          <option value="new_build">New Build Single Dwelling</option>
+          <option value="internal">Internal Structural Work / Chimney Removal</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Estimated Construction Cost (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="building-const-cost" value="35000" min="5000" step="5000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Application Route</span></div>
+        <select id="building-app-route" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="full_plans" selected>Full Plans Application (Plan Charge + Inspection Charge)</option>
+          <option value="building_notice">Building Notice (Single Combined Charge)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Total Building Control Fee Payable</div>
+      <div class="result-amount"><span id="mainResultDisplay">£720.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Plan Submission Charge:</span>
+        <span class="val" id="subResultValue">£240.00</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Building Control Fee Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Plan Examination Charge</span>
+          <span class="val" id="planExamFeeDisplay">£240.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Site Inspection Charge</span>
+          <span class="val" id="siteInspectionFeeDisplay">£480.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Standard VAT Share (20%)</span>
+          <span class="val" id="vatShareDisplay">£120.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Building Control Fee Payable</span>
+          <span class="val" id="totalFeeDisplay" style="font-weight: 700; font-size: 18px;">£720.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateBuildingRegs() {
+    const typeEl = document.getElementById('building-proj-type') as HTMLSelectElement;
+    const costEl = document.getElementById('building-const-cost') as HTMLInputElement;
+    const routeEl = document.getElementById('building-app-route') as HTMLSelectElement;
+
+    if (!typeEl || !costEl || !routeEl) return;
+
+    const projType = typeEl.value;
+    const constCost = parseFloat(costEl.value) || 0;
+    const isFullPlans = routeEl.value === 'full_plans';
+
+    let baseFee = 600;
+    if (constCost > 50000) baseFee = 850;
+    if (constCost > 100000) baseFee = 1200;
+
+    let planFee = isFullPlans ? baseFee * 0.33 : 0;
+    let inspFee = isFullPlans ? baseFee * 0.67 : baseFee;
+    let totalExVat = baseFee;
+    let vat = totalExVat * 0.20;
+    let totalIncVat = totalExVat + vat;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const planRes = document.getElementById('planExamFeeDisplay');
+    const inspRes = document.getElementById('siteInspectionFeeDisplay');
+    const vatRes = document.getElementById('vatShareDisplay');
+    const totalRes = document.getElementById('totalFeeDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + totalIncVat.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = '£' + (planFee * 1.2).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (planRes) planRes.textContent = '£' + (planFee * 1.2).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (inspRes) inspRes.textContent = '£' + (inspFee * 1.2).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (vatRes) vatRes.textContent = '£' + vat.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (totalRes) totalRes.textContent = '£' + totalIncVat.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['building-proj-type', 'building-const-cost', 'building-app-route'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateBuildingRegs);
+    document.getElementById(id)?.addEventListener('change', calculateBuildingRegs);
+  });
+  calculateBuildingRegs();
+</script>

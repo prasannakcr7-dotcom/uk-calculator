@@ -1,0 +1,87 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Starting Capital Invested (£)</span></div>
+      <div class="amount-field"><input type="number" id="capital-outlay-start" value="15000" min="1" step="500" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Final Value / Returned Capital (£)</span></div>
+      <div class="amount-field"><input type="number" id="capital-returned-end" value="22500" min="0" step="500" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Holding Period (Years)</span></div>
+      <div class="amount-field"><input type="number" id="holding-duration-years" value="4" min="0.1" max="50" step="0.5" /></div>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <h3>Return Metrics Breakdown</h3>
+      <div class="breakdown-row net">
+        <span>Total Cumulative ROI:</span>
+        <strong id="total-cum-roi">0.00%</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Annualized Return (ROI p.a. / CAGR):</span>
+        <strong id="annualized-roi-pa">0.00% p.a.</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Net Monetary Profit:</span>
+        <strong id="net-cash-profit">£0.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Simple Average Annual Return:</span>
+        <strong id="simple-annual-avg">0.00% / year</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculateRoiPA() {
+    const cost = parseFloat((document.getElementById('capital-outlay-start') as HTMLInputElement).value) || 0;
+    const finalVal = parseFloat((document.getElementById('capital-returned-end') as HTMLInputElement).value) || 0;
+    const years = parseFloat((document.getElementById('holding-duration-years') as HTMLInputElement).value) || 1;
+
+    const netProfit = finalVal - cost;
+    const totalRoi = cost > 0 ? (netProfit / cost) * 100 : 0;
+    const simpleAvg = years > 0 ? totalRoi / years : 0;
+
+    let cagrPa = 0;
+    if (cost > 0 && finalVal > 0 && years > 0) {
+      cagrPa = (Math.pow(finalVal / cost, 1 / years) - 1) * 100;
+    }
+
+    (document.getElementById('total-cum-roi') as HTMLElement).textContent = totalRoi.toFixed(2) + '%';
+    (document.getElementById('annualized-roi-pa') as HTMLElement).textContent = cagrPa.toFixed(2) + '% p.a.';
+    (document.getElementById('net-cash-profit') as HTMLElement).textContent = '£' + netProfit.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('simple-annual-avg') as HTMLElement).textContent = simpleAvg.toFixed(2) + '% / year';
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateRoiPA);
+  calculateRoiPA();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

@@ -1,0 +1,102 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Overdue Invoice Total (£)</span></div>
+      <div class="amount-field"><input type="number" id="overdue-invoice-amount" value="3500" min="1" step="100" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Number of Days Overdue</span></div>
+      <div class="amount-field"><input type="number" id="days-overdue" value="45" min="1" max="1000" step="1" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Bank of England Base Rate (%)</span></div>
+      <div class="amount-field"><input type="number" id="boe-base-rate" value="5.25" min="0" max="20" step="0.25" /></div>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <h3>Statutory Claim Summary</h3>
+      <div class="breakdown-row net">
+        <span>Total Outstanding Claim (Invoice + Interest + Compensation):</span>
+        <strong id="total-statutory-claim">£0.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Statutory Interest Rate Applied (8% + Base):</span>
+        <strong id="statutory-rate-str">13.25% p.a.</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Daily Interest Amount:</span>
+        <strong id="daily-interest-val">£0.00 / day</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Total Statutory Interest Charges:</span>
+        <strong id="total-interest-val">£0.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Statutory Debt Recovery Compensation Fee:</span>
+        <strong id="compensation-fee-val">£0.00</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculateLatePayment() {
+    const invoice = parseFloat((document.getElementById('overdue-invoice-amount') as HTMLInputElement).value) || 0;
+    const days = parseInt((document.getElementById('days-overdue') as HTMLInputElement).value) || 0;
+    const baseRate = parseFloat((document.getElementById('boe-base-rate') as HTMLInputElement).value) || 5.25;
+
+    const statutoryRatePct = 8.0 + baseRate;
+    const annualRate = statutoryRatePct / 100;
+
+    const dailyInterest = (invoice * annualRate) / 365;
+    const totalInterest = dailyInterest * days;
+
+    // Statutory compensation entitlement based on invoice size:
+    // Under £1,000 = £40
+    // £1,000 to £9,999.99 = £70
+    // £10,000 or more = £100
+    let compensation = 40;
+    if (invoice >= 10000) {
+      compensation = 100;
+    } else if (invoice >= 1000) {
+      compensation = 70;
+    }
+
+    const totalClaim = invoice + totalInterest + compensation;
+
+    (document.getElementById('total-statutory-claim') as HTMLElement).textContent = '£' + totalClaim.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('statutory-rate-str') as HTMLElement).textContent = statutoryRatePct.toFixed(2) + '% p.a. (8% + ' + baseRate.toFixed(2) + '%)';
+    (document.getElementById('daily-interest-val') as HTMLElement).textContent = '£' + dailyInterest.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / day';
+    (document.getElementById('total-interest-val') as HTMLElement).textContent = '£' + totalInterest.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('compensation-fee-val') as HTMLElement).textContent = '£' + compensation.toFixed(2);
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateLatePayment);
+  calculateLatePayment();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

@@ -1,0 +1,132 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout health-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>NHS Dental Treatment Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>UK Nation / Health Jurisdiction</span></div>
+        <select id="dental-nation-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="england" selected>England (Bands 1, 2 & 3 Standard Charges)</option>
+          <option value="wales">Wales (Fixed Reduced NHS Dental Bands)</option>
+          <option value="scotland">Scotland (Itemised NHS Fee Scale - Max £384)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Treatment Band Required</span></div>
+        <select id="dental-band-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="band_2" selected>Band 2: Fillings, Root Canals, Tooth Extractions (£73.50)</option>
+          <option value="band_1">Band 1: Check-up, Diagnosis, X-rays, Scale & Polish (£26.80)</option>
+          <option value="band_3">Band 3: Crowns, Dentures, Bridges, Inlays (£319.10)</option>
+          <option value="urgent">Urgent Dental Care Emergency Treatment (£26.80)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Exemption Status (HC2 Certificate / Low Income / Under 18 / Pregnant)</span></div>
+        <select id="dental-exemption-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="none" selected>No Exemption Applicable (Full NHS Band Fee Payable)</option>
+          <option value="full_exemption">Full NHS Dental Exemption (HC2 / Pregnant / Universal Credit - £0 Fee)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--health-1), var(--health-2) 80%);">
+      <div class="result-label">Statutory NHS Dental Charge Payable</div>
+      <div class="result-amount"><span id="mainResultDisplay">£73.50</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">NHS Dental Treatment Band:</span>
+        <span class="val" id="subResultValue">Band 2 (Fillings, Extractions)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 NHS Dental Fee Summary</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Standard NHS Band Charge</span>
+          <span class="val" id="standardBandFeeDisplay">£73.50</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Exemption Discount (HC2 / Universal Credit)</span>
+          <span class="val" id="dentalExemptionDiscountDisplay">£0.00 (None)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Patient Dental Charge</span>
+          <span class="val" id="netDentalChargeDisplay" style="font-weight: 700; font-size: 18px;">£73.50</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="salud" />
+  </div>
+</div>
+
+<script>
+  function calculateDentalCharges() {
+    const nationEl = document.getElementById('dental-nation-select') as HTMLSelectElement;
+    const bandEl = document.getElementById('dental-band-select') as HTMLSelectElement;
+    const exemptEl = document.getElementById('dental-exemption-select') as HTMLSelectElement;
+
+    if (!nationEl || !bandEl || !exemptEl) return;
+
+    const nation = nationEl.value;
+    const band = bandEl.value;
+    const isExempt = exemptEl.value === 'full_exemption';
+
+    // England 2026/27 NHS Dental Rates: Band 1 = £26.80, Band 2 = £73.50, Band 3 = £319.10
+    let fee = 73.50;
+    let bandStr = 'Band 2 (Fillings & Extractions)';
+
+    if (band === 'band_1' || band === 'urgent') {
+      fee = 26.80;
+      bandStr = band === 'urgent' ? 'Urgent Emergency Treatment' : 'Band 1 (Check-up & X-rays)';
+    } else if (band === 'band_3') {
+      fee = 319.10;
+      bandStr = 'Band 3 (Crowns & Dentures)';
+    }
+
+    if (nation === 'wales') {
+      if (band === 'band_1' || band === 'urgent') fee = 20.00;
+      else if (band === 'band_2') fee = 60.00;
+      else if (band === 'band_3') fee = 260.00;
+    }
+
+    const discount = isExempt ? fee : 0;
+    const netFee = Math.max(0, fee - discount);
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const stdFeeRes = document.getElementById('standardBandFeeDisplay');
+    const exRes = document.getElementById('dentalExemptionDiscountDisplay');
+    const netRes = document.getElementById('netDentalChargeDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + netFee.toFixed(2);
+    if (subVal) subVal.textContent = bandStr;
+    if (stdFeeRes) stdFeeRes.textContent = '£' + fee.toFixed(2);
+    if (exRes) exRes.textContent = isExempt ? `-£${fee.toFixed(2)} (Full Exemption Approved)` : '£0.00 (None)';
+    if (netRes) netRes.textContent = '£' + netFee.toFixed(2);
+  }
+
+  ['dental-nation-select', 'dental-band-select', 'dental-exemption-select'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateDentalCharges);
+    document.getElementById(id)?.addEventListener('change', calculateDentalCharges);
+  });
+  calculateDentalCharges();
+</script>

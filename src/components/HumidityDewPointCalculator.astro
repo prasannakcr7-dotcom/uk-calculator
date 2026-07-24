@@ -1,0 +1,115 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout reside-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Air Temperature & Relative Humidity Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Ambient Air Temperature (°C)</span></div>
+        <div class="amount-field">
+          <input type="number" id="dewpoint-temp-c" value="21.0" min="-10" max="50" step="0.5" />
+          <span class="cur">°C</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Relative Humidity (% RH)</span></div>
+        <div class="amount-field">
+          <input type="number" id="dewpoint-humidity-pct" value="65" min="10" max="100" step="1" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--reside-1), var(--reside-2) 80%);">
+      <div class="result-label">Calculated Dew Point Temperature</div>
+      <div class="result-amount"><span id="mainResultDisplay">14.1 °C</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Condensation Risk Level:</span>
+        <span class="val" id="subResultValue">Moderate Condensation Risk</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Atmospheric & Moisture Metrics</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Ambient Air Temperature</span>
+          <span class="val" id="airTempDisplay">21.0 °C</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Relative Humidity</span>
+          <span class="val" id="relHumidityDisplay">65 %</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Vapour Pressure / Moisture Content</span>
+          <span class="val" id="vapourPressureDisplay">1.61 kPa</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Dew Point (Surface Temp for Condensation)</span>
+          <span class="val" id="dewPointDisplay" style="font-weight: 700; font-size: 18px;">14.1 °C</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="alltag" />
+  </div>
+</div>
+
+<script>
+  function calculateDewPoint() {
+    const tempEl = document.getElementById('dewpoint-temp-c') as HTMLInputElement;
+    const rhEl = document.getElementById('dewpoint-humidity-pct') as HTMLInputElement;
+
+    if (!tempEl || !rhEl) return;
+
+    const T = parseFloat(tempEl.value) || 21.0;
+    const RH = parseFloat(rhEl.value) || 65;
+
+    // Magnus Formula approximation for Dew Point Td:
+    // a = 17.27, b = 237.7
+    const a = 17.27;
+    const b = 237.7;
+    const alpha = ((a * T) / (b + T)) + Math.log(RH / 100);
+    const Td = (b * alpha) / (a - alpha);
+
+    let riskStr = 'Low Condensation Risk';
+    if (Td >= 15) riskStr = 'High Mold & Condensation Risk';
+    else if (Td >= 10) riskStr = 'Moderate Risk';
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const tempRes = document.getElementById('airTempDisplay');
+    const rhRes = document.getElementById('relHumidityDisplay');
+    const vapRes = document.getElementById('vapourPressureDisplay');
+    const dewRes = document.getElementById('dewPointDisplay');
+
+    if (mainRes) mainRes.textContent = Td.toFixed(1) + ' °C';
+    if (subVal) subVal.textContent = riskStr;
+    if (tempRes) tempRes.textContent = T.toFixed(1) + ' °C';
+    if (rhRes) rhRes.textContent = RH.toFixed(0) + ' %';
+    if (vapRes) vapRes.textContent = (6.112 * Math.exp((17.67 * T) / (T + 243.5)) * (RH / 100) / 10).toFixed(2) + ' kPa';
+    if (dewRes) dewRes.textContent = Td.toFixed(1) + ' °C';
+  }
+
+  ['dewpoint-temp-c', 'dewpoint-humidity-pct'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateDewPoint);
+    document.getElementById(id)?.addEventListener('change', calculateDewPoint);
+  });
+  calculateDewPoint();
+</script>

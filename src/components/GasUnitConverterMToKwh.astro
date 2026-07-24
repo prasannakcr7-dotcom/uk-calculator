@@ -1,0 +1,191 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Gas Meter Unit Conversion Details'}</h2>
+
+      <!-- Meter Volume Reading -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.volumeLabel || 'Gas Meter Units Consumed'}</span>
+          <span class="hint" id="volumeVal">100 m³ (Metric Meter)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="100" id="volumeInput" inputmode="decimal" />
+          <span class="cur" id="unitTypeLabel">m³</span>
+        </div>
+        <input type="range" min="10" max="2000" step="10" value="100" id="volumeSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>10</span><span>2,000</span></div>
+      </div>
+
+      <!-- Meter Type Selection -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.meterTypeLabel || 'Gas Meter Type'}</span>
+          <span class="hint" id="meterTypeVal">Metric Meter (m³)</span>
+        </div>
+        <div style="display:flex; gap:12px; margin-top:8px;">
+          <button type="button" class="preset-btn active" id="meterMetricBtn">Metric Meter (m³)</button>
+          <button type="button" class="preset-btn" id="meterImperialBtn">Imperial Meter (ft³ / hundred cu ft)</button>
+        </div>
+      </div>
+
+      <!-- Gas Calorific Value (MJ/m³) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.calorificLabel || 'Gas Calorific Value (MJ/m³)'}</span>
+          <span class="hint" id="calorificVal">39.5 MJ/m³ (UK Standard)</span>
+        </div>
+        <input type="range" min="38.0" max="41.0" step="0.1" value="39.5" id="calorificSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>38.0 MJ/m³</span><span>41.0 MJ/m³</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Converted Gas Energy Consumption'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">1,121.7 kWh</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.estimatedCostLabel || 'Estimated Cost at 6.2p/kWh Ofgem Cap:'}</span>
+        <span class="val" id="subResultValue">£69.55 Energy Cost (Excl. Standing Charge)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Statutory Gas Conversion Formula Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Input Meter Volume Consumed</span>
+          <span class="val" id="volumeDisplay">100 m³</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Volume Correction Factor</span>
+          <span class="val">1.02264 (Statutory Constant)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Applied Gas Calorific Value</span>
+          <span class="val" id="calorificDisplay">39.5 MJ/m³</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Converted Kilowatt-Hours (kWh)</span>
+          <span class="val" id="netKwhDisplay" style="font-weight: 700; font-size: 18px;">1,121.7 kWh</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Statutory Formula:</strong> kWh = m³ × 1.02264 × CV ÷ 3.6.<br/>
+        • <strong>Metric Quick Rule:</strong> Multiply metric m³ by ~11.2 to estimate kWh.<br/>
+        • <strong>Imperial Quick Rule:</strong> Multiply imperial hundred ft³ (100 ft³) by ~31.5 to estimate kWh.<br/>
+        • <strong>Calorific Value (CV):</strong> Measures gas energy density (typically 38.0 to 41.0 MJ/m³).
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const volumeInput = document.getElementById('volumeInput') as HTMLInputElement;
+  const volumeSlider = document.getElementById('volumeSlider') as HTMLInputElement;
+  const volumeVal = document.getElementById('volumeVal') as HTMLElement;
+  const unitTypeLabel = document.getElementById('unitTypeLabel') as HTMLElement;
+
+  const meterMetricBtn = document.getElementById('meterMetricBtn') as HTMLButtonElement;
+  const meterImperialBtn = document.getElementById('meterImperialBtn') as HTMLButtonElement;
+
+  const calorificSlider = document.getElementById('calorificSlider') as HTMLInputElement;
+  const calorificVal = document.getElementById('calorificVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const volumeDisplay = document.getElementById('volumeDisplay') as HTMLElement;
+  const calorificDisplay = document.getElementById('calorificDisplay') as HTMLElement;
+  const netKwhDisplay = document.getElementById('netKwhDisplay') as HTMLElement;
+
+  let isMetric = true;
+
+  function calculate() {
+    const volume = parseInputVal(volumeInput.value);
+    const cv = parseFloat(calorificSlider.value);
+    const volumeCorrectionFactor = 1.02264;
+
+    let kwh = 0;
+    if (isMetric) {
+      // Metric formula: m3 * 1.02264 * CV / 3.6
+      kwh = (volume * volumeCorrectionFactor * cv) / 3.6;
+    } else {
+      // Imperial formula: 100 ft3 * 2.83 * 1.02264 * CV / 3.6 (or volume * 2.83 * 1.02264 * CV / 3.6)
+      const cubicMetres = volume * 2.83;
+      kwh = (cubicMetres * volumeCorrectionFactor * cv) / 3.6;
+    }
+
+    const estimatedCost = (kwh * 0.062); // 6.2p per kWh
+
+    volumeVal.innerText = `${volume.toLocaleString('en-GB')} ${isMetric ? 'm³' : 'hundred ft³'}`;
+    calorificVal.innerText = `${cv.toFixed(1)} MJ/m³`;
+
+    mainResultDisplay.innerText = `${kwh.toLocaleString('en-GB', { maximumFractionDigits: 1 })} kWh`;
+    subResultValue.innerText = `${formatCurrency(estimatedCost)} Energy Cost (@ 6.2p/kWh Cap)`;
+
+    volumeDisplay.innerText = `${volume.toLocaleString('en-GB')} ${isMetric ? 'm³' : 'hundred ft³'}`;
+    calorificDisplay.innerText = `${cv.toFixed(1)} MJ/m³`;
+    netKwhDisplay.innerText = `${kwh.toLocaleString('en-GB', { maximumFractionDigits: 1 })} kWh`;
+  }
+
+  meterMetricBtn.addEventListener('click', () => {
+    isMetric = true;
+    meterMetricBtn.classList.add('active');
+    meterImperialBtn.classList.remove('active');
+    unitTypeLabel.innerText = 'm³';
+    calculate();
+  });
+
+  meterImperialBtn.addEventListener('click', () => {
+    isMetric = false;
+    meterImperialBtn.classList.add('active');
+    meterMetricBtn.classList.remove('active');
+    unitTypeLabel.innerText = '100 ft³';
+    calculate();
+  });
+
+  volumeInput.addEventListener('input', () => {
+    const val = parseInputVal(volumeInput.value);
+    volumeSlider.value = String(val);
+    calculate();
+  });
+
+  volumeSlider.addEventListener('input', () => {
+    volumeInput.value = parseInt(volumeSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  calorificSlider.addEventListener('input', calculate);
+
+  calculate();
+</script>

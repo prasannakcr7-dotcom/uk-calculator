@@ -1,0 +1,178 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout health-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Biological Gender</span></div>
+        <select id="bf-gender" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="male" selected>Male</option>
+          <option value="female">Female</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Height (Centimetres - cm)</span></div>
+        <div class="amount-field">
+          <input type="number" id="bf-height-cm" value="175" min="100" max="230" step="1" />
+          <span class="cur">cm</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Total Body Weight (Kilograms - kg)</span></div>
+        <div class="amount-field">
+          <input type="number" id="bf-weight-kg" value="78" min="30" max="250" step="0.5" />
+          <span class="cur">kg</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Neck Circumference (cm)</span></div>
+        <div class="amount-field">
+          <input type="number" id="bf-neck-cm" value="38" min="20" max="60" step="0.5" />
+          <span class="cur">cm</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Waist Circumference (cm)</span></div>
+        <div class="amount-field">
+          <input type="number" id="bf-waist-cm" value="84" min="40" max="180" step="0.5" />
+          <span class="cur">cm</span>
+        </div>
+      </div>
+
+      <div class="field-group" id="group-hip-cm" style="display: none;">
+        <div class="field-label"><span>Hip Circumference (cm) - Females Only</span></div>
+        <div class="amount-field">
+          <input type="number" id="bf-hip-cm" value="95" min="40" max="180" step="0.5" />
+          <span class="cur">cm</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Body Composition Results</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Body Composition Fitness Category</span>
+          <strong id="bf-fitness-category">Fitness Level</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Fat Body Mass (kg)</span>
+          <strong id="fat-mass-kg">14.0 kg</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Lean Muscle & Tissue Mass (kg)</span>
+          <strong id="lean-mass-kg">64.0 kg</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Estimated Body Fat Percentage</span>
+          <strong id="body-fat-pct-val">17.9%</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="salud" />
+  </div>
+</div>
+
+<script>
+  function toggleFemaleHips() {
+    const genderEl = document.getElementById('bf-gender') as HTMLSelectElement;
+    const hipGroup = document.getElementById('group-hip-cm') as HTMLElement;
+    if (genderEl && hipGroup) {
+      hipGroup.style.display = genderEl.value === 'female' ? 'block' : 'none';
+    }
+  }
+
+  function calculateBodyFat() {
+    const genderEl = document.getElementById('bf-gender') as HTMLSelectElement;
+    const heightEl = document.getElementById('bf-height-cm') as HTMLInputElement;
+    const weightEl = document.getElementById('bf-weight-kg') as HTMLInputElement;
+    const neckEl = document.getElementById('bf-neck-cm') as HTMLInputElement;
+    const waistEl = document.getElementById('bf-waist-cm') as HTMLInputElement;
+    const hipEl = document.getElementById('bf-hip-cm') as HTMLInputElement;
+
+    if (!genderEl || !heightEl || !weightEl || !neckEl || !waistEl || !hipEl) return;
+
+    const gender = genderEl.value;
+    const h = parseFloat(heightEl.value) || 175;
+    const weight = parseFloat(weightEl.value) || 75;
+    const neck = parseFloat(neckEl.value) || 38;
+    const waist = parseFloat(waistEl.value) || 84;
+    const hip = parseFloat(hipEl.value) || 95;
+
+    let bodyFatPct = 0;
+
+    if (gender === 'male') {
+      const diff = waist - neck;
+      if (diff > 0 && h > 0) {
+        bodyFatPct = 495 / (1.0324 - (0.19077 * Math.log10(diff)) + (0.15456 * Math.log10(h))) - 450;
+      }
+    } else {
+      const diff = waist + hip - neck;
+      if (diff > 0 && h > 0) {
+        bodyFatPct = 495 / (1.29579 - (0.35004 * Math.log10(diff)) + (0.22100 * Math.log10(h))) - 450;
+      }
+    }
+
+    bodyFatPct = Math.max(2, Math.min(60, bodyFatPct));
+
+    const fatMass = weight * (bodyFatPct / 100);
+    const leanMass = weight - fatMass;
+
+    let categoryStr = '';
+    if (gender === 'male') {
+      if (bodyFatPct < 6) categoryStr = 'Essential Fat (2-5%)';
+      else if (bodyFatPct < 14) categoryStr = 'Athletes (6-13%)';
+      else if (bodyFatPct < 18) categoryStr = 'Fitness (14-17%)';
+      else if (bodyFatPct < 25) categoryStr = 'Average (18-24%)';
+      else categoryStr = 'Obese (25%+)';
+    } else {
+      if (bodyFatPct < 14) categoryStr = 'Essential Fat (10-13%)';
+      else if (bodyFatPct < 21) categoryStr = 'Athletes (14-20%)';
+      else if (bodyFatPct < 25) categoryStr = 'Fitness (21-24%)';
+      else if (bodyFatPct < 32) categoryStr = 'Average (25-31%)';
+      else categoryStr = 'Obese (32%+)';
+    }
+
+    const pctEl = document.getElementById('body-fat-pct-val');
+    const catEl = document.getElementById('bf-fitness-category');
+    const fatEl = document.getElementById('fat-mass-kg');
+    const leanEl = document.getElementById('lean-mass-kg');
+
+    if (pctEl) pctEl.textContent = bodyFatPct.toFixed(1) + '%';
+    if (catEl) catEl.textContent = categoryStr;
+    if (fatEl) fatEl.textContent = fatMass.toFixed(1) + ' kg';
+    if (leanEl) leanEl.textContent = leanMass.toFixed(1) + ' kg';
+  }
+
+  document.getElementById('bf-gender')?.addEventListener('change', () => {
+    toggleFemaleHips();
+    calculateBodyFat();
+  });
+
+  ['bf-height-cm', 'bf-weight-kg', 'bf-neck-cm', 'bf-waist-cm', 'bf-hip-cm'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateBodyFat);
+    document.getElementById(id)?.addEventListener('change', calculateBodyFat);
+  });
+
+  toggleFemaleHips();
+  calculateBodyFat();
+</script>

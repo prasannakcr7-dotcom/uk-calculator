@@ -1,0 +1,109 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>LPS Capital Valuation of Property (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="lps-capital-value" value="180000" min="20000" step="5000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Northern Ireland Council District</span></div>
+        <select id="ni-council-district" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="0.0094" selected>Belfast City Council (0.94p in £)</option>
+          <option value="0.0098">Derry City & Strabane (0.98p in £)</option>
+          <option value="0.0089">Lisburn & Castlereagh (0.89p in £)</option>
+          <option value="0.0092">Ards & North Down (0.92p in £)</option>
+          <option value="0.0095">Newry, Mourne & Down (0.95p in £)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Early Payment Prompt Discount (4% Discount if paid before 30 June)</span></div>
+        <select id="ni-early-payment-discount" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="yes" selected>Yes - Claim 4% Early Payment Discount</option>
+          <option value="no">No - Pay Standard Full Bill (or Direct Debit 10 Installments)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>NI Domestic Rates Bill Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Gross Annual Rates Bill (Regional + District Rate)</span>
+          <strong id="gross-rates-bill-val">£1,692.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>4% Early Settlement Discount Savings</span>
+          <strong id="early-discount-saved-val">£67.68 Discount Saved</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Monthly Direct Debit Cost (10 Installments)</span>
+          <strong id="monthly-rates-installment">£169.20 / month</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Net Annual Rates Payable</span>
+          <strong id="net-rates-bill-payable">£1,624.32 / year</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateNiRates() {
+    const capitalValEl = document.getElementById('lps-capital-value') as HTMLInputElement;
+    const districtEl = document.getElementById('ni-council-district') as HTMLSelectElement;
+    const discountEl = document.getElementById('ni-early-payment-discount') as HTMLSelectElement;
+
+    if (!capitalValEl || !districtEl || !discountEl) return;
+
+    // NI Maximum Cap: £400,000 for domestic property rates
+    const rawCapitalVal = parseFloat(capitalValEl.value) || 0;
+    const capitalVal = Math.min(400000, rawCapitalVal);
+    const combinedRatePence = parseFloat(districtEl.value) || 0.0094;
+    const hasDiscount = discountEl.value === 'yes';
+
+    const grossBill = capitalVal * combinedRatePence;
+    const discountVal = hasDiscount ? grossBill * 0.04 : 0;
+    const netBill = Math.max(0, grossBill - discountVal);
+    const monthlyInstallment = grossBill / 10;
+
+    const grossResEl = document.getElementById('gross-rates-bill-val');
+    const discResEl = document.getElementById('early-discount-saved-val');
+    const monthResEl = document.getElementById('monthly-rates-installment');
+    const netResEl = document.getElementById('net-rates-bill-payable');
+
+    if (grossResEl) grossResEl.textContent = '£' + grossBill.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (discResEl) discResEl.textContent = '£' + discountVal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Saved';
+    if (monthResEl) monthResEl.textContent = '£' + monthlyInstallment.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month (10 mths)';
+    if (netResEl) netResEl.textContent = '£' + netBill.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+  }
+
+  ['lps-capital-value', 'ni-council-district', 'ni-early-payment-discount'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateNiRates);
+    document.getElementById(id)?.addEventListener('change', calculateNiRates);
+  });
+  calculateNiRates();
+</script>

@@ -1,0 +1,187 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Room & Wallpaper Roll Details'}</h2>
+
+      <!-- Total Room Perimeter / Wall Width (m) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.perimeterLabel || 'Total Width of Walls to Wallpaper (Metres)'}</span>
+          <span class="hint" id="perimeterVal">16.0 m (4m × 4m Room)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="16.0" id="perimeterInput" inputmode="decimal" />
+          <span class="cur">m</span>
+        </div>
+        <input type="range" min="2" max="60" step="0.5" value="16" id="perimeterSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>2m</span><span>60m</span></div>
+      </div>
+
+      <!-- Wall Height (m) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.heightLabel || 'Wall Height (Metres)'}</span>
+          <span class="hint" id="heightVal">2.4 m (Standard Ceiling)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="2.4" id="heightInput" inputmode="decimal" />
+          <span class="cur">m</span>
+        </div>
+        <input type="range" min="1.8" max="4.5" step="0.1" value="2.4" id="heightSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1.8m</span><span>4.5m</span></div>
+      </div>
+
+      <!-- Pattern Repeat Match (cm) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.patternRepeatLabel || 'Pattern Repeat Match Distance (cm)'}</span>
+          <span class="hint" id="patternRepeatVal">0 cm (Free Match / Plain)</span>
+        </div>
+        <input type="range" min="0" max="64" step="4" value="0" id="patternRepeatSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>0cm (Plain)</span><span>64cm (Large Pattern)</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Total Wallpaper Rolls Required'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">8 Rolls Required</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.standardRollLabel || 'Standard UK Roll Spec (10.05m × 0.53m):'}</span>
+        <span class="val" id="subResultValue">4 Drops per Roll (5.3 sq m / Roll Coverage)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Wallpaper Quantity Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Total Number of Wallpaper Drops Required</span>
+          <span class="val" id="totalDropsDisplay">31 Drops</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Cut Length per Drop (Height + Pattern Repeat)</span>
+          <span class="val" id="dropLengthDisplay">2.40 m</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Full Drops Achievable per Standard Roll</span>
+          <span class="val" id="dropsPerRollDisplay">4 Drops / Roll</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Rolls to Order (Includes Waste)</span>
+          <span class="val" id="totalRollsDisplay" style="font-weight: 700; font-size: 18px;">8 Standard Rolls</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Standard UK Roll Size:</strong> 10.05m length × 0.53m width (5.3 sq m total roll area).<br/>
+        • <strong>Drops Calculation:</strong> Total Drops = Wall Width (m) ÷ 0.53m.<br/>
+        • <strong>Pattern Match Offset:</strong> Large pattern repeats (e.g. 53cm) reduce drops per roll from 4 down to 3.<br/>
+        • <strong>Batch Numbers:</strong> Always check wallpaper roll batch numbers to ensure exact color match.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  const perimeterInput = document.getElementById('perimeterInput') as HTMLInputElement;
+  const perimeterSlider = document.getElementById('perimeterSlider') as HTMLInputElement;
+  const perimeterVal = document.getElementById('perimeterVal') as HTMLElement;
+  const heightInput = document.getElementById('heightInput') as HTMLInputElement;
+  const heightSlider = document.getElementById('heightSlider') as HTMLInputElement;
+  const heightVal = document.getElementById('heightVal') as HTMLElement;
+  const patternRepeatSlider = document.getElementById('patternRepeatSlider') as HTMLInputElement;
+  const patternRepeatVal = document.getElementById('patternRepeatVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const totalDropsDisplay = document.getElementById('totalDropsDisplay') as HTMLElement;
+  const dropLengthDisplay = document.getElementById('dropLengthDisplay') as HTMLElement;
+  const dropsPerRollDisplay = document.getElementById('dropsPerRollDisplay') as HTMLElement;
+  const totalRollsDisplay = document.getElementById('totalRollsDisplay') as HTMLElement;
+
+  const ROLL_LENGTH = 10.05; // Standard UK roll length in metres
+  const ROLL_WIDTH = 0.53;   // Standard UK roll width in metres
+
+  function calculate() {
+    const perimeter = parseInputVal(perimeterInput.value);
+    const height = parseInputVal(heightInput.value);
+    const patternRepeatCm = parseInt(patternRepeatSlider.value, 10);
+    const patternRepeatM = patternRepeatCm / 100;
+
+    // Total drops needed across wall width
+    const totalDrops = Math.ceil(perimeter / ROLL_WIDTH);
+
+    // Single drop length required (Height + trim top/bottom + pattern repeat)
+    const effectiveDropLength = height + 0.10 + patternRepeatM; // 10cm trim
+
+    // Drops per single roll
+    const dropsPerRoll = Math.floor(ROLL_LENGTH / effectiveDropLength);
+
+    const validDropsPerRoll = Math.max(1, dropsPerRoll);
+    const rollsRequired = Math.ceil(totalDrops / validDropsPerRoll);
+
+    perimeterVal.innerText = `${perimeter.toFixed(1)} m`;
+    heightVal.innerText = `${height.toFixed(1)} m`;
+    patternRepeatVal.innerText = `${patternRepeatCm} cm ${patternRepeatCm === 0 ? '(Free Match)' : 'Pattern Repeat'}`;
+
+    mainResultDisplay.innerText = `${rollsRequired} Roll${rollsRequired === 1 ? '' : 's'} Required`;
+    subResultValue.innerText = `${validDropsPerRoll} Drops per Roll (10.05m × 0.53m Roll Spec)`;
+
+    totalDropsDisplay.innerText = `${totalDrops} Drops`;
+    dropLengthDisplay.innerText = `${effectiveDropLength.toFixed(2)} m`;
+    dropsPerRollDisplay.innerText = `${validDropsPerRoll} Drops / Roll`;
+    totalRollsDisplay.innerText = `${rollsRequired} Standard Rolls`;
+  }
+
+  perimeterInput.addEventListener('input', () => {
+    const val = parseInputVal(perimeterInput.value);
+    perimeterSlider.value = String(val);
+    calculate();
+  });
+
+  perimeterSlider.addEventListener('input', () => {
+    perimeterInput.value = parseFloat(perimeterSlider.value).toFixed(1);
+    calculate();
+  });
+
+  heightInput.addEventListener('input', () => {
+    const val = parseInputVal(heightInput.value);
+    heightSlider.value = String(val);
+    calculate();
+  });
+
+  heightSlider.addEventListener('input', () => {
+    heightInput.value = parseFloat(heightSlider.value).toFixed(1);
+    calculate();
+  });
+
+  patternRepeatSlider.addEventListener('input', calculate);
+
+  calculate();
+</script>

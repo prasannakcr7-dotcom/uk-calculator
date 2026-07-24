@@ -1,0 +1,119 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Overdue Unpaid Tax Bill (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="unpaid-tax-bill" value="4500" min="100" step="250" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Number of Days Overdue / Late</span></div>
+        <div class="amount-field">
+          <input type="number" id="days-overdue-count" value="120" min="1" max="1095" step="1" />
+          <span class="cur">days</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>HMRC Official Late Payment Interest Rate (% p.a.)</span></div>
+        <div class="amount-field">
+          <input type="number" id="hmrc-late-interest-rate" value="7.75" min="3.0" max="15.0" step="0.25" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>HMRC Late Payment Penalties & Interest Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Initial Fixed Late Filing Penalty</span>
+          <strong id="fixed-late-penalty">£100.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>30-Day / 6-Month Percentage Penalties</span>
+          <strong id="pct-late-penalty">£225.00 (5%)</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Accrued Statutory Interest</span>
+          <strong id="accrued-late-interest">£114.66</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Total Overdue Amount Payable to HMRC</span>
+          <strong id="total-hmrc-overdue-payable">£4,939.66</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="impuestos" />
+  </div>
+</div>
+
+<script>
+  function calculateHmrcPenalties() {
+    const billEl = document.getElementById('unpaid-tax-bill') as HTMLInputElement;
+    const daysEl = document.getElementById('days-overdue-count') as HTMLInputElement;
+    const rateEl = document.getElementById('hmrc-late-interest-rate') as HTMLInputElement;
+
+    if (!billEl || !daysEl || !rateEl) return;
+
+    const bill = parseFloat(billEl.value) || 0;
+    const days = parseInt(daysEl.value) || 0;
+    const annualRate = (parseFloat(rateEl.value) || 7.75) / 100;
+
+    let fixedPenalty = 0;
+    if (days >= 1) fixedPenalty = 100;
+
+    let pctPenalty = 0;
+    let pctStr = '0%';
+    if (days >= 365) {
+      pctPenalty = bill * 0.15; // 30-day (5%) + 6-month (5%) + 12-month (5%)
+      pctStr = '15%';
+    } else if (days >= 180) {
+      pctPenalty = bill * 0.10; // 30-day (5%) + 6-month (5%)
+      pctStr = '10%';
+    } else if (days >= 30) {
+      pctPenalty = bill * 0.05; // 30-day (5%)
+      pctStr = '5%';
+    }
+
+    // Simple interest calculation: Bill * (Rate * Days / 365)
+    const accruedInterest = bill * (annualRate * (days / 365));
+    const totalPayable = bill + fixedPenalty + pctPenalty + accruedInterest;
+
+    const fixEl = document.getElementById('fixed-late-penalty');
+    const pctEl = document.getElementById('pct-late-penalty');
+    const intEl = document.getElementById('accrued-late-interest');
+    const totalEl = document.getElementById('total-hmrc-overdue-payable');
+
+    if (fixEl) fixEl.textContent = '£' + fixedPenalty.toFixed(2);
+    if (pctEl) pctEl.textContent = '£' + pctPenalty.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' (' + pctStr + ')';
+    if (intEl) intEl.textContent = '£' + accruedInterest.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (totalEl) totalEl.textContent = '£' + totalPayable.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['unpaid-tax-bill', 'days-overdue-count', 'hmrc-late-interest-rate'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateHmrcPenalties);
+    document.getElementById(id)?.addEventListener('change', calculateHmrcPenalties);
+  });
+  calculateHmrcPenalties();
+</script>

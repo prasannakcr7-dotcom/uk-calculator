@@ -1,0 +1,130 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Patio / Driveway Area Length (Metres - m)</span></div>
+        <div class="amount-field">
+          <input type="number" id="patio-length-m" value="8.0" min="1" step="0.5" />
+          <span class="cur">m</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Patio / Driveway Area Width (Metres - m)</span></div>
+        <div class="amount-field">
+          <input type="number" id="patio-width-m" value="5.0" min="1" step="0.5" />
+          <span class="cur">m</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Block Paving Type & Material</span></div>
+        <select id="paving-block-type-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="50" selected>Standard Concrete Blocks (50 blocks / sq m - £35/m²)</option>
+          <option value="50_clay">Clay Pavers (50 blocks / sq m - £55/m²)</option>
+          <option value="slab_slabs">Natural Stone / Porcelain Slabs (£70/m²)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Wastage & Cutting Buffer (%)</span></div>
+        <div class="amount-field">
+          <input type="number" id="paving-wastage-pct" value="10" min="5" max="25" step="1" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Block Paving Materials Breakdown</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Net Surface Floor Area</span>
+          <strong id="patio-net-area-sqm">40.00 sq m</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Total Blocks / Slabs Required (inc. Wastage)</span>
+          <strong id="total-blocks-needed-count">2,200 Blocks</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Sub-Base MOT Type 1 Aggregates (Tonnes)</span>
+          <strong id="sub-base-tonnes-needed">9.00 Tonnes</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Estimated Paving Materials Outlay</span>
+          <strong id="total-paving-materials-cost">£1,540.00</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculatePaving() {
+    const lenEl = document.getElementById('patio-length-m') as HTMLInputElement;
+    const widthEl = document.getElementById('patio-width-m') as HTMLInputElement;
+    const typeEl = document.getElementById('paving-block-type-select') as HTMLSelectElement;
+    const wasteEl = document.getElementById('paving-wastage-pct') as HTMLInputElement;
+
+    if (!lenEl || !widthEl || !typeEl || !wasteEl) return;
+
+    const len = parseFloat(lenEl.value) || 0;
+    const width = parseFloat(widthEl.value) || 0;
+    const blockType = typeEl.value;
+    const wastage = (parseFloat(wasteEl.value) || 10) / 100;
+
+    const area = len * width;
+    const totalAreaWithWaste = area * (1 + wastage);
+
+    let blocksPerSqm = 50;
+    let costPerSqm = 35;
+
+    if (blockType === 'clay_pavers') {
+      blocksPerSqm = 50;
+      costPerSqm = 55;
+    } else if (blockType === 'slab_slabs') {
+      blocksPerSqm = 4; // 600x600 slabs
+      costPerSqm = 70;
+    }
+
+    const totalBlocks = Math.ceil(totalAreaWithWaste * blocksPerSqm);
+
+    // Sub-base depth ~150mm MOT Type 1 aggregate: 0.15m * area * 1.5 tonnes/m3 = ~0.225 tonnes per sq m
+    const subBaseTonnes = totalAreaWithWaste * 0.225;
+    const totalMaterialCost = totalAreaWithWaste * costPerSqm;
+
+    const areaResEl = document.getElementById('patio-net-area-sqm');
+    const blocksResEl = document.getElementById('total-blocks-needed-count');
+    const subBaseResEl = document.getElementById('sub-base-tonnes-needed');
+    const costResEl = document.getElementById('total-paving-materials-cost');
+
+    if (areaResEl) areaResEl.textContent = area.toFixed(2) + ' sq m';
+    if (blocksResEl) blocksResEl.textContent = totalBlocks.toLocaleString('en-GB') + ' Units';
+    if (subBaseResEl) subBaseResEl.textContent = subBaseTonnes.toFixed(2) + ' Tonnes';
+    if (costResEl) costResEl.textContent = '£' + totalMaterialCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['patio-length-m', 'patio-width-m', 'paving-block-type-select', 'paving-wastage-pct'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculatePaving);
+    document.getElementById(id)?.addEventListener('change', calculatePaving);
+  });
+  calculatePaving();
+</script>

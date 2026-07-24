@@ -1,0 +1,164 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Tenant Rent Increase Details'}</h2>
+
+      <!-- Current Monthly Rent -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.currentRentLabel || 'Current Monthly Rent (£)'}</span>
+          <span class="hint" id="currentRentVal">£1,200</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="1,200" id="currentRentInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="300" max="5000" step="50" value="1200" id="currentRentSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£300</span><span>£5,000</span></div>
+      </div>
+
+      <!-- Proposed New Monthly Rent -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.proposedRentLabel || 'Proposed New Monthly Rent (£)'}</span>
+          <span class="hint" id="proposedRentVal">£1,320</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="1,320" id="proposedRentInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="300" max="6000" step="50" value="1320" id="proposedRentSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£300</span><span>£6,000</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Percentage Rent Increase Proposed'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">+10.00% Increase</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.annualDifferenceLabel || 'Additional Annual Rent Payable:'}</span>
+        <span class="val" id="subResultValue">+£1,440.00 / year (+£120.00/mo)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Rent Increase Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Current Annual Rent Paid</span>
+          <span class="val" id="currentAnnualDisplay">£14,400.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Proposed New Annual Rent</span>
+          <span class="val" id="proposedAnnualDisplay">£15,840.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Net Monthly Increase Amount</span>
+          <span class="val" id="monthlyIncreaseDisplay">+£120.00 / month</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Percentage Rent Increase</span>
+          <span class="val" id="netPercentDisplay" style="font-weight: 700; font-size: 18px;">+10.00%</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Section 13 Notice:</strong> Landlords must issue a statutory Form 4 Section 13 notice for periodic tenancies.<br/>
+        • <strong>1 Year Limit:</strong> Rent can only be increased once every 12 months.<br/>
+        • <strong>Fair Market Rate:</strong> Rent increases must align with local market rates.<br/>
+        • <strong>First-tier Tribunal Challenge:</strong> Tenants can challenge unfair rent increases at the Property Tribunal.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const currentRentInput = document.getElementById('currentRentInput') as HTMLInputElement;
+  const currentRentSlider = document.getElementById('currentRentSlider') as HTMLInputElement;
+  const currentRentVal = document.getElementById('currentRentVal') as HTMLElement;
+  const proposedRentInput = document.getElementById('proposedRentInput') as HTMLInputElement;
+  const proposedRentSlider = document.getElementById('proposedRentSlider') as HTMLInputElement;
+  const proposedRentVal = document.getElementById('proposedRentVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const currentAnnualDisplay = document.getElementById('currentAnnualDisplay') as HTMLElement;
+  const proposedAnnualDisplay = document.getElementById('proposedAnnualDisplay') as HTMLElement;
+  const monthlyIncreaseDisplay = document.getElementById('monthlyIncreaseDisplay') as HTMLElement;
+  const netPercentDisplay = document.getElementById('netPercentDisplay') as HTMLElement;
+
+  function calculate() {
+    const current = parseInputVal(currentRentInput.value);
+    const proposed = parseInputVal(proposedRentInput.value);
+
+    const diff = proposed - current;
+    const percent = current > 0 ? (diff / current) * 100 : 0;
+    const annualDiff = diff * 12;
+
+    currentRentVal.innerText = formatCurrency(current).slice(0, -3);
+    proposedRentVal.innerText = formatCurrency(proposed).slice(0, -3);
+
+    const sign = percent >= 0 ? '+' : '';
+    mainResultDisplay.innerText = `${sign}${percent.toFixed(2)}% ${percent >= 0 ? 'Increase' : 'Decrease'}`;
+    subResultValue.innerText = `${sign}${formatCurrency(annualDiff)} / year (${sign}${formatCurrency(diff)}/mo)`;
+
+    currentAnnualDisplay.innerText = formatCurrency(current * 12);
+    proposedAnnualDisplay.innerText = formatCurrency(proposed * 12);
+    monthlyIncreaseDisplay.innerText = `${sign}${formatCurrency(diff)} / month`;
+    netPercentDisplay.innerText = `${sign}${percent.toFixed(2)}%`;
+  }
+
+  currentRentInput.addEventListener('input', () => {
+    const val = parseInputVal(currentRentInput.value);
+    currentRentSlider.value = String(val);
+    calculate();
+  });
+
+  currentRentSlider.addEventListener('input', () => {
+    currentRentInput.value = parseInt(currentRentSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  proposedRentInput.addEventListener('input', () => {
+    const val = parseInputVal(proposedRentInput.value);
+    proposedRentSlider.value = String(val);
+    calculate();
+  });
+
+  proposedRentSlider.addEventListener('input', () => {
+    proposedRentInput.value = parseInt(proposedRentSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  calculate();
+</script>

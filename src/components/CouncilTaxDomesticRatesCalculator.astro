@@ -1,0 +1,162 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Council Tax & Valuation Band Details'}</h2>
+
+      <!-- Valuation Band Selection -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.bandLabel || 'Council Tax Valuation Band (England Band D Base: £2,171)'}</span>
+          <span class="hint" id="bandVal">Band D (Standard 100%)</span>
+        </div>
+        <select id="bandSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="A">Band A (6/9th — 66.7%)</option>
+          <option value="B">Band B (7/9th — 77.8%)</option>
+          <option value="C">Band C (8/9th — 88.9%)</option>
+          <option value="D" selected>Band D (9/9th — 100.0% Base)</option>
+          <option value="E">Band E (11/9th — 122.2%)</option>
+          <option value="F">Band F (13/9th — 144.4%)</option>
+          <option value="G">Band G (15/9th — 166.7%)</option>
+          <option value="H">Band H (18/9th — 200.0%)</option>
+        </select>
+      </div>
+
+      <!-- Single Person Discount -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.singlePersonLabel || 'Single Adult Household (25% Discount)?'}</span>
+          <span class="hint" id="singleVal">No</span>
+        </div>
+        <div style="display:flex; gap:12px; margin-top:8px;">
+          <button type="button" class="preset-btn active" id="singleNoBtn">No (100% Bill)</button>
+          <button type="button" class="preset-btn" id="singleYesBtn">Yes (25% Discount)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Annual Council Tax Bill'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£2,171.00/yr</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.monthlyLabel || 'Monthly Instalment (10 Payments):'}</span>
+        <span class="val" id="subResultValue">£217.10/mo</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Council Tax Valuation Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Band D Average Baseline Bill</span>
+          <span class="val">£2,171.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Valuation Band Ratio Multiplier</span>
+          <span class="val" id="ratioDisplay">9/9th (100%)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Single Person Discount (25%)</span>
+          <span class="val" id="discountDisplay">£0.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Annual Council Tax Due</span>
+          <span class="val" id="netAnnualDisplay" style="font-weight: 700; font-size: 18px;">£2,171.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Band D Base:</strong> £2,171 average in England.<br/>
+        • <strong>Single Person Discount:</strong> 25% bill reduction if sole adult.<br/>
+        • <strong>Disregarded Adults:</strong> Full-time students, under-18s, severely mentally impaired.<br/>
+        • <strong>10 vs 12 Instalments:</strong> Statutory default is 10 monthly payments (April–January).
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const bandSelect = document.getElementById('bandSelect') as HTMLSelectElement;
+  const bandVal = document.getElementById('bandVal') as HTMLElement;
+  const singleNoBtn = document.getElementById('singleNoBtn') as HTMLButtonElement;
+  const singleYesBtn = document.getElementById('singleYesBtn') as HTMLButtonElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const ratioDisplay = document.getElementById('ratioDisplay') as HTMLElement;
+  const discountDisplay = document.getElementById('discountDisplay') as HTMLElement;
+  const netAnnualDisplay = document.getElementById('netAnnualDisplay') as HTMLElement;
+
+  let isSingle = false;
+
+  const multipliers: Record<string, { num: number; den: number; pct: string }> = {
+    A: { num: 6, den: 9, pct: '66.7%' },
+    B: { num: 7, den: 9, pct: '77.8%' },
+    C: { num: 8, den: 9, pct: '88.9%' },
+    D: { num: 9, den: 9, pct: '100.0%' },
+    E: { num: 11, den: 9, pct: '122.2%' },
+    F: { num: 13, den: 9, pct: '144.4%' },
+    G: { num: 15, den: 9, pct: '166.7%' },
+    H: { num: 18, den: 9, pct: '200.0%' }
+  };
+
+  const BASE_BAND_D = 2171.00;
+
+  function calculate() {
+    const band = bandSelect.value;
+    const info = multipliers[band] || multipliers['D'];
+    const grossBill = BASE_BAND_D * (info.num / info.den);
+    const discount = isSingle ? grossBill * 0.25 : 0;
+    const netBill = grossBill - discount;
+    const monthlyInstalment = netBill / 10;
+
+    bandVal.innerText = `Band ${band} (${info.num}/${info.den}th — ${info.pct})`;
+    ratioDisplay.innerText = `${info.num}/${info.den}th (${info.pct})`;
+    discountDisplay.innerText = isSingle ? `-${formatCurrency(discount)}` : '£0.00';
+
+    mainResultDisplay.innerText = `${formatCurrency(netBill)}/yr`;
+    subResultValue.innerText = `${formatCurrency(monthlyInstalment)}/mo`;
+    netAnnualDisplay.innerText = formatCurrency(netBill);
+  }
+
+  singleNoBtn.addEventListener('click', () => {
+    isSingle = false;
+    singleNoBtn.classList.add('active');
+    singleYesBtn.classList.remove('active');
+    calculate();
+  });
+
+  singleYesBtn.addEventListener('click', () => {
+    isSingle = true;
+    singleYesBtn.classList.add('active');
+    singleNoBtn.classList.remove('active');
+    calculate();
+  });
+
+  bandSelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

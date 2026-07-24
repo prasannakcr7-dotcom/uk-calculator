@@ -1,0 +1,170 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout mobility-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Breakdown Cover & Vehicle Details'}</h2>
+
+      <!-- Cover Level Preset -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.coverLevelLabel || 'Select Breakdown Cover Tier Level'}</span>
+          <span class="hint" id="coverLevelVal">National Recovery & At Home Cover (£120/yr)</span>
+        </div>
+        <select id="coverLevelSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="ROAD_RESCUE">Roadside Assistance Only (Basic Local Towing — £45/yr)</option>
+          <option value="NATIONAL_RECOVERY" selected>National Recovery & At Home Cover (UK-Wide Towing — £120/yr)</option>
+          <option value="EUROPEAN">European & Onward Travel Cover (Comprehensive — £190/yr)</option>
+        </select>
+      </div>
+
+      <!-- Policy Type (Vehicle vs Personal) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.policyTypeLabel || 'Policy Type (Vehicle Cover vs Personal Cover)'}</span>
+          <span class="hint" id="policyTypeVal">Single Vehicle Cover (1.0x Base Rate)</span>
+        </div>
+        <select id="policyTypeSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="VEHICLE" selected>Single Specified Vehicle Cover (1.0x Base Rate)</option>
+          <option value="PERSONAL_SINGLE">Personal Cover (Single Driver in Any Car — 1.25x)</option>
+          <option value="PERSONAL_JOINT">Joint Personal Cover (2 Drivers in Any Car — 1.60x)</option>
+          <option value="PERSONAL_FAMILY">Family Personal Cover (Up to 4 Family Drivers — 2.10x)</option>
+        </select>
+      </div>
+
+      <!-- Emergency Pay-on-Demand Comparison -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.annualCalloutsLabel || 'Estimated Emergency Callouts per Year'}</span>
+          <span class="hint" id="annualCalloutsVal">1 Emergency Callout / year</span>
+        </div>
+        <input type="range" min="0" max="3" step="1" value="1" id="calloutsSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>0 Callouts</span><span>3 Callouts</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--mobility-1), var(--mobility-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Annual Breakdown Cover Cost'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£120.00 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.calloutCompareLabel || 'Vs Non-Member Pay-on-Demand Emergency Towing:'}</span>
+        <span class="val" id="subResultValue">Saved £130.00 vs £250 Pay-on-Demand Callout Fee</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Breakdown Cover Financial Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Annual Subscription Premium</span>
+          <span class="val" id="annualPremiumDisplay">£120.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Monthly Premium Equivalent</span>
+          <span class="val" id="monthlyPremiumDisplay">£10.00 / month</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Non-Member Pay-on-Demand Towing Cost</span>
+          <span class="val" id="payOnDemandDisplay">£250.00 / callout</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Estimated Annual Protection Value</span>
+          <span class="val" id="protectionValueDisplay" style="font-weight: 700; font-size: 18px;">£130.00 Net Savings (1 Callout)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>AA / RAC / Green Flag Benchmarks:</strong> UK major breakdown provider pricing rules.<br/>
+        • <strong>At Home Cover:</strong> Fixes breakdowns occurring at your home address (within 1/4 mile).<br/>
+        • <strong>National Recovery:</strong> Tows vehicle and up to 7 passengers to any UK destination.<br/>
+        • <strong>Pay-on-Demand Surcharge:</strong> Joining roadside as a non-member incurs £150+ emergency surcharges.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const coverLevelSelect = document.getElementById('coverLevelSelect') as HTMLSelectElement;
+  const policyTypeSelect = document.getElementById('policyTypeSelect') as HTMLSelectElement;
+  const calloutsSlider = document.getElementById('calloutsSlider') as HTMLInputElement;
+  const annualCalloutsVal = document.getElementById('annualCalloutsVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const annualPremiumDisplay = document.getElementById('annualPremiumDisplay') as HTMLElement;
+  const monthlyPremiumDisplay = document.getElementById('monthlyPremiumDisplay') as HTMLElement;
+  const payOnDemandDisplay = document.getElementById('payOnDemandDisplay') as HTMLElement;
+  const protectionValueDisplay = document.getElementById('protectionValueDisplay') as HTMLElement;
+
+  function calculate() {
+    const levelKey = coverLevelSelect.value;
+    const policyMultiplier = parseFloat(policyTypeSelect.value);
+    const callouts = parseInt(calloutsSlider.value, 10);
+
+    let baseAnnualRate = 120.00;
+    if (levelKey === 'ROAD_RESCUE') baseAnnualRate = 45.00;
+    if (levelKey === 'EUROPEAN') baseAnnualRate = 190.00;
+
+    const annualPremium = baseAnnualRate * policyMultiplier;
+    const monthlyPremium = annualPremium / 12;
+
+    const payOnDemandFeePerCallout = 250.00;
+    const totalPayOnDemand = callouts * payOnDemandFeePerCallout;
+    const netSavings = totalPayOnDemand - annualPremium;
+
+    annualCalloutsVal.innerText = `${callouts} Emergency Callout${callouts === 1 ? '' : 's'} / year`;
+
+    mainResultDisplay.innerText = `${formatCurrency(annualPremium)} / year`;
+
+    let subText = `Saved ${formatCurrency(netSavings)} vs £${callouts * 250} Emergency Pay-on-Demand Fees`;
+    if (callouts === 0) {
+      subText = `Peace of mind protection (£${formatCurrency(monthlyPremium).slice(1)}/month)`;
+    }
+
+    subResultValue.innerText = subText;
+
+    annualPremiumDisplay.innerText = `${formatCurrency(annualPremium)} / year`;
+    monthlyPremiumDisplay.innerText = `${formatCurrency(monthlyPremium)} / month`;
+    payOnDemandDisplay.innerText = `${formatCurrency(totalPayOnDemand)} (${callouts} Callouts)`;
+
+    if (netSavings >= 0) {
+      protectionValueDisplay.innerText = `${formatCurrency(netSavings)} Net Savings`;
+    } else {
+      protectionValueDisplay.innerText = `${formatCurrency(annualPremium)} Annual Peace of Mind Cost`;
+    }
+  }
+
+  coverLevelSelect.addEventListener('change', calculate);
+  policyTypeSelect.addEventListener('change', calculate);
+  calloutsSlider.addEventListener('input', calculate);
+
+  calculate();
+</script>

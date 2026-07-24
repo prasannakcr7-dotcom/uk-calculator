@@ -1,0 +1,165 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Gift & IHT 7-Year Details'}</h2>
+
+      <!-- Gift Amount -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.giftAmountLabel || 'Lifetime Gift Amount (£)'}</span>
+          <span class="hint" id="giftAmountVal">£100,000</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="100,000" id="giftAmountInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="0" max="1000000" step="5000" value="100000" id="giftAmountSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£0</span><span>£1,000,000</span></div>
+      </div>
+
+      <!-- Years Passed Since Gift -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.yearsPassedLabel || 'Years Between Gift and Death'}</span>
+          <span class="hint" id="yearsPassedVal">4 Years</span>
+        </div>
+        <input type="range" min="0" max="7" step="1" value="4" id="yearsPassedSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>0 Years</span><span>7+ Years</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Effective IHT Taper Rate'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">24.0%</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.ihtTaxLabel || 'Estimated Tax Payable on Gift:'}</span>
+        <span class="val" id="subResultValue">£24,000.00</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || '7-Year Taper Relief Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Full Standard IHT Rate (Years 0–3)</span>
+          <span class="val">40.0%</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Taper Reduction Discount Applied</span>
+          <span class="val" id="taperDiscountDisplay">40% Reduction</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Effective IHT Rate Charged</span>
+          <span class="val" id="effectiveRateDisplay" style="font-weight: 700; font-size: 18px;">24.0%</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>0 to 3 years:</strong> 40% full IHT.<br/>
+        • <strong>3 to 4 years:</strong> 32% IHT (20% taper reduction).<br/>
+        • <strong>4 to 5 years:</strong> 24% IHT (40% taper reduction).<br/>
+        • <strong>5 to 6 years:</strong> 16% IHT (60% taper reduction).<br/>
+        • <strong>6 to 7 years:</strong> 8% IHT (80% taper reduction).<br/>
+        • <strong>7+ years:</strong> 0% (100% Tax-Free PET).
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const giftAmountInput = document.getElementById('giftAmountInput') as HTMLInputElement;
+  const giftAmountSlider = document.getElementById('giftAmountSlider') as HTMLInputElement;
+  const giftAmountVal = document.getElementById('giftAmountVal') as HTMLElement;
+  const yearsPassedSlider = document.getElementById('yearsPassedSlider') as HTMLInputElement;
+  const yearsPassedVal = document.getElementById('yearsPassedVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const taperDiscountDisplay = document.getElementById('taperDiscountDisplay') as HTMLElement;
+  const effectiveRateDisplay = document.getElementById('effectiveRateDisplay') as HTMLElement;
+
+  function calculate() {
+    const gift = parseInputVal(giftAmountInput.value);
+    const years = parseInt(yearsPassedSlider.value, 10);
+
+    let effectiveRate = 0.40;
+    let discountStr = '0% Reduction';
+
+    if (years >= 7) {
+      effectiveRate = 0.00;
+      discountStr = '100% Tax-Free (7+ Yrs)';
+    } else if (years >= 6) {
+      effectiveRate = 0.08;
+      discountStr = '80% Reduction';
+    } else if (years >= 5) {
+      effectiveRate = 0.16;
+      discountStr = '60% Reduction';
+    } else if (years >= 4) {
+      effectiveRate = 0.24;
+      discountStr = '40% Reduction';
+    } else if (years >= 3) {
+      effectiveRate = 0.32;
+      discountStr = '20% Reduction';
+    } else {
+      effectiveRate = 0.40;
+      discountStr = '0% Reduction (Full 40%)';
+    }
+
+    const taxPayable = gift * effectiveRate;
+
+    giftAmountVal.innerText = formatCurrency(gift).slice(0, -3);
+    yearsPassedVal.innerText = `${years} Year${years === 1 ? '' : 's'}`;
+
+    mainResultDisplay.innerText = `${(effectiveRate * 100).toFixed(1)}%`;
+    subResultValue.innerText = formatCurrency(taxPayable);
+    taperDiscountDisplay.innerText = discountStr;
+    effectiveRateDisplay.innerText = `${(effectiveRate * 100).toFixed(1)}%`;
+  }
+
+  giftAmountInput.addEventListener('input', () => {
+    const val = parseInputVal(giftAmountInput.value);
+    giftAmountSlider.value = String(val);
+    calculate();
+  });
+
+  giftAmountSlider.addEventListener('input', () => {
+    giftAmountInput.value = parseInt(giftAmountSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  yearsPassedSlider.addEventListener('input', () => {
+    calculate();
+  });
+
+  calculate();
+</script>

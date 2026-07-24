@@ -1,0 +1,146 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Property Purchase Transaction Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Property Purchase Price (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="propbuy-property-price" value="320000" min="50000" step="10000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Conveyancing Solicitor Legal Fees (£ inc. Searches & VAT)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="propbuy-conveyancing-fee" value="1600" min="500" step="100" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>RICS Property Survey Level</span></div>
+        <select id="propbuy-survey-type-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="level2" selected>Level 2 RICS Homebuyer Report (£550)</option>
+          <option value="level3">Level 3 Full Building Survey (£850)</option>
+          <option value="valuation">Basic Mortgage Valuation Only (£300)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Mortgage Arrangement & Product Broker Fee (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="propbuy-mortgage-fee" value="995" min="0" step="100" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Total Property Purchasing Fees & Taxes</div>
+      <div class="result-amount"><span id="mainResultDisplay">£6,645.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Stamp Duty (SDLT) Share:</span>
+        <span class="val" id="subResultValue">£3,500.00 SDLT</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Purchasing Costs Itemization</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Stamp Duty Land Tax (SDLT)</span>
+          <span class="val" id="sdltTaxDisplay">£3,500.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Conveyancing Solicitor Legal Fees</span>
+          <span class="val" id="conveyancingFeesDisplay">£1,600.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>RICS Homebuyer Survey & Mortgage Fee</span>
+          <span class="val" id="surveyMortgageFeesDisplay">£1,545.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Transaction Costs On Top of Purchase Price</span>
+          <span class="val" id="totalPropertyBuyingCostsDisplay" style="font-weight: 700; font-size: 18px;">£6,645.00 (2.08% of Price)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculatePropertyBuyingCosts() {
+    const priceEl = document.getElementById('propbuy-property-price') as HTMLInputElement;
+    const legalEl = document.getElementById('propbuy-conveyancing-fee') as HTMLInputElement;
+    const surveyEl = document.getElementById('propbuy-survey-type-select') as HTMLSelectElement;
+    const mortEl = document.getElementById('propbuy-mortgage-fee') as HTMLInputElement;
+
+    if (!priceEl || !legalEl || !surveyEl || !mortEl) return;
+
+    const price = parseFloat(priceEl.value) || 0;
+    const legalFees = parseFloat(legalEl.value) || 0;
+    const surveyType = surveyEl.value;
+    const mortFees = parseFloat(mortEl.value) || 0;
+
+    let surveyCost = 550;
+    if (surveyType === 'level3') surveyCost = 850;
+    else if (surveyType === 'valuation') surveyCost = 300;
+
+    // Standard SDLT 2026/27: 0% to £125k, 2% £125k-£250k, 5% £250k-£925k
+    let sdlt = 0;
+    if (price > 925000) {
+      sdlt += (price - 925000) * 0.10;
+      sdlt += (925000 - 250000) * 0.05;
+      sdlt += (250000 - 125000) * 0.02;
+    } else if (price > 250000) {
+      sdlt += (price - 250000) * 0.05;
+      sdlt += (250000 - 125000) * 0.02;
+    } else if (price > 125000) {
+      sdlt += (price - 125000) * 0.02;
+    }
+
+    const totalOtherFees = legalFees + surveyCost + mortFees;
+    const totalBuyingCosts = sdlt + totalOtherFees;
+    const costPct = price > 0 ? (totalBuyingCosts / price) * 100 : 0;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const sdltRes = document.getElementById('sdltTaxDisplay');
+    const legalRes = document.getElementById('conveyancingFeesDisplay');
+    const survMortRes = document.getElementById('surveyMortgageFeesDisplay');
+    const totalRes = document.getElementById('totalPropertyBuyingCostsDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + totalBuyingCosts.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = '£' + sdlt.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' SDLT';
+    if (sdltRes) sdltRes.textContent = '£' + sdlt.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (legalRes) legalRes.textContent = '£' + legalFees.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (survMortRes) survMortRes.textContent = '£' + (surveyCost + mortFees).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (totalRes) totalRes.textContent = '£' + totalBuyingCosts.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` (${costPct.toFixed(2)}% of Price)`;
+  }
+
+  ['propbuy-property-price', 'propbuy-conveyancing-fee', 'propbuy-survey-type-select', 'propbuy-mortgage-fee'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculatePropertyBuyingCosts);
+    document.getElementById(id)?.addEventListener('change', calculatePropertyBuyingCosts);
+  });
+  calculatePropertyBuyingCosts();
+</script>

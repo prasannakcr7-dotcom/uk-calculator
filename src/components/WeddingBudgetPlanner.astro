@@ -1,0 +1,121 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    <h2 class="calc-title">UK Wedding Budget Planner & Cost Allocator (2026/27)</h2>
+    <p class="calc-desc">Calculate total UK wedding expenditure, per-guest catering costs, venue allocations, and contingency funds based on average UK wedding benchmarks.</p>
+
+    <div class="field-group">
+      <div class="field-label"><span>Total Maximum Wedding Budget (£)</span></div>
+      <div class="amount-field"><input type="number" id="total-wedding-budget" value="20000" min="1000" step="1000" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Number of Day Guests</span></div>
+      <div class="amount-field"><input type="number" id="number-of-guests" value="80" min="5" max="300" step="5" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Include Honeymoon Budget in Total?</span></div>
+      <select id="include-honeymoon">
+        <option value="yes" selected>Yes (Allocate ~10% for Honeymoon)</option>
+        <option value="no">No (Excluding Honeymoon)</option>
+      </select>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <h3>Recommended Wedding Budget Allocation</h3>
+      <div class="breakdown-row net">
+        <span>Venue & Catering Allocation (45%):</span>
+        <strong id="venue-catering-alloc">£0.00</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Estimated Food & Drink Cost Per Guest:</span>
+        <strong id="per-guest-catering">£0.00 / guest</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Photography & Videography (10%):</span>
+        <strong id="photo-alloc">£0.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Attire, Rings & Beauty (10%):</span>
+        <strong id="attire-alloc">£0.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Music, Flowers & Entertainment (15%):</span>
+        <strong id="entertainment-alloc">£0.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Honeymoon Allocation (10%):</span>
+        <strong id="honeymoon-alloc">£0.00</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Contingency Emergency Fund (10%):</span>
+        <strong id="contingency-alloc">£0.00</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculateWeddingBudget() {
+    const totalBudget = parseFloat((document.getElementById('total-wedding-budget') as HTMLInputElement).value) || 0;
+    const guests = parseInt((document.getElementById('number-of-guests') as HTMLInputElement).value) || 1;
+    const incHoneymoon = (document.getElementById('include-honeymoon') as HTMLSelectElement).value === 'yes';
+
+    // Standard UK Wedding Allocation Ratios:
+    // Venue & Catering: 45%
+    // Photography & Video: 10%
+    // Attire, Rings & Beauty: 10%
+    // Flowers, Music & Decor: 15% (or 20% if no honeymoon)
+    // Honeymoon: 10% (or 0%)
+    // Contingency: 10%
+
+    let venuePct = 0.45;
+    let photoPct = 0.10;
+    let attirePct = 0.10;
+    let entertainmentPct = incHoneymoon ? 0.15 : 0.25;
+    let honeymoonPct = incHoneymoon ? 0.10 : 0.00;
+    let contingencyPct = 0.10;
+
+    const venueAlloc = totalBudget * venuePct;
+    const photoAlloc = totalBudget * photoPct;
+    const attireAlloc = totalBudget * attirePct;
+    const entertainmentAlloc = totalBudget * entertainmentPct;
+    const honeymoonAlloc = totalBudget * honeymoonPct;
+    const contingencyAlloc = totalBudget * contingencyPct;
+
+    const perGuestCateringCost = guests > 0 ? (venueAlloc * 0.70) / guests : 0; // Assume 70% of venue budget is food/drink
+
+    (document.getElementById('venue-catering-alloc') as HTMLElement).textContent = '£' + venueAlloc.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('per-guest-catering') as HTMLElement).textContent = '£' + perGuestCateringCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / guest';
+    (document.getElementById('photo-alloc') as HTMLElement).textContent = '£' + photoAlloc.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('attire-alloc') as HTMLElement).textContent = '£' + attireAlloc.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('entertainment-alloc') as HTMLElement).textContent = '£' + entertainmentAlloc.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('honeymoon-alloc') as HTMLElement).textContent = '£' + honeymoonAlloc.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('contingency-alloc') as HTMLElement).textContent = '£' + contingencyAlloc.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateWeddingBudget);
+  calculateWeddingBudget();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

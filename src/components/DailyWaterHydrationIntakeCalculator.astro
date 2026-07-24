@@ -1,0 +1,125 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout health-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Body Weight (Kilograms - kg)</span></div>
+        <div class="amount-field">
+          <input type="number" id="hydration-weight-kg" value="70" min="30" max="250" step="1" />
+          <span class="cur">kg</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Daily Exercise Duration (Minutes)</span></div>
+        <div class="amount-field">
+          <input type="number" id="hydration-exercise-mins" value="45" min="0" max="300" step="15" />
+          <span class="cur">mins</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Climate & Environment</span></div>
+        <select id="climate-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="moderate" selected>Moderate UK Climate (Standard)</option>
+          <option value="hot">Hot / Summer Weather (+0.5 Litres)</option>
+          <option value="cold">Cold / High Altitude (+0.3 Litres)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Pregnancy / Breastfeeding Status</span></div>
+        <select id="maternity-hydration-status" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="none" selected>None</option>
+          <option value="pregnant">Pregnant (+0.3 Litres)</option>
+          <option value="breastfeeding">Breastfeeding (+0.7 Litres)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Daily Water Hydration Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Baseline Fluid Requirement (35ml / kg)</span>
+          <strong id="baseline-fluid-ml">2,450 ml / day</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Exercise Sweat Loss Compensation</span>
+          <strong id="exercise-fluid-ml">+525 ml</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Equivalent 250ml Glasses of Water</span>
+          <strong id="equivalent-glasses-count">12 Glasses</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Total Recommended Daily Fluid Intake</span>
+          <strong id="total-fluid-target-litres">2.98 Litres / day</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="salud" />
+  </div>
+</div>
+
+<script>
+  function calculateHydration() {
+    const weightEl = document.getElementById('hydration-weight-kg') as HTMLInputElement;
+    const exerciseEl = document.getElementById('hydration-exercise-mins') as HTMLInputElement;
+    const climateEl = document.getElementById('climate-select') as HTMLSelectElement;
+    const matEl = document.getElementById('maternity-hydration-status') as HTMLSelectElement;
+
+    if (!weightEl || !exerciseEl || !climateEl || !matEl) return;
+
+    const weight = parseFloat(weightEl.value) || 70;
+    const exerciseMins = parseInt(exerciseEl.value) || 0;
+    const climate = climateEl.value;
+    const mat = matEl.value;
+
+    const baselineMl = weight * 35;
+    const exerciseMl = (exerciseMins / 30) * 350;
+
+    let extraMl = 0;
+    if (climate === 'hot') extraMl += 500;
+    if (climate === 'cold') extraMl += 300;
+
+    if (mat === 'pregnant') extraMl += 300;
+    if (mat === 'breastfeeding') extraMl += 700;
+
+    const totalMl = baselineMl + exerciseMl + extraMl;
+    const totalLitres = totalMl / 1000;
+    const glasses = Math.round(totalMl / 250);
+
+    const baseResEl = document.getElementById('baseline-fluid-ml');
+    const exResEl = document.getElementById('exercise-fluid-ml');
+    const glassResEl = document.getElementById('equivalent-glasses-count');
+    const totalResEl = document.getElementById('total-fluid-target-litres');
+
+    if (baseResEl) baseResEl.textContent = Math.round(baselineMl).toLocaleString('en-GB') + ' ml / day';
+    if (exResEl) exResEl.textContent = '+' + Math.round(exerciseMl).toLocaleString('en-GB') + ' ml';
+    if (glassResEl) glassResEl.textContent = glasses + ' Glasses (250ml each)';
+    if (totalResEl) totalResEl.textContent = totalLitres.toFixed(2) + ' Litres / day';
+  }
+
+  ['hydration-weight-kg', 'hydration-exercise-mins', 'climate-select', 'maternity-hydration-status'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateHydration);
+    document.getElementById(id)?.addEventListener('change', calculateHydration);
+  });
+  calculateHydration();
+</script>

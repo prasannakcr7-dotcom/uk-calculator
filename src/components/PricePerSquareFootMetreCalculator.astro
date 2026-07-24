@@ -1,0 +1,120 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Property Price & Area Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Total Property Asking / Purchase Price (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="sqft-asking-price" value="350000" min="50000" step="10000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Internal Floor Area Value</span></div>
+        <div class="amount-field">
+          <input type="number" id="sqft-area-value" value="850" min="100" step="25" />
+          <span class="cur">units</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Measurement Unit</span></div>
+        <select id="sqft-unit-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="sqft" selected>Square Feet (sq ft)</option>
+          <option value="sqm">Square Metres (sq m)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Unit Price Per Square Foot</div>
+      <div class="result-amount"><span id="mainResultDisplay">£411.76 / sq ft</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Equivalent Unit Price Per Sq Metre:</span>
+        <span class="val" id="subResultValue">£4,432.11 / sq m</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Area Valuation Metrics</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Asking Price</span>
+          <span class="val" id="grossAskingPriceDisplay">£350,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Total Converted Area</span>
+          <span class="val" id="convertedAreaDisplay">850.0 sq ft (78.97 sq m)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Price Per Square Foot</span>
+          <span class="val" id="pricePerSqftDisplay">£411.76 / sq ft</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Price Per Square Metre</span>
+          <span class="val" id="pricePerSqmDisplay" style="font-weight: 700; font-size: 18px;">£4,432.11 / sq m</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculatePricePerArea() {
+    const priceEl = document.getElementById('sqft-asking-price') as HTMLInputElement;
+    const areaEl = document.getElementById('sqft-area-value') as HTMLInputElement;
+    const unitEl = document.getElementById('sqft-unit-select') as HTMLSelectElement;
+
+    if (!priceEl || !areaEl || !unitEl) return;
+
+    const price = parseFloat(priceEl.value) || 0;
+    const rawArea = parseFloat(areaEl.value) || 1;
+    const isSqft = unitEl.value === 'sqft';
+
+    let sqft = isSqft ? rawArea : rawArea * 10.7639;
+    let sqm = isSqft ? rawArea / 10.7639 : rawArea;
+
+    const pricePerSqft = sqft > 0 ? price / sqft : 0;
+    const pricePerSqm = sqm > 0 ? price / sqm : 0;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const askingRes = document.getElementById('grossAskingPriceDisplay');
+    const areaRes = document.getElementById('convertedAreaDisplay');
+    const sqftRes = document.getElementById('pricePerSqftDisplay');
+    const sqmRes = document.getElementById('pricePerSqmDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + pricePerSqft.toFixed(2) + ' / sq ft';
+    if (subVal) subVal.textContent = '£' + pricePerSqm.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / sq m';
+    if (askingRes) askingRes.textContent = '£' + price.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (areaRes) areaRes.textContent = `${sqft.toFixed(1)} sq ft (${sqm.toFixed(2)} sq m)`;
+    if (sqftRes) sqftRes.textContent = '£' + pricePerSqft.toFixed(2) + ' / sq ft';
+    if (sqmRes) sqmRes.textContent = '£' + pricePerSqm.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / sq m';
+  }
+
+  ['sqft-asking-price', 'sqft-area-value', 'sqft-unit-select'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculatePricePerArea);
+    document.getElementById(id)?.addEventListener('change', calculatePricePerArea);
+  });
+  calculatePricePerArea();
+</script>

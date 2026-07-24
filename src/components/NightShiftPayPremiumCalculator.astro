@@ -1,0 +1,114 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Night Shift Hourly & Premium Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Base Daytime Hourly Rate (£/hour)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="nightshift-base-rate" value="16.00" min="10" step="0.5" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Night Shift Enhancement / Uplift Rate (%)</span></div>
+        <div class="amount-field">
+          <input type="number" id="nightshift-uplift-pct" value="30" min="0" max="100" step="5" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Night Hours Worked Per Week</span></div>
+        <div class="amount-field">
+          <input type="number" id="nightshift-weekly-hours" value="37.5" min="1" max="80" step="0.5" />
+          <span class="cur">hrs/wk</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--work-1), var(--work-2) 80%);">
+      <div class="result-label">Enhanced Night Shift Hourly Pay Rate</div>
+      <div class="result-amount"><span id="mainResultDisplay">£20.80 / hour</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Total Weekly Night Shift Pay:</span>
+        <span class="val" id="subResultValue">£780.00 / week</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Night Shift Pay Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Standard Base Daytime Pay (37.5 hrs @ £16.00)</span>
+          <span class="val" id="baseWeeklyPayDisplay">£600.00 / week</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Night Shift Premium Uplift Bonus (30%)</span>
+          <span class="val" id="nightPremiumUpliftDisplay">£180.00 / week</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Weekly Enhanced Shift Pay</span>
+          <span class="val" id="totalEnhancedWeeklyPayDisplay" style="font-weight: 700; font-size: 18px;">£780.00 / week (£40,560.00/yr)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="trabajo" />
+  </div>
+</div>
+
+<script>
+  function calculateNightShiftPay() {
+    const rateEl = document.getElementById('nightshift-base-rate') as HTMLInputElement;
+    const upliftEl = document.getElementById('nightshift-uplift-pct') as HTMLInputElement;
+    const hoursEl = document.getElementById('nightshift-weekly-hours') as HTMLInputElement;
+
+    if (!rateEl || !upliftEl || !hoursEl) return;
+
+    const baseRate = parseFloat(rateEl.value) || 0;
+    const upliftPct = (parseFloat(upliftEl.value) || 0) / 100;
+    const hours = parseFloat(hoursEl.value) || 37.5;
+
+    const enhancedRate = baseRate * (1 + upliftPct);
+    const baseWeekly = baseRate * hours;
+    const premiumWeekly = (baseRate * upliftPct) * hours;
+    const totalWeekly = enhancedRate * hours;
+    const totalAnnual = totalWeekly * 52;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const baseRes = document.getElementById('baseWeeklyPayDisplay');
+    const premRes = document.getElementById('nightPremiumUpliftDisplay');
+    const totalRes = document.getElementById('totalEnhancedWeeklyPayDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + enhancedRate.toFixed(2) + ' / hour';
+    if (subVal) subVal.textContent = '£' + totalWeekly.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / week';
+    if (baseRes) baseRes.textContent = '£' + baseWeekly.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / week';
+    if (premRes) premRes.textContent = '£' + premiumWeekly.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / week';
+    if (totalRes) totalRes.textContent = '£' + totalWeekly.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` / week (£${totalAnnual.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/yr)`;
+  }
+
+  ['nightshift-base-rate', 'nightshift-uplift-pct', 'nightshift-weekly-hours'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateNightShiftPay);
+    document.getElementById(id)?.addEventListener('change', calculateNightShiftPay);
+  });
+  calculateNightShiftPay();
+</script>

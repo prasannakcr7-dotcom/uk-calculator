@@ -1,0 +1,108 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout family-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Average Gross Weekly Earnings (£)</span></div>
+        <div class="amount-field"><input type="number" id="average-weekly-earnings-smp" value="550" min="50" step="25" /></div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Weeks of Continuous Employment at 15th Week Before Due Date</span></div>
+        <div class="amount-field"><input type="number" id="weeks-continuous-employment" value="52" min="1" max="520" step="1" /></div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Maternity Pay Entitlement Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>SMP Qualification Status</span>
+          <strong id="smp-qualification-status">Qualified for SMP</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>First 6 Weeks Rate (90% Gross Pay)</span>
+          <strong id="first-6-weeks-rate-val">£495.00 / week</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Next 33 Weeks Rate (Lower of 90% or £184.03)</span>
+          <strong id="next-33-weeks-rate-val">£184.03 / week</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Total 39-Week Statutory Maternity Pay</span>
+          <strong id="total-smp-39-weeks-val">£9,042.99</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar />
+  </div>
+</div>
+
+<script>
+  function calculateSmp() {
+    const weeklyEarnEl = document.getElementById('average-weekly-earnings-smp') as HTMLInputElement;
+    const weeksServiceEl = document.getElementById('weeks-continuous-employment') as HTMLInputElement;
+
+    if (!weeklyEarnEl || !weeksServiceEl) return;
+
+    const weeklyEarn = parseFloat(weeklyEarnEl.value) || 0;
+    const weeksService = parseInt(weeksServiceEl.value) || 0;
+
+    const lel = 123.0;
+    const statRate = 184.03;
+
+    let isEligible = false;
+    let statusStr = '';
+
+    if (weeksService >= 26 && weeklyEarn >= lel) {
+      isEligible = true;
+      statusStr = 'Qualified for SMP';
+    } else if (weeklyEarn < lel) {
+      statusStr = 'Not Eligible (Earnings below £123/wk LEL)';
+    } else {
+      statusStr = 'Not Eligible (Less than 26 wks service)';
+    }
+
+    let first6Wks = 0;
+    let next33Wks = 0;
+    let totalSmp = 0;
+
+    if (isEligible) {
+      first6Wks = weeklyEarn * 0.90;
+      next33Wks = Math.min(statRate, weeklyEarn * 0.90);
+      totalSmp = (first6Wks * 6) + (next33Wks * 33);
+    }
+
+    const totalEl = document.getElementById('total-smp-39-weeks-val');
+    const statusEl = document.getElementById('smp-qualification-status');
+    const first6El = document.getElementById('first-6-weeks-rate-val');
+    const next33El = document.getElementById('next-33-weeks-rate-val');
+
+    if (totalEl) totalEl.textContent = '£' + totalSmp.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (statusEl) statusEl.textContent = statusStr;
+    if (first6El) first6El.textContent = '£' + first6Wks.toFixed(2) + ' / week (90%)';
+    if (next33El) next33El.textContent = '£' + next33Wks.toFixed(2) + ' / week';
+  }
+
+  ['average-weekly-earnings-smp', 'weeks-continuous-employment'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateSmp);
+    document.getElementById(id)?.addEventListener('change', calculateSmp);
+  });
+  calculateSmp();
+</script>

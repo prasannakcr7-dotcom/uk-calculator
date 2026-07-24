@@ -1,0 +1,141 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Annual Regular Base Gross Salary (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="base-annual-salary" value="45000" min="10000" step="1000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Gross Discretionary Bonus Payment (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="gross-bonus-amount" value="5000" min="100" step="500" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>UK Tax Jurisdiction</span></div>
+        <select id="bonus-tax-region" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="rUK" selected>England, Wales & Northern Ireland</option>
+          <option value="scotland">Scotland (Scottish Tax Bands)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Student Loan Deduction Rate</span></div>
+        <select id="bonus-student-loan-plan" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="none" selected>None</option>
+          <option value="plan1">Plan 1 (9% over £26,065)</option>
+          <option value="plan2">Plan 2 (9% over £28,470)</option>
+          <option value="plan5">Plan 5 (9% over £25,000)</option>
+          <option value="postgrad">Postgraduate Loan (6% over £21,000)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Bonus Deductions & Take-Home Net Pay</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Income Tax Deducted on Bonus</span>
+          <strong id="bonus-income-tax-deduction">£1,000.00 (20%)</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>National Insurance (Class 1) Deducted</span>
+          <strong id="bonus-ni-deduction">£400.00 (8%)</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Student Loan Repayment Deducted</span>
+          <strong id="bonus-student-loan-deduction">£0.00</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Net Bonus Cash Take-Home</span>
+          <strong id="net-bonus-take-home">£3,600.00 (72.0% Retention)</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="impuestos" />
+  </div>
+</div>
+
+<script>
+  function calculateBonusNet() {
+    const salaryEl = document.getElementById('base-annual-salary') as HTMLInputElement;
+    const bonusEl = document.getElementById('gross-bonus-amount') as HTMLInputElement;
+    const planEl = document.getElementById('bonus-student-loan-plan') as HTMLSelectElement;
+
+    if (!salaryEl || !bonusEl || !planEl) return;
+
+    const baseSalary = parseFloat(salaryEl.value) || 0;
+    const bonus = parseFloat(bonusEl.value) || 0;
+    const plan = planEl.value;
+
+    const totalIncome = baseSalary + bonus;
+    const basicThreshold = 50270;
+
+    // Marginal Income Tax rate calculation for rUK
+    let taxRate = 0.20;
+    if (baseSalary >= 125140) taxRate = 0.45;
+    else if (baseSalary >= 50270) taxRate = 0.40;
+    else if (totalIncome > 50270) {
+      // Split marginal rate
+      const inBasic = Math.max(0, basicThreshold - baseSalary);
+      const inHigher = bonus - inBasic;
+      const taxVal = (inBasic * 0.20) + (inHigher * 0.40);
+      taxRate = bonus > 0 ? taxVal / bonus : 0.20;
+    }
+
+    const incomeTaxDeducted = bonus * taxRate;
+
+    // Class 1 Primary NI (8% up to £50,270, 2% thereafter)
+    let niRate = 0.08;
+    if (baseSalary >= 50270) niRate = 0.02;
+    const niDeducted = bonus * niRate;
+
+    // Student loan marginal rate
+    let slRate = 0;
+    if (plan === 'plan1' || plan === 'plan2' || plan === 'plan5') slRate = 0.09;
+    if (plan === 'postgrad') slRate = 0.06;
+    const slDeducted = bonus * slRate;
+
+    const netBonus = Math.max(0, bonus - incomeTaxDeducted - niDeducted - slDeducted);
+    const retentionPct = bonus > 0 ? (netBonus / bonus) * 100 : 0;
+
+    const taxResEl = document.getElementById('bonus-income-tax-deduction');
+    const niResEl = document.getElementById('bonus-ni-deduction');
+    const slResEl = document.getElementById('bonus-student-loan-deduction');
+    const netResEl = document.getElementById('net-bonus-take-home');
+
+    if (taxResEl) taxResEl.textContent = '£' + incomeTaxDeducted.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` (${(taxRate*100).toFixed(0)}%)`;
+    if (niResEl) niResEl.textContent = '£' + niDeducted.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` (${(niRate*100).toFixed(0)}%)`;
+    if (slResEl) slResEl.textContent = '£' + slDeducted.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (netResEl) netResEl.textContent = '£' + netBonus.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` (${retentionPct.toFixed(1)}% Retention)`;
+  }
+
+  ['base-annual-salary', 'gross-bonus-amount', 'bonus-tax-region', 'bonus-student-loan-plan'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateBonusNet);
+    document.getElementById(id)?.addEventListener('change', calculateBonusNet);
+  });
+  calculateBonusNet();
+</script>

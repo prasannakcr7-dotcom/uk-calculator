@@ -1,0 +1,106 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Mortgage Borrowing Amount (£)</span></div>
+      <div class="amount-field"><input type="number" id="compare-mortgage-amount" value="250000" min="10000" step="5000" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Annual Interest Rate (%)</span></div>
+      <div class="amount-field"><input type="number" id="compare-interest-rate" value="4.5" min="0.5" max="15" step="0.1" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Mortgage Term (Years)</span></div>
+      <div class="amount-field"><input type="number" id="compare-mortgage-term" value="25" min="5" max="40" step="1" /></div>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <h3>Mortgage Model Comparison Matrix</h3>
+      <div class="breakdown-row net">
+        <span>Capital Repayment Monthly Payment:</span>
+        <strong id="repayment-monthly-display">£0.00 / month</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Interest-Only Monthly Payment:</span>
+        <strong id="interest-only-monthly-display">£0.00 / month</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Monthly Cash Outlay Difference:</span>
+        <strong id="monthly-cash-diff">£0.00 / month lower on Interest-Only</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Capital Repayment End-of-Term Balance:</span>
+        <strong>£0.00 (100% Fully Paid Off)</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Interest-Only End-of-Term Remaining Balance:</span>
+        <strong id="interest-only-end-balance">£250,000.00 (Full Principal Still Owed!)</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Lifetime Interest Paid Difference:</span>
+        <strong id="lifetime-interest-diff">£0.00</strong>
+      
+  </div>
+</div>
+
+<script>
+  function pmtr(r: number, n: number, p: number) {
+    if (r === 0) return p / n;
+    return (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+  }
+
+  function calculateRepayVsInterestOnly() {
+    const P = parseFloat((document.getElementById('compare-mortgage-amount') as HTMLInputElement).value) || 0;
+    const ratePct = parseFloat((document.getElementById('compare-interest-rate') as HTMLInputElement).value) || 0;
+    const years = parseInt((document.getElementById('compare-mortgage-term') as HTMLInputElement).value) || 25;
+
+    const r = (ratePct / 100) / 12;
+    const n = years * 12;
+
+    const repaymentMonthly = pmtr(r, n, P);
+    const repaymentTotalPaid = repaymentMonthly * n;
+    const repaymentTotalInterest = Math.max(0, repaymentTotalPaid - P);
+
+    const interestOnlyMonthly = P * r;
+    const interestOnlyTotalInterest = interestOnlyMonthly * n;
+    const interestOnlyTotalPaid = interestOnlyTotalInterest + P; // Total paid including end-of-term principal repayment
+
+    const monthlyDiff = repaymentMonthly - interestOnlyMonthly;
+    const interestDiff = interestOnlyTotalInterest - repaymentTotalInterest;
+
+    (document.getElementById('repayment-monthly-display') as HTMLElement).textContent = '£' + repaymentMonthly.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    (document.getElementById('interest-only-monthly-display') as HTMLElement).textContent = '£' + interestOnlyMonthly.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    (document.getElementById('monthly-cash-diff') as HTMLElement).textContent = '£' + monthlyDiff.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month cheaper';
+    (document.getElementById('interest-only-end-balance') as HTMLElement).textContent = '£' + P.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' (100% Principal Owed)';
+    (document.getElementById('lifetime-interest-diff') as HTMLElement).textContent = '£' + interestDiff.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' more interest paid on Interest-Only';
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateRepayVsInterestOnly);
+  calculateRepayVsInterestOnly();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

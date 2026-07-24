@@ -1,0 +1,106 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Duration & Working Days Details'}</h2>
+
+      <!-- Weeks Duration -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.weeksLabel || 'Duration (Weeks)'}</span>
+          <span class="hint" id="weeksVal">4 Weeks</span>
+        </div>
+        <input type="range" min="1" max="52" step="1" value="4" id="weeksSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1 Week</span><span>52 Weeks</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--work-1), var(--work-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Total Business Working Days'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">20 Days</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.weekendLabel || 'Weekend Days Excluded:'}</span>
+        <span class="val" id="subResultValue">8 Days</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Days Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Total Calendar Days</span>
+          <span class="val" id="totalDaysDisplay">28 Days</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Weekend Days (Sat & Sun)</span>
+          <span class="val" id="weekendDaysDisplay">8 Days</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Working Business Days</span>
+          <span class="val" id="workingDaysDisplay" style="font-weight: 700; font-size: 18px;">20 Days</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • Average UK year: <strong>260 working days</strong> (52 wks × 5 days).<br/>
+        • Less 8 Bank Holidays: <strong>252 working days</strong>.<br/>
+        • Standard working week: <strong>5 days (Mon–Fri)</strong>.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  const weeksSlider = document.getElementById('weeksSlider') as HTMLInputElement;
+  const weeksVal = document.getElementById('weeksVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const totalDaysDisplay = document.getElementById('totalDaysDisplay') as HTMLElement;
+  const weekendDaysDisplay = document.getElementById('weekendDaysDisplay') as HTMLElement;
+  const workingDaysDisplay = document.getElementById('workingDaysDisplay') as HTMLElement;
+
+  weeksSlider.addEventListener('input', calculate);
+
+  function calculate() {
+    const wks = parseInt(weeksSlider.value, 10);
+    weeksVal.textContent = `${wks} Weeks`;
+
+    const totalDays = wks * 7;
+    const weekendDays = wks * 2;
+    const workingDays = totalDays - weekendDays;
+
+    mainResultDisplay.textContent = `${workingDays} Days`;
+    subResultValue.textContent = `${weekendDays} Days`;
+    totalDaysDisplay.textContent = `${totalDays} Days`;
+    weekendDaysDisplay.textContent = `${weekendDays} Days`;
+    workingDaysDisplay.textContent = `${workingDays} Days`;
+  }
+
+  calculate();
+</script>

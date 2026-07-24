@@ -1,0 +1,131 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout mobility-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Motorcycle Running Costs Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Annual Riding Mileage (Miles)</span></div>
+        <div class="amount-field">
+          <input type="number" id="bike-annual-mileage" value="4500" min="500" step="500" />
+          <span class="cur">miles</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Fuel Economy (Miles Per Gallon - MPG)</span></div>
+        <div class="amount-field">
+          <input type="number" id="bike-fuel-mpg" value="65" min="25" max="120" step="5" />
+          <span class="cur">MPG</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Annual Motorcycle Insurance Premium (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="bike-annual-insurance" value="420" min="50" step="25" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Annual VED Road Tax (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="bike-annual-ved" value="117" min="25" step="10" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--mobility-1), var(--mobility-2) 80%);">
+      <div class="result-label">Total Annual Motorcycle Ownership Cost</div>
+      <div class="result-amount"><span id="mainResultDisplay">£1,438.50 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Monthly Equivalent Outlay:</span>
+        <span class="val" id="subResultValue">£119.88 / month</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Motorcycle Expense Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Annual Petrol Cost (65 MPG @ £1.45/L)</span>
+          <span class="val" id="annualFuelCostDisplay">£451.50</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Insurance & VED Road Tax</span>
+          <span class="val" id="insuranceTaxDisplay">£537.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Servicing, MOT & Tyres Estimate</span>
+          <span class="val" id="servicingTyresDisplay">£450.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Combined Annual Running Cost</span>
+          <span class="val" id="totalBikeCostDisplay" style="font-weight: 700; font-size: 18px;">£1,438.50 / year (£119.88/mo)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="movilidad" />
+  </div>
+</div>
+
+<script>
+  function calculateBikeCosts() {
+    const milesEl = document.getElementById('bike-annual-mileage') as HTMLInputElement;
+    const mpgEl = document.getElementById('bike-fuel-mpg') as HTMLInputElement;
+    const insEl = document.getElementById('bike-annual-insurance') as HTMLInputElement;
+    const vedEl = document.getElementById('bike-annual-ved') as HTMLInputElement;
+
+    if (!milesEl || !mpgEl || !insEl || !vedEl) return;
+
+    const miles = parseFloat(milesEl.value) || 0;
+    const mpg = parseFloat(mpgEl.value) || 65;
+    const ins = parseFloat(insEl.value) || 0;
+    const ved = parseFloat(vedEl.value) || 0;
+
+    // 1 UK Gallon = 4.54609 Litres, Petrol ~£1.45/L (£6.59/gal)
+    const pricePerGallon = 1.45 * 4.54609;
+    const fuelCost = (miles / mpg) * pricePerGallon;
+    const servicingCost = 450;
+    const totalAnnual = fuelCost + ins + ved + servicingCost;
+    const monthly = totalAnnual / 12;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const fuelRes = document.getElementById('annualFuelCostDisplay');
+    const insRes = document.getElementById('insuranceTaxDisplay');
+    const servRes = document.getElementById('servicingTyresDisplay');
+    const totalRes = document.getElementById('totalBikeCostDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + totalAnnual.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (subVal) subVal.textContent = '£' + monthly.toFixed(2) + ' / month';
+    if (fuelRes) fuelRes.textContent = '£' + fuelCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (insRes) insRes.textContent = '£' + (ins + ved).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (servRes) servRes.textContent = '£' + servicingCost.toFixed(2);
+    if (totalRes) totalRes.textContent = '£' + totalAnnual.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` / year (£${monthly.toFixed(2)}/mo)`;
+  }
+
+  ['bike-annual-mileage', 'bike-fuel-mpg', 'bike-annual-insurance', 'bike-annual-ved'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateBikeCosts);
+    document.getElementById(id)?.addEventListener('change', calculateBikeCosts);
+  });
+  calculateBikeCosts();
+</script>

@@ -1,0 +1,191 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout health-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'PIP Assessment Points & Component Details'}</h2>
+
+      <!-- Daily Living Activities Score Points -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.dailyLivingPointsLabel || 'Daily Living Activities Assessment Points'}</span>
+          <span class="hint" id="dailyLivingPointsVal">10 Points (Standard Daily Living Rate)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="10" id="dailyLivingPointsInput" inputmode="decimal" />
+          <span class="cur">pts</span>
+        </div>
+        <input type="range" min="0" max="24" step="1" value="10" id="dailyLivingPointsSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>0 pts</span><span>24 pts</span></div>
+      </div>
+
+      <!-- Mobility Activities Score Points -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.mobilityPointsLabel || 'Mobility Activities Assessment Points'}</span>
+          <span class="hint" id="mobilityPointsVal">12 Points (Enhanced Mobility Rate + Motability)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="12" id="mobilityPointsInput" inputmode="decimal" />
+          <span class="cur">pts</span>
+        </div>
+        <input type="range" min="0" max="24" step="1" value="12" id="mobilityPointsSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>0 pts</span><span>24 pts</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--health-1), var(--health-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Total PIP Award Payment'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£152.00 / week</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.monthlyAwardLabel || 'Monthly PIP Award Payment & Motability Eligibility:'}</span>
+        <span class="val" id="subResultValue">£658.67 / 4 weeks (Eligible for Motability Car Scheme)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'PIP Component Award Breakdown (2026/27 Rates)'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Daily Living Component (10 pts = Standard Rate)</span>
+          <span class="val" id="dailyLivingComponentDisplay">£72.65 / week</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Mobility Component (12 pts = Enhanced Rate)</span>
+          <span class="val" id="mobilityComponentDisplay">£79.35 / week</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Motability Scheme Car Eligibility</span>
+          <span class="val" id="motabilityDisplay">ELIGIBLE (Enhanced Mobility Awarded)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Weekly PIP Award Paid Every 4 Weeks</span>
+          <span class="val" id="totalPipDisplay" style="font-weight: 700; font-size: 18px;">£152.00 / week (£608.00 / 4 wks)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Daily Living Rates:</strong> Standard (8-11 pts = £72.65/wk); Enhanced (12+ pts = £108.55/wk).<br/>
+        • <strong>Mobility Rates:</strong> Standard (8-11 pts = £28.70/wk); Enhanced (12+ pts = £79.35/wk).<br/>
+        • <strong>Threshold Rule:</strong> Under 8 points on a component = £0 award for that component.<br/>
+        • <strong>Motability Scheme:</strong> Enhanced Mobility (£79.35/wk) qualifies for a brand new Motability vehicle.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  // PIP 2026/27 Statutory Weekly Rates
+  const DAILY_LIVING_STANDARD = 72.65;
+  const DAILY_LIVING_ENHANCED = 108.55;
+  const MOBILITY_STANDARD = 28.70;
+  const MOBILITY_ENHANCED = 79.35;
+
+  const dailyLivingPointsInput = document.getElementById('dailyLivingPointsInput') as HTMLInputElement;
+  const dailyLivingPointsSlider = document.getElementById('dailyLivingPointsSlider') as HTMLInputElement;
+  const dailyLivingPointsVal = document.getElementById('dailyLivingPointsVal') as HTMLElement;
+
+  const mobilityPointsInput = document.getElementById('mobilityPointsInput') as HTMLInputElement;
+  const mobilityPointsSlider = document.getElementById('mobilityPointsSlider') as HTMLInputElement;
+  const mobilityPointsVal = document.getElementById('mobilityPointsVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const dailyLivingComponentDisplay = document.getElementById('dailyLivingComponentDisplay') as HTMLElement;
+  const mobilityComponentDisplay = document.getElementById('mobilityComponentDisplay') as HTMLElement;
+  const motabilityDisplay = document.getElementById('motabilityDisplay') as HTMLElement;
+  const totalPipDisplay = document.getElementById('totalPipDisplay') as HTMLElement;
+
+  function calculate() {
+    const dailyPoints = parseInt(dailyLivingPointsSlider.value, 10);
+    const mobilityPoints = parseInt(mobilityPointsSlider.value, 10);
+
+    let dailyLivingRate = 0.00;
+    let dailyLivingText = '0 pts (No Award)';
+    if (dailyPoints >= 8 && dailyPoints < 12) {
+      dailyLivingRate = DAILY_LIVING_STANDARD;
+      dailyLivingText = `${dailyPoints} pts (Standard Rate £72.65/wk)`;
+    } else if (dailyPoints >= 12) {
+      dailyLivingRate = DAILY_LIVING_ENHANCED;
+      dailyLivingText = `${dailyPoints} pts (Enhanced Rate £108.55/wk)`;
+    }
+
+    let mobilityRate = 0.00;
+    let mobilityText = '0 pts (No Award)';
+    if (mobilityPoints >= 8 && mobilityPoints < 12) {
+      mobilityRate = MOBILITY_STANDARD;
+      mobilityText = `${mobilityPoints} pts (Standard Rate £28.70/wk)`;
+    } else if (mobilityPoints >= 12) {
+      mobilityRate = MOBILITY_ENHANCED;
+      mobilityText = `${mobilityPoints} pts (Enhanced Rate £79.35/wk)`;
+    }
+
+    const totalWeeklyPip = dailyLivingRate + mobilityRate;
+    const totalFourWeeklyPip = totalWeeklyPip * 4;
+
+    const isMotabilityEligible = mobilityPoints >= 12;
+
+    dailyLivingPointsVal.innerText = `${dailyPoints} Points (${dailyPoints >= 12 ? 'Enhanced Rate' : dailyPoints >= 8 ? 'Standard Rate' : 'Nil Award'})`;
+    mobilityPointsVal.innerText = `${mobilityPoints} Points (${mobilityPoints >= 12 ? 'Enhanced Rate + Motability' : mobilityPoints >= 8 ? 'Standard Rate' : 'Nil Award'})`;
+
+    mainResultDisplay.innerText = `${formatCurrency(totalWeeklyPip)} / week`;
+    subResultValue.innerText = `${formatCurrency(totalFourWeeklyPip)} paid every 4 weeks (${isMotabilityEligible ? 'Eligible for Motability Car Scheme' : 'Not Eligible for Motability'})`;
+
+    dailyLivingComponentDisplay.innerText = `${formatCurrency(dailyLivingRate)} / wk (${dailyLivingText})`;
+    mobilityComponentDisplay.innerText = `${formatCurrency(mobilityRate)} / wk (${mobilityText})`;
+    motabilityDisplay.innerText = isMotabilityEligible ? 'ELIGIBLE (Enhanced Mobility Awarded)' : 'Not Eligible (Requires 12+ Mobility Points)';
+    totalPipDisplay.innerText = `${formatCurrency(totalWeeklyPip)} / week (${formatCurrency(totalFourWeeklyPip)} / 4 wks)`;
+  }
+
+  dailyLivingPointsInput.addEventListener('input', () => {
+    const val = parseInputVal(dailyLivingPointsInput.value);
+    dailyLivingPointsSlider.value = String(val);
+    calculate();
+  });
+
+  dailyLivingPointsSlider.addEventListener('input', () => {
+    dailyLivingPointsInput.value = parseInt(dailyLivingPointsSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  mobilityPointsInput.addEventListener('input', () => {
+    const val = parseInputVal(mobilityPointsInput.value);
+    mobilityPointsSlider.value = String(val);
+    calculate();
+  });
+
+  mobilityPointsSlider.addEventListener('input', () => {
+    mobilityPointsInput.value = parseInt(mobilityPointsSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  calculate();
+</script>

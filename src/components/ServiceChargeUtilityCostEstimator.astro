@@ -1,0 +1,195 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Service Charge & Utility Details'}</h2>
+
+      <!-- Annual Service Charge -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.serviceChargeLabel || 'Annual Leasehold Service Charge (£)'}</span>
+          <span class="hint" id="serviceChargeVal">£2,400</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="2,400" id="serviceChargeInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="0" max="10000" step="100" value="2400" id="serviceChargeSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£0</span><span>£10,000</span></div>
+      </div>
+
+      <!-- Monthly Utility Bills -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.utilitiesLabel || 'Monthly Gas, Electricity & Water Bills (£)'}</span>
+          <span class="hint" id="utilitiesVal">£200</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="200" id="utilitiesInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="0" max="1000" step="10" value="200" id="utilitiesSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£0</span><span>£1,000/mo</span></div>
+      </div>
+
+      <!-- Annual Ground Rent -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.groundRentLabel || 'Annual Ground Rent (£)'}</span>
+          <span class="hint" id="groundRentVal">£150</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="150" id="groundRentInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="0" max="1000" step="25" value="150" id="groundRentSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£0</span><span>£1,000</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Total Monthly Housing Outgoings (Excl. Rent/Mortgage)'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£412.50/mo</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.annualTotalLabel || 'Total Annual Housing Outgoings:'}</span>
+        <span class="val" id="subResultValue">£4,950.00 / year</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Housing Outgoings Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Monthly Service Charge (£2,400 ÷ 12)</span>
+          <span class="val" id="monthlyServiceChargeDisplay">£200.00 / mo</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Monthly Utility Bills (Gas, Electric, Water)</span>
+          <span class="val" id="monthlyUtilitiesDisplay">£200.00 / mo</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Monthly Ground Rent (£150 ÷ 12)</span>
+          <span class="val" id="monthlyGroundRentDisplay">£12.50 / mo</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Monthly Non-Mortgage Outgoings</span>
+          <span class="val" id="netMonthlyDisplay" style="font-weight: 700; font-size: 18px;">£412.50 / month</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Reasonable Cost Rule:</strong> Service charges must be 'reasonably incurred' under Landlord and Tenant Act 1985.<br/>
+        • <strong>Major Works (£250 Rule):</strong> Section 20 consultation required if works exceed £250 per leaseholder.<br/>
+        • <strong>Ground Rent Act 2022:</strong> Ground rent banned on new residential leaseholds (peppercorn limit).<br/>
+        • <strong>Reserve Sinking Fund:</strong> Collects long-term capital maintenance funds for roof/lift repairs.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const serviceChargeInput = document.getElementById('serviceChargeInput') as HTMLInputElement;
+  const serviceChargeSlider = document.getElementById('serviceChargeSlider') as HTMLInputElement;
+  const serviceChargeVal = document.getElementById('serviceChargeVal') as HTMLElement;
+  const utilitiesInput = document.getElementById('utilitiesInput') as HTMLInputElement;
+  const utilitiesSlider = document.getElementById('utilitiesSlider') as HTMLInputElement;
+  const utilitiesVal = document.getElementById('utilitiesVal') as HTMLElement;
+  const groundRentInput = document.getElementById('groundRentInput') as HTMLInputElement;
+  const groundRentSlider = document.getElementById('groundRentSlider') as HTMLInputElement;
+  const groundRentVal = document.getElementById('groundRentVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const monthlyServiceChargeDisplay = document.getElementById('monthlyServiceChargeDisplay') as HTMLElement;
+  const monthlyUtilitiesDisplay = document.getElementById('monthlyUtilitiesDisplay') as HTMLElement;
+  const monthlyGroundRentDisplay = document.getElementById('monthlyGroundRentDisplay') as HTMLElement;
+  const netMonthlyDisplay = document.getElementById('netMonthlyDisplay') as HTMLElement;
+
+  function calculate() {
+    const annualServiceCharge = parseInputVal(serviceChargeInput.value);
+    const monthlyUtilities = parseInputVal(utilitiesInput.value);
+    const annualGroundRent = parseInputVal(groundRentInput.value);
+
+    const monthlyServiceCharge = annualServiceCharge / 12;
+    const monthlyGroundRent = annualGroundRent / 12;
+
+    const totalMonthly = monthlyServiceCharge + monthlyUtilities + monthlyGroundRent;
+    const totalAnnual = totalMonthly * 12;
+
+    serviceChargeVal.innerText = formatCurrency(annualServiceCharge).slice(0, -3);
+    utilitiesVal.innerText = `${formatCurrency(monthlyUtilities).slice(0, -3)}/mo`;
+    groundRentVal.innerText = formatCurrency(annualGroundRent).slice(0, -3);
+
+    mainResultDisplay.innerText = `${formatCurrency(totalMonthly)}/mo`;
+    subResultValue.innerText = `${formatCurrency(totalAnnual)} / year`;
+
+    monthlyServiceChargeDisplay.innerText = `${formatCurrency(monthlyServiceCharge)} / mo`;
+    monthlyUtilitiesDisplay.innerText = `${formatCurrency(monthlyUtilities)} / mo`;
+    monthlyGroundRentDisplay.innerText = `${formatCurrency(monthlyGroundRent)} / mo`;
+    netMonthlyDisplay.innerText = `${formatCurrency(totalMonthly)} / month`;
+  }
+
+  serviceChargeInput.addEventListener('input', () => {
+    const val = parseInputVal(serviceChargeInput.value);
+    serviceChargeSlider.value = String(val);
+    calculate();
+  });
+
+  serviceChargeSlider.addEventListener('input', () => {
+    serviceChargeInput.value = parseInt(serviceChargeSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  utilitiesInput.addEventListener('input', () => {
+    const val = parseInputVal(utilitiesInput.value);
+    utilitiesSlider.value = String(val);
+    calculate();
+  });
+
+  utilitiesSlider.addEventListener('input', () => {
+    utilitiesInput.value = parseInt(utilitiesSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  groundRentInput.addEventListener('input', () => {
+    const val = parseInputVal(groundRentInput.value);
+    groundRentSlider.value = String(val);
+    calculate();
+  });
+
+  groundRentSlider.addEventListener('input', () => {
+    groundRentInput.value = parseInt(groundRentSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  calculate();
+</script>

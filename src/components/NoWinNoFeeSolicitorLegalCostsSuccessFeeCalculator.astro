@@ -1,0 +1,119 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>No-Win No-Fee Claim Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Total Awarded Compensation Claim Value (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="nowin-compensation-amount" value="15000" min="1000" step="1000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Solicitor Success Fee Percentage Cap (% Max 25% for Personal Injury)</span></div>
+        <div class="amount-field">
+          <input type="number" id="nowin-success-fee-pct" value="25" min="5" max="25" step="1" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>After The Event (ATE) Legal Insurance Premium (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="nowin-ate-insurance-cost" value="450" min="0" step="50" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--work-1), var(--work-2) 80%);">
+      <div class="result-label">Net Compensation Retained by Claimant</div>
+      <div class="result-amount"><span id="mainResultDisplay">£10,800.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Total Solicitor & Insurance Deductions:</span>
+        <span class="val" id="subResultValue">£4,200.00 Deducted</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Claim Deductions Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Compensation Awarded</span>
+          <span class="val" id="grossCompensationDisplay">£15,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Solicitor Success Fee Deduction (25% Cap)</span>
+          <span class="val" id="solicitorSuccessFeeDisplay">£3,750.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>ATE Insurance Premium Fee</span>
+          <span class="val" id="ateInsuranceFeeDisplay">£450.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Cheque / Transfer to Claimant</span>
+          <span class="val" id="netClaimantPayoutDisplay" style="font-weight: 700; font-size: 18px;">£10,800.00 (72.0% Retention)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="trabajo" />
+  </div>
+</div>
+
+<script>
+  function calculateNoWinNoFee() {
+    const compEl = document.getElementById('nowin-compensation-amount') as HTMLInputElement;
+    const feePctEl = document.getElementById('nowin-success-fee-pct') as HTMLInputElement;
+    const ateEl = document.getElementById('nowin-ate-insurance-cost') as HTMLInputElement;
+
+    if (!compEl || !feePctEl || !ateEl) return;
+
+    const compensation = parseFloat(compEl.value) || 0;
+    const feePct = (parseFloat(feePctEl.value) || 25) / 100;
+    const ateCost = parseFloat(ateEl.value) || 0;
+
+    const successFee = compensation * feePct;
+    const totalDeductions = successFee + ateCost;
+    const netPayout = Math.max(0, compensation - totalDeductions);
+    const retentionPct = compensation > 0 ? (netPayout / compensation) * 100 : 0;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const grossRes = document.getElementById('grossCompensationDisplay');
+    const feeRes = document.getElementById('solicitorSuccessFeeDisplay');
+    const ateRes = document.getElementById('ateInsuranceFeeDisplay');
+    const netRes = document.getElementById('netClaimantPayoutDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + netPayout.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = '£' + totalDeductions.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Deducted';
+    if (grossRes) grossRes.textContent = '£' + compensation.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (feeRes) feeRes.textContent = '£' + successFee.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (ateRes) ateRes.textContent = '£' + ateCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (netRes) netRes.textContent = '£' + netPayout.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` (${retentionPct.toFixed(1)}% Retention)`;
+  }
+
+  ['nowin-compensation-amount', 'nowin-success-fee-pct', 'nowin-ate-insurance-cost'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateNoWinNoFee);
+    document.getElementById(id)?.addEventListener('change', calculateNoWinNoFee);
+  });
+  calculateNoWinNoFee();
+</script>

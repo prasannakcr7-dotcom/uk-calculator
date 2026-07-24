@@ -1,0 +1,178 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Window Area & U-Value Upgrade Details'}</h2>
+
+      <!-- Total Window Glass Area (sq m) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.windowAreaLabel || 'Total Property Window Glass Area (sq m)'}</span>
+          <span class="hint" id="windowAreaVal">20.0 sq m (Average 3-Bed House)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="20.0" id="windowAreaInput" inputmode="decimal" />
+          <span class="cur">sq m</span>
+        </div>
+        <input type="range" min="5" max="60" step="1" value="20" id="windowAreaSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>5 sq m</span><span>60 sq m</span></div>
+      </div>
+
+      <!-- Current Window Type -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.currentWindowLabel || 'Current Existing Window Type & U-Value'}</span>
+          <span class="hint" id="currentWindowVal">Old Single Glazing (4.8 W/m²K U-Value)</span>
+        </div>
+        <select id="currentSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="4.8" selected>Old Single Glazed Wooden / Metal Windows (4.8 W/m²K)</option>
+          <option value="2.8">Older 1990s Double Glazing (2.8 W/m²K)</option>
+          <option value="1.6">Standard 2000s Double Glazing (1.6 W/m²K)</option>
+        </select>
+      </div>
+
+      <!-- New Replacement Window Type -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.newWindowLabel || 'New Replacement Window Specification'}</span>
+          <span class="hint" id="newWindowVal">Part L Compliant A-Rated Double Glazing (1.2 W/m²K)</span>
+        </div>
+        <select id="newSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="1.2" selected>New Part L Compliant A-Rated Double Glazing (1.2 W/m²K U-Value)</option>
+          <option value="0.8">New A++ Triple Glazing / Passivhaus Spec (0.8 W/m²K U-Value)</option>
+          <option value="1.4">Standard B-Rated Double Glazing (1.4 W/m²K U-Value)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Annual Heating Bill Savings'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£245.00 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.uValueReductionLabel || 'Thermal Heat Loss Reduction & U-Value Delta:'}</span>
+        <span class="val" id="subResultValue">3.6 W/m²K U-Value Improvement (75% Heat Loss Reduction)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Energy & Heat Loss Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Existing Window Thermal Heat Loss</span>
+          <span class="val" id="oldLossDisplay">1,920 Watts (4.8 W/m²K)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>New Replacement Window Thermal Heat Loss</span>
+          <span class="val" id="newLossDisplay">480 Watts (1.2 W/m²K)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Saved Thermal Power Loss</span>
+          <span class="val" id="savedPowerDisplay">1,440 Watts Saved</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Estimated Annual Fuel Bill Reduction</span>
+          <span class="val" id="annualSavingsDisplay" style="font-weight: 700; font-size: 18px;">£245.00 / year (2,880 kWh Saved)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Building Regs Part L Limit:</strong> Replacement windows must achieve max 1.2 W/m²K (or Band B WER).<br/>
+        • <strong>U-Value Definition:</strong> Measures heat transfer rate (lower U-value = better insulation).<br/>
+        • <strong>FENSA Certification:</strong> Window installers self-certify Part L & Part N glass safety compliance.<br/>
+        • <strong>Low-E Argon Gas:</strong> Modern double glazing features Low-Emissivity glass & Argon gas filling.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const windowAreaInput = document.getElementById('windowAreaInput') as HTMLInputElement;
+  const windowAreaSlider = document.getElementById('windowAreaSlider') as HTMLInputElement;
+  const windowAreaVal = document.getElementById('windowAreaVal') as HTMLElement;
+  const currentSelect = document.getElementById('currentSelect') as HTMLSelectElement;
+  const newSelect = document.getElementById('newSelect') as HTMLSelectElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const oldLossDisplay = document.getElementById('oldLossDisplay') as HTMLElement;
+  const newLossDisplay = document.getElementById('newLossDisplay') as HTMLElement;
+  const savedPowerDisplay = document.getElementById('savedPowerDisplay') as HTMLElement;
+  const annualSavingsDisplay = document.getElementById('annualSavingsDisplay') as HTMLElement;
+
+  const GAS_KWH_PRICE = 0.075; // ~7.5p per kWh gas price
+
+  function calculate() {
+    const glassAreaSqm = parseInputVal(windowAreaInput.value);
+    const oldUValue = parseFloat(currentSelect.value);
+    const newUValue = parseFloat(newSelect.value);
+
+    // Delta U-Value
+    const uValueDiff = Math.max(0, oldUValue - newUValue);
+
+    // Heat Loss at 20°C indoor / 0°C outdoor temp difference (Delta 20K)
+    const oldWatts = glassAreaSqm * oldUValue * 20;
+    const newWatts = glassAreaSqm * newUValue * 20;
+    const savedWatts = oldWatts - newWatts;
+
+    // Annual kWh saved (~2,000 degree heating hours per UK winter season)
+    const savedKwh = (savedWatts * 2000) / 1000;
+    const annualFinancialSavings = savedKwh * GAS_KWH_PRICE;
+
+    const percentageReduction = oldUValue > 0 ? (uValueDiff / oldUValue) * 100 : 0;
+
+    windowAreaVal.innerText = `${glassAreaSqm.toFixed(1)} sq m`;
+
+    mainResultDisplay.innerText = `${formatCurrency(annualFinancialSavings)} / year`;
+    subResultValue.innerText = `${uValueDiff.toFixed(1)} W/m²K U-Value Improvement (${percentageReduction.toFixed(0)}% Heat Loss Reduction)`;
+
+    oldLossDisplay.innerText = `${Math.round(oldWatts)} Watts (${oldUValue.toFixed(1)} W/m²K)`;
+    newLossDisplay.innerText = `${Math.round(newWatts)} Watts (${newUValue.toFixed(1)} W/m²K)`;
+    savedPowerDisplay.innerText = `${Math.round(savedWatts)} Watts Saved`;
+    annualSavingsDisplay.innerText = `${formatCurrency(annualFinancialSavings)} / year (${Math.round(savedKwh).toLocaleString('en-GB')} kWh Saved)`;
+  }
+
+  windowAreaInput.addEventListener('input', () => {
+    const val = parseInputVal(windowAreaInput.value);
+    windowAreaSlider.value = String(val);
+    calculate();
+  });
+
+  windowAreaSlider.addEventListener('input', () => {
+    windowAreaInput.value = parseInt(windowAreaSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  currentSelect.addEventListener('change', calculate);
+  newSelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

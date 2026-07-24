@@ -1,0 +1,118 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>IR35 Contractor Contract Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Daily Contract Rate (£/day)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="ir35-daily-rate" value="550" min="100" step="25" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Working Days Per Year (Standard 220 Days)</span></div>
+        <div class="amount-field">
+          <input type="number" id="ir35-annual-days" value="220" min="50" max="260" step="5" />
+          <span class="cur">days</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--work-1), var(--work-2) 80%);">
+      <div class="result-label">Outside IR35 Net Take-Home Advantage</div>
+      <div class="result-amount"><span id="mainResultDisplay">£12,450.00 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Outside vs Inside Retention Difference:</span>
+        <span class="val" id="subResultValue">+10.2% Higher Retention</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 IR35 Inside vs Outside Comparison Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Invoiced Revenue (£550/day x 220 days)</span>
+          <span class="val" id="grossContractRevenueDisplay">£121,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Inside IR35 Net Annual Take-Home (Umbrella/PAYE)</span>
+          <span class="val" id="insideTakeHomeDisplay">£71,850.00 (59.4%)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Outside IR35 Net Annual Take-Home (Ltd Dividends)</span>
+          <span class="val" id="outsideTakeHomeDisplay">£84,300.00 (69.7%)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Extra Cash Kept Outside IR35</span>
+          <span class="val" id="extraOutsideCashDisplay" style="font-weight: 700; font-size: 18px;">+£12,450.00 / year (+£1,037.50/mo)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="trabajo" />
+  </div>
+</div>
+
+<script>
+  function calculateIr35Comparison() {
+    const rateEl = document.getElementById('ir35-daily-rate') as HTMLInputElement;
+    const daysEl = document.getElementById('ir35-annual-days') as HTMLInputElement;
+
+    if (!rateEl || !daysEl) return;
+
+    const dayRate = parseFloat(rateEl.value) || 0;
+    const days = parseInt(daysEl.value) || 220;
+
+    const grossRevenue = dayRate * days;
+
+    // Inside IR35: Employer NI (~13.8%), Apprenticeship Levy (0.5%), PAYE Tax + Employee NI
+    // Approx ~59.4% net retention
+    const insideNet = grossRevenue * 0.5938;
+
+    // Outside IR35: Small Corp Tax (19-25%), Low Salary (£12.57k) + Dividend Tax
+    // Approx ~69.67% net retention
+    const outsideNet = grossRevenue * 0.6967;
+
+    const diff = Math.max(0, outsideNet - insideNet);
+    const diffMonthly = diff / 12;
+    const retentionDiffPct = grossRevenue > 0 ? (diff / grossRevenue) * 100 : 0;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const grossRes = document.getElementById('grossContractRevenueDisplay');
+    const insideRes = document.getElementById('insideTakeHomeDisplay');
+    const outsideRes = document.getElementById('outsideTakeHomeDisplay');
+    const extraRes = document.getElementById('extraOutsideCashDisplay');
+
+    if (mainRes) mainRes.textContent = '+£' + diff.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (subVal) subVal.textContent = '+' + retentionDiffPct.toFixed(1) + '% Higher Retention';
+    if (grossRes) grossRes.textContent = '£' + grossRevenue.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (insideRes) insideRes.textContent = '£' + insideNet.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' (59.4%)';
+    if (outsideRes) outsideRes.textContent = '£' + outsideNet.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' (69.7%)';
+    if (extraRes) extraRes.textContent = '+£' + diff.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` / year (+£${diffMonthly.toFixed(2)}/mo)`;
+  }
+
+  ['ir35-daily-rate', 'ir35-annual-days'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateIr35Comparison);
+    document.getElementById(id)?.addEventListener('change', calculateIr35Comparison);
+  });
+  calculateIr35Comparison();
+</script>

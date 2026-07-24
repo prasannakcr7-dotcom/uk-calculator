@@ -1,0 +1,125 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout finance-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Initial Investment Deposit (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="initial-deposit-val" value="5000" min="0" step="500" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Regular Monthly Contribution (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="monthly-contribution-val" value="250" min="0" step="25" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Annual Interest Rate / Expected Return (% p.a.)</span></div>
+        <div class="amount-field">
+          <input type="number" id="compound-annual-rate" value="7.0" min="0.1" max="25" step="0.1" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Investment Horizon (Years)</span></div>
+        <div class="amount-field">
+          <input type="number" id="investment-years-val" value="20" min="1" max="50" step="1" />
+          <span class="cur">yrs</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Compound Interest Growth Projection</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Initial Deposit Principal</span>
+          <strong id="initial-principal-display">£5,000.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Total Monthly Contributions Added</span>
+          <strong id="total-contributions-display">£60,000.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Total Earned Compound Interest</span>
+          <strong id="total-interest-earned-display">£65,324.12</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Final Projected Balance</span>
+          <strong id="final-projected-balance">£130,324.12</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="finanzas" />
+  </div>
+</div>
+
+<script>
+  function calculateCompoundInterest() {
+    const depositEl = document.getElementById('initial-deposit-val') as HTMLInputElement;
+    const monthlyEl = document.getElementById('monthly-contribution-val') as HTMLInputElement;
+    const rateEl = document.getElementById('compound-annual-rate') as HTMLInputElement;
+    const yearsEl = document.getElementById('investment-years-val') as HTMLInputElement;
+
+    if (!depositEl || !monthlyEl || !rateEl || !yearsEl) return;
+
+    const P = parseFloat(depositEl.value) || 0;
+    const PMT = parseFloat(monthlyEl.value) || 0;
+    const annualRate = (parseFloat(rateEl.value) || 0) / 100;
+    const years = parseInt(yearsEl.value) || 0;
+
+    const r = annualRate / 12;
+    const n = years * 12;
+
+    let futureValueDeposit = P * Math.pow(1 + r, n);
+    let futureValueContributions = 0;
+
+    if (r > 0) {
+      futureValueContributions = PMT * ((Math.pow(1 + r, n) - 1) / r);
+    } else {
+      futureValueContributions = PMT * n;
+    }
+
+    const finalBalance = futureValueDeposit + futureValueContributions;
+    const totalContributions = P + (PMT * n);
+    const totalInterest = Math.max(0, finalBalance - totalContributions);
+
+    const pEl = document.getElementById('initial-principal-display');
+    const cEl = document.getElementById('total-contributions-display');
+    const iEl = document.getElementById('total-interest-earned-display');
+    const bEl = document.getElementById('final-projected-balance');
+
+    if (pEl) pEl.textContent = '£' + P.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (cEl) cEl.textContent = '£' + (PMT * n).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (iEl) iEl.textContent = '£' + totalInterest.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (bEl) bEl.textContent = '£' + finalBalance.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['initial-deposit-val', 'monthly-contribution-val', 'compound-annual-rate', 'investment-years-val'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateCompoundInterest);
+    document.getElementById(id)?.addEventListener('change', calculateCompoundInterest);
+  });
+  calculateCompoundInterest();
+</script>

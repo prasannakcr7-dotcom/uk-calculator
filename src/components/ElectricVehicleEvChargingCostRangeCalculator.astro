@@ -1,0 +1,114 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout mobility-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>EV Battery Capacity (Usable kWh)</span></div>
+        <div class="amount-field">
+          <input type="number" id="ev-battery-kwh" value="64" min="10" max="150" step="1" />
+          <span class="cur">kWh</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>EV Real-World Efficiency (Miles per kWh)</span></div>
+        <div class="amount-field">
+          <input type="number" id="ev-efficiency-mpkwh" value="3.8" min="1.5" max="6.0" step="0.1" />
+          <span class="cur">mi/kWh</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Charging Tariff Rate (Pence per kWh)</span></div>
+        <div class="amount-field">
+          <input type="number" id="ev-charging-rate-pence" value="7.5" min="2" max="100" step="0.5" />
+          <span class="cur">p/kWh</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Annual Driving Distance (Miles)</span></div>
+        <div class="amount-field">
+          <input type="number" id="ev-annual-miles" value="9000" min="500" step="500" />
+          <span class="cur">mi</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>EV Charging Cost & Range Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Estimated Total Single-Charge Driving Range</span>
+          <strong id="ev-estimated-range-miles">243.2 miles</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Full 0-100% Charge Cost</span>
+          <strong id="ev-full-charge-cost">£4.80</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Fuel Cost Per Mile</span>
+          <strong id="ev-cost-per-mile-pence">1.97p / mile</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Total Annual EV Fuel Outlay</span>
+          <strong id="ev-annual-charging-cost">£177.63 / year</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="movilidad" />
+  </div>
+</div>
+
+<script>
+  function calculateEvChargingCost() {
+    const batteryEl = document.getElementById('ev-battery-kwh') as HTMLInputElement;
+    const effEl = document.getElementById('ev-efficiency-mpkwh') as HTMLInputElement;
+    const rateEl = document.getElementById('ev-charging-rate-pence') as HTMLInputElement;
+    const milesEl = document.getElementById('ev-annual-miles') as HTMLInputElement;
+
+    if (!batteryEl || !effEl || !rateEl || !milesEl) return;
+
+    const batteryKwh = parseFloat(batteryEl.value) || 64;
+    const mpKwh = parseFloat(effEl.value) || 3.8;
+    const ratePence = parseFloat(rateEl.value) || 7.5;
+    const annualMiles = parseFloat(milesEl.value) || 9000;
+
+    const estimatedRange = batteryKwh * mpKwh;
+    const fullChargeCost = batteryKwh * (ratePence / 100);
+    const costPerMilePence = mpKwh > 0 ? ratePence / mpKwh : 0;
+    const annualChargingCost = (annualMiles / mpKwh) * (ratePence / 100);
+
+    const rangeResEl = document.getElementById('ev-estimated-range-miles');
+    const fullResEl = document.getElementById('ev-full-charge-cost');
+    const mileResEl = document.getElementById('ev-cost-per-mile-pence');
+    const annualResEl = document.getElementById('ev-annual-charging-cost');
+
+    if (rangeResEl) rangeResEl.textContent = estimatedRange.toFixed(1) + ' miles';
+    if (fullResEl) fullResEl.textContent = '£' + fullChargeCost.toFixed(2);
+    if (mileResEl) mileResEl.textContent = costPerMilePence.toFixed(2) + 'p / mile';
+    if (annualResEl) annualResEl.textContent = '£' + annualChargingCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+  }
+
+  ['ev-battery-kwh', 'ev-efficiency-mpkwh', 'ev-charging-rate-pence', 'ev-annual-miles'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateEvChargingCost);
+    document.getElementById(id)?.addEventListener('change', calculateEvChargingCost);
+  });
+  calculateEvChargingCost();
+</script>

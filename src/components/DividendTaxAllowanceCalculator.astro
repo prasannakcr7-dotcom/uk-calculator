@@ -1,0 +1,131 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Dividend Income Details'}</h2>
+
+      <!-- Dividend Income -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.dividendLabel || 'Annual Gross Dividend Income (£)'}</span>
+          <span class="hint" id="dividendVal">£8,000</span>
+        </div>
+        <div class="amount-field" style="margin-top: 0; margin-bottom: 0;">
+          <input type="text" value="8,000" id="dividendIncomeInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="1000" max="50000" step="500" value="8000" id="dividendIncomeSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£1,000</span><span>£50,000</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Total Dividend Income Tax Liability (Basic 8.75%)'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£656.25/yr</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.allowanceLabel || 'Statutory Tax-Free Allowance:'}</span>
+        <span class="val" id="subResultValue">£500.00/yr</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Dividend Tax Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Dividend Income</span>
+          <span class="val" id="grossDividendDisplay">£8,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Tax-Free Dividend Allowance (2026/27)</span>
+          <span class="val" id="allowanceDisplay">£500.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Taxable Dividend Amount</span>
+          <span class="val" id="taxableDividendDisplay">£7,500.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Basic Rate Dividend Tax (8.75%)</span>
+          <span class="val" id="totalDividendTaxDisplay" style="font-weight: 700; font-size: 18px;">£656.25</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • Allowance: <strong>£500</strong> (0%)<br/>
+        • Basic Rate Band: <strong>8.75%</strong><br/>
+        • Higher Rate Band: <strong>33.75%</strong><br/>
+        • Additional Rate Band: <strong>39.35%</strong>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const dividendIncomeInput = document.getElementById('dividendIncomeInput') as HTMLInputElement;
+  const dividendIncomeSlider = document.getElementById('dividendIncomeSlider') as HTMLInputElement;
+  const dividendVal = document.getElementById('dividendVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const grossDividendDisplay = document.getElementById('grossDividendDisplay') as HTMLElement;
+  const allowanceDisplay = document.getElementById('allowanceDisplay') as HTMLElement;
+  const taxableDividendDisplay = document.getElementById('taxableDividendDisplay') as HTMLElement;
+  const totalDividendTaxDisplay = document.getElementById('totalDividendTaxDisplay') as HTMLElement;
+
+  dividendIncomeInput.addEventListener('input', () => {
+    const val = parseInputVal(dividendIncomeInput.value);
+    dividendIncomeSlider.value = String(Math.min(50000, Math.max(1000, val)));
+    calculate();
+  });
+
+  dividendIncomeSlider.addEventListener('input', () => {
+    dividendIncomeInput.value = dividendIncomeSlider.value;
+    calculate();
+  });
+
+  function calculate() {
+    const divInc = parseInputVal(dividendIncomeInput.value);
+    dividendVal.textContent = formatCurrency(divInc);
+
+    const allowance = 500;
+    const taxable = Math.max(0, divInc - allowance);
+    const tax = taxable * 0.0875;
+
+    mainResultDisplay.textContent = `${formatCurrency(tax)}/yr`;
+    subResultValue.textContent = formatCurrency(allowance);
+    grossDividendDisplay.textContent = formatCurrency(divInc);
+    allowanceDisplay.textContent = formatCurrency(allowance);
+    taxableDividendDisplay.textContent = formatCurrency(taxable);
+    totalDividendTaxDisplay.textContent = formatCurrency(tax);
+  }
+
+  calculate();
+</script>

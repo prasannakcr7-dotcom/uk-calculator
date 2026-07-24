@@ -1,0 +1,101 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Annual Pensionable Salary (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="fps-pensionable-pay" value="36200" min="15000" step="1000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Years of Service in FPS 2015 Scheme</span></div>
+        <div class="amount-field">
+          <input type="number" id="fps-qualifying-years" value="20" min="1" max="40" step="1" />
+          <span class="cur">yrs</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Firefighters' Pension (FPS 2015) Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Member Employee Contribution Rate</span>
+          <strong id="fps-member-rate-display">13.40% (£404.23/mo)</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>CARE Scheme Accrual Rate</span>
+          <strong id="fps-accrual-rate">1/59.7th (1.674%)</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Normal Retirement Age</span>
+          <strong id="fps-retirement-age">Age 60 (Age 55 for Early)</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Estimated Annual Accrued Pension</span>
+          <strong id="fps-accrued-annual-pension">£12,127.30 / year</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="social" />
+  </div>
+</div>
+
+<script>
+  function calculateFps() {
+    const payEl = document.getElementById('fps-pensionable-pay') as HTMLInputElement;
+    const yearsEl = document.getElementById('fps-qualifying-years') as HTMLInputElement;
+
+    if (!payEl || !yearsEl) return;
+
+    const pay = parseFloat(payEl.value) || 0;
+    const years = parseInt(yearsEl.value) || 0;
+
+    // FPS 2015 Rules:
+    // Accrual Rate: 1/59.7th (~1.674%)
+    // Contribution Bands 2026/27:
+    // Up to £27,818: 11.0%
+    // £27,819 - £51,515: 12.9% - 13.4%
+    // Over £51,515: 14.5%
+
+    const accrualRate = 1 / 59.7;
+    const annualPension = pay * accrualRate * years;
+
+    let contribRate = 0.11;
+    if (pay > 51515) contribRate = 0.145;
+    else if (pay > 27818) contribRate = 0.134;
+
+    const monthlyContrib = (pay * contribRate) / 12;
+
+    const rateEl = document.getElementById('fps-member-rate-display');
+    const pensionEl = document.getElementById('fps-accrued-annual-pension');
+
+    if (rateEl) rateEl.textContent = (contribRate * 100).toFixed(2) + '% (£' + monthlyContrib.toFixed(2) + '/mo)';
+    if (pensionEl) pensionEl.textContent = '£' + annualPension.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+  }
+
+  ['fps-pensionable-pay', 'fps-qualifying-years'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateFps);
+    document.getElementById(id)?.addEventListener('change', calculateFps);
+  });
+  calculateFps();
+</script>

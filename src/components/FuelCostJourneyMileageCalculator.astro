@@ -1,0 +1,124 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout mobility-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Total Journey Distance (Miles)</span></div>
+        <div class="amount-field">
+          <input type="number" id="journey-distance-miles" value="180" min="1" step="10" />
+          <span class="cur">miles</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Fuel Economy (Miles Per Gallon - MPG)</span></div>
+        <div class="amount-field">
+          <input type="number" id="fuel-economy-mpg" value="45" min="10" max="100" step="1" />
+          <span class="cur">MPG</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Fuel Price (Pence per Litre)</span></div>
+        <div class="amount-field">
+          <input type="number" id="fuel-price-pence-litre" value="145.9" min="50" max="250" step="0.5" />
+          <span class="cur">p/L</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Number of Passengers Sharing Cost</span></div>
+        <div class="amount-field">
+          <input type="number" id="passengers-sharing-count" value="1" min="1" max="10" step="1" />
+          <span class="cur">people</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Journey Fuel Cost Breakdown</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Fuel Consumed (Litres)</span>
+          <strong id="fuel-litres-used">18.18 Litres</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Fuel Consumed (UK Gallons)</span>
+          <strong id="fuel-gallons-used">4.00 Gallons</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Fuel Cost Per Mile</span>
+          <strong id="fuel-cost-per-mile">14.74p / mile</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Cost Per Passenger</span>
+          <strong id="cost-per-passenger-val">£26.53 / person</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Total One-Way Journey Fuel Cost</span>
+          <strong id="total-journey-fuel-cost">£26.53</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="movilidad" />
+  </div>
+</div>
+
+<script>
+  function calculateFuelCost() {
+    const distEl = document.getElementById('journey-distance-miles') as HTMLInputElement;
+    const mpgEl = document.getElementById('fuel-economy-mpg') as HTMLInputElement;
+    const priceEl = document.getElementById('fuel-price-pence-litre') as HTMLInputElement;
+    const passEl = document.getElementById('passengers-sharing-count') as HTMLInputElement;
+
+    if (!distEl || !mpgEl || !priceEl || !passEl) return;
+
+    const miles = parseFloat(distEl.value) || 0;
+    const mpg = parseFloat(mpgEl.value) || 45;
+    const pencePerLitre = parseFloat(priceEl.value) || 145.9;
+    const passengers = parseInt(passEl.value) || 1;
+
+    // 1 UK Gallon = 4.54609 Litres
+    const gallonsUsed = miles / mpg;
+    const litresUsed = gallonsUsed * 4.54609;
+    const pricePerLitreGbp = pencePerLitre / 100;
+
+    const totalCost = litresUsed * pricePerLitreGbp;
+    const costPerMilePence = miles > 0 ? (totalCost / miles) * 100 : 0;
+    const costPerPassenger = passengers > 0 ? totalCost / passengers : totalCost;
+
+    const litEl = document.getElementById('fuel-litres-used');
+    const galEl = document.getElementById('fuel-gallons-used');
+    const mileEl = document.getElementById('fuel-cost-per-mile');
+    const passResEl = document.getElementById('cost-per-passenger-val');
+    const totalEl = document.getElementById('total-journey-fuel-cost');
+
+    if (litEl) litEl.textContent = litresUsed.toFixed(2) + ' Litres';
+    if (galEl) galEl.textContent = gallonsUsed.toFixed(2) + ' Gallons';
+    if (mileEl) mileEl.textContent = costPerMilePence.toFixed(2) + 'p / mile';
+    if (passResEl) passResEl.textContent = '£' + costPerPassenger.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / person';
+    if (totalEl) totalEl.textContent = '£' + totalCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['journey-distance-miles', 'fuel-economy-mpg', 'fuel-price-pence-litre', 'passengers-sharing-count'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateFuelCost);
+    document.getElementById(id)?.addEventListener('change', calculateFuelCost);
+  });
+  calculateFuelCost();
+</script>

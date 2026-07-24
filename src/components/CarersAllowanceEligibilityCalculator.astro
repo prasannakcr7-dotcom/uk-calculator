@@ -1,0 +1,122 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Carer's Allowance Eligibility Assessment</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Weekly Care Hours Provided (Min 35 Hours Required)</span></div>
+        <div class="amount-field">
+          <input type="number" id="care-hours-provided" value="38" min="0" max="100" step="1" />
+          <span class="cur">hrs/wk</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Qualifying Disability Benefit of Person Cared For</span></div>
+        <select id="cared-person-benefit-status" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="yes" selected>Yes - PIP Daily Living / DLA Middle-Highest Rate / AA / ADP</option>
+          <option value="no">No Qualifying Benefit Received</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Weekly Net Earnings (Limit £151/week)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="carer-net-weekly-earnings" value="120" min="0" step="5" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--social-1), var(--social-2) 80%);">
+      <div class="result-label">Statutory Weekly Carer's Allowance Rate</div>
+      <div class="result-amount"><span id="mainResultDisplay">£81.90 / week</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Eligibility Status:</span>
+        <span class="val" id="subResultValue">Eligible for Full Allowance</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Eligibility Criteria Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Weekly Care Hours Check (35+ hrs)</span>
+          <span class="val" id="careHoursCheckDisplay">PASS (38 hrs)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Qualifying Benefit Check</span>
+          <span class="val" id="qualifyingBenefitCheckDisplay">PASS</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Earnings Limit Check (£151/wk max)</span>
+          <span class="val" id="earningsLimitCheckDisplay">PASS (£120.00/wk)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Weekly Benefit Entitlement Amount</span>
+          <span class="val" id="weeklyEntitlementDisplay" style="font-weight: 700; font-size: 18px;">£81.90 / week (£4,258.80/yr)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="social" />
+  </div>
+</div>
+
+<script>
+  function calculateCarersAllowanceEligibility() {
+    const hoursEl = document.getElementById('care-hours-provided') as HTMLInputElement;
+    const benefitEl = document.getElementById('cared-person-benefit-status') as HTMLSelectElement;
+    const earningsEl = document.getElementById('carer-net-weekly-earnings') as HTMLInputElement;
+
+    if (!hoursEl || !benefitEl || !earningsEl) return;
+
+    const hours = parseFloat(hoursEl.value) || 0;
+    const hasBenefit = benefitEl.value === 'yes';
+    const earnings = parseFloat(earningsEl.value) || 0;
+
+    const hoursPass = hours >= 35;
+    const benefitPass = hasBenefit;
+    const earningsPass = earnings <= 151;
+
+    const isEligible = hoursPass && benefitPass && earningsPass;
+    const weeklyRate = 81.90;
+    const annualRate = weeklyRate * 52;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const hoursRes = document.getElementById('careHoursCheckDisplay');
+    const benefitRes = document.getElementById('qualifyingBenefitCheckDisplay');
+    const earnRes = document.getElementById('earningsLimitCheckDisplay');
+    const entRes = document.getElementById('weeklyEntitlementDisplay');
+
+    if (mainRes) mainRes.textContent = isEligible ? '£' + weeklyRate.toFixed(2) + ' / week' : '£0.00 (Ineligible)';
+    if (subVal) subVal.textContent = isEligible ? 'Eligible for Full Allowance' : 'Ineligible - Criteria Not Met';
+    if (hoursRes) hoursRes.textContent = hoursPass ? `PASS (${hours} hrs)` : `FAIL (${hours} hrs < 35 hrs)`;
+    if (benefitRes) benefitRes.textContent = benefitPass ? 'PASS' : 'FAIL (No Qualifying Benefit)';
+    if (earnRes) earnRes.textContent = earningsPass ? `PASS (£${earnings.toFixed(2)})` : `FAIL (£${earnings.toFixed(2)} > £151)`;
+    if (entRes) entRes.textContent = isEligible ? `£${weeklyRate.toFixed(2)} / week (£${annualRate.toFixed(2)}/yr)` : '£0.00';
+  }
+
+  ['care-hours-provided', 'cared-person-benefit-status', 'carer-net-weekly-earnings'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateCarersAllowanceEligibility);
+    document.getElementById(id)?.addEventListener('change', calculateCarersAllowanceEligibility);
+  });
+  calculateCarersAllowanceEligibility();
+</script>

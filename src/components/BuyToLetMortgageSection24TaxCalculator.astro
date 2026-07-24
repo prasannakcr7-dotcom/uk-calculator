@@ -1,0 +1,140 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Section 24 Buy-to-Let Tax Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Annual Gross Rental Income (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="btl-rental-income" value="18000" min="2000" step="1000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Annual BTL Mortgage Interest Costs (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="btl-mortgage-interest" value="8000" min="0" step="500" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Allowable Property Expenses (£ ex-interest)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="btl-allowable-expenses" value="2000" min="0" step="250" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Other Employment / Non-Property Taxable Income (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="btl-other-income" value="48000" min="0" step="1000" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">Net BTL Income Tax Payable Under Section 24</div>
+      <div class="result-amount"><span id="mainResultDisplay">£4,800.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Section 24 Tax Credit Claimed:</span>
+        <span class="val" id="subResultValue">£1,600.00 (20% Relief)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Section 24 Income & Tax Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Taxable Property Profit (Rent - Expenses)</span>
+          <span class="val" id="grossPropertyProfitDisplay">£16,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Higher Rate Tax on Property Profit (40%)</span>
+          <span class="val" id="grossTaxOnPropertyDisplay">£6,400.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>20% Basic Rate Tax Credit Relief on Interest</span>
+          <span class="val" id="taxCreditReliefDisplay">-£1,600.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Property Tax Payable to HMRC</span>
+          <span class="val" id="netPropertyTaxDisplay" style="font-weight: 700; font-size: 18px;">£4,800.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="impuestos" />
+  </div>
+</div>
+
+<script>
+  function calculateSection24Tax() {
+    const rentEl = document.getElementById('btl-rental-income') as HTMLInputElement;
+    const interestEl = document.getElementById('btl-mortgage-interest') as HTMLInputElement;
+    const expEl = document.getElementById('btl-allowable-expenses') as HTMLInputElement;
+    const otherEl = document.getElementById('btl-other-income') as HTMLInputElement;
+
+    if (!rentEl || !interestEl || !expEl || !otherEl) return;
+
+    const rent = parseFloat(rentEl.value) || 0;
+    const interest = parseFloat(interestEl.value) || 0;
+    const expenses = parseFloat(expEl.value) || 0;
+    const otherIncome = parseFloat(otherEl.value) || 0;
+
+    // Under Section 24: Mortgage interest cannot be deducted from gross rental income to calculate profit.
+    // Taxable Property Profit = Rent - Allowable Expenses
+    const taxableProfit = Math.max(0, rent - expenses);
+    const totalTaxableIncome = otherIncome + taxableProfit;
+
+    // Basic rate band threshold: £50,270
+    let marginalTaxRate = 0.20;
+    if (otherIncome >= 50270) marginalTaxRate = 0.40;
+    else if (totalTaxableIncome > 50270) marginalTaxRate = 0.40;
+
+    const grossTax = taxableProfit * marginalTaxRate;
+
+    // 20% basic rate tax reducer on lower of: finance costs, property profits, or total income
+    const taxCredit = Math.min(interest, taxableProfit) * 0.20;
+    const netTax = Math.max(0, grossTax - taxCredit);
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const profitRes = document.getElementById('grossPropertyProfitDisplay');
+    const grossTaxRes = document.getElementById('grossTaxOnPropertyDisplay');
+    const creditRes = document.getElementById('taxCreditReliefDisplay');
+    const netTaxRes = document.getElementById('netPropertyTaxDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + netTax.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = '£' + taxCredit.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' (20% Relief)';
+    if (profitRes) profitRes.textContent = '£' + taxableProfit.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (grossTaxRes) grossTaxRes.textContent = '£' + grossTax.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` (${(marginalTaxRate*100).toFixed(0)}%)`;
+    if (creditRes) creditRes.textContent = '-£' + taxCredit.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (netTaxRes) netTaxRes.textContent = '£' + netTax.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['btl-rental-income', 'btl-mortgage-interest', 'btl-allowable-expenses', 'btl-other-income'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateSection24Tax);
+    document.getElementById(id)?.addEventListener('change', calculateSection24Tax);
+  });
+  calculateSection24Tax();
+</script>

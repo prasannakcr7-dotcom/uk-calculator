@@ -1,0 +1,379 @@
+---
+import '../styles/global.css';
+import '../styles/calculator.css';
+import '../styles/category-links.css';
+import '../styles/category-hub.css';
+import NationFlagIcon from '../components/NationFlagIcon.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  lang?: 'en';
+}
+
+const { title, description, lang = 'en' } = Astro.props;
+
+// URL normalization for canonical tags
+const ensureTrailingSlash = (urlStr: string) => {
+  if (urlStr.endsWith('/') || urlStr.includes('.')) {
+    return urlStr;
+  }
+  return `${urlStr}/`;
+};
+
+const siteUrl = Astro.site ? Astro.site.href : 'https://uk-calculator.theweekenddev.com/';
+const selfUrl = new URL(ensureTrailingSlash(Astro.url.pathname), siteUrl).href;
+const socialImageUrl = new URL('/social-share-en.png', siteUrl).href;
+---
+
+<html lang={lang}>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width" />
+  <meta name="generator" content={Astro.generator} />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={selfUrl} />
+  <link rel="alternate" hreflang="en" href={selfUrl} />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={selfUrl} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={socialImageUrl} />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content={selfUrl} />
+  <meta property="twitter:title" content={title} />
+  <meta property="twitter:description" content={description} />
+  <meta property="twitter:image" content={socialImageUrl} />
+</head>
+<body>
+
+  <!-- TOP NAV -->
+  <div class="nav">
+    <a href="/" class="brand">
+      <NationFlagIcon nation="uk" width="30px" height="20px" class="flag-icon" />
+      <span class="brand-text-desktop">UK Calculator</span>
+      <span class="brand-text-mobile">UK Calculator</span>
+    </a>
+
+    <div class="nav-links">
+      <a href="/calculators" class="nav-link-item">Calculators</a>
+      <a href="/work-and-salary/" class="nav-link-item">Work</a>
+      <a href="/taxes-and-fees/" class="nav-link-item">Taxes</a>
+      <a href="/family-and-maternity/" class="nav-link-item">Family</a>
+      <a href="/housing-and-rent/" class="nav-link-item">Housing</a>
+      
+      <!-- MORE DROPDOWN -->
+      <div class="nav-more-dropdown">
+        <button class="nav-more-btn" id="navMoreBtn">
+          More <span style="font-size: 8px; margin-left: 2px;">▼</span>
+        </button>
+        <div class="nav-more-menu" id="navMoreMenu">
+          <a href="/mobility-and-vehicles/">
+            🚗 Mobility
+          </a>
+          <a href="/health-and-wellbeing/">
+            🩺 Health
+          </a>
+          <a href="/social-and-benefits/">
+            🛡️ Benefits
+          </a>
+          <a href="/finance-and-credit/">
+            📈 Finance
+          </a>
+          <a href="/daily-life/">
+            ☀️ Everyday
+          </a>
+          <div class="nav-dropdown-divider"></div>
+          <a href="/about/">
+            ℹ️ About
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-right-controls" style="display: flex; align-items: center; gap: 16px;">
+      <!-- Search button (normal icon, NOT in a circle) -->
+      <button id="headerSearchBtn" class="header-search-icon-btn" aria-label="Search">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: block;">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </button>
+
+      <!-- Mobile menu hamburger button -->
+      <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Toggle Menu">
+        <span class="hamburger-icon">☰</span>
+        <span class="close-icon" style="display: none;">✕</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- MOBILE MENU OVERLAY -->
+  <div class="mobile-menu-overlay" id="mobileMenuOverlay">
+    <div class="mobile-menu-content">
+      <div class="mobile-menu-section-title">
+        CATEGORIES
+      </div>
+      <div class="mobile-menu-grid">
+        <a href="/work-and-salary/" class="mobile-menu-item">
+          <span class="emoji">💼</span> Work & Salary
+        </a>
+        <a href="/taxes-and-fees/" class="mobile-menu-item">
+          <span class="emoji">💰</span> Taxes & Fees
+        </a>
+        <a href="/family-and-maternity/" class="mobile-menu-item">
+          <span class="emoji">👪</span> Family & Children
+        </a>
+        <a href="/housing-and-rent/" class="mobile-menu-item">
+          <span class="emoji">🏠</span> Housing & Property
+        </a>
+        <a href="/mobility-and-vehicles/" class="mobile-menu-item">
+          <span class="emoji">🚗</span> Car & Mobility
+        </a>
+        <a href="/health-and-wellbeing/" class="mobile-menu-item">
+          <span class="emoji">❤️</span> Health & Fitness
+        </a>
+        <a href="/social-and-benefits/" class="mobile-menu-item">
+          <span class="emoji">🛡️</span> Benefits & Pensions
+        </a>
+        <a href="/finance-and-credit/" class="mobile-menu-item">
+          <span class="emoji">📈</span> Finance & Savings
+        </a>
+        <a href="/daily-life/" class="mobile-menu-item">
+          <span class="emoji">☀️</span> Everyday & School
+        </a>
+      </div>
+
+      <div class="mobile-menu-section-title" style="margin-top: 24px;">
+        MORE
+      </div>
+      <div class="mobile-menu-grid">
+        <a href="/calculators" class="mobile-menu-item">
+          <span class="emoji">🧮</span> All Calculators
+        </a>
+        <a href="/about/" class="mobile-menu-item">
+          <span class="emoji">ℹ️</span> About Us
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <slot />
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">🇬🇧 UK Calculator</div>
+        <p>
+          298 free calculators for taxes, salary, benefits, property, health, and finance. Tailored specifically for England, Scotland, Wales, and Northern Ireland. Updated for 2026/27.
+        </p>
+      </div>
+      <div class="footer-col">
+        <h5>Work</h5>
+        <a href="/salary-income-tax-calculator/">Salary / Take-Home</a>
+        <a href="/hourly-wage-to-salary-converter/">Hourly Wage Converter</a>
+        <a href="/overtime-pay-calculator/">Overtime Pay</a>
+        <a href="/holiday-entitlement-calculator/">Holiday Entitlement</a>
+      </div>
+      <div class="footer-col">
+        <h5>Taxes</h5>
+        <a href="/salary-income-tax-calculator/">Income Tax</a>
+        <a href="/vat-calculator/">VAT Calculator</a>
+        <a href="/stamp-duty-land-tax-calculator/">Stamp Duty (SDLT)</a>
+        <a href="/business-rates-calculator/">Business Rates</a>
+      </div>
+      <div class="footer-col">
+        <h5>Family</h5>
+        <a href="/child-benefit-calculator/">Child Benefit</a>
+        <a href="/childcare-funding-grants-calculator/">Childcare Funding</a>
+        <a href="/child-maintenance-calculator/">Child Maintenance</a>
+      </div>
+      <div class="footer-col">
+        <h5>Housing</h5>
+        <a href="/mortgage-calculator/">Mortgage Calculator</a>
+        <a href="/rent-vs-buy-calculator/">Rent vs Buy</a>
+        <a href="/council-tax-calculator/">Council Tax</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <span>
+          © 2026 UK Calculator. All figures are estimates, not financial, legal, or tax advice.
+        </span>
+        <div style="display: flex; gap: 16px; font-size: 13px;">
+          <a href="/about/" style="text-decoration: underline;">About us</a>
+          <a href="/contact/" style="text-decoration: underline;">Contact</a>
+          <a href="/terms-and-conditions/" style="text-decoration: underline;">Terms & conditions</a>
+          <a href="/privacy-policy/" style="text-decoration: underline;">Privacy policy</a>
+        </div>
+      </div>
+      <span>
+        Made for people figuring out life admin in the UK
+      </span>
+    </div>
+  </div>
+
+  <script is:inline>
+    // More Dropdown Toggle
+    const navMoreBtn = document.getElementById('navMoreBtn');
+    const navMoreMenu = document.getElementById('navMoreMenu');
+    
+    if (navMoreBtn && navMoreMenu) {
+      navMoreBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navMoreMenu.classList.toggle('show');
+      });
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', () => {
+      navMoreMenu && navMoreMenu.classList.remove('show');
+    });
+
+    // Mobile Hamburger Menu Toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+    if (mobileMenuBtn && mobileMenuOverlay) {
+      mobileMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = mobileMenuOverlay.classList.toggle('show');
+        const hamburgIcon = mobileMenuBtn.querySelector('.hamburger-icon');
+        const closeIcon = mobileMenuBtn.querySelector('.close-icon');
+        if (isOpen) {
+          hamburgIcon.style.display = 'none';
+          closeIcon.style.display = 'inline';
+          document.body.style.overflow = 'hidden';
+        } else {
+          hamburgIcon.style.display = 'inline';
+          closeIcon.style.display = 'none';
+          document.body.style.overflow = '';
+        }
+      });
+    }
+
+    // Search Icon Click Handler - Redirects to search box on All Calculators page
+    const searchBtn = document.getElementById('headerSearchBtn');
+    if (searchBtn) {
+      searchBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const path = window.location.pathname;
+        const cleanPath = path.replace(/\/$/, ''); // Remove trailing slash if any
+        const isAllCalcsPage = cleanPath === '/calculators';
+
+        if (isAllCalcsPage) {
+          const searchInput = document.getElementById('dirSearchInput') || document.querySelector('.search-field-wrap input');
+          if (searchInput) {
+            searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            searchInput.focus();
+          }
+        } else {
+          window.location.href = '/calculators/?focusSearch=true#dirSearchInput';
+        }
+      });
+    }
+
+    (function() {
+      function initLayoutScripts() {
+        var urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('focusSearch') === 'true' || window.location.hash === '#dirSearchInput') {
+          var searchInput = document.getElementById('dirSearchInput') || document.getElementById('mainSearchInput') || document.querySelector('.search-field-wrap input');
+          if (searchInput) {
+            setTimeout(function() {
+              searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              searchInput.focus();
+            }, 300);
+          }
+        }
+
+        // Split writeup sections into separate cards
+        var writeups = document.querySelectorAll('.card.writeup');
+        writeups.forEach(function(writeup) {
+          var parent = writeup.parentNode;
+          if (!parent) return;
+
+          var children = Array.from(writeup.children);
+          var sections = [];
+          var currentSection = [];
+
+          children.forEach(function(child) {
+            var isHeader = child.tagName === 'H2';
+            var isFormula = isHeader && (
+              child.textContent.includes('🔍') ||
+              child.textContent.toLowerCase().includes('formula') ||
+              child.textContent.toLowerCase().includes('calculation')
+            );
+
+            if (isHeader && !isFormula) {
+              if (currentSection.length > 0) {
+                if (currentSection[currentSection.length - 1].tagName === 'HR') {
+                  currentSection.pop();
+                }
+                sections.push(currentSection);
+              }
+              currentSection = [child];
+            } else {
+              currentSection.push(child);
+            }
+          });
+
+          if (currentSection.length > 0) {
+            if (currentSection[currentSection.length - 1].tagName === 'HR') {
+              currentSection.pop();
+            }
+            sections.push(currentSection);
+          }
+
+          writeup.innerHTML = '';
+          var lastCard = writeup;
+          sections.forEach(function(sec, idx) {
+            if (sec.length > 0 && sec[0].tagName === 'HR') {
+              sec.shift();
+            }
+            if (sec.length === 0) return;
+
+            if (idx === 0) {
+              sec.forEach(function(el) { writeup.appendChild(el); });
+            } else {
+              var newCard = document.createElement('div');
+              newCard.className = 'card writeup';
+              sec.forEach(function(el) { newCard.appendChild(el); });
+              lastCard.after(newCard);
+              lastCard = newCard;
+            }
+          });
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initLayoutScripts);
+      } else {
+        initLayoutScripts();
+      }
+
+      // GLOBAL FAQ ACCORDION HANDLER
+      document.addEventListener('click', function(e) {
+        var target = e.target;
+        var trigger = target && target.closest ? target.closest('.faq-trigger, .faq-item button, .faq-header, .faq-item h3, .faq-item h4, .faq-item') : null;
+        if (trigger) {
+          var faqItem = trigger.closest('.faq-item, .ch-faq-item');
+          if (faqItem) {
+            var isOpen = faqItem.classList.contains('open');
+            if (isOpen) {
+              faqItem.classList.remove('open', 'active');
+            } else {
+              faqItem.classList.add('open', 'active');
+            }
+          }
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

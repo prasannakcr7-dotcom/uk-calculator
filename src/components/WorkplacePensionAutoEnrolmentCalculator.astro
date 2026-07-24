@@ -1,0 +1,128 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+  nation?: string;
+}
+
+const { labels = {}, lang = 'en', nation = 'england' } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category" data-labels={JSON.stringify(labels)} data-nation={nation}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Workplace Pension & Auto-Enrolment Calculator (2026/27)'}</h2>
+      <p style="color: rgba(26,46,40,0.7); font-size: 14px; margin-bottom: 20px;">Calculate employee contributions, employer statutory matches, tax relief, and qualifying earnings under UK auto-enrolment rules.</p>
+
+      <div class="field-group">
+        <label class="field-label" for="annual-gross-salary">Annual Gross Salary (£)</label>
+        <div class="amount-field">
+          <input type="number" id="annual-gross-salary" value="35000" min="10000" step="1000" />
+          <span class="cur">£</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="employee-contrib-pct">Employee Contribution (%)</label>
+        <input type="number" id="employee-contrib-pct" value="5" min="1" max="50" step="0.5" class="fancy" />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="employer-contrib-pct">Employer Match (%)</label>
+        <input type="number" id="employer-contrib-pct" value="3" min="3" max="20" step="0.5" class="fancy" />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="calculation-basis">Pensionable Earnings Basis</label>
+        <select id="calculation-basis" class="fancy">
+          <option value="qualifying" selected>Qualifying Earnings Band (£6,240 to £50,270)</option>
+          <option value="full">Full Gross Salary</option>
+        </select>
+      </div>
+
+      <button id="calc-btn" class="calc-btn">Calculate Pension Contributions</button>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--social-1), var(--social-2) 80%); margin-top: 24px;">
+      <div class="result-label">Total Annual Pension Addition</div>
+      <div class="result-amount"><span id="total-annual-pension">£2,304.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span>Monthly Employee Out-of-Pocket (after tax relief):</span>
+        <span class="val" id="employee-net-monthly">£96.00</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="margin-top: 24px;">
+      <h2 style="margin-bottom:14px;">📊 Workplace Pension Contribution Summary</h2>
+      <div class="breakdown-row">
+        <span>Monthly Total Pension Pot Addition:</span>
+        <span class="val" id="total-monthly-pension">£192.00</span>
+      </div>
+      <div class="breakdown-row">
+        <span>Employer Monthly Contribution (3%):</span>
+        <span class="val" id="employer-monthly">£72.00</span>
+      </div>
+      <div class="breakdown-row">
+        <span>Government Monthly Tax Relief:</span>
+        <span class="val" id="gov-tax-relief-monthly">£24.00</span>
+      </div>
+      <div class="breakdown-row net">
+        <span>Employee Net Monthly Cost</span>
+        <span class="val" id="employee-net-summary">£96.00</span>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar category="social" currentSlug="workplace-pension-auto-enrolment-calculator" />
+  </div>
+</div>
+
+<script>
+  function calculateAutoEnrolment() {
+    const salary = parseFloat((document.getElementById('annual-gross-salary') as HTMLInputElement).value) || 0;
+    const eePct = parseFloat((document.getElementById('employee-contrib-pct') as HTMLInputElement).value) || 5;
+    const erPct = parseFloat((document.getElementById('employer-contrib-pct') as HTMLInputElement).value) || 3;
+    const basis = (document.getElementById('calculation-basis') as HTMLSelectElement).value;
+
+    const lowerThreshold = 6240;
+    const upperThreshold = 50270;
+
+    let pensionableEarnings = salary;
+    if (basis === 'qualifying') {
+      const qualifyingBase = Math.min(salary, upperThreshold) - lowerThreshold;
+      pensionableEarnings = Math.max(0, qualifyingBase);
+    }
+
+    const annualEEGross = pensionableEarnings * (eePct / 100);
+    const annualER = pensionableEarnings * (erPct / 100);
+    const annualTotal = annualEEGross + annualER;
+
+    // Net employee cost assuming 20% basic tax relief
+    const annualEENet = annualEEGross * 0.8;
+    const annualGovRelief = annualEEGross * 0.2;
+
+    const monthlyTotal = annualTotal / 12;
+    const monthlyEENet = annualEENet / 12;
+    const monthlyER = annualER / 12;
+    const monthlyGovRelief = annualGovRelief / 12;
+
+    const fmt = (v: number) => '£' + v.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    (document.getElementById('total-annual-pension') as HTMLElement).textContent = fmt(annualTotal);
+    (document.getElementById('total-monthly-pension') as HTMLElement).textContent = fmt(monthlyTotal);
+    (document.getElementById('employee-net-monthly') as HTMLElement).textContent = fmt(monthlyEENet);
+    (document.getElementById('employee-net-summary') as HTMLElement).textContent = fmt(monthlyEENet);
+    (document.getElementById('employer-monthly') as HTMLElement).textContent = fmt(monthlyER);
+    (document.getElementById('gov-tax-relief-monthly') as HTMLElement).textContent = fmt(monthlyGovRelief);
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateAutoEnrolment);
+  calculateAutoEnrolment();
+</script>

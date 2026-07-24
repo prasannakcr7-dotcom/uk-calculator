@@ -1,0 +1,114 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout family-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Statutory Maternity Pay (SMP) Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Average Weekly Earnings (AWE in 8-Week Qualifying Window £)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="maternity-weekly-earnings" value="650" min="123" step="25" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Total Statutory Maternity Leave Duration</span></div>
+        <select id="maternity-leave-weeks" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="39" selected>39 Weeks Statutory Paid Leave (Standard Full SMP Window)</option>
+          <option value="52">52 Weeks Statutory Leave (39 Wks SMP + 13 Wks Unpaid AML)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--family-1), var(--family-2) 80%);">
+      <div class="result-label">Total Statutory Maternity Pay (SMP) Entitlement</div>
+      <div class="result-amount"><span id="mainResultDisplay">£7,654.40</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">First 6 Weeks 90% Rate:</span>
+        <span class="val" id="subResultValue">£585.00 / week</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Statutory Maternity Pay Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>First 6 Weeks (90% Average Weekly Earnings)</span>
+          <span class="val" id="first6WeeksTotalDisplay">£3,510.00 (£585.00/wk)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Next 33 Weeks (Statutory Rate £184.03/wk)</span>
+          <span class="val" id="remaining33WeeksTotalDisplay">£6,072.99 (£184.03/wk)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Remaining Weeks (Unpaid Additional Maternity Leave)</span>
+          <span class="val" id="unpaidWeeksDisplay">13 Weeks (£0.00)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Statutory SMP Paid Across Leave</span>
+          <span class="val" id="totalSmpPayDisplay" style="font-weight: 700; font-size: 18px;">£9,582.99</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="familia" />
+  </div>
+</div>
+
+<script>
+  function calculateMaternityPay() {
+    const aweEl = document.getElementById('maternity-weekly-earnings') as HTMLInputElement;
+    const weeksEl = document.getElementById('maternity-leave-weeks') as HTMLSelectElement;
+
+    if (!aweEl || !weeksEl) return;
+
+    const awe = parseFloat(aweEl.value) || 0;
+    const totalWeeks = parseInt(weeksEl.value) || 39;
+
+    // 2026/27 SMP Rates: First 6 wks 90% AWE, Next 33 wks lower of £184.03 or 90% AWE
+    const rateFirst6 = awe * 0.90;
+    const statRate = 184.03;
+    const rateNext33 = Math.min(statRate, awe * 0.90);
+
+    const totalFirst6 = rateFirst6 * 6;
+    const totalNext33 = rateNext33 * 33;
+    const totalSmp = totalFirst6 + totalNext33;
+    const unpaidWeeks = Math.max(0, totalWeeks - 39);
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const first6Res = document.getElementById('first6WeeksTotalDisplay');
+    const next33Res = document.getElementById('remaining33WeeksTotalDisplay');
+    const unpaidRes = document.getElementById('unpaidWeeksDisplay');
+    const totalRes = document.getElementById('totalSmpPayDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + totalSmp.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = '£' + rateFirst6.toFixed(2) + ' / week';
+    if (first6Res) first6Res.textContent = '£' + totalFirst6.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` (£${rateFirst6.toFixed(2)}/wk)`;
+    if (next33Res) next33Res.textContent = '£' + totalNext33.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` (£${rateNext33.toFixed(2)}/wk)`;
+    if (unpaidRes) unpaidRes.textContent = `${unpaidWeeks} Weeks (£0.00)`;
+    if (totalRes) totalRes.textContent = '£' + totalSmp.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['maternity-weekly-earnings', 'maternity-leave-weeks'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateMaternityPay);
+    document.getElementById(id)?.addEventListener('change', calculateMaternityPay);
+  });
+  calculateMaternityPay();
+</script>

@@ -1,0 +1,143 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Wall Dimensions & Paint Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Total Wall Length (Metres - m)</span></div>
+        <div class="amount-field">
+          <input type="number" id="paint-wall-length" value="14.0" min="2" max="100" step="0.5" />
+          <span class="cur">m</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Wall Height (Metres - m)</span></div>
+        <div class="amount-field">
+          <input type="number" id="paint-wall-height" value="2.4" min="1" max="10" step="0.1" />
+          <span class="cur">m</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Number of Paint Coats Required</span></div>
+        <div class="amount-field">
+          <input type="number" id="paint-coats-count" value="2" min="1" max="4" step="1" />
+          <span class="cur">coats</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Deduct Doors & Windows Area (sq m)</span></div>
+        <div class="amount-field">
+          <input type="number" id="paint-deductions-sqm" value="4.0" min="0" step="0.5" />
+          <span class="cur">sq m</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Price Per 2.5 Litre Paint Can (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="paint-tin-price" value="28.00" min="5" step="1" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Total Paint Required</div>
+      <div class="result-amount"><span id="mainResultDisplay">3 Tins (5.0 Litres)</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Total Material Cost:</span>
+        <span class="val" id="subResultValue">£84.00 Total</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Paint Coverage Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Net Wall Surface Area (1 Coat)</span>
+          <span class="val" id="netWallAreaDisplay">29.60 sq m</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Total Surface Area (2 Coats)</span>
+          <span class="val" id="totalCoverageAreaDisplay">59.20 sq m</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Litres Needed (12 sq m per Litre)</span>
+          <span class="val" id="litresNeededDisplay">4.93 Litres</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Paint Cans Required (2.5L Tins)</span>
+          <span class="val" id="tinsRequiredDisplay" style="font-weight: 700; font-size: 18px;">3 Tins (£84.00 Total)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculatePaint() {
+    const lenEl = document.getElementById('paint-wall-length') as HTMLInputElement;
+    const heightEl = document.getElementById('paint-wall-height') as HTMLInputElement;
+    const coatsEl = document.getElementById('paint-coats-count') as HTMLInputElement;
+    const dedEl = document.getElementById('paint-deductions-sqm') as HTMLInputElement;
+    const priceEl = document.getElementById('paint-tin-price') as HTMLInputElement;
+
+    if (!lenEl || !heightEl || !coatsEl || !dedEl || !priceEl) return;
+
+    const len = parseFloat(lenEl.value) || 0;
+    const height = parseFloat(heightEl.value) || 0;
+    const coats = parseInt(coatsEl.value) || 2;
+    const deductions = parseFloat(dedEl.value) || 0;
+    const tinPrice = parseFloat(priceEl.value) || 28.00;
+
+    const grossArea = len * height;
+    const netArea1Coat = Math.max(0, grossArea - deductions);
+    const totalCoverageArea = netArea1Coat * coats;
+
+    // Standard emulsion coverage ~12 sq m per litre
+    const litresNeeded = totalCoverageArea / 12;
+    const tinsNeeded = Math.ceil(litresNeeded / 2.5);
+    const totalCost = tinsNeeded * tinPrice;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const netAreaRes = document.getElementById('netWallAreaDisplay');
+    const totalCovRes = document.getElementById('totalCoverageAreaDisplay');
+    const litresRes = document.getElementById('litresNeededDisplay');
+    const tinsRes = document.getElementById('tinsRequiredDisplay');
+
+    if (mainRes) mainRes.textContent = `${tinsNeeded} Tins (${(tinsNeeded * 2.5).toFixed(1)} Litres)`;
+    if (subVal) subVal.textContent = '£' + totalCost.toFixed(2) + ' Total';
+    if (netAreaRes) netAreaRes.textContent = netArea1Coat.toFixed(2) + ' sq m';
+    if (totalCovRes) totalCovRes.textContent = totalCoverageArea.toFixed(2) + ' sq m';
+    if (litresRes) litresRes.textContent = litresNeeded.toFixed(2) + ' Litres';
+    if (tinsRes) tinsRes.textContent = `${tinsNeeded} Tins (£${totalCost.toFixed(2)} Total)`;
+  }
+
+  ['paint-wall-length', 'paint-wall-height', 'paint-coats-count', 'paint-deductions-sqm', 'paint-tin-price'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculatePaint);
+    document.getElementById(id)?.addEventListener('change', calculatePaint);
+  });
+  calculatePaint();
+</script>

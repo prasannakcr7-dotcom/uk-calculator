@@ -1,0 +1,128 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Residual Land Valuation Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Estimated Gross Development Value (GDV £)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="land-gdv-amount" value="550000" min="50000" step="25000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Total Estimated Build Cost (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="land-build-cost" value="260000" min="20000" step="10000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Developer Required Profit Margin (%)</span></div>
+        <div class="amount-field">
+          <input type="number" id="land-developer-profit-pct" value="20" min="10" max="35" step="1" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Professional Fees & Contingency (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="land-prof-fees" value="35000" min="0" step="5000" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Maximum Residual Land Valuation Plot Price</div>
+      <div class="result-amount"><span id="mainResultDisplay">£145,000.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Developer Target Profit:</span>
+        <span class="val" id="subResultValue">£110,000.00 (20% of GDV)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Residual Land Valuation Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Development Value (GDV)</span>
+          <span class="val" id="gdvDisplay">£550,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Total Construction & Professional Costs</span>
+          <span class="val" id="totalBuildCostsDisplay">£295,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Target Developer Profit (20%)</span>
+          <span class="val" id="developerProfitDisplay">£110,000.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Max Land Plot Purchase Price</span>
+          <span class="val" id="maxPlotPriceDisplay" style="font-weight: 700; font-size: 18px;">£145,000.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateLandPrice() {
+    const gdvEl = document.getElementById('land-gdv-amount') as HTMLInputElement;
+    const buildEl = document.getElementById('land-build-cost') as HTMLInputElement;
+    const profitEl = document.getElementById('land-developer-profit-pct') as HTMLInputElement;
+    const feesEl = document.getElementById('land-prof-fees') as HTMLInputElement;
+
+    if (!gdvEl || !buildEl || !profitEl || !feesEl) return;
+
+    const gdv = parseFloat(gdvEl.value) || 0;
+    const buildCost = parseFloat(buildEl.value) || 0;
+    const profitPct = (parseFloat(profitEl.value) || 20) / 100;
+    const profFees = parseFloat(feesEl.value) || 0;
+
+    const targetProfit = gdv * profitPct;
+    const totalCostsExLand = buildCost + profFees + targetProfit;
+    const maxPlotPrice = Math.max(0, gdv - totalCostsExLand);
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const gdvRes = document.getElementById('gdvDisplay');
+    const buildRes = document.getElementById('totalBuildCostsDisplay');
+    const profRes = document.getElementById('developerProfitDisplay');
+    const plotRes = document.getElementById('maxPlotPriceDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + maxPlotPrice.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = '£' + targetProfit.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` (${(profitPct*100).toFixed(0)}% GDV)`;
+    if (gdvRes) gdvRes.textContent = '£' + gdv.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (buildRes) buildRes.textContent = '£' + (buildCost + profFees).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (profRes) profRes.textContent = '£' + targetProfit.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (plotRes) plotRes.textContent = '£' + maxPlotPrice.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['land-gdv-amount', 'land-build-cost', 'land-developer-profit-pct', 'land-prof-fees'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateLandPrice);
+    document.getElementById(id)?.addEventListener('change', calculateLandPrice);
+  });
+  calculateLandPrice();
+</script>

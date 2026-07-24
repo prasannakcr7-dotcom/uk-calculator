@@ -1,0 +1,521 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import NationFlagIcon from '../components/NationFlagIcon.astro';
+
+export async function getStaticPaths() {
+  const nations = ['england', 'scotland', 'wales', 'northern-ireland'];
+  return nations.map((nation) => ({
+    params: { nation },
+    props: { nation },
+  }));
+}
+
+const { nation } = Astro.props;
+
+const nationDisplayNames: Record<string, string> = {
+  england: "England",
+  scotland: "Scotland",
+  wales: "Wales",
+  "northern-ireland": "Northern Ireland"
+};
+const nationName = nationDisplayNames[nation] || "England";
+
+const nationGradients: Record<string, string> = {
+  england: "linear-gradient(135deg, #b91c1c 0%, #e91e63 60%, #7f1d1d 100%)",
+  scotland: "linear-gradient(135deg, #0284c7 0%, #0369a1 60%, #075985 100%)",
+  wales: "linear-gradient(135deg, #15803d 0%, #166534 60%, #14532d 100%)",
+  "northern-ireland": "linear-gradient(135deg, #1e3a8a 0%, #1e40af 60%, #b91c1c 100%)"
+};
+const heroBg = nationGradients[nation] || "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)";
+
+const allCalculators = await getCollection('calculators');
+
+type CategoryKey = 'work' | 'taxes' | 'family' | 'housing' | 'mobility' | 'health' | 'social' | 'finance' | 'alltag';
+
+function normalizeCategoryKey(rawCat: string): CategoryKey {
+  const cat = (rawCat || '').toLowerCase().trim();
+  if (cat === 'trabajo' || cat === 'work') return 'work';
+  if (cat === 'impuestos' || cat === 'taxes') return 'taxes';
+  if (cat === 'familia' || cat === 'family') return 'family';
+  if (cat === 'vivienda' || cat === 'housing') return 'housing';
+  if (cat === 'movilidad' || cat === 'mobility') return 'mobility';
+  if (cat === 'salud' || cat === 'health') return 'health';
+  if (cat === 'social' || cat === 'benefits') return 'social';
+  if (cat === 'finanzas' || cat === 'finance') return 'finance';
+  if (cat === 'alltag' || cat === 'everyday' || cat === 'reside') return 'alltag';
+  return 'work';
+}
+
+const categoriesList: { key: CategoryKey; title: string; icon: string }[] = [
+  { key: 'work', title: 'Work & Salary', icon: '💼' },
+  { key: 'taxes', title: 'Taxes & Duties', icon: '🧾' },
+  { key: 'family', title: 'Family & Children', icon: '👶' },
+  { key: 'housing', title: 'Housing & Property', icon: '🏠' },
+  { key: 'mobility', title: 'Car & Mobility', icon: '🚗' },
+  { key: 'health', title: 'Health & Fitness', icon: '❤️' },
+  { key: 'social', title: 'Benefits & Pensions', icon: '🛡️' },
+  { key: 'finance', title: 'Finance & Savings', icon: '📈' },
+  { key: 'alltag', title: 'Everyday & School/College', icon: '☀️' }
+];
+
+const categoryHubSlugs: Record<CategoryKey, string> = {
+  work: 'work-and-salary',
+  taxes: 'taxes-and-fees',
+  family: 'family-and-maternity',
+  housing: 'housing-and-rent',
+  mobility: 'mobility-and-vehicles',
+  health: 'health-and-wellbeing',
+  social: 'social-and-benefits',
+  finance: 'finance-and-credit',
+  alltag: 'daily-life'
+};
+
+// 5 Detailed Nation-specific statutory guides & SEO FAQs
+const nationGuides: Record<string, { summary: string; rules: string[]; faqs: { q: string; aHtml: string }[] }> = {
+  england: {
+    summary: "Calculators tailored specifically for taxpayers, home buyers, and residents in England for the 2026/27 tax year. Includes standard UK Income Tax bands (£12,570 allowance, 20%, 40%, 45%), Stamp Duty Land Tax (SDLT), and English council tax rules.",
+    rules: [
+      "Income Tax Bands: Personal Allowance of £12,570, Basic Rate (20% up to £50,270), Higher Rate (40% up to £125,140), Top Rate (45% above £125,140).",
+      "Stamp Duty Land Tax (SDLT): Residential threshold starts at £250,000 for standard buyers and £425,000 for First-Time Buyers.",
+      "Council Tax: Based on April 1991 property valuation bands (Bands A to H).",
+      "National Insurance: Main employee rate at 8% on earnings between £12,570 and £50,270.",
+      "NHS Charges: Standard NHS dental Band 1 to Band 3 charges apply across England."
+    ],
+    faqs: [
+      {
+        q: "What Income Tax and National Insurance rates apply in England for 2026/27?",
+        aHtml: "Taxpayers in England follow standard HMRC Income Tax thresholds, starting with a £12,570 Personal Allowance. Earnings between £12,570 and £50,270 are taxed at 20%, while earnings up to £125,140 are taxed at 40%. Calculate your exact net take-home pay using our <a href='/salary-income-tax-calculator/england/'>Salary & Income Tax Calculator (England)</a>."
+      },
+      {
+        q: "How is Stamp Duty (SDLT) calculated on English property purchases?",
+        aHtml: "In England, home buyers pay Stamp Duty Land Tax (SDLT) on residential purchases over £250,000, with discounted rates for first-time buyers up to £425,000. Use our specialized <a href='/first-time-buyer-stamp-duty-calculator/england/'>First-Time Buyer Stamp Duty Calculator</a> to estimate your exact land tax liability."
+      },
+      {
+        q: "What statutory maternity and redundancy payments apply in England?",
+        aHtml: "Statutory redundancy and statutory maternity pay (SMP) follow UK Government statutory caps. Employees with at least 2 years of service qualify for statutory redundancy relief. Model your statutory entitlements with our <a href='/statutory-maternity-paternity-pay/england/'>Statutory Maternity Pay Calculator</a> and <a href='/statutory-redundancy-pay-calculator/england/'>Statutory Redundancy Pay Calculator</a>."
+      },
+      {
+        q: "How does the Personal Allowance tapering work for higher earners in England?",
+        aHtml: "Your Personal Allowance of £12,570 is reduced by £1 for every £2 of net income above £100,000, reaching zero at £125,140. Check how this affects your net income with our <a href='/salary-income-tax-calculator/england/'>Salary Take-Home Pay Calculator</a>."
+      },
+      {
+        q: "What are the rules for workplace pension auto-enrolment in England?",
+        aHtml: "Employers must enrol eligible workers earning over £10,000 into a workplace pension scheme, with a total minimum contribution of 8% (5% employee, 3% employer). Calculate your pension contributions and tax relief with our <a href='/workplace-pension-auto-enrolment-calculator/england/'>Workplace Pension & Auto-Enrolment Calculator</a>."
+      }
+    ]
+  },
+  scotland: {
+    summary: "Calculators adjusted for Scottish devolved legislation for 2026/27, including Scottish Income Tax bands (Starter, Basic, Intermediate, Higher, Advanced, Top), Land & Buildings Transaction Tax (LBTT), and Social Security Scotland benefits.",
+    rules: [
+      "Scottish Income Tax (6 Bands): Starter (19%), Basic (20%), Intermediate (21%), Higher (42%), Advanced (45%), Top (48%).",
+      "Land & Buildings Transaction Tax (LBTT): Replaces Stamp Duty in Scotland with thresholds starting at £145,000 (£175,000 for first-time buyers).",
+      "Scottish Child Payment: Administered by Social Security Scotland offering £26.70 per week per eligible child under 16.",
+      "Council Tax Multipliers: Scottish council tax bands receive devolved multiplier adjustments across Bands E to H.",
+      "Prescriptions: Free for all residents registered with a GP in Scotland."
+    ],
+    faqs: [
+      {
+        q: "Why do Scottish taxpayers pay different Income Tax rates than the rest of the UK?",
+        aHtml: "The Scottish Parliament exercises devolved tax-setting powers, creating a 6-band Income Tax structure ranging from 19% to 48%. If you earn over £28,850 in Scotland, you pay slightly more tax than in England. Calculate your take-home pay with our <a href='/salary-income-tax-calculator/scotland/'>Scottish Income Tax Calculator</a> or compare self-employed tax with our <a href='/scottish-self-employed-income-tax-vs-rest-of-uk-calculator/scotland/'>Scottish vs rUK Tax Comparison Calculator</a>."
+      },
+      {
+        q: "How does LBTT replace Stamp Duty for home buyers in Scotland?",
+        aHtml: "Instead of SDLT, home buyers in Scotland pay Land and Buildings Transaction Tax (LBTT) to Revenue Scotland on purchases over £145,000. First-time buyers receive relief up to £175,000. Check your exact Scottish property tax using our <a href='/scottish-land-and-buildings-transaction-tax-lbtt-calculator/scotland/'>Scottish LBTT Calculator</a>."
+      },
+      {
+        q: "What devolved benefits are available through Social Security Scotland?",
+        aHtml: "Eligible Scottish families receive additional benefits such as the Scottish Child Payment (£26.70/week) and Carer's Allowance Supplement. Calculate your family's exact eligibility with our <a href='/scottish-child-payment-calculator/scotland/'>Scottish Child Payment Calculator</a>."
+      },
+      {
+        q: "How do Scottish Council Tax band multipliers work?",
+        aHtml: "Scotland applies specific devolved multipliers to property Bands E to H, increasing the relative tax proportion compared to Band D. Estimate your council tax using our <a href='/scottish-council-tax-bands-multiplier-calculator/scotland/'>Scottish Council Tax Multipliers Calculator</a>."
+      },
+      {
+        q: "Do Scottish sole traders pay different National Insurance rates?",
+        aHtml: "National Insurance is a UK-wide tax, so sole traders in Scotland pay Class 2 and Class 4 NI at the same rates as England. Check your self-employed tax reserve with our <a href='/sole-trader-tax-ni-calculator/scotland/'>Sole Trader Tax & NI Calculator</a>."
+      }
+    ]
+  },
+  wales: {
+    summary: "Calculators updated for Welsh regional laws, including Welsh Rates of Income Tax (WRIT), Land Transaction Tax (LTT), and Welsh domestic council tax valuations.",
+    rules: [
+      "Welsh Rates of Income Tax (WRIT): Set by the Welsh Senedd, maintaining parity with standard UK income tax bands for 2026/27.",
+      "Land Transaction Tax (LTT): Replaces Stamp Duty in Wales with a main residence threshold starting at £225,000.",
+      "Council Tax in Wales: Calculated on 2003 property valuations across 9 bands (Bands A to I).",
+      "NHS Prescriptions: Free for all residents registered with a Welsh GP."
+    ],
+    faqs: [
+      {
+        q: "How does Welsh Land Transaction Tax (LTT) differ from English Stamp Duty?",
+        aHtml: "The Welsh Government sets Land Transaction Tax (LTT) for property purchases in Wales. The main residential threshold starts at £225,000 (compared to £250,000 in England). Model your Welsh property tax using our <a href='/welsh-land-transaction-tax-ltt-calculator/wales/'>Welsh Land Transaction Tax (LTT) Calculator</a>."
+      },
+      {
+        q: "Are Income Tax rates in Wales identical to England for 2026/27?",
+        aHtml: "Yes, the Senedd has aligned Welsh Rates of Income Tax (WRIT) with standard HMRC bands (20%, 40%, 45%). You can calculate your net salary and NI using our <a href='/salary-income-tax-calculator/wales/'>Welsh Salary & Take-Home Pay Calculator</a>."
+      },
+      {
+        q: "What Council Tax bands apply in Wales?",
+        aHtml: "Wales uses 9 Council Tax bands (A to I) based on 2003 property valuations. Check your local property tax using our <a href='/housing-benefit-council-tax-support-calculator/wales/'>Council Tax Support Calculator</a>."
+      },
+      {
+        q: "What benefits are available for Welsh parents and carers?",
+        aHtml: "Welsh residents qualify for UK Statutory Maternity Pay as well as Welsh Government early education support. Check eligibility with our <a href='/statutory-maternity-paternity-pay/wales/'>Statutory Maternity Pay Calculator</a>."
+      },
+      {
+        q: "How do dividend tax rates apply in Wales?",
+        aHtml: "Dividend Tax rates are UK-wide (8.75% basic, 33.75% higher, 39.35% additional). Estimate company director dividend tax using our <a href='/dividend-tax-allowance-calculator/wales/'>Dividend Tax Allowance Calculator</a>."
+      }
+    ]
+  },
+  "northern-ireland": {
+    summary: "Calculators customized for Northern Ireland, covering domestic Rates property tax (Regional & District rate multipliers), rUK Income Tax bands, and Department for Communities rules.",
+    rules: [
+      "Income Tax & NI: Follows standard UK HMRC thresholds (£12,570 allowance, 20%, 40%, 45%).",
+      "Domestic Rates System: Northern Ireland does not use Council Tax; property taxes are assessed via District & Regional Rates on 2005 capital valuations.",
+      "Stamp Duty (SDLT): Follows standard UK HMRC SDLT rates starting at £250,000.",
+      "Dog Licensing: Statutory annual licence fee required for dog owners across Northern Ireland councils."
+    ],
+    faqs: [
+      {
+        q: "How does Northern Ireland's Rates system replace Council Tax?",
+        aHtml: "Northern Ireland property owners pay Domestic Rates based on 2005 capital values multiplied by local District and Regional rate percentages. Check housing support and rates assistance using our <a href='/housing-benefit-council-tax-support-calculator/northern-ireland/'>Housing Benefit & Support Calculator (NI)</a>."
+      },
+      {
+        q: "What dog licensing fees apply across Northern Ireland council districts?",
+        aHtml: "In Northern Ireland, all dog owners must obtain an annual dog licence from their local council. Calculate licence fees and pensioner discounts with our <a href='/northern-ireland-dog-licence-cost-calculator/northern-ireland/'>Northern Ireland Dog Licence Calculator</a>."
+      },
+      {
+        q: "What Stamp Duty rules apply to property buyers in Northern Ireland?",
+        aHtml: "Property purchases in Northern Ireland follow standard UK Stamp Duty Land Tax (SDLT) thresholds starting at £250,000. Calculate your tax using our <a href='/first-time-buyer-stamp-duty-calculator/northern-ireland/'>Stamp Duty Calculator (NI)</a>."
+      },
+      {
+        q: "How do Universal Credit rates apply in Northern Ireland?",
+        aHtml: "Universal Credit in Northern Ireland is administered by the Department for Communities with options for fortnightly payments. Model your entitlement with our <a href='/universal-credit-calculator/northern-ireland/'>Universal Credit Calculator (NI)</a>."
+      },
+      {
+        q: "What statutory notice periods apply under Northern Ireland employment law?",
+        aHtml: "Employees in Northern Ireland are entitled to statutory minimum notice periods based on length of service. Estimate notice requirements using our <a href='/statutory-notice-period-calculator/northern-ireland/'>Statutory Notice Period Calculator</a>."
+      }
+    ]
+  }
+};
+
+const currentGuide = nationGuides[nation] || nationGuides['england'];
+---
+
+<Layout 
+  title={`${nationName} Calculators 2026/27 — Localised UK Financial Tools`} 
+  description={currentGuide.summary}
+>
+  <!-- CRUMB & HERO AT TOP LEVEL (FULL WIDTH MATCHING STANDARD CALCULATOR PAGES) -->
+  <div class="crumb">
+    <a href="/">Home</a>
+    <span class="sep">›</span>
+    <span class="current">{nationName} Portal</span>
+  </div>
+
+  <div class="hero" style={`background: ${heroBg}; margin: 18px 48px 0; border-radius: 20px; padding: 48px 52px 50px; text-align: left;`}>
+    <div class="hero-inner" style="margin: 0; text-align: left; max-width: 840px;">
+      <a href="/" class="hero-back" style="color: #fff; text-decoration: none; opacity: 0.85; font-size: 13px; font-weight: 600; margin-bottom: 16px; display: inline-flex; align-items: center; gap: 5px;">‹ Home</a>
+      <div style="margin-bottom: 14px;">
+        <NationFlagIcon nation={nation} width="64px" height="42px" />
+      </div>
+      <h1 style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 36px; font-weight: 700; margin: 0 0 12px; line-height: 1.15; text-align: left; color: #ffffff;">{nationName} Calculators & Regional Tools</h1>
+      <p class="sub" style="margin: 0; max-width: 760px; font-size: 15.5px; opacity: 0.92; line-height: 1.6; text-align: left; color: #ffffff;">{currentGuide.summary}</p>
+    </div>
+  </div>
+
+  <!-- STANDARD TWO COLUMN LAYOUT GRID -->
+  <div class="layout calculator-layout work-category" style="margin-top: 32px;">
+    <div class="main-col">
+      <!-- STATUTORY RULES SUMMARY CARD -->
+      <div class="card" style="margin-bottom: 32px;">
+        <h2 style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 700;">⚖️ 2026/27 Statutory Rules & Rates ({nationName})</h2>
+        <ul style="margin: 16px 0 0; padding-left: 20px; color: rgba(26, 46, 40, 0.85); font-size: 14.5px; line-height: 1.65;">
+          {currentGuide.rules.map((rule) => (
+            <li style="margin-bottom: 8px;">{rule}</li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- CATEGORIZED CALCULATORS DIRECTORY -->
+      {categoriesList.map((cat) => {
+        const catCalcs = allCalculators.filter(c => normalizeCategoryKey(c.data.category) === cat.key);
+        if (catCalcs.length === 0) return null;
+
+        const hubUrl = `/${categoryHubSlugs[cat.key]}/${nation}/`;
+
+        return (
+          <div class="portal-sec" style="margin-bottom: 36px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0;">
+              <h2 style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 22px; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 8px;">
+                <span>{cat.icon}</span>
+                <a href={hubUrl} class="cat-hub-link" title={`View all ${cat.title} calculators for ${nationName}`}>
+                  {cat.title} ({nationName})
+                </a>
+              </h2>
+              
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 13px; font-weight: 600; color: #64748b;">{catCalcs.length} Tools</span>
+                <button class="cat-collapse-btn" aria-expanded="true" title="Collapse category grid">
+                  <span class="collapse-txt">Collapse</span>
+                  <span class="collapse-arr">▲</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="portal-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px;">
+              {catCalcs.map((calc) => {
+                const slug = calc.id.split('/').pop()?.replace(/\.(md|mdx)$/, '');
+                const itemUrl = calc.data.isDevolved ? `/${slug}/${nation}/` : `/${slug}/`;
+                let cleanTitle = calc.data.title;
+                cleanTitle = cleanTitle.replace(/\s*UK\s*2026\/27.*$/i, '');
+                cleanTitle = cleanTitle.replace(/\s*—.*$/, '').trim();
+
+                return (
+                  <div class="portal-card-clean">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                      <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b;">{cat.title}</span>
+                      {calc.data.isDevolved ? (
+                        <span style="font-size: 11px; font-weight: 700; color: #1e40af; background: #dbeafe; padding: 3px 8px; border-radius: 6px;">Localised ({nationName})</span>
+                      ) : (
+                        <span style="font-size: 11px; font-weight: 700; color: #047857; background: #d1fae5; padding: 3px 8px; border-radius: 6px;">UK Wide</span>
+                      )}
+                    </div>
+                    <h3 style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 700; margin: 0 0 8px; color: #0f172a; line-height: 1.35;">{cleanTitle}</h3>
+                    <p style="font-size: 13.5px; color: #475569; margin: 0 0 18px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">{calc.data.description}</p>
+                    
+                    <a href={itemUrl} class="btn-open-calc">
+                      <span>Open Calculator</span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                      </svg>
+                    </a>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+
+      <!-- MODERN FAQ SECTION (CRISP WHITE, NO OLD BEIGE, NO DOUBLE CHEVRONS) -->
+      <div class="card" style="margin-top: 36px; padding: 28px;">
+        <h2 style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 22px; font-weight: 700; margin: 0 0 6px; color: #0f172a;">❓ Frequently Asked Questions ({nationName} Rules)</h2>
+        <p style="font-size: 14px; color: #64748b; margin: 0 0 24px;">Official statutory guidelines and devolved tax rules for {nationName}.</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          {currentGuide.faqs.map((faq, idx) => (
+            <div class="faq-item-clean">
+              <button class="faq-btn-clean" aria-expanded="false">
+                <span>{faq.q}</span>
+                <span class="faq-icon-arrow">↓</span>
+              </button>
+              <div class="faq-body-clean" style="display: none;">
+                <p set:html={faq.aHtml}></p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR COLUMN -->
+    <div class="sidebar">
+      <div class="card">
+        <div class="side-title">Country Portals</div>
+        <a href="/england-calculators/" class={`cat-link ${nation === 'england' ? 'active' : ''}`}>
+          <NationFlagIcon nation="england" width="20px" height="13px" />
+          <span>England Portal</span>
+        </a>
+        <a href="/scotland-calculators/" class={`cat-link ${nation === 'scotland' ? 'active' : ''}`}>
+          <NationFlagIcon nation="scotland" width="20px" height="13px" />
+          <span>Scotland Portal</span>
+        </a>
+        <a href="/wales-calculators/" class={`cat-link ${nation === 'wales' ? 'active' : ''}`}>
+          <NationFlagIcon nation="wales" width="20px" height="13px" />
+          <span>Wales Portal</span>
+        </a>
+        <a href="/northern-ireland-calculators/" class={`cat-link ${nation === 'northern-ireland' ? 'active' : ''}`}>
+          <NationFlagIcon nation="northern-ireland" width="20px" height="13px" />
+          <span>N. Ireland Portal</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script is:inline>
+  // FAQ Accordion toggles
+  document.querySelectorAll('.faq-btn-clean').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const parent = btn.closest('.faq-item-clean');
+      const body = parent.querySelector('.faq-body-clean');
+      const arrow = parent.querySelector('.faq-icon-arrow');
+      const isOpen = body.style.display === 'block';
+
+      if (isOpen) {
+        body.style.display = 'none';
+        btn.setAttribute('aria-expanded', 'false');
+        arrow.textContent = '↓';
+        parent.classList.remove('open');
+      } else {
+        body.style.display = 'block';
+        btn.setAttribute('aria-expanded', 'true');
+        arrow.textContent = '↑';
+        parent.classList.add('open');
+      }
+    });
+  });
+
+  // Category Section Collapse / Expand Toggles
+  document.querySelectorAll('.cat-collapse-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sec = btn.closest('.portal-sec');
+      const grid = sec.querySelector('.portal-grid');
+      const txt = btn.querySelector('.collapse-txt');
+      const arr = btn.querySelector('.collapse-arr');
+      const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+
+      if (isExpanded) {
+        grid.style.display = 'none';
+        btn.setAttribute('aria-expanded', 'false');
+        txt.textContent = 'Expand';
+        arr.textContent = '▼';
+      } else {
+        grid.style.display = 'grid';
+        btn.setAttribute('aria-expanded', 'true');
+        txt.textContent = 'Collapse';
+        arr.textContent = '▲';
+      }
+    });
+  });
+</script>
+
+<style>
+  .cat-hub-link {
+    color: #0f172a;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .cat-hub-link:hover {
+    color: #2563eb !important;
+    text-decoration: underline !important;
+  }
+
+  .cat-collapse-btn {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #334155;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s ease;
+  }
+  .cat-collapse-btn:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+  .portal-card-clean {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+  }
+  .portal-card-clean:hover {
+    transform: translateY(-2px);
+    border-color: #cbd5e1;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  }
+  .btn-open-calc {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: #0f172a;
+    color: #ffffff;
+    font-size: 13.5px;
+    font-weight: 600;
+    text-decoration: none;
+    margin-top: auto;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+  }
+  .portal-card-clean:hover .btn-open-calc {
+    background: #2563eb;
+  }
+  .btn-open-calc svg {
+    transition: transform 0.2s ease;
+  }
+  .portal-card-clean:hover .btn-open-calc svg {
+    transform: translateX(4px);
+  }
+
+  /* CRISP WHITE FAQ ACCORDION - NO BEIGE OLD BOOK COLOR */
+  .faq-item-clean {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+  }
+  .faq-item-clean.open {
+    border-color: #94a3b8;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+  }
+  .faq-btn-clean {
+    width: 100%;
+    padding: 16px 20px;
+    background: #f8fafc;
+    border: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #0f172a;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .faq-btn-clean:hover {
+    background: #f1f5f9;
+  }
+  .faq-item-clean.open .faq-btn-clean {
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .faq-icon-arrow {
+    font-size: 16px;
+    font-weight: 700;
+    color: #64748b;
+  }
+  .faq-body-clean {
+    padding: 16px 20px;
+    background: #ffffff;
+  }
+  .faq-body-clean p {
+    margin: 0;
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: #334155;
+  }
+  .faq-body-clean a {
+    color: #2563eb;
+    font-weight: 600;
+    text-decoration: underline;
+  }
+</style>

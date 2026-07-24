@@ -1,0 +1,122 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Mortgage Payment Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Mortgage Loan Amount (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="mort-pay-loan-amount" value="250000" min="20000" step="5000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Mortgage Interest Rate (% p.a.)</span></div>
+        <div class="amount-field">
+          <input type="number" id="mort-pay-interest-rate" value="4.2" min="0.5" max="15" step="0.1" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Mortgage Term (Years)</span></div>
+        <div class="amount-field">
+          <input type="number" id="mort-pay-term-years" value="25" min="5" max="40" step="1" />
+          <span class="cur">yrs</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Monthly Repayment (Capital & Interest)</div>
+      <div class="result-amount"><span id="mainResultDisplay">£1,347.50 / month</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Annual Mortgage Repayment Total:</span>
+        <span class="val" id="subResultValue">£16,170.00 / year</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Mortgage Repayment Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Monthly Capital Repayment Share</span>
+          <span class="val" id="monthlyCapitalShareDisplay">£472.50 / month</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Monthly Interest Share</span>
+          <span class="val" id="monthlyInterestShareDisplay">£875.00 / month</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Interest-Only Alternative Payment</span>
+          <span class="val" id="interestOnlyOptionDisplay">£875.00 / month</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Monthly Mortgage Payment</span>
+          <span class="val" id="totalMonthlyPaymentDisplay" style="font-weight: 700; font-size: 18px;">£1,347.50 / month</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateMortgagePayment() {
+    const loanEl = document.getElementById('mort-pay-loan-amount') as HTMLInputElement;
+    const rateEl = document.getElementById('mort-pay-interest-rate') as HTMLInputElement;
+    const termEl = document.getElementById('mort-pay-term-years') as HTMLInputElement;
+
+    if (!loanEl || !rateEl || !termEl) return;
+
+    const loan = parseFloat(loanEl.value) || 0;
+    const rate = (parseFloat(rateEl.value) || 0) / 100;
+    const years = parseInt(termEl.value) || 25;
+
+    const r = rate / 12;
+    const n = years * 12;
+
+    const monthlyPayment = r > 0 ? loan * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1) : loan / n;
+    const monthlyInterest = loan * r;
+    const monthlyCapital = Math.max(0, monthlyPayment - monthlyInterest);
+    const annualTotal = monthlyPayment * 12;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const capRes = document.getElementById('monthlyCapitalShareDisplay');
+    const intRes = document.getElementById('monthlyInterestShareDisplay');
+    const ioRes = document.getElementById('interestOnlyOptionDisplay');
+    const totalRes = document.getElementById('totalMonthlyPaymentDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + monthlyPayment.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (subVal) subVal.textContent = '£' + annualTotal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (capRes) capRes.textContent = '£' + monthlyCapital.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (intRes) intRes.textContent = '£' + monthlyInterest.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (ioRes) ioRes.textContent = '£' + monthlyInterest.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (totalRes) totalRes.textContent = '£' + monthlyPayment.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+  }
+
+  ['mort-pay-loan-amount', 'mort-pay-interest-rate', 'mort-pay-term-years'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateMortgagePayment);
+    document.getElementById(id)?.addEventListener('change', calculateMortgagePayment);
+  });
+  calculateMortgagePayment();
+</script>

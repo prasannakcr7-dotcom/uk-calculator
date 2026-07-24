@@ -1,0 +1,123 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Capital Allowances Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Plant & Machinery Asset Cost (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="asset-purchase-cost" value="45000" min="1000" step="2500" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Writing Down Allowance Pool Type</span></div>
+        <select id="capital-allowance-pool" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="main" selected>Main Pool Plant & Machinery (18% WDA)</option>
+          <option value="special">Special Rate Pool / Long-Life Assets (6% WDA)</option>
+          <option value="full_expensing">Full Expensing (100% First Year Allowance for Ltd Companies)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Applicable Corporation Tax Rate (%)</span></div>
+        <div class="amount-field">
+          <input type="number" id="capital-corp-tax-rate" value="25.0" min="19.0" max="25.0" step="1.0" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">First Year Tax Saving</div>
+      <div class="result-amount"><span id="mainResultDisplay">£2,025.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">First Year Capital Allowance Claim:</span>
+        <span class="val" id="subResultValue">£8,100.00</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Capital Allowances Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>First Year Allowance Claim (WDA)</span>
+          <span class="val" id="firstYearAllowanceDisplay">£8,100.00 (18%)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Written Down Value Carried Forward to Next Year</span>
+          <span class="val" id="writtenDownValueDisplay">£36,900.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Corporation Tax Relief Rate</span>
+          <span class="val" id="taxReliefRateDisplay">25.0%</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Corporation Tax Saved in Year 1</span>
+          <span class="val" id="netTaxSavedDisplay" style="font-weight: 700; font-size: 18px;">£2,025.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="impuestos" />
+  </div>
+</div>
+
+<script>
+  function calculateCapitalAllowances() {
+    const costEl = document.getElementById('asset-purchase-cost') as HTMLInputElement;
+    const poolEl = document.getElementById('capital-allowance-pool') as HTMLSelectElement;
+    const taxEl = document.getElementById('capital-corp-tax-rate') as HTMLInputElement;
+
+    if (!costEl || !poolEl || !taxEl) return;
+
+    const cost = parseFloat(costEl.value) || 0;
+    const poolType = poolEl.value;
+    const corpRate = (parseFloat(taxEl.value) || 25) / 100;
+
+    let wdaRate = 0.18;
+    if (poolType === 'special') wdaRate = 0.06;
+    if (poolType === 'full_expensing') wdaRate = 1.0;
+
+    const allowanceClaimed = cost * wdaRate;
+    const wdvCarriedForward = Math.max(0, cost - allowanceClaimed);
+    const taxSaved = allowanceClaimed * corpRate;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const fyaRes = document.getElementById('firstYearAllowanceDisplay');
+    const wdvRes = document.getElementById('writtenDownValueDisplay');
+    const reliefRes = document.getElementById('taxReliefRateDisplay');
+    const netTaxRes = document.getElementById('netTaxSavedDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + taxSaved.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = '£' + allowanceClaimed.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (fyaRes) fyaRes.textContent = '£' + allowanceClaimed.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` (${(wdaRate*100).toFixed(0)}%)`;
+    if (wdvRes) wdvRes.textContent = '£' + wdvCarriedForward.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (reliefRes) reliefRes.textContent = (corpRate * 100).toFixed(1) + '%';
+    if (netTaxRes) netTaxRes.textContent = '£' + taxSaved.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['asset-purchase-cost', 'capital-allowance-pool', 'capital-corp-tax-rate'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateCapitalAllowances);
+    document.getElementById(id)?.addEventListener('change', calculateCapitalAllowances);
+  });
+  calculateCapitalAllowances();
+</script>

@@ -1,0 +1,120 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Annual VAT-Exclusive Turnover (£)</span></div>
+      <div class="amount-field"><input type="number" id="annual-vatable-turnover" value="95000" min="10000" max="150000" step="5000" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Annual VAT-Inclusive Business Expenses / Purchases (£)</span></div>
+      <div class="amount-field"><input type="number" id="annual-vatable-purchases" value="12000" min="0" step="1000" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>HMRC Flat Rate Scheme Trade Sector Percentage (%)</span></div>
+      <select id="frs-sector-rate-pct">
+        <option value="16.5">Limited Cost Trader Rate (16.5% - Goods expenditure under 2% of turnover)</option>
+        <option value="14.5" selected>IT Consultancy / Management Consultancy (14.5%)</option>
+        <option value="12.0">Business Services Not Listed Elsewhere (12.0%)</option>
+        <option value="11.0">Advertising / PR / Photography (11.0%)</option>
+        <option value="9.5">Catering / Pubs / Restaurants (9.5%)</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>First Year FRS 1% Discount Applies?</span></div>
+      <select id="frs-first-year-discount">
+        <option value="no" selected>No (Standard Sector Rate)</option>
+        <option value="yes">Yes (Subtract 1.0% from Sector Rate for first 12 months)</option>
+      </select>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <h3>VAT Scheme Comparison Results</h3>
+      <div class="breakdown-row net">
+        <span>Standard VAT Net Payable to HMRC:</span>
+        <strong id="standard-vat-net-payable">£0.00 / year</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Flat Rate Scheme (FRS) Net Payable:</span>
+        <strong id="frs-vat-net-payable">£0.00 / year</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Financial Recommendation:</span>
+        <strong id="vat-scheme-recommendation">Standard VAT Accounting saves money</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Net Cash Difference Between Schemes:</span>
+        <strong id="scheme-cash-difference">£0.00</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculateVatFrs() {
+    const netTurnover = parseFloat((document.getElementById('annual-vatable-turnover') as HTMLInputElement).value) || 0;
+    const purchasesIncVat = parseFloat((document.getElementById('annual-vatable-purchases') as HTMLInputElement).value) || 0;
+    let sectorRate = parseFloat((document.getElementById('frs-sector-rate-pct') as HTMLSelectElement).value) || 14.5;
+    const isFirstYr = (document.getElementById('frs-first-year-discount') as HTMLSelectElement).value === 'yes';
+
+    if (isFirstYr) {
+      sectorRate = Math.max(0, sectorRate - 1.0);
+    }
+
+    // Standard VAT:
+    // Output VAT charged to clients = Net Turnover * 20%
+    // Input VAT reclaimed on purchases = PurchasesIncVat * (20/120) = PurchasesIncVat / 6
+    const standardOutputVat = netTurnover * 0.20;
+    const standardInputVat = purchasesIncVat * (1 / 6);
+    const standardNetPayable = Math.max(0, standardOutputVat - standardInputVat);
+
+    // FRS VAT:
+    // Flat rate applied to GROSS VAT-Inclusive Turnover (Net Turnover * 1.20)
+    const grossTurnover = netTurnover * 1.20;
+    const frsNetPayable = grossTurnover * (sectorRate / 100);
+
+    const diff = Math.abs(standardNetPayable - frsNetPayable);
+    let recommendation = '';
+
+    if (frsNetPayable < standardNetPayable) {
+      recommendation = '🟢 Flat Rate Scheme (FRS) is £' + diff.toFixed(2) + '/yr CHEAPER than Standard VAT';
+    } else if (standardNetPayable < frsNetPayable) {
+      recommendation = '🟢 Standard Accounting is £' + diff.toFixed(2) + '/yr CHEAPER (Allows input VAT reclamation)';
+    } else {
+      recommendation = 'Both VAT schemes result in equal payments';
+    }
+
+    (document.getElementById('standard-vat-net-payable') as HTMLElement).textContent = '£' + standardNetPayable.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    (document.getElementById('frs-vat-net-payable') as HTMLElement).textContent = '£' + frsNetPayable.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' (' + sectorRate.toFixed(1) + '% of gross)';
+    (document.getElementById('vat-scheme-recommendation') as HTMLElement).textContent = recommendation;
+    (document.getElementById('scheme-cash-difference') as HTMLElement).textContent = '£' + diff.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' net annual difference';
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateVatFrs);
+  calculateVatFrs();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

@@ -1,0 +1,127 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout family-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Number of Children Needing Registered Childcare</span></div>
+        <div class="amount-field">
+          <input type="number" id="num-children" value="2" min="1" max="5" step="1" />
+          <span class="cur">children</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Total Monthly Registered Childcare Costs (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="monthly-childcare-spend" value="1200" min="100" step="50" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Your Marginal Tax Rate Band</span></div>
+        <select id="parent-tax-band" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="basic" selected>Basic Rate (20% Income Tax / 8% NI)</option>
+          <option value="higher">Higher Rate (40% Income Tax / 2% NI)</option>
+          <option value="additional">Additional Rate (45% Income Tax / 2% NI)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Childcare Scheme Comparison</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Tax-Free Childcare Annual Government Top-Up (20%)</span>
+          <strong id="tfc-annual-topup">£2,400.00 / year</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Childcare Vouchers Maximum Annual Tax/NI Savings</span>
+          <strong id="vouchers-annual-savings">£1,860.00 / year</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Most Cost-Effective Scheme</span>
+          <strong id="scheme-comparison-result">Tax-Free Childcare saves £540.00 extra</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="familia" />
+  </div>
+</div>
+
+<script>
+  function calculateChildcareComparison() {
+    const numKidsEl = document.getElementById('num-children') as HTMLInputElement;
+    const spendEl = document.getElementById('monthly-childcare-spend') as HTMLInputElement;
+    const bandEl = document.getElementById('parent-tax-band') as HTMLSelectElement;
+
+    if (!numKidsEl || !spendEl || !bandEl) return;
+
+    const kids = parseInt(numKidsEl.value) || 1;
+    const monthlySpend = parseFloat(spendEl.value) || 0;
+    const band = bandEl.value;
+
+    const annualSpend = monthlySpend * 12;
+
+    // Tax-Free Childcare (Gov pays 20p for every 80p, max £2,000 topup per child per year)
+    const tfcGovTopupUncapped = annualSpend * 0.20;
+    const maxTfcTopup = kids * 2000;
+    const tfcAnnualTopup = Math.min(tfcGovTopupUncapped, maxTfcTopup);
+
+    // Employer Childcare Vouchers (Max £243/mo for basic, £124/mo higher, £110/mo additional per working parent)
+    let maxVoucherMonthly = 243;
+    let taxNiSavingRate = 0.28;
+
+    if (band === 'higher') {
+      maxVoucherMonthly = 124;
+      taxNiSavingRate = 0.42;
+    } else if (band === 'additional') {
+      maxVoucherMonthly = 110;
+      taxNiSavingRate = 0.47;
+    }
+
+    const voucherAnnualAllowance = Math.min(monthlySpend, maxVoucherMonthly) * 12;
+    const vouchersAnnualSavings = voucherAnnualAllowance * taxNiSavingRate;
+
+    const diff = tfcAnnualTopup - vouchersAnnualSavings;
+    let winnerText = '';
+
+    if (diff > 0) {
+      winnerText = 'Tax-Free Childcare saves £' + Math.abs(diff).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' extra/yr';
+    } else if (diff < 0) {
+      winnerText = 'Childcare Vouchers saves £' + Math.abs(diff).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' extra/yr';
+    } else {
+      winnerText = 'Both schemes provide identical annual savings';
+    }
+
+    const tfcEl = document.getElementById('tfc-annual-topup');
+    const voucherEl = document.getElementById('vouchers-annual-savings');
+    const resultEl = document.getElementById('scheme-comparison-result');
+
+    if (tfcEl) tfcEl.textContent = '£' + tfcAnnualTopup.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (voucherEl) voucherEl.textContent = '£' + vouchersAnnualSavings.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (resultEl) resultEl.textContent = winnerText;
+  }
+
+  ['num-children', 'monthly-childcare-spend', 'parent-tax-band'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateChildcareComparison);
+    document.getElementById(id)?.addEventListener('change', calculateChildcareComparison);
+  });
+  calculateChildcareComparison();
+</script>

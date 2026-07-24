@@ -1,0 +1,133 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout mobility-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Initial Upfront Deposit / Payment (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="initial-deposit-amount" value="2500" min="0" step="250" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>PCP Monthly Payment Amount (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="pcp-monthly-payment" value="350" min="50" step="25" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>PCP Guaranteed Future Value (GMFV Balloon Payment) (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="pcp-gmfv-balloon" value="12000" min="0" step="500" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Leasing (PCH) Monthly Rental Amount (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="pch-monthly-rental" value="310" min="50" step="25" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Agreement Duration (Months)</span></div>
+        <div class="amount-field">
+          <input type="number" id="contract-duration-months" value="36" min="12" max="60" step="12" />
+          <span class="cur">mths</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>PCP vs Leasing Cost Breakdown</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>PCP Total Outlay (If Handed Back at End)</span>
+          <strong id="pcp-handback-total">£15,100.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>PCP Total Outlay (If Purchasing via Balloon Payment)</span>
+          <strong id="pcp-purchase-total">£27,100.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>PCH Personal Leasing Total Outlay</span>
+          <strong id="pch-lease-total">£13,660.00</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Cheapest Hand-Back Deal</span>
+          <strong id="cheapest-deal-summary">Personal Leasing saves £1,440.00</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="movilidad" />
+  </div>
+</div>
+
+<script>
+  function calculatePcpVsLease() {
+    const depositEl = document.getElementById('initial-deposit-amount') as HTMLInputElement;
+    const pcpMonthlyEl = document.getElementById('pcp-monthly-payment') as HTMLInputElement;
+    const balloonEl = document.getElementById('pcp-gmfv-balloon') as HTMLInputElement;
+    const pchMonthlyEl = document.getElementById('pch-monthly-rental') as HTMLInputElement;
+    const monthsEl = document.getElementById('contract-duration-months') as HTMLInputElement;
+
+    if (!depositEl || !pcpMonthlyEl || !balloonEl || !pchMonthlyEl || !monthsEl) return;
+
+    const deposit = parseFloat(depositEl.value) || 0;
+    const pcpMonthly = parseFloat(pcpMonthlyEl.value) || 0;
+    const balloon = parseFloat(balloonEl.value) || 0;
+    const pchMonthly = parseFloat(pchMonthlyEl.value) || 0;
+    const months = parseInt(monthsEl.value) || 36;
+
+    const pcpHandbackTotal = deposit + (pcpMonthly * months);
+    const pcpPurchaseTotal = pcpHandbackTotal + balloon;
+    const pchTotal = deposit + (pchMonthly * months);
+
+    const diffHandback = pcpHandbackTotal - pchTotal;
+    let summaryText = '';
+    if (diffHandback > 0) {
+      summaryText = 'Personal Leasing saves £' + Math.abs(diffHandback).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    } else if (diffHandback < 0) {
+      summaryText = 'PCP Handback saves £' + Math.abs(diffHandback).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    } else {
+      summaryText = 'Both options cost the exact same';
+    }
+
+    const pcpHandEl = document.getElementById('pcp-handback-total');
+    const pcpPurEl = document.getElementById('pcp-purchase-total');
+    const pchEl = document.getElementById('pch-lease-total');
+    const summaryEl = document.getElementById('cheapest-deal-summary');
+
+    if (pcpHandEl) pcpHandEl.textContent = '£' + pcpHandbackTotal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (pcpPurEl) pcpPurEl.textContent = '£' + pcpPurchaseTotal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (pchEl) pchEl.textContent = '£' + pchTotal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (summaryEl) summaryEl.textContent = summaryText;
+  }
+
+  ['initial-deposit-amount', 'pcp-monthly-payment', 'pcp-gmfv-balloon', 'pch-monthly-rental', 'contract-duration-months'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculatePcpVsLease);
+    document.getElementById(id)?.addEventListener('change', calculatePcpVsLease);
+  });
+  calculatePcpVsLease();
+</script>

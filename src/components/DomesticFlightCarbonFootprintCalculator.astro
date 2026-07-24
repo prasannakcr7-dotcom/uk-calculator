@@ -1,0 +1,176 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout mobility-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Domestic UK Flight & Rail Journey Details'}</h2>
+
+      <!-- One-Way Flight Distance (Miles) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.distanceLabel || 'One-Way Domestic Flight Distance (Miles)'}</span>
+          <span class="hint" id="distanceVal">350 Miles (e.g. London Heathrow to Edinburgh)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="350" id="distanceInput" inputmode="decimal" />
+          <span class="cur">mi</span>
+        </div>
+        <input type="range" min="100" max="800" step="25" value="350" id="distanceSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>100 mi</span><span>800 mi</span></div>
+      </div>
+
+      <!-- Number of Passengers -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.passengersLabel || 'Number of Travelers'}</span>
+          <span class="hint" id="passengersVal">1 Traveler</span>
+        </div>
+        <input type="range" min="1" max="10" step="1" value="1" id="passengersSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1 Person</span><span>10 People</span></div>
+      </div>
+
+      <!-- Return Trip Toggle -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.tripTypeLabel || 'Journey Type (One-Way vs Round Trip Return)'}</span>
+          <span class="hint" id="tripTypeVal">Round Trip Return Flight (700 total miles)</span>
+        </div>
+        <select id="tripTypeSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="RETURN" selected>Round Trip Return Journey (2x Distance)</option>
+          <option value="ONE_WAY">One-Way Journey Only</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--mobility-1), var(--mobility-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Flight CO2e Emissions vs Electric Train'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">178 kg CO2e (Flight)</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.railComparisonLabel || 'Carbon Emissions Savings by Taking LNER Electric Train:'}</span>
+        <span class="val" id="subResultValue">Saved 154 kg CO2e (86% Carbon Reduction by Rail)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Transport Carbon Emissions Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Domestic Flight Carbon Emissions (0.254 kg CO2e/mi)</span>
+          <span class="val" id="flightEmissionsDisplay">177.8 kg CO2e</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Petrol Car Driving Emissions (0.270 kg CO2e/mi)</span>
+          <span class="val" id="carEmissionsDisplay">189.0 kg CO2e</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Electric EV Driving Emissions (0.055 kg CO2e/mi)</span>
+          <span class="val" id="evEmissionsDisplay">38.5 kg CO2e</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Electric Rail Train Emissions (0.035 kg CO2e/mi)</span>
+          <span class="val" id="trainEmissionsDisplay" style="font-weight: 700; font-size: 18px;">24.5 kg CO2e (86% Carbon Savings)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>DESNZ Conversion Factors:</strong> Official UK Government greenhouse gas reporting factors.<br/>
+        • <strong>Domestic Flight Multiplier:</strong> Domestic flights emit ~0.254 kg CO2e per passenger-mile.<br/>
+        • <strong>Radiative Forcing:</strong> Includes non-CO2 high-altitude warming effects (+90% RF multiplier).<br/>
+        • <strong>Electric Rail Advantage:</strong> UK electric train travel emits only ~0.035 kg CO2e per passenger-mile.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  const distanceInput = document.getElementById('distanceInput') as HTMLInputElement;
+  const distanceSlider = document.getElementById('distanceSlider') as HTMLInputElement;
+  const distanceVal = document.getElementById('distanceVal') as HTMLElement;
+
+  const passengersSlider = document.getElementById('passengersSlider') as HTMLInputElement;
+  const passengersVal = document.getElementById('passengersVal') as HTMLElement;
+
+  const tripTypeSelect = document.getElementById('tripTypeSelect') as HTMLSelectElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const flightEmissionsDisplay = document.getElementById('flightEmissionsDisplay') as HTMLElement;
+  const carEmissionsDisplay = document.getElementById('carEmissionsDisplay') as HTMLElement;
+  const evEmissionsDisplay = document.getElementById('evEmissionsDisplay') as HTMLElement;
+  const trainEmissionsDisplay = document.getElementById('trainEmissionsDisplay') as HTMLElement;
+
+  // DESNZ 2024/2025 Greenhouse Gas Conversion Factors (kg CO2e per passenger-mile)
+  const FLIGHT_DOMESTIC_KG_PER_MILE = 0.254; // With radiative forcing
+  const CAR_PETROL_KG_PER_MILE = 0.270;
+  const CAR_EV_KG_PER_MILE = 0.055;
+  const TRAIN_ELECTRIC_KG_PER_MILE = 0.035;
+
+  function calculate() {
+    const oneWayMiles = parseInputVal(distanceInput.value);
+    const passengers = parseInt(passengersSlider.value, 10);
+    const isReturn = tripTypeSelect.value === 'RETURN';
+
+    const multiplier = isReturn ? 2 : 1;
+    const totalMiles = oneWayMiles * multiplier;
+    const totalPassengerMiles = totalMiles * passengers;
+
+    const flightKgCo2 = totalPassengerMiles * FLIGHT_DOMESTIC_KG_PER_MILE;
+    const carKgCo2 = (totalMiles * CAR_PETROL_KG_PER_MILE) / Math.max(1, passengers); // Car shared
+    const evKgCo2 = (totalMiles * CAR_EV_KG_PER_MILE) / Math.max(1, passengers);
+    const trainKgCo2 = totalPassengerMiles * TRAIN_ELECTRIC_KG_PER_MILE;
+
+    const savingsKg = Math.max(0, flightKgCo2 - trainKgCo2);
+    const percentReduction = flightKgCo2 > 0 ? (savingsKg / flightKgCo2) * 100 : 0;
+
+    distanceVal.innerText = `${oneWayMiles.toFixed(0)} Miles (${totalMiles.toFixed(0)} mi ${isReturn ? 'return' : 'one-way'})`;
+    passengersVal.innerText = `${passengers} Passenger${passengers === 1 ? '' : 's'}`;
+
+    mainResultDisplay.innerText = `${Math.round(flightKgCo2)} kg CO2e (Flight)`;
+    subResultValue.innerText = `Saved ${Math.round(savingsKg)} kg CO2e (${percentReduction.toFixed(0)}% Carbon Reduction by Rail)`;
+
+    flightEmissionsDisplay.innerText = `${flightKgCo2.toFixed(1)} kg CO2e`;
+    carEmissionsDisplay.innerText = `${carKgCo2.toFixed(1)} kg CO2e`;
+    evEmissionsDisplay.innerText = `${evKgCo2.toFixed(1)} kg CO2e`;
+    trainEmissionsDisplay.innerText = `${trainKgCo2.toFixed(1)} kg CO2e (${percentReduction.toFixed(0)}% Savings)`;
+  }
+
+  distanceInput.addEventListener('input', () => {
+    const val = parseInputVal(distanceInput.value);
+    distanceSlider.value = String(val);
+    calculate();
+  });
+
+  distanceSlider.addEventListener('input', () => {
+    distanceInput.value = parseInt(distanceSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  passengersSlider.addEventListener('input', calculate);
+  tripTypeSelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

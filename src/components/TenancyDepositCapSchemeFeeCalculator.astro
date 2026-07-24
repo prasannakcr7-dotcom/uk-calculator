@@ -1,0 +1,134 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Tenancy Deposit Details'}</h2>
+
+      <!-- Monthly Rent Amount -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.rentLabel || 'Monthly Rent (£)'}</span>
+          <span class="hint" id="rentVal">£1,500</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="1,500" id="rentInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="300" max="10000" step="100" value="1500" id="rentSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£300</span><span>£10,000</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Statutory Maximum Permitted Tenancy Deposit'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£1,730.77 (5 Weeks Rent)</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.capTierLabel || 'Statutory Tenant Fees Act Deposit Cap Tier:'}</span>
+        <span class="val" id="subResultValue">5 Weeks Rent Cap (Annual Rent Under £50,000)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Deposit Cap Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Annual Rent Total (£1,500 × 12)</span>
+          <span class="val" id="annualRentDisplay">£18,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Calculated Weekly Rent (£18,000 ÷ 52)</span>
+          <span class="val" id="weeklyRentDisplay">£346.15 / week</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Statutory Permitted Weeks Limit</span>
+          <span class="val" id="weeksLimitDisplay">5 Weeks Max</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Maximum Legal Security Deposit Cap</span>
+          <span class="val" id="netDepositDisplay" style="font-weight: 700; font-size: 18px;">£1,730.77</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>5 Weeks Rent Cap:</strong> Applies if total annual rent is under £50,000.<br/>
+        • <strong>6 Weeks Rent Cap:</strong> Applies if total annual rent is £50,000 or more.<br/>
+        • <strong>30-Day Protection Rule:</strong> Landlord must protect deposit in a government-backed scheme within 30 days.<br/>
+        • <strong>Holding Deposit Cap:</strong> Capped at 1 week's rent.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const rentInput = document.getElementById('rentInput') as HTMLInputElement;
+  const rentSlider = document.getElementById('rentSlider') as HTMLInputElement;
+  const rentVal = document.getElementById('rentVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const annualRentDisplay = document.getElementById('annualRentDisplay') as HTMLElement;
+  const weeklyRentDisplay = document.getElementById('weeklyRentDisplay') as HTMLElement;
+  const weeksLimitDisplay = document.getElementById('weeksLimitDisplay') as HTMLElement;
+  const netDepositDisplay = document.getElementById('netDepositDisplay') as HTMLElement;
+
+  function calculate() {
+    const monthlyRent = parseInputVal(rentInput.value);
+    const annualRent = monthlyRent * 12;
+    const weeklyRent = annualRent / 52;
+
+    const weeksCap = annualRent >= 50000 ? 6 : 5;
+    const maxDeposit = weeklyRent * weeksCap;
+
+    rentVal.innerText = formatCurrency(monthlyRent).slice(0, -3);
+
+    mainResultDisplay.innerText = `${formatCurrency(maxDeposit)} (${weeksCap} Wks)`;
+    subResultValue.innerText = `${weeksCap} Weeks Rent Cap (Annual Rent ${annualRent >= 50000 ? '£50k+' : 'Under £50k'})`;
+
+    annualRentDisplay.innerText = formatCurrency(annualRent);
+    weeklyRentDisplay.innerText = `${formatCurrency(weeklyRent)} / week`;
+    weeksLimitDisplay.innerText = `${weeksCap} Weeks Max`;
+    netDepositDisplay.innerText = formatCurrency(maxDeposit);
+  }
+
+  rentInput.addEventListener('input', () => {
+    const val = parseInputVal(rentInput.value);
+    rentSlider.value = String(val);
+    calculate();
+  });
+
+  rentSlider.addEventListener('input', () => {
+    rentInput.value = parseInt(rentSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  calculate();
+</script>

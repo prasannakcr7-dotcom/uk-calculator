@@ -1,0 +1,116 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Applicant 1 Annual Gross Income (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="app1-annual-income" value="45000" min="10000" step="1000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Applicant 2 Annual Gross Income (£ - Optional)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="app2-annual-income" value="25000" min="0" step="1000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Available Deposit Savings (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="available-deposit-savings" value="35000" min="5000" step="2500" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Lender Income Multiple Cap (Standard UK Benchmark)</span></div>
+        <select id="lender-income-multiple" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="4.5" selected>4.5x Annual Income (Standard Cap)</option>
+          <option value="4.0">4.0x Annual Income (Conservative)</option>
+          <option value="5.0">5.0x Annual Income (High Earner Professional)</option>
+          <option value="5.5">5.5x Annual Income (Specialist High LTI)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>House Affordability & Borrowing Limit</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Combined Total Household Income</span>
+          <strong id="combined-household-income">£70,000.00 / year</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Maximum Mortgage Borrowing Limit</span>
+          <strong id="max-mortgage-borrowing-limit">£315,000.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Loan-to-Value (LTV) Ratio</span>
+          <strong id="affordability-ltv-ratio">90.0% LTV</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Maximum Property Purchase Price</span>
+          <strong id="max-property-purchase-price">£350,000.00</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateHouseAffordability() {
+    const app1El = document.getElementById('app1-annual-income') as HTMLInputElement;
+    const app2El = document.getElementById('app2-annual-income') as HTMLInputElement;
+    const depositEl = document.getElementById('available-deposit-savings') as HTMLInputElement;
+    const multEl = document.getElementById('lender-income-multiple') as HTMLSelectElement;
+
+    if (!app1El || !app2El || !depositEl || !multEl) return;
+
+    const inc1 = parseFloat(app1El.value) || 0;
+    const inc2 = parseFloat(app2El.value) || 0;
+    const deposit = parseFloat(depositEl.value) || 0;
+    const multiple = parseFloat(multEl.value) || 4.5;
+
+    const combinedIncome = inc1 + inc2;
+    const maxMortgage = combinedIncome * multiple;
+    const maxPropertyPrice = maxMortgage + deposit;
+    const ltv = maxPropertyPrice > 0 ? (maxMortgage / maxPropertyPrice) * 100 : 0;
+
+    const incResEl = document.getElementById('combined-household-income');
+    const maxMortEl = document.getElementById('max-mortgage-borrowing-limit');
+    const ltvResEl = document.getElementById('affordability-ltv-ratio');
+    const maxPropEl = document.getElementById('max-property-purchase-price');
+
+    if (incResEl) incResEl.textContent = '£' + combinedIncome.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (maxMortEl) maxMortEl.textContent = '£' + maxMortgage.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (ltvResEl) ltvResEl.textContent = ltv.toFixed(1) + '% LTV';
+    if (maxPropEl) maxPropEl.textContent = '£' + maxPropertyPrice.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['app1-annual-income', 'app2-annual-income', 'available-deposit-savings', 'lender-income-multiple'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateHouseAffordability);
+    document.getElementById(id)?.addEventListener('change', calculateHouseAffordability);
+  });
+  calculateHouseAffordability();
+</script>

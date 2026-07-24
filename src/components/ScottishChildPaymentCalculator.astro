@@ -1,0 +1,110 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Scottish Child Payment Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Number of Qualifying Children Aged Under 16</span></div>
+        <div class="amount-field">
+          <input type="number" id="scotchild-children-count" value="2" min="1" max="8" step="1" />
+          <span class="cur">children</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Qualifying Qualifying Low-Income Benefit Status (Universal Credit / Tax Credits)</span></div>
+        <select id="scotchild-qualifying-benefit-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="eligible" selected>Receiving Universal Credit, Tax Credits, or Income Support</option>
+          <option value="ineligible">Not Receiving Qualifying Low-Income Benefit (£0.00)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--social-1), var(--social-2) 80%);">
+      <div class="result-label">Total Four-Weekly Scottish Child Payment Award</div>
+      <div class="result-amount"><span id="mainResultDisplay">£214.40 / 4 weeks</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Annual Support Per Child (£26.80/wk):</span>
+        <span class="val" id="subResultValue">£2,787.20 / year (2 Children)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Social Security Scotland Payment Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Weekly Rate Per Child (£26.80/wk)</span>
+          <span class="val" id="weeklyRatePerChildDisplay">£53.60 / week (2 Children)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Four-Weekly Payment Cycle</span>
+          <span class="val" id="fourWeeklyPaymentDisplay">£214.40 / 4 weeks</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Qualifying Benefit Check</span>
+          <span class="val" id="qualifyingBenefitStatusDisplay">PASS (Universal Credit)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Combined Annual Scottish Child Payment</span>
+          <span class="val" id="totalAnnualScottishChildDisplay" style="font-weight: 700; font-size: 18px;">£2,787.20 / year</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="social" />
+  </div>
+</div>
+
+<script>
+  function calculateScottishChildPayment() {
+    const countEl = document.getElementById('scotchild-children-count') as HTMLInputElement;
+    const benefitEl = document.getElementById('scotchild-qualifying-benefit-select') as HTMLSelectElement;
+
+    if (!countEl || !benefitEl) return;
+
+    const children = parseInt(countEl.value) || 0;
+    const isEligible = benefitEl.value === 'eligible';
+
+    // Scottish Child Payment 2026/27 rate = £26.80 per week per child
+    const weeklyRatePerChild = 26.80;
+    const weeklyTotal = isEligible ? children * weeklyRatePerChild : 0;
+    const fourWeekly = weeklyTotal * 4;
+    const annualTotal = weeklyTotal * 52;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const weekRes = document.getElementById('weeklyRatePerChildDisplay');
+    const fourWeekRes = document.getElementById('fourWeeklyPaymentDisplay');
+    const statusRes = document.getElementById('qualifyingBenefitStatusDisplay');
+    const totalRes = document.getElementById('totalAnnualScottishChildDisplay');
+
+    if (mainRes) mainRes.textContent = isEligible ? '£' + fourWeekly.toFixed(2) + ' / 4 weeks' : '£0.00 Ineligible';
+    if (subVal) subVal.textContent = isEligible ? '£' + annualTotal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` / year (${children} Children)` : 'Must receive qualifying Benefit';
+    if (weekRes) weekRes.textContent = '£' + weeklyTotal.toFixed(2) + ` / week (${children} Children)`;
+    if (fourWeekRes) fourWeekRes.textContent = '£' + fourWeekly.toFixed(2) + ' / 4 weeks';
+    if (statusRes) statusRes.textContent = isEligible ? 'PASS (Qualifying Benefit Approved)' : 'FAIL (No Qualifying Benefit)';
+    if (totalRes) totalRes.textContent = isEligible ? '£' + annualTotal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year' : '£0.00';
+  }
+
+  ['scotchild-children-count', 'scotchild-qualifying-benefit-select'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateScottishChildPayment);
+    document.getElementById(id)?.addEventListener('change', calculateScottishChildPayment);
+  });
+  calculateScottishChildPayment();
+</script>

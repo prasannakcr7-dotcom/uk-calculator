@@ -1,0 +1,155 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Total Share Sale Disposal Proceeds (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="sale-proceeds" value="15000" min="100" step="500" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Original Share Purchase Cost / Section 104 Pool (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="purchase-cost" value="7000" min="0" step="500" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Allowable Transaction Costs / Broker Fees (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="allowable-expenses" value="100" min="0" step="25" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Other Annual Taxable Income (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="taxable-income" value="38000" min="0" step="1000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Carried Forward Capital Losses to Offset (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="prior-cgt-losses" value="0" min="0" step="100" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Shares Capital Gains Tax Breakdown</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Total Gross Capital Gain</span>
+          <strong id="gross-gain">£7,900.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>CGT Annual Tax-Free Allowance Used (£3k max)</span>
+          <strong id="allowance-used">£3,000.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Taxable Capital Gain</span>
+          <strong id="taxable-gain">£4,900.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Applicable CGT Rate(s)</span>
+          <strong id="cgt-rate-str">10% (Basic Rate Band)</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Estimated CGT Payable</span>
+          <strong id="cgt-payable">£490.00</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="impuestos" />
+  </div>
+</div>
+
+<script>
+  function calculateShareCGT() {
+    const proceedsEl = document.getElementById('sale-proceeds') as HTMLInputElement;
+    const costEl = document.getElementById('purchase-cost') as HTMLInputElement;
+    const expensesEl = document.getElementById('allowable-expenses') as HTMLInputElement;
+    const incomeEl = document.getElementById('taxable-income') as HTMLInputElement;
+    const lossesEl = document.getElementById('prior-cgt-losses') as HTMLInputElement;
+
+    if (!proceedsEl || !costEl || !expensesEl || !incomeEl || !lossesEl) return;
+
+    const proceeds = parseFloat(proceedsEl.value) || 0;
+    const cost = parseFloat(costEl.value) || 0;
+    const expenses = parseFloat(expensesEl.value) || 0;
+    const income = parseFloat(incomeEl.value) || 0;
+    const losses = parseFloat(lossesEl.value) || 0;
+
+    const annualExemptAmount = 3000;
+    const basicRateBandUpper = 50270;
+    const personalAllowance = 12570;
+
+    const grossGain = Math.max(0, proceeds - cost - expenses);
+    const gainAfterLosses = Math.max(0, grossGain - losses);
+    
+    const allowanceUsed = Math.min(annualExemptAmount, gainAfterLosses);
+    const taxableGain = Math.max(0, gainAfterLosses - allowanceUsed);
+
+    const taxableIncomeOverPA = Math.max(0, income - personalAllowance);
+    const basicRateSpaceRemaining = Math.max(0, basicRateBandUpper - taxableIncomeOverPA);
+
+    let cgtPayable = 0;
+    let rateStr = '';
+
+    if (taxableGain > 0) {
+      if (taxableGain <= basicRateSpaceRemaining) {
+        cgtPayable = taxableGain * 0.10;
+        rateStr = '10% (Basic Rate Band)';
+      } else {
+        const basicPart = basicRateSpaceRemaining;
+        const higherPart = taxableGain - basicPart;
+        cgtPayable = (basicPart * 0.10) + (higherPart * 0.20);
+        rateStr = basicPart > 0 ? '10% and 20% Split' : '20% (Higher/Additional Rate Band)';
+      }
+    } else {
+      rateStr = '0% (Covered by Allowance)';
+    }
+
+    const cgtEl = document.getElementById('cgt-payable');
+    const grossEl = document.getElementById('gross-gain');
+    const allowEl = document.getElementById('allowance-used');
+    const taxGainEl = document.getElementById('taxable-gain');
+    const rateEl = document.getElementById('cgt-rate-str');
+
+    if (cgtEl) cgtEl.textContent = '£' + cgtPayable.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (grossEl) grossEl.textContent = '£' + grossGain.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (allowEl) allowEl.textContent = '£' + allowanceUsed.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (taxGainEl) taxGainEl.textContent = '£' + taxableGain.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (rateEl) rateEl.textContent = rateStr;
+  }
+
+  ['sale-proceeds', 'purchase-cost', 'allowable-expenses', 'taxable-income', 'prior-cgt-losses'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateShareCGT);
+    document.getElementById(id)?.addEventListener('change', calculateShareCGT);
+  });
+  calculateShareCGT();
+</script>

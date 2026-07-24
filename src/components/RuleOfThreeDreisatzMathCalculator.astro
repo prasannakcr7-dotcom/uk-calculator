@@ -1,0 +1,102 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Proportion Type</span></div>
+      <select id="proportion-type">
+        <option value="direct" selected>Direct Proportion (More A -> More B, e.g. Recipe ingredients / Fuel vs Distance)</option>
+        <option value="inverse">Inverse Proportion (More A -> Less B, e.g. Workers vs Completion Time)</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Known Value A</span></div>
+      <div class="amount-field"><input type="number" id="val-a" value="4" min="0.0001" step="any" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>Corresponds to Value B</span></div>
+      <div class="amount-field"><input type="number" id="val-b" value="250" min="0.0001" step="any" /></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label"><span>New Target Value C</span></div>
+      <div class="amount-field"><input type="number" id="val-c" value="10" min="0.0001" step="any" /></div>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <h3>Proportional Result (Unknown X)</h3>
+      <div class="breakdown-row net">
+        <span>Calculated Value X:</span>
+        <strong id="unknown-x-val">0.00</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Formula Applied:</span>
+        <span id="proportion-formula-str">Loading...</span>
+      </div>
+      <div class="breakdown-row">
+        <span>Unit Rate (B per 1 A):</span>
+        <strong id="unit-rate-str">0.00</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculateRuleOfThree() {
+    const type = (document.getElementById('proportion-type') as HTMLSelectElement).value;
+    const a = parseFloat((document.getElementById('val-a') as HTMLInputElement).value) || 0;
+    const b = parseFloat((document.getElementById('val-b') as HTMLInputElement).value) || 0;
+    const c = parseFloat((document.getElementById('val-c') as HTMLInputElement).value) || 0;
+
+    let x = 0;
+    let formula = '';
+    let unitRate = 0;
+
+    if (type === 'direct') {
+      // Direct proportion: X = (B * C) / A
+      if (a !== 0) {
+        x = (b * c) / a;
+        unitRate = b / a;
+        formula = `Direct Proportion: X = (${b} × ${c}) / ${a} = ${x.toFixed(4)}`;
+      }
+    } else {
+      // Inverse proportion: X = (A * B) / C
+      if (c !== 0) {
+        x = (a * b) / c;
+        unitRate = a * b;
+        formula = `Inverse Proportion: X = (${a} × ${b}) / ${c} = ${x.toFixed(4)}`;
+      }
+    }
+
+    (document.getElementById('unknown-x-val') as HTMLElement).textContent = x.toLocaleString('en-GB', { maximumFractionDigits: 4 });
+    (document.getElementById('proportion-formula-str') as HTMLElement).textContent = formula;
+    (document.getElementById('unit-rate-str') as HTMLElement).textContent = unitRate.toLocaleString('en-GB', { maximumFractionDigits: 4 }) + (type === 'direct' ? ' (B / A)' : ' (A × B constant)');
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateRuleOfThree);
+  calculateRuleOfThree();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

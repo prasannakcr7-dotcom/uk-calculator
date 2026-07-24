@@ -1,0 +1,150 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Court Claim Fee Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Total Monetary Claim Amount (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="court-claim-amount" value="3500" min="50" step="250" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Filing Method</span></div>
+        <select id="court-filing-method-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="online" selected>Money Claim Online (MCOL - Reduced Electronic Fee)</option>
+          <option value="paper">Paper County Court Form (Standard Fee)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>EX160 Court Fee Help / Remission Eligibility</span></div>
+        <select id="ex160-remission-eligibility" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="none" selected>Full Fee Payable (No Remission)</option>
+          <option value="full_remission">Full Remission (EX160 Help with Fees Approved - £0 Fee)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--work-1), var(--work-2) 80%);">
+      <div class="result-label">Court Issue Fee Payable</div>
+      <div class="result-amount"><span id="mainResultDisplay">£115.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Court Track Allocation:</span>
+        <span class="val" id="subResultValue">Small Claims Track (Under £10,000)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 HMCTS Court Fee Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Claim Track Classification</span>
+          <span class="val" id="claimTrackDisplay">Small Claims Track</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Standard Court Issue Fee</span>
+          <span class="val" id="standardIssueFeeDisplay">£115.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>EX160 Fee Remission Discount</span>
+          <span class="val" id="remissionDiscountDisplay">£0.00 (None)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Court Issue Fee Payable</span>
+          <span class="val" id="netIssueFeeDisplay" style="font-weight: 700; font-size: 18px;">£115.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="trabajo" />
+  </div>
+</div>
+
+<script>
+  function calculateCourtFees() {
+    const claimEl = document.getElementById('court-claim-amount') as HTMLInputElement;
+    const methodEl = document.getElementById('court-filing-method-select') as HTMLSelectElement;
+    const remissionEl = document.getElementById('ex160-remission-eligibility') as HTMLSelectElement;
+
+    if (!claimEl || !methodEl || !remissionEl) return;
+
+    const claim = parseFloat(claimEl.value) || 0;
+    const isOnline = methodEl.value === 'online';
+    const isRemission = remissionEl.value === 'full_remission';
+
+    let track = 'Small Claims Track (Under £10k)';
+    if (claim > 25000) track = 'Multi-Track (Over £25k)';
+    else if (claim > 10000) track = 'Fast Track (£10k - £25k)';
+
+    // HMCTS Fee Scale 2026/27:
+    // Up to £300: Online £35 / Paper £35
+    // £300.01 - £500: Online £50 / Paper £55
+    // £500.01 - £1,000: Online £70 / Paper £80
+    // £1,000.01 - £1,500: Online £105 / Paper £115
+    // £1,500.01 - £3,000: Online £115 / Paper £125
+    // £3,000.01 - £5,000: Online £185 / Paper £205
+    // £5,000.01 - £10,000: Online £410 / Paper £455
+    // Over £10,000: 5% of claim value
+
+    let fee = 35;
+    if (claim > 10000) {
+      fee = Math.min(10000, claim * 0.05);
+    } else if (claim > 5000) {
+      fee = isOnline ? 410 : 455;
+    } else if (claim > 3000) {
+      fee = isOnline ? 185 : 205;
+    } else if (claim > 1500) {
+      fee = isOnline ? 115 : 125;
+    } else if (claim > 1000) {
+      fee = isOnline ? 105 : 115;
+    } else if (claim > 500) {
+      fee = isOnline ? 70 : 80;
+    } else if (claim > 300) {
+      fee = isOnline ? 50 : 55;
+    } else {
+      fee = 35;
+    }
+
+    const discount = isRemission ? fee : 0;
+    const netFee = Math.max(0, fee - discount);
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const trackRes = document.getElementById('claimTrackDisplay');
+    const stdFeeRes = document.getElementById('standardIssueFeeDisplay');
+    const remRes = document.getElementById('remissionDiscountDisplay');
+    const netRes = document.getElementById('netIssueFeeDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + netFee.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = track;
+    if (trackRes) trackRes.textContent = track;
+    if (stdFeeRes) stdFeeRes.textContent = '£' + fee.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (remRes) remRes.textContent = isRemission ? `-£${fee.toFixed(2)} (EX160 Remission Approved)` : '£0.00 (None)';
+    if (netRes) netRes.textContent = '£' + netFee.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['court-claim-amount', 'court-filing-method-select', 'ex160-remission-eligibility'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateCourtFees);
+    document.getElementById(id)?.addEventListener('change', calculateCourtFees);
+  });
+  calculateCourtFees();
+</script>

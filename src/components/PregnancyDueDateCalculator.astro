@@ -1,0 +1,119 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout family-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Pregnancy Cycle Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>First Day of Last Menstrual Period (LMP)</span></div>
+        <input type="date" id="pregnancy-lmp-date" value="2026-01-15" style="width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:10px; font-size:15px; background:#fff; color:var(--ink);" />
+      </div>
+
+      <div class="field-group" style="margin-top: 18px;">
+        <div class="field-label"><span>Average Menstrual Cycle Length (Days)</span></div>
+        <div class="amount-field">
+          <input type="number" id="pregnancy-cycle-length" value="28" min="21" max="35" step="1" />
+          <span class="cur">days</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--family-1), var(--family-2) 80%);">
+      <div class="result-label">Estimated Delivery Due Date (EDD)</div>
+      <div class="result-amount"><span id="mainResultDisplay">22 October 2026</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Current Gestational Age:</span>
+        <span class="val" id="subResultValue">27 Weeks 0 Days (Trimester 3)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Pregnancy Timeline Milestones</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Estimated Conception Date</span>
+          <span class="val" id="conceptionDateDisplay">29 January 2026</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>End of First Trimester (12 Weeks)</span>
+          <span class="val" id="trimester1EndDisplay">09 April 2026</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>End of Second Trimester (27 Weeks)</span>
+          <span class="val" id="trimester2EndDisplay">23 July 2026</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Estimated Full Term 40-Week Due Date</span>
+          <span class="val" id="fullTermDueDateDisplay" style="font-weight: 700; font-size: 18px;">22 October 2026</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="familia" />
+  </div>
+</div>
+
+<script>
+  function calculatePregnancyDueDate() {
+    const lmpEl = document.getElementById('pregnancy-lmp-date') as HTMLInputElement;
+    const cycleEl = document.getElementById('pregnancy-cycle-length') as HTMLInputElement;
+
+    if (!lmpEl || !cycleEl) return;
+
+    const lmpStr = lmpEl.value;
+    if (!lmpStr) return;
+
+    const cycleLength = parseInt(cycleEl.value) || 28;
+    const lmpDate = new Date(lmpStr);
+
+    // Naegele's Rule + Cycle Adjustment
+    // Due Date = LMP + 280 days + (CycleLength - 28)
+    const cycleAdj = cycleLength - 28;
+    const dueTime = lmpDate.getTime() + ((280 + cycleAdj) * 86400000);
+    const dueDate = new Date(dueTime);
+
+    const conceptionTime = lmpDate.getTime() + ((14 + cycleAdj) * 86400000);
+    const conceptionDate = new Date(conceptionTime);
+
+    const trim1Time = lmpDate.getTime() + (12 * 7 * 86400000);
+    const trim1Date = new Date(trim1Time);
+
+    const trim2Time = lmpDate.getTime() + (27 * 7 * 86400000);
+    const trim2Date = new Date(trim2Time);
+
+    const formatDate = (d: Date) => d.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const concRes = document.getElementById('conceptionDateDisplay');
+    const t1Res = document.getElementById('trimester1EndDisplay');
+    const t2Res = document.getElementById('trimester2EndDisplay');
+    const dueRes = document.getElementById('fullTermDueDateDisplay');
+
+    if (mainRes) mainRes.textContent = formatDate(dueDate);
+    if (concRes) concRes.textContent = formatDate(conceptionDate);
+    if (t1Res) t1Res.textContent = formatDate(trim1Date);
+    if (t2Res) t2Res.textContent = formatDate(trim2Date);
+    if (dueRes) dueRes.textContent = formatDate(dueDate);
+  }
+
+  ['pregnancy-lmp-date', 'pregnancy-cycle-length'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculatePregnancyDueDate);
+    document.getElementById(id)?.addEventListener('change', calculatePregnancyDueDate);
+  });
+  calculatePregnancyDueDate();
+</script>

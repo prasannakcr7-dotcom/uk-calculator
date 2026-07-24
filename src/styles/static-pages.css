@@ -1,0 +1,163 @@
+/* Stylesheet for About, Contact, and Terms & Conditions Pages */
+
+.static-page-banner {
+  background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+  color: #ffffff;
+  padding: 56px 48px 48px;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 40px;
+}
+
+.static-page-banner::after {
+  content: "";
+  position: absolute;
+  top: -100px;
+  right: -50px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.08), transparent 70%);
+  pointer-events: none;
+}
+
+.static-page-banner-inner {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.static-page-banner-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13.5px;
+  font-weight: 500;
+  text-decoration: none;
+  margin-bottom: 20px;
+  transition: color 0.2s ease;
+}
+
+.static-page-banner-back:hover {
+  color: #ffffff;
+}
+
+.static-page-banner-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 34px;
+  font-weight: 800;
+  margin: 0 0 10px;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+
+.static-page-banner-subtitle {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.88);
+  margin: 0;
+  line-height: 1.5;
+  max-width: 600px;
+}
+
+.static-page-container {
+  max-width: 896px;
+  margin: 0 auto 64px;
+  padding: 0 48px;
+}
+
+.static-page-card {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 48px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
+.static-writeup {
+  color: var(--ink);
+}
+
+.static-writeup h1 {
+  font-size: 28px;
+  margin: 0 0 16px;
+  font-weight: 700;
+}
+
+.static-writeup h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 36px 0 16px;
+  color: var(--ink);
+}
+
+.static-writeup h2:first-of-type {
+  margin-top: 0;
+}
+
+.static-writeup h3 {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 24px 0 12px;
+  color: var(--ink);
+}
+
+.static-writeup p {
+  font-size: 15px;
+  line-height: 1.65;
+  color: rgba(26, 46, 40, 0.8);
+  margin: 0 0 18px;
+}
+
+.static-writeup p strong {
+  color: var(--ink);
+}
+
+.static-writeup a {
+  color: #2563EB !important;
+  text-decoration: underline !important;
+  transition: color 0.15s ease;
+  font-weight: 500;
+}
+
+.static-writeup a:hover {
+  color: #1D4ED8 !important;
+}
+
+.static-writeup ul,
+.static-writeup ol {
+  margin: 0 0 18px;
+  padding-left: 24px;
+}
+
+.static-writeup li {
+  font-size: 15px;
+  line-height: 1.65;
+  color: rgba(26, 46, 40, 0.8);
+  margin-bottom: 8px;
+}
+
+.static-writeup li strong {
+  color: var(--ink);
+}
+
+.static-writeup hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 36px 0;
+}
+
+@media (max-width: 768px) {
+  .static-page-banner {
+    padding: 40px 24px 32px;
+  }
+  .static-page-banner-title {
+    font-size: 28px;
+  }
+  .static-page-container {
+    padding: 0 24px;
+  }
+  .static-page-card {
+    padding: 32px 24px;
+  }
+}

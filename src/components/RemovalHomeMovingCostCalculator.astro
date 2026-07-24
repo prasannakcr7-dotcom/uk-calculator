@@ -1,0 +1,172 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Home Moving & Removal Details'}</h2>
+
+      <!-- House Size / Bedroom Count -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.houseSizeLabel || 'Property Size (Bedrooms)'}</span>
+          <span class="hint" id="houseSizeVal">3-Bedroom House (£1,200 Base)</span>
+        </div>
+        <select id="houseSizeSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="BED_1">1-Bedroom Flat / Studio (£450 Base)</option>
+          <option value="BED_2">2-Bedroom House / Flat (£800 Base)</option>
+          <option value="BED_3" selected>3-Bedroom House (£1,200 Base)</option>
+          <option value="BED_4">4-Bedroom House (£1,650 Base)</option>
+          <option value="BED_5">5+ Bedroom Large House (£2,200 Base)</option>
+        </select>
+      </div>
+
+      <!-- Distance (Miles) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.distanceLabel || 'Moving Distance (Miles)'}</span>
+          <span class="hint" id="distanceVal">30 Miles</span>
+        </div>
+        <input type="range" min="5" max="300" step="5" value="30" id="distanceSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>5 Miles</span><span>300 Miles</span></div>
+      </div>
+
+      <!-- Professional Packing Service Option -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.packingLabel || 'Include Professional Packing Service & Boxes?'}</span>
+          <span class="hint" id="packingVal">No (Self-Pack)</span>
+        </div>
+        <div style="display:flex; gap:12px; margin-top:8px;">
+          <button type="button" class="preset-btn active" id="packingNoBtn">No (Self-Pack)</button>
+          <button type="button" class="preset-btn" id="packingYesBtn">Yes (+Full Packing Service)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Total Removal Company Cost'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£1,260.00 Total</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.distanceChargeLabel || 'Distance Travel Charge Added:'}</span>
+        <span class="val" id="subResultValue">+£60.00 (30 Miles × £2.00/mi)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Removal Cost Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Base Removal Crew & Vehicle Fee</span>
+          <span class="val" id="baseFeeDisplay">£1,200.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Distance Mileage Charge (£2.00/mi over 10mi)</span>
+          <span class="val" id="mileageFeeDisplay">+£60.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Professional Packing Service & Materials</span>
+          <span class="val" id="packingFeeDisplay">£0.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Estimated Total Removal Cost</span>
+          <span class="val" id="netCostDisplay" style="font-weight: 700; font-size: 18px;">£1,260.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>BAR Accreditation:</strong> Look for British Association of Removers (BAR) certified movers.<br/>
+        • <strong>Packing Services:</strong> Adds ~25% to 30% to base removal fees.<br/>
+        • <strong>Key Delay Charges:</strong> Removal crews charge waiting fees if keys are delayed on completion day.<br/>
+        • <strong>Goods in Transit Insurance:</strong> Ensure coverage covers total value of household belongings.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const houseSizeSelect = document.getElementById('houseSizeSelect') as HTMLSelectElement;
+  const distanceSlider = document.getElementById('distanceSlider') as HTMLInputElement;
+  const distanceVal = document.getElementById('distanceVal') as HTMLElement;
+
+  const packingNoBtn = document.getElementById('packingNoBtn') as HTMLButtonElement;
+  const packingYesBtn = document.getElementById('packingYesBtn') as HTMLButtonElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const baseFeeDisplay = document.getElementById('baseFeeDisplay') as HTMLElement;
+  const mileageFeeDisplay = document.getElementById('mileageFeeDisplay') as HTMLElement;
+  const packingFeeDisplay = document.getElementById('packingFeeDisplay') as HTMLElement;
+  const netCostDisplay = document.getElementById('netCostDisplay') as HTMLElement;
+
+  let includePacking = false;
+
+  const baseRates: Record<string, number> = {
+    BED_1: 450,
+    BED_2: 800,
+    BED_3: 1200,
+    BED_4: 1650,
+    BED_5: 2200
+  };
+
+  function calculate() {
+    const baseFee = baseRates[houseSizeSelect.value] || 1200;
+    const distanceMiles = parseInt(distanceSlider.value, 10);
+
+    const excessMiles = Math.max(0, distanceMiles - 10);
+    const mileageFee = excessMiles * 2.00;
+
+    const packingFee = includePacking ? baseFee * 0.30 : 0;
+    const totalCost = baseFee + mileageFee + packingFee;
+
+    distanceVal.innerText = `${distanceMiles} Mile${distanceMiles === 1 ? '' : 's'}`;
+
+    mainResultDisplay.innerText = `${formatCurrency(totalCost)} Total`;
+    subResultValue.innerText = mileageFee > 0 ? `+${formatCurrency(mileageFee)} (${excessMiles} mi @ £2/mi)` : 'Local Move (No Extra Mileage)';
+
+    baseFeeDisplay.innerText = formatCurrency(baseFee);
+    mileageFeeDisplay.innerText = mileageFee > 0 ? `+${formatCurrency(mileageFee)}` : '£0.00';
+    packingFeeDisplay.innerText = packingFee > 0 ? `+${formatCurrency(packingFee)}` : '£0.00';
+    netCostDisplay.innerText = formatCurrency(totalCost);
+  }
+
+  houseSizeSelect.addEventListener('change', calculate);
+  distanceSlider.addEventListener('input', calculate);
+
+  packingNoBtn.addEventListener('click', () => {
+    includePacking = false;
+    packingNoBtn.classList.add('active');
+    packingYesBtn.classList.remove('active');
+    calculate();
+  });
+
+  packingYesBtn.addEventListener('click', () => {
+    includePacking = true;
+    packingYesBtn.classList.add('active');
+    packingNoBtn.classList.remove('active');
+    calculate();
+  });
+
+  calculate();
+</script>

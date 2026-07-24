@@ -1,0 +1,137 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout finance-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Initial Portfolio Lump Sum (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="etf-initial-lump-sum" value="10000" min="0" step="1000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Monthly Regular Investment (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="etf-monthly-investment" value="400" min="0" step="50" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Expected Annual Index Growth Rate (% p.a.)</span></div>
+        <div class="amount-field">
+          <input type="number" id="etf-annual-growth-rate" value="8.0" min="0.5" max="25" step="0.5" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Fund OCF / TER Fee + Platform Fee (% p.a.)</span></div>
+        <div class="amount-field">
+          <input type="number" id="etf-total-fee-pct" value="0.35" min="0.05" max="3.0" step="0.05" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Investment Period (Years)</span></div>
+        <div class="amount-field">
+          <input type="number" id="etf-investment-horizon-years" value="25" min="1" max="50" step="1" />
+          <span class="cur">yrs</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Index Fund Growth Projection Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Total Own Capital Invested</span>
+          <strong id="etf-total-contributions-display">£130,000.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Cumulative Platform & Fund Fees Paid</span>
+          <strong id="etf-cumulative-fees-paid">£14,210.45</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Net Investment Investment Gain</span>
+          <strong id="etf-net-growth-gain">£251,800.12</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Final Net Portfolio Value</span>
+          <strong id="etf-final-net-portfolio-value">£381,800.12</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="finanzas" />
+  </div>
+</div>
+
+<script>
+  function calculateEtfGrowth() {
+    const initialEl = document.getElementById('etf-initial-lump-sum') as HTMLInputElement;
+    const monthlyEl = document.getElementById('etf-monthly-investment') as HTMLInputElement;
+    const growthEl = document.getElementById('etf-annual-growth-rate') as HTMLInputElement;
+    const feeEl = document.getElementById('etf-total-fee-pct') as HTMLInputElement;
+    const yearsEl = document.getElementById('etf-investment-horizon-years') as HTMLInputElement;
+
+    if (!initialEl || !monthlyEl || !growthEl || !feeEl || !yearsEl) return;
+
+    const P = parseFloat(initialEl.value) || 0;
+    const PMT = parseFloat(monthlyEl.value) || 0;
+    const grossRate = (parseFloat(growthEl.value) || 8) / 100;
+    const feeRate = (parseFloat(feeEl.value) || 0.35) / 100;
+    const years = parseInt(yearsEl.value) || 25;
+
+    const netRate = Math.max(0, grossRate - feeRate);
+
+    const rNet = netRate / 12;
+    const rGross = grossRate / 12;
+    const n = years * 12;
+
+    const fvNetDeposit = P * Math.pow(1 + rNet, n);
+    const fvNetContrib = rNet > 0 ? PMT * ((Math.pow(1 + rNet, n) - 1) / rNet) : PMT * n;
+    const finalNet = fvNetDeposit + fvNetContrib;
+
+    const fvGrossDeposit = P * Math.pow(1 + rGross, n);
+    const fvGrossContrib = rGross > 0 ? PMT * ((Math.pow(1 + rGross, n) - 1) / rGross) : PMT * n;
+    const finalGross = fvGrossDeposit + fvGrossContrib;
+
+    const totalContributed = P + (PMT * n);
+    const cumulativeFees = Math.max(0, finalGross - finalNet);
+    const netGain = Math.max(0, finalNet - totalContributed);
+
+    const contribResEl = document.getElementById('etf-total-contributions-display');
+    const feeResEl = document.getElementById('etf-cumulative-fees-paid');
+    const gainResEl = document.getElementById('etf-net-growth-gain');
+    const finalResEl = document.getElementById('etf-final-net-portfolio-value');
+
+    if (contribResEl) contribResEl.textContent = '£' + totalContributed.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (feeResEl) feeResEl.textContent = '£' + cumulativeFees.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (gainResEl) gainResEl.textContent = '£' + netGain.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (finalResEl) finalResEl.textContent = '£' + finalNet.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['etf-initial-lump-sum', 'etf-monthly-investment', 'etf-annual-growth-rate', 'etf-total-fee-pct', 'etf-investment-horizon-years'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateEtfGrowth);
+    document.getElementById(id)?.addEventListener('change', calculateEtfGrowth);
+  });
+  calculateEtfGrowth();
+</script>

@@ -1,0 +1,128 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Mortgage Early Repayment Charge (ERC) Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Outstanding Mortgage Balance (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="erc-outstanding-balance" value="210000" min="10000" step="5000" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Overpayment Amount Contributed (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="erc-overpayment-amount" value="35000" min="1000" step="2500" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Lender Penalty Charge Percentage (% ERC Penalty)</span></div>
+        <div class="amount-field">
+          <input type="number" id="erc-penalty-percentage" value="3.0" min="1.0" max="5.0" step="0.5" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Annual Penalty-Free Overpayment Allowance (%)</span></div>
+        <div class="amount-field">
+          <input type="number" id="erc-allowance-percentage" value="10" min="0" max="20" step="1" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Net Early Repayment Charge (ERC) Penalty</div>
+      <div class="result-amount"><span id="mainResultDisplay">£420.00 Fee</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Penalty-Free Allowance Used:</span>
+        <span class="val" id="subResultValue">£21,000.00 Allowance Exemption</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 ERC Penalty Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Penalty-Free Annual Overpayment Allowance (10%)</span>
+          <span class="val" id="penaltyFreeAllowanceDisplay">£21,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Chargeable Overpayment Balance Subject to ERC</span>
+          <span class="val" id="chargeableAmountDisplay">£14,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>ERC Penalty Rate Applied</span>
+          <span class="val" id="penaltyRateDisplay">3.0%</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total ERC Lender Charge Payable</span>
+          <span class="val" id="totalErcFeeDisplay" style="font-weight: 700; font-size: 18px;">£420.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateErc() {
+    const balanceEl = document.getElementById('erc-outstanding-balance') as HTMLInputElement;
+    const overpaymentEl = document.getElementById('erc-overpayment-amount') as HTMLInputElement;
+    const penaltyPctEl = document.getElementById('erc-penalty-percentage') as HTMLInputElement;
+    const allowancePctEl = document.getElementById('erc-allowance-percentage') as HTMLInputElement;
+
+    if (!balanceEl || !overpaymentEl || !penaltyPctEl || !allowancePctEl) return;
+
+    const balance = parseFloat(balanceEl.value) || 0;
+    const overpayment = parseFloat(overpaymentEl.value) || 0;
+    const penaltyRate = (parseFloat(penaltyPctEl.value) || 3.0) / 100;
+    const allowanceRate = (parseFloat(allowancePctEl.value) || 10) / 100;
+
+    const freeAllowance = balance * allowanceRate;
+    const chargeableAmount = Math.max(0, overpayment - freeAllowance);
+    const ercFee = chargeableAmount * penaltyRate;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const freeRes = document.getElementById('penaltyFreeAllowanceDisplay');
+    const chargeRes = document.getElementById('chargeableAmountDisplay');
+    const rateRes = document.getElementById('penaltyRateDisplay');
+    const totalRes = document.getElementById('totalErcFeeDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + ercFee.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Fee';
+    if (subVal) subVal.textContent = '£' + freeAllowance.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Allowance Exemption';
+    if (freeRes) freeRes.textContent = '£' + freeAllowance.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (chargeRes) chargeRes.textContent = '£' + chargeableAmount.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (rateRes) rateRes.textContent = (penaltyRate * 100).toFixed(1) + '%';
+    if (totalRes) totalRes.textContent = '£' + ercFee.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['erc-outstanding-balance', 'erc-overpayment-amount', 'erc-penalty-percentage', 'erc-allowance-percentage'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateErc);
+    document.getElementById(id)?.addEventListener('change', calculateErc);
+  });
+  calculateErc();
+</script>

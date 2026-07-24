@@ -1,0 +1,130 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>NHS Agenda for Change Band & Location Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>NHS Agenda for Change Pay Band</span></div>
+        <select id="nhs-pay-band-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="5_top" selected>Band 5 - Senior Staff Nurse Top Step (£34,581 / year)</option>
+          <option value="5_entry">Band 5 - Entry Step (£28,407 / year)</option>
+          <option value="6_top">Band 6 - Sister / Specialist Nurse Top Step (£42,618 / year)</option>
+          <option value="7_top">Band 7 - Advanced Nurse Practitioner Top Step (£50,056 / year)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>High Cost Area Supplement (HCAS Location)</span></div>
+        <select id="nhs-hcas-location-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="outer_london" selected>Outer London (+15% Supplement - Min £4,313 / Max £5,436)</option>
+          <option value="inner_london">Inner London (+20% Supplement - Min £5,190 / Max £7,746)</option>
+          <option value="fringe">Fringe London (+5% Supplement - Min £1,192 / Max £2,011)</option>
+          <option value="national">National / Outside London (No HCAS Allowance)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--work-1), var(--work-2) 80%);">
+      <div class="result-label">Total Gross NHS Salary (inc. HCAS Allowance)</div>
+      <div class="result-amount"><span id="mainResultDisplay">£39,768.15 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Monthly Gross Salary:</span>
+        <span class="val" id="subResultValue">£3,314.01 / month</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 NHS Pay Band Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Base NHS Agenda for Change Salary</span>
+          <span class="val" id="nhsBaseSalaryDisplay">£34,581.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>High Cost Area Supplement (HCAS 15%)</span>
+          <span class="val" id="hcasAllowanceDisplay">£5,187.15 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>NHS Pension Employee Contribution Tier</span>
+          <span class="val" id="nhsPensionTierDisplay">9.8% Tier</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Combined Gross Annual Pay</span>
+          <span class="val" id="totalGrossNhsSalaryDisplay" style="font-weight: 700; font-size: 18px;">£39,768.15 / year (£3,314.01/mo)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="trabajo" />
+  </div>
+</div>
+
+<script>
+  function calculateNhsPay() {
+    const bandEl = document.getElementById('nhs-pay-band-select') as HTMLSelectElement;
+    const hcasEl = document.getElementById('nhs-hcas-location-select') as HTMLSelectElement;
+
+    if (!bandEl || !hcasEl) return;
+
+    const band = bandEl.value;
+    const hcasLoc = hcasEl.value;
+
+    let baseSalary = 34581; // Band 5 top
+    if (band === '5_entry') baseSalary = 28407;
+    else if (band === '6_top') baseSalary = 42618;
+    else if (band === '7_top') baseSalary = 50056;
+
+    let hcas = 0;
+    if (hcasLoc === 'inner_london') {
+      hcas = Math.min(7746, Math.max(5190, baseSalary * 0.20));
+    } else if (hcasLoc === 'outer_london') {
+      hcas = Math.min(5436, Math.max(4313, baseSalary * 0.15));
+    } else if (hcasLoc === 'fringe') {
+      hcas = Math.min(2011, Math.max(1192, baseSalary * 0.05));
+    }
+
+    const totalGross = baseSalary + hcas;
+    const monthlyGross = totalGross / 12;
+
+    let pensionTier = '9.8%';
+    if (totalGross > 47846) pensionTier = '10.7%';
+    else if (totalGross > 32692) pensionTier = '9.8%';
+    else if (totalGross > 26824) pensionTier = '8.3%';
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const baseRes = document.getElementById('nhsBaseSalaryDisplay');
+    const hcasRes = document.getElementById('hcasAllowanceDisplay');
+    const tierRes = document.getElementById('nhsPensionTierDisplay');
+    const totalRes = document.getElementById('totalGrossNhsSalaryDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + totalGross.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (subVal) subVal.textContent = '£' + monthlyGross.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (baseRes) baseRes.textContent = '£' + baseSalary.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (hcasRes) hcasRes.textContent = '£' + hcas.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (tierRes) tierRes.textContent = pensionTier + ' Tier';
+    if (totalRes) totalRes.textContent = '£' + totalGross.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` / year (£${monthlyGross.toFixed(2)}/mo)`;
+  }
+
+  ['nhs-pay-band-select', 'nhs-hcas-location-select'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateNhsPay);
+    document.getElementById(id)?.addEventListener('change', calculateNhsPay);
+  });
+  calculateNhsPay();
+</script>

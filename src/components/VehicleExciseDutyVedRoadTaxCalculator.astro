@@ -1,0 +1,162 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout mobility-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Vehicle Registration & Emissions Details'}</h2>
+
+      <!-- Registration Date Category -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.regDateLabel || 'Vehicle First Registration Date'}</span>
+          <span class="hint" id="regDateVal">Post-April 2017 (Standard VED Rules)</span>
+        </div>
+        <select id="regDateSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="POST_2017" selected>Registered On / After 1 April 2017 (Standard VED System)</option>
+          <option value="PRE_2017">Registered Between 1 March 2001 & 31 March 2017 (CO2 Bands A-M)</option>
+          <option value="PRE_2001">Registered Before 1 March 2001 (Engine Size CC System)</option>
+        </select>
+      </div>
+
+      <!-- CO2 Emissions Band / Fuel Type (Post-2017) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.fuelTypeLabel || 'Vehicle Fuel & CO2 Category'}</span>
+          <span class="hint" id="fuelTypeVal">Standard Petrol / Diesel (£190/yr Standard Rate)</span>
+        </div>
+        <select id="fuelTypeSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="PETROL_DIESEL" selected>Standard Petrol / Diesel Car (£190 / year Standard Rate)</option>
+          <option value="HYBRID_ALT">Alternative Fuel / Hybrid (£180 / year — £10 discount)</option>
+          <option value="ELECTRIC_EV">Zero Emission Pure EV (£10 First Year / £190 Standard from 2025/26)</option>
+        </select>
+      </div>
+
+      <!-- List Price Expensive Car Supplement (>£40,000) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.listPriceLabel || 'Vehicle Original List Price (Incl. Options)'}</span>
+          <span class="hint" id="listPriceVal">Under £40,000 (No Expensive Car Supplement)</span>
+        </div>
+        <select id="listPriceSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="UNDER_40K" selected>Under £40,000 Original List Price (Standard Rate Only)</option>
+          <option value="OVER_40K">Over £40,000 Original List Price (+£410/yr Expensive Car Supplement for Years 2-6)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--mobility-1), var(--mobility-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Annual Vehicle Excise Duty (VED Road Tax)'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£190.00 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.paymentScheduleLabel || '6-Month & Monthly Direct Debit Payment Options:'}</span>
+        <span class="val" id="subResultValue">£99.75 (6-Month) or £16.63 / month Direct Debit</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'VED Road Tax Financial Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Standard Annual VED Rate</span>
+          <span class="val" id="standardVedDisplay">£190.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Expensive Car Supplement (>£40,000 List Price)</span>
+          <span class="val" id="supplementDisplay">+£0.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>6-Month Payment Option (Includes 5% Surcharge)</span>
+          <span class="val" id="sixMonthDisplay">£99.75</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Annual VED Payment (Single 12-Month Payment)</span>
+          <span class="val" id="totalVedDisplay" style="font-weight: 700; font-size: 18px;">£190.00 / year</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Standard Rate:</strong> £190/yr flat rate for petrol/diesel cars registered post-April 2017.<br/>
+        • <strong>EV Road Tax:</strong> Zero-emission EVs pay standard VED rates from April 2025/26.<br/>
+        • <strong>Expensive Car Supplement:</strong> £410/yr extra fee for cars with list price over £40,000 (Years 2 to 6).<br/>
+        • <strong>Historic Vehicle Exemption:</strong> Vehicles manufactured over 40 years ago are VED exempt.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const regDateSelect = document.getElementById('regDateSelect') as HTMLSelectElement;
+  const fuelTypeSelect = document.getElementById('fuelTypeSelect') as HTMLSelectElement;
+  const listPriceSelect = document.getElementById('listPriceSelect') as HTMLSelectElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const standardVedDisplay = document.getElementById('standardVedDisplay') as HTMLElement;
+  const supplementDisplay = document.getElementById('supplementDisplay') as HTMLElement;
+  const sixMonthDisplay = document.getElementById('sixMonthDisplay') as HTMLElement;
+  const totalVedDisplay = document.getElementById('totalVedDisplay') as HTMLElement;
+
+  function calculate() {
+    const regCategory = regDateSelect.value;
+    const fuelCategory = fuelTypeSelect.value;
+    const isOver40k = listPriceSelect.value === 'OVER_40K';
+
+    let baseStandardRate = 190.00;
+    if (fuelCategory === 'HYBRID_ALT') baseStandardRate = 180.00;
+    if (fuelCategory === 'ELECTRIC_EV') baseStandardRate = 190.00; // Electric EVs now pay standard rate in 2026/27
+
+    if (regCategory === 'PRE_2017') {
+      baseStandardRate = 190.00; // Average Band G/H benchmark
+    } else if (regCategory === 'PRE_2001') {
+      baseStandardRate = 200.00; // Engine under 1549cc £200 / over £325
+    }
+
+    const expensiveSupplement = isOver40k ? 410.00 : 0.00;
+    const totalAnnualVed = baseStandardRate + expensiveSupplement;
+
+    const sixMonthPayment = totalAnnualVed * 0.525; // 5% surcharge for 6-month payments
+    const monthlyDirectDebit = totalAnnualVed / 12;
+
+    mainResultDisplay.innerText = `${formatCurrency(totalAnnualVed)} / year`;
+    subResultValue.innerText = `${formatCurrency(sixMonthPayment)} (6-Month) or ${formatCurrency(monthlyDirectDebit)} / month Direct Debit`;
+
+    standardVedDisplay.innerText = `${formatCurrency(baseStandardRate)} / year`;
+    supplementDisplay.innerText = isOver40k ? `+${formatCurrency(expensiveSupplement)} / year` : '+£0.00 / year';
+    sixMonthDisplay.innerText = formatCurrency(sixMonthPayment);
+    totalVedDisplay.innerText = `${formatCurrency(totalAnnualVed)} / year`;
+  }
+
+  regDateSelect.addEventListener('change', calculate);
+  fuelTypeSelect.addEventListener('change', calculate);
+  listPriceSelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

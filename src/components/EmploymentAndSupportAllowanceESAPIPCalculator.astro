@@ -1,0 +1,163 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'ESA & PIP Benefit Details'}</h2>
+
+      <!-- ESA Group Component -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.esaGroupLabel || 'ESA Group Tier'}</span>
+          <span class="hint" id="esaGroupVal">Support Group (£138.20/wk)</span>
+        </div>
+        <select id="esaGroupSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="ASSESSMENT">Assessment Phase (First 13 Weeks — £90.50/wk)</option>
+          <option value="WORK_RELATED">Work-Related Activity Group (£90.50/wk)</option>
+          <option value="SUPPORT" selected>Support Group (£138.20/wk)</option>
+        </select>
+      </div>
+
+      <!-- PIP Daily Living Component -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.pipLivingLabel || 'PIP Daily Living Element Tier'}</span>
+          <span class="hint" id="pipLivingVal">Enhanced Rate (£108.55/wk)</span>
+        </div>
+        <select id="pipLivingSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="NONE">None (£0.00)</option>
+          <option value="STANDARD">Standard Rate (£72.65/wk)</option>
+          <option value="ENHANCED" selected>Enhanced Rate (£108.55/wk)</option>
+        </select>
+      </div>
+
+      <!-- PIP Mobility Component -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.pipMobilityLabel || 'PIP Mobility Element Tier'}</span>
+          <span class="hint" id="pipMobilityVal">Standard Rate (£28.70/wk)</span>
+        </div>
+        <select id="pipMobilitySelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="NONE">None (£0.00)</option>
+          <option value="STANDARD" selected>Standard Rate (£28.70/wk)</option>
+          <option value="ENHANCED">Enhanced Rate (£75.75/wk)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--social-1), var(--social-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Total Combined Weekly ESA + PIP Award'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£275.45/wk</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.monthlyAwardLabel || 'Combined 4-Weekly Payment:'}</span>
+        <span class="val" id="subResultValue">£1,101.80 / 4 weeks</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'ESA & PIP Award Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>New Style ESA Component Rate</span>
+          <span class="val" id="esaDisplay">£138.20 / wk</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>PIP Daily Living Component Rate</span>
+          <span class="val" id="pipLivingDisplay">£108.55 / wk</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>PIP Mobility Component Rate</span>
+          <span class="val" id="pipMobilityDisplay">£28.70 / wk</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Combined Weekly Support</span>
+          <span class="val" id="netAwardDisplay" style="font-weight: 700; font-size: 18px;">£275.45 / week</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>New Style ESA:</strong> Paid if illness or disability limits work capacity.<br/>
+        • <strong>PIP Benefits:</strong> Personal Independence Payment is 100% tax-free & NOT means-tested.<br/>
+        • <strong>PIP Daily Living:</strong> Standard £72.65/wk; Enhanced £108.55/wk.<br/>
+        • <strong>PIP Mobility:</strong> Standard £28.70/wk; Enhanced £75.75/wk.<br/>
+        • <strong>Dual Claiming:</strong> You can claim both ESA and PIP simultaneously.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const esaGroupSelect = document.getElementById('esaGroupSelect') as HTMLSelectElement;
+  const pipLivingSelect = document.getElementById('pipLivingSelect') as HTMLSelectElement;
+  const pipMobilitySelect = document.getElementById('pipMobilitySelect') as HTMLSelectElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const esaDisplay = document.getElementById('esaDisplay') as HTMLElement;
+  const pipLivingDisplay = document.getElementById('pipLivingDisplay') as HTMLElement;
+  const pipMobilityDisplay = document.getElementById('pipMobilityDisplay') as HTMLElement;
+  const netAwardDisplay = document.getElementById('netAwardDisplay') as HTMLElement;
+
+  const esaRates: Record<string, number> = {
+    ASSESSMENT: 90.50,
+    WORK_RELATED: 90.50,
+    SUPPORT: 138.20
+  };
+
+  const pipLivingRates: Record<string, number> = {
+    NONE: 0.00,
+    STANDARD: 72.65,
+    ENHANCED: 108.55
+  };
+
+  const pipMobilityRates: Record<string, number> = {
+    NONE: 0.00,
+    STANDARD: 28.70,
+    ENHANCED: 75.75
+  };
+
+  function calculate() {
+    const esaRate = esaRates[esaGroupSelect.value] || 138.20;
+    const pipLiving = pipLivingRates[pipLivingSelect.value] || 108.55;
+    const pipMobility = pipMobilityRates[pipMobilitySelect.value] || 28.70;
+
+    const totalWeekly = esaRate + pipLiving + pipMobility;
+    const fourWeekly = totalWeekly * 4;
+
+    mainResultDisplay.innerText = `${formatCurrency(totalWeekly)}/wk`;
+    subResultValue.innerText = `${formatCurrency(fourWeekly)} / 4 weeks`;
+
+    esaDisplay.innerText = `${formatCurrency(esaRate)} / wk`;
+    pipLivingDisplay.innerText = `${formatCurrency(pipLiving)} / wk`;
+    pipMobilityDisplay.innerText = `${formatCurrency(pipMobility)} / wk`;
+    netAwardDisplay.innerText = `${formatCurrency(totalWeekly)} / week`;
+  }
+
+  esaGroupSelect.addEventListener('change', calculate);
+  pipLivingSelect.addEventListener('change', calculate);
+  pipMobilitySelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

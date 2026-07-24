@@ -1,0 +1,93 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <div class="card">
+    
+
+    <div class="field-group">
+      <div class="field-label"><span>Annual Sole Trader Net Profit (£)</span></div>
+      <div class="amount-field"><input type="number" id="sole-trader-net-profit" value="38000" min="0" step="1000" /></div>
+    </div>
+
+    
+
+    <div class="card breakdown-card" id="results-card" style="display: none;">
+      <h3>Self-Employed NI Contributions Summary</h3>
+      <div class="breakdown-row net">
+        <span>Total National Insurance Payable:</span>
+        <strong id="total-ni-payable-val">£0.00 / year</strong>
+      </div>
+      <div class="breakdown-row net">
+        <span>Class 4 NIC (6% main rate / 2% upper rate):</span>
+        <strong id="class4-nic-val">£0.00 / year</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Class 2 NIC Status:</span>
+        <strong id="class2-nic-status">Abolished / Credits Treated as Paid (£0)</strong>
+      </div>
+      <div class="breakdown-row">
+        <span>Effective NI Rate on Net Profits:</span>
+        <strong id="effective-ni-rate-pct">0.00%</strong>
+      
+  </div>
+</div>
+
+<script>
+  function calculateSelfEmployedNi() {
+    const profit = parseFloat((document.getElementById('sole-trader-net-profit') as HTMLInputElement).value) || 0;
+
+    // 2026/27 Self-Employed NI Thresholds:
+    // Class 2: Mandatory Class 2 abolished for profit above Small Profits Threshold (£6,725). Treated as paid for State Pension credits.
+    // Class 4:
+    // Lower Profits Limit (LPL): £12,570
+    // Upper Profits Limit (UPL): £50,270
+    // Main rate: 6% between LPL (£12,570) and UPL (£50,270)
+    // Upper rate: 2% over UPL (£50,270)
+
+    const lpl = 12570;
+    const upl = 50270;
+
+    let class4 = 0;
+    if (profit > upl) {
+      class4 += (upl - lpl) * 0.06;
+      class4 += (profit - upl) * 0.02;
+    } else if (profit > lpl) {
+      class4 += (profit - lpl) * 0.06;
+    }
+
+    const totalNi = class4; // Class 2 is £0 (treated as paid)
+    const effectiveRate = profit > 0 ? (totalNi / profit) * 100 : 0;
+
+    let class2Str = 'Treating credits as paid (£0.00) — Protects State Pension record';
+    if (profit < 6725) {
+      class2Str = 'Below Small Profits Threshold (£6,725) — Voluntary Class 2 available at £3.45/wk';
+    }
+
+    (document.getElementById('total-ni-payable-val') as HTMLElement).textContent = '£' + totalNi.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    (document.getElementById('class4-nic-val') as HTMLElement).textContent = '£' + class4.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    (document.getElementById('class2-nic-status') as HTMLElement).textContent = class2Str;
+    (document.getElementById('effective-ni-rate-pct') as HTMLElement).textContent = effectiveRate.toFixed(2) + '%';
+
+    (document.getElementById('results-card') as HTMLElement).style.display = 'block';
+  }
+
+  document.getElementById('calc-btn')?.addEventListener('click', calculateSelfEmployedNi);
+  calculateSelfEmployedNi();
+</script>
+
+
+    
+    <slot />
+  </div>
+  <div class="side-col">
+    <Sidebar />
+  </div>
+</div>

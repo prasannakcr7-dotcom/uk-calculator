@@ -1,0 +1,209 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout social-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Flight Distance & Delay Duration Details'}</h2>
+
+      <!-- Flight Distance (Km) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.flightDistanceLabel || 'Flight Distance Category (Km)'}</span>
+          <span class="hint" id="flightDistanceVal">Medium Distance (1,500km to 3,500km — £350 / €400)</span>
+        </div>
+        <select id="distanceSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="SHORT">Short Haul (Under 1,500km e.g. London to Paris/Amsterdam — £220 / €250)</option>
+          <option value="MEDIUM" selected>Medium Haul (1,500km to 3,500km e.g. London to Athens/Tenerife — £350 / €400)</option>
+          <option value="LONG_UNDER_4H">Long Haul (Over 3,500km with 3-4 hr delay e.g. London to NYC — £260 / €300)</option>
+          <option value="LONG_OVER_4H">Long Haul (Over 3,500km with 4+ hr delay e.g. London to Tokyo — £520 / €600)</option>
+        </select>
+      </div>
+
+      <!-- Delay Duration at Final Destination (Hours) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.delayDurationLabel || 'Arrival Delay at Final Destination (Hours)'}</span>
+          <span class="hint" id="delayDurationVal">3.5 Hours Delay (Qualifies for Compensation)</span>
+        </div>
+        <input type="range" min="1" max="12" step="0.5" value="3.5" id="delayDurationSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1 hr</span><span>12 hrs</span></div>
+      </div>
+
+      <!-- Number of Passengers Claiming -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.passengersCountLabel || 'Number of Passengers on Booking'}</span>
+          <span class="hint" id="passengersCountVal">2 Passengers</span>
+        </div>
+        <input type="range" min="1" max="6" step="1" value="2" id="passengersCountSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1 Person</span><span>6 People</span></div>
+      </div>
+
+      <!-- Cause of Delay (Extraordinary Circumstances Check) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.delayCauseLabel || 'Cause of Flight Delay / Cancellation'}</span>
+          <span class="hint" id="delayCauseVal">Airline Technical Fault / Crew Shortage (CLAIMABLE)</span>
+        </div>
+        <select id="causeSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="AIRLINE_FAULT" selected>Airline Fault: Technical Defect, Aircraft Maintenance, Crew Shortage (CLAIMABLE)</option>
+          <option value="WEATHER">Severe Weather / Volcanic Ash / Storm Restrictions (Extraordinary — NO CLAIM)</option>
+          <option value="ATC_STRIKE">Air Traffic Control (ATC) Strike / Airport Security Shutdown (Extraordinary — NO CLAIM)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--social-1), var(--social-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated UK261 Statutory Flight Compensation'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£700.00 Total</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.perPassengerLabel || 'Per Passenger Statutory Payout & EC261 Currency Equivalent:'}</span>
+        <span class="val" id="subResultValue">£350.00 per Passenger (€400 equivalent for 2 passengers)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Flight Delay Compensation Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Statutory Rate per Passenger (Medium Haul)</span>
+          <span class="val" id="ratePerPassengerDisplay">£350.00 (€400)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Number of Passengers Claiming</span>
+          <span class="val" id="passengerCountDisplay">2 Passengers</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Airline Extraordinary Circumstance Defense</span>
+          <span class="val" id="defenseDisplay">VALID CLAIM (Airline Fault)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Compensation Payable by Airline</span>
+          <span class="val" id="totalCompensationDisplay" style="font-weight: 700; font-size: 18px;">£700.00 Statutory Cash Payout</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>3-Hour Delay Threshold:</strong> Flight must arrive at destination 3+ hours late.<br/>
+        • <strong>Short Haul (<1,500km):</strong> £220 (€250) per passenger.<br/>
+        • <strong>Medium Haul (1,500-3,500km):</strong> £350 (€400) per passenger.<br/>
+        • <strong>Long Haul (>3,500km):</strong> £260 (3-4 hrs delay) or £520 (€600) for 4+ hrs delay.<br/>
+        • <strong>Duty of Care:</strong> Airline must provide free meals, drinks & hotel for overnight delays.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const distanceSelect = document.getElementById('distanceSelect') as HTMLSelectElement;
+  const delayDurationSlider = document.getElementById('delayDurationSlider') as HTMLInputElement;
+  const delayDurationVal = document.getElementById('delayDurationVal') as HTMLElement;
+
+  const passengersCountSlider = document.getElementById('passengersCountSlider') as HTMLInputElement;
+  const passengersCountVal = document.getElementById('passengersCountVal') as HTMLElement;
+
+  const causeSelect = document.getElementById('causeSelect') as HTMLSelectElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const ratePerPassengerDisplay = document.getElementById('ratePerPassengerDisplay') as HTMLElement;
+  const passengerCountDisplay = document.getElementById('passengerCountDisplay') as HTMLElement;
+  const defenseDisplay = document.getElementById('defenseDisplay') as HTMLElement;
+  const totalCompensationDisplay = document.getElementById('totalCompensationDisplay') as HTMLElement;
+
+  function calculate() {
+    const distKey = distanceSelect.value;
+    const delayHours = parseFloat(delayDurationSlider.value);
+    const passengerCount = parseInt(passengersCountSlider.value, 10);
+    const causeKey = causeSelect.value;
+
+    const isExtraordinary = causeKey !== 'AIRLINE_FAULT';
+    const meetsDelayThreshold = delayHours >= 3.0;
+
+    let perPassengerRateGbp = 350;
+    let euroEquivalent = '€400';
+
+    if (distKey === 'SHORT') {
+      perPassengerRateGbp = 220;
+      euroEquivalent = '€250';
+    } else if (distKey === 'MEDIUM') {
+      perPassengerRateGbp = 350;
+      euroEquivalent = '€400';
+    } else if (distKey === 'LONG_UNDER_4H') {
+      perPassengerRateGbp = 260;
+      euroEquivalent = '€300';
+    } else if (distKey === 'LONG_OVER_4H') {
+      perPassengerRateGbp = 520;
+      euroEquivalent = '€600';
+    }
+
+    const isClaimable = meetsDelayThreshold && !isExtraordinary;
+    const totalPayout = isClaimable ? perPassengerRateGbp * passengerCount : 0;
+
+    delayDurationVal.innerText = `${delayHours.toFixed(1)} Hours Delay (${meetsDelayThreshold ? 'Qualifies >= 3 hrs' : 'INELIGIBLE < 3 hrs'})`;
+    passengersCountVal.innerText = `${passengerCount} Passenger${passengerCount === 1 ? '' : 's'}`;
+
+    if (!meetsDelayThreshold) {
+      mainResultDisplay.innerText = `£0.00 (Delay Under 3 Hours)`;
+      subResultValue.innerText = `Delay at destination was under 3 hours threshold. No cash compensation payable under UK261.`;
+      ratePerPassengerDisplay.innerText = `£0.00`;
+      passengerCountDisplay.innerText = `${passengerCount} Passengers`;
+      defenseDisplay.innerText = `Delay under 3 hours`;
+      totalCompensationDisplay.innerText = `£0.00`;
+      return;
+    }
+
+    if (isExtraordinary) {
+      mainResultDisplay.innerText = `£0.00 (Extraordinary Circumstance)`;
+      subResultValue.innerText = `Airline is exempt from paying cash compensation due to extraordinary circumstances (weather/ATC). Airline MUST still provide food, drinks & hotel.`;
+      ratePerPassengerDisplay.innerText = `£0.00`;
+      passengerCountDisplay.innerText = `${passengerCount} Passengers`;
+      defenseDisplay.innerText = `EXEMPT (Extraordinary Circumstance)`;
+      totalCompensationDisplay.innerText = `£0.00 (Right to Care Applies)`;
+      return;
+    }
+
+    mainResultDisplay.innerText = formatCurrency(totalPayout);
+    subResultValue.innerText = `${formatCurrency(perPassengerRateGbp)} per Passenger (${euroEquivalent} equivalent for ${passengerCount} passengers)`;
+
+    ratePerPassengerDisplay.innerText = `${formatCurrency(perPassengerRateGbp)} (${euroEquivalent})`;
+    passengerCountDisplay.innerText = `${passengerCount} Passengers`;
+    defenseDisplay.innerText = `VALID CLAIM (Airline Technical/Staff Fault)`;
+    totalCompensationDisplay.innerText = `${formatCurrency(totalPayout)} Statutory Cash Payout`;
+  }
+
+  distanceSelect.addEventListener('change', calculate);
+  delayDurationSlider.addEventListener('input', calculate);
+  passengersCountSlider.addEventListener('input', calculate);
+  causeSelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

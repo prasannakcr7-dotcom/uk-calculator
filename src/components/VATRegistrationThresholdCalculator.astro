@@ -1,0 +1,165 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Rolling 12-Month VAT Turnover Details'}</h2>
+
+      <!-- Rolling 12-Month Turnover -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.turnoverLabel || 'Rolling 12-Month Taxable Turnover (£)'}</span>
+          <span class="hint" id="turnoverVal">£75,000</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="75,000" id="turnoverInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="0" max="150000" step="1000" value="75000" id="turnoverSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£0</span><span>£150,000</span></div>
+      </div>
+
+      <!-- Expected 30-Day Forward Turnover -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.forwardLabel || '30-Day Forward Test Exceeding £90,000 Alone?'}</span>
+          <span class="hint" id="forwardVal">No</span>
+        </div>
+        <div style="display:flex; gap:12px; margin-top:8px;">
+          <button type="button" class="preset-btn active" id="forwardNoBtn">No (Standard Test)</button>
+          <button type="button" class="preset-btn" id="forwardYesBtn">Yes (Forward Test Exceeded)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'VAT Mandatory Registration Status'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">Below £90k Limit</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.headroomLabel || 'Headroom Left Before Mandatory Registration:'}</span>
+        <span class="val" id="subResultValue">£15,000.00 Headroom</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'VAT Threshold Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Rolling 12-Month Taxable Turnover</span>
+          <span class="val" id="turnoverDisplay">£75,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Statutory VAT Threshold (2026/27)</span>
+          <span class="val">£90,000.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Registration Requirement</span>
+          <span class="val" id="statusDisplay" style="font-weight: 700; font-size: 18px; color: var(--success, #10b981);">Not Required (Voluntary Option)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>£90,000 Threshold:</strong> Mandatory VAT registration limit.<br/>
+        • <strong>Rolling 12 Months:</strong> Evaluated on any 12-month period, NOT tax year.<br/>
+        • <strong>30-Day Forward Test:</strong> Register within 30 days if expecting single-month contracts over £90k.<br/>
+        • <strong>£88,000 Deregistration:</strong> Can deregister if turnover drops below £88k.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const turnoverInput = document.getElementById('turnoverInput') as HTMLInputElement;
+  const turnoverSlider = document.getElementById('turnoverSlider') as HTMLInputElement;
+  const turnoverVal = document.getElementById('turnoverVal') as HTMLElement;
+  const forwardNoBtn = document.getElementById('forwardNoBtn') as HTMLButtonElement;
+  const forwardYesBtn = document.getElementById('forwardYesBtn') as HTMLButtonElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const turnoverDisplay = document.getElementById('turnoverDisplay') as HTMLElement;
+  const statusDisplay = document.getElementById('statusDisplay') as HTMLElement;
+
+  const THRESHOLD = 90000;
+  let isForwardExceeded = false;
+
+  function calculate() {
+    const turnover = parseInputVal(turnoverInput.value);
+
+    const isMandatory = turnover > THRESHOLD || isForwardExceeded;
+    const headroom = Math.max(0, THRESHOLD - turnover);
+
+    turnoverVal.innerText = formatCurrency(turnover).slice(0, -3);
+
+    if (isMandatory) {
+      mainResultDisplay.innerText = 'Mandatory Registration!';
+      mainResultDisplay.style.color = '#ffffff';
+      subResultValue.innerText = isForwardExceeded ? 'Exceeded via 30-Day Forward Test' : `Exceeded by ${formatCurrency(turnover - THRESHOLD)}`;
+      statusDisplay.innerText = 'MUST REGISTER (30-Day Deadline)';
+      statusDisplay.style.color = 'var(--error, #ef4444)';
+    } else {
+      mainResultDisplay.innerText = 'Below £90k Limit';
+      mainResultDisplay.style.color = '#ffffff';
+      subResultValue.innerText = `${formatCurrency(headroom)} Headroom Left`;
+      statusDisplay.innerText = 'Not Required (Voluntary Option)';
+      statusDisplay.style.color = 'var(--success, #10b981)';
+    }
+
+    turnoverDisplay.innerText = formatCurrency(turnover);
+  }
+
+  forwardNoBtn.addEventListener('click', () => {
+    isForwardExceeded = false;
+    forwardNoBtn.classList.add('active');
+    forwardYesBtn.classList.remove('active');
+    calculate();
+  });
+
+  forwardYesBtn.addEventListener('click', () => {
+    isForwardExceeded = true;
+    forwardYesBtn.classList.add('active');
+    forwardNoBtn.classList.remove('active');
+    calculate();
+  });
+
+  turnoverInput.addEventListener('input', () => {
+    const val = parseInputVal(turnoverInput.value);
+    turnoverSlider.value = String(val);
+    calculate();
+  });
+
+  turnoverSlider.addEventListener('input', () => {
+    turnoverInput.value = parseInt(turnoverSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  calculate();
+</script>

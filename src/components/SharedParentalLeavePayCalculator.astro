@@ -1,0 +1,148 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout family-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Shared Parental Leave Details'}</h2>
+
+      <!-- Maternity Weeks Used -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.matWeeksLabel || 'Maternity Leave Weeks Taken by Mother'}</span>
+          <span class="hint" id="matWeeksVal">6 Weeks</span>
+        </div>
+        <input type="range" min="2" max="39" step="1" value="6" id="matWeeksSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>2 Weeks (Min)</span><span>39 Weeks</span></div>
+      </div>
+
+      <!-- Average Weekly Earnings -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.weeklyPayLabel || 'Average Weekly Earnings (AWE)'}</span>
+          <span class="hint" id="weeklyPayVal">£550.00</span>
+        </div>
+        <div class="amount-field" style="margin-top: 0; margin-bottom: 0;">
+          <input type="text" value="550" id="weeklyPayInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="150" max="2000" step="25" value="550" id="weeklyPaySlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£150</span><span>£2,000</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--family-1), var(--family-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Total Shared Parental Pay (ShPP)'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£6,176.94</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.rateLabel || 'Weekly ShPP Rate:'}</span>
+        <span class="val" id="subResultValue">£187.18/wk</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Shared Leave & Pay Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Shared Parental Leave (SPL) Available</span>
+          <span class="val" id="splWeeksDisplay">46 Weeks</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Shared Parental Pay (ShPP) Weeks Available</span>
+          <span class="val" id="shppWeeksDisplay">33 Weeks</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Weekly ShPP Statutory Rate</span>
+          <span class="val" id="shppRateDisplay">£187.18/wk</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total ShPP Pay Entitlement</span>
+          <span class="val" id="totalShppDisplay" style="font-weight: 700; font-size: 18px;">£6,176.94</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • Up to <strong>50 weeks</strong> of leave can be shared.<br/>
+        • Up to <strong>37 weeks</strong> of pay can be shared.<br/>
+        • ShPP Rate (2026/27): <strong>£187.18/wk</strong> or 90% AWE.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const matWeeksSlider = document.getElementById('matWeeksSlider') as HTMLInputElement;
+  const matWeeksVal = document.getElementById('matWeeksVal') as HTMLElement;
+  const weeklyPayInput = document.getElementById('weeklyPayInput') as HTMLInputElement;
+  const weeklyPaySlider = document.getElementById('weeklyPaySlider') as HTMLInputElement;
+  const weeklyPayVal = document.getElementById('weeklyPayVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const splWeeksDisplay = document.getElementById('splWeeksDisplay') as HTMLElement;
+  const shppWeeksDisplay = document.getElementById('shppWeeksDisplay') as HTMLElement;
+  const shppRateDisplay = document.getElementById('shppRateDisplay') as HTMLElement;
+  const totalShppDisplay = document.getElementById('totalShppDisplay') as HTMLElement;
+
+  matWeeksSlider.addEventListener('input', calculate);
+
+  weeklyPayInput.addEventListener('input', () => {
+    const val = parseInputVal(weeklyPayInput.value);
+    weeklyPaySlider.value = String(Math.min(2000, Math.max(150, val)));
+    calculate();
+  });
+
+  weeklyPaySlider.addEventListener('input', () => {
+    weeklyPayInput.value = weeklyPaySlider.value;
+    calculate();
+  });
+
+  function calculate() {
+    const matUsed = parseInt(matWeeksSlider.value, 10);
+    const awe = parseInputVal(weeklyPayInput.value);
+
+    matWeeksVal.textContent = `${matUsed} Weeks`;
+    weeklyPayVal.textContent = formatCurrency(awe);
+
+    const splWeeks = 52 - matUsed;
+    const shppWeeks = Math.max(0, 39 - matUsed);
+    const shppRate = Math.min(awe * 0.9, 187.18);
+    const totalShpp = shppWeeks * shppRate;
+
+    mainResultDisplay.textContent = formatCurrency(totalShpp);
+    subResultValue.textContent = `${formatCurrency(shppRate)}/wk`;
+    splWeeksDisplay.textContent = `${splWeeks} Weeks`;
+    shppWeeksDisplay.textContent = `${shppWeeks} Weeks`;
+    shppRateDisplay.textContent = `${formatCurrency(shppRate)}/wk`;
+    totalShppDisplay.textContent = formatCurrency(totalShpp);
+  }
+
+  calculate();
+</script>

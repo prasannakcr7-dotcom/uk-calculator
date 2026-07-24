@@ -1,0 +1,114 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Party Wall Act Survey Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Number of Affected Adjoining Neighboring Properties</span></div>
+        <div class="amount-field">
+          <input type="number" id="partywall-adjoining-count" value="2" min="1" max="6" step="1" />
+          <span class="cur">neighbors</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Neighbor Response Status</span></div>
+        <select id="partywall-response-status" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="dissent_agreed" selected>Dissent - Agreed Single Surveyor Appointed (£1,200 - £1,800/neighbor)</option>
+          <option value="consent">Full Written Consent Offered (Zero Surveyor Fees - £0)</option>
+          <option value="dissent_two">Dissent - Two Separate Surveyors Appointed (£2,200 - £3,200/neighbor)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">Estimated Total Party Wall Surveyor Fees</div>
+      <div class="result-amount"><span id="mainResultDisplay">£2,800.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Average Fee Per Neighboring Property:</span>
+        <span class="val" id="subResultValue">£1,400.00 / neighbor</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Party Wall Fee Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Building Owner's Surveyor Base Fee</span>
+          <span class="val" id="buildingOwnerSurveyorDisplay">£1,200.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Adjoining Owners' Surveyor Fees (2 Neighbors)</span>
+          <span class="val" id="adjoiningSurveyorsDisplay">£1,600.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Estimated Professional Outlay</span>
+          <span class="val" id="totalPartywallCostDisplay" style="font-weight: 700; font-size: 18px;">£2,800.00</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculatePartywallCosts() {
+    const countEl = document.getElementById('partywall-adjoining-count') as HTMLInputElement;
+    const statusEl = document.getElementById('partywall-response-status') as HTMLSelectElement;
+
+    if (!countEl || !statusEl) return;
+
+    const neighborCount = parseInt(countEl.value) || 1;
+    const status = statusEl.value;
+
+    let baseOwnerFee = 1200;
+    let neighborFee = 800;
+
+    if (status === 'consent') {
+      baseOwnerFee = 0;
+      neighborFee = 0;
+    } else if (status === 'dissent_two') {
+      baseOwnerFee = 1500;
+      neighborFee = 1400;
+    }
+
+    const totalAdjoiningFees = neighborCount * neighborFee;
+    const totalFees = baseOwnerFee + totalAdjoiningFees;
+    const avgPerNeighbor = neighborCount > 0 ? totalFees / neighborCount : 0;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const ownerRes = document.getElementById('buildingOwnerSurveyorDisplay');
+    const adjRes = document.getElementById('adjoiningSurveyorsDisplay');
+    const totalRes = document.getElementById('totalPartywallCostDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + totalFees.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = '£' + avgPerNeighbor.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / neighbor';
+    if (ownerRes) ownerRes.textContent = '£' + baseOwnerFee.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (adjRes) adjRes.textContent = '£' + totalAdjoiningFees.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` (${neighborCount} Neighbors)`;
+    if (totalRes) totalRes.textContent = '£' + totalFees.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['partywall-adjoining-count', 'partywall-response-status'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculatePartywallCosts);
+    document.getElementById(id)?.addEventListener('change', calculatePartywallCosts);
+  });
+  calculatePartywallCosts();
+</script>

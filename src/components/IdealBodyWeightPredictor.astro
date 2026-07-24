@@ -1,0 +1,118 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout health-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Biological Gender</span></div>
+        <select id="ibw-gender" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="male" selected>Male</option>
+          <option value="female">Female</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Height (Centimetres - cm)</span></div>
+        <div class="amount-field">
+          <input type="number" id="ibw-height-cm" value="178" min="120" max="230" step="1" />
+          <span class="cur">cm</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Ideal Weight Formula Comparison</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Devine Formula (Clinical Standard)</span>
+          <strong id="ibw-devine-val">73.0 kg</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Robinson Formula</span>
+          <strong id="ibw-robinson-val">72.1 kg</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Miller Formula</span>
+          <strong id="ibw-miller-val">70.5 kg</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>NHS Healthy BMI Range (18.5 - 24.9)</span>
+          <strong id="ibw-healthy-bmi-range">58.6 kg – 78.9 kg</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Average Ideal Body Weight Target</span>
+          <strong id="ibw-average-target">71.9 kg (11st 4lb)</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="salud" />
+  </div>
+</div>
+
+<script>
+  function calculateIdealWeight() {
+    const genderEl = document.getElementById('ibw-gender') as HTMLSelectElement;
+    const heightEl = document.getElementById('ibw-height-cm') as HTMLInputElement;
+
+    if (!genderEl || !heightEl) return;
+
+    const gender = genderEl.value;
+    const heightCm = parseFloat(heightEl.value) || 178;
+
+    const heightInches = heightCm / 2.54;
+    const inchesOver5ft = Math.max(0, heightInches - 60);
+
+    let devine = 0;
+    let robinson = 0;
+    let miller = 0;
+
+    if (gender === 'male') {
+      devine = 50 + (2.3 * inchesOver5ft);
+      robinson = 52 + (1.9 * inchesOver5ft);
+      miller = 56.2 + (1.41 * inchesOver5ft);
+    } else {
+      devine = 45.5 + (2.3 * inchesOver5ft);
+      robinson = 49 + (1.7 * inchesOver5ft);
+      miller = 53.1 + (1.36 * inchesOver5ft);
+    }
+
+    const heightM = heightCm / 100;
+    const minHealthyWeight = 18.5 * (heightM * heightM);
+    const maxHealthyWeight = 24.9 * (heightM * heightM);
+
+    const avgIdeal = (devine + robinson + miller) / 3;
+
+    const devineEl = document.getElementById('ibw-devine-val');
+    const robinsonEl = document.getElementById('ibw-robinson-val');
+    const millerEl = document.getElementById('ibw-miller-val');
+    const rangeEl = document.getElementById('ibw-healthy-bmi-range');
+    const targetEl = document.getElementById('ibw-average-target');
+
+    if (devineEl) devineEl.textContent = devine.toFixed(1) + ' kg';
+    if (robinsonEl) robinsonEl.textContent = robinson.toFixed(1) + ' kg';
+    if (millerEl) millerEl.textContent = miller.toFixed(1) + ' kg';
+    if (rangeEl) rangeEl.textContent = `${minHealthyWeight.toFixed(1)} kg – ${maxHealthyWeight.toFixed(1)} kg`;
+    if (targetEl) targetEl.textContent = avgIdeal.toFixed(1) + ' kg';
+  }
+
+  ['ibw-gender', 'ibw-height-cm'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateIdealWeight);
+    document.getElementById(id)?.addEventListener('change', calculateIdealWeight);
+  });
+  calculateIdealWeight();
+</script>

@@ -1,0 +1,120 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>P11D Benefit in Kind (BiK) Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Total Annual Statutory Value of Benefit(s) (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="p11d-benefit-value" value="3500" min="100" step="250" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Employee Marginal Income Tax Band</span></div>
+        <select id="p11d-employee-tax-band" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="0.20" selected>Basic Rate (20% Income Tax)</option>
+          <option value="0.40">Higher Rate (40% Income Tax)</option>
+          <option value="0.45">Additional Rate (45% Income Tax)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Employee Capital Contribution Towards Benefit (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="p11d-employee-contribution" value="0" min="0" step="100" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">Annual Personal Income Tax Payable on P11D Benefit</div>
+      <div class="result-amount"><span id="mainResultDisplay">£700.00 / year</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Monthly PAYE Code Tax Deduction:</span>
+        <span class="val" id="subResultValue">£58.33 / month</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 P11D Tax & Employer Class 1A Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Net Taxable Benefit in Kind (BiK) Value</span>
+          <span class="val" id="netTaxableBikDisplay">£3,500.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Employee Personal Tax Due (20%)</span>
+          <span class="val" id="employeeTaxDueDisplay">£700.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Employer Class 1A National Insurance Charge (13.8%)</span>
+          <span class="val" id="employerClass1aNiDisplay">£483.00 / year</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Combined Tax & NI Liabilities</span>
+          <span class="val" id="totalP11dTaxDisplay" style="font-weight: 700; font-size: 18px;">£1,183.00 (£700 Employee + £483 Employer)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="impuestos" />
+  </div>
+</div>
+
+<script>
+  function calculateP11dTax() {
+    const valueEl = document.getElementById('p11d-benefit-value') as HTMLInputElement;
+    const bandEl = document.getElementById('p11d-employee-tax-band') as HTMLSelectElement;
+    const contribEl = document.getElementById('p11d-employee-contribution') as HTMLInputElement;
+
+    if (!valueEl || !bandEl || !contribEl) return;
+
+    const grossValue = parseFloat(valueEl.value) || 0;
+    const taxRate = parseFloat(bandEl.value) || 0.20;
+    const employeeContrib = parseFloat(contribEl.value) || 0;
+
+    const netBik = Math.max(0, grossValue - employeeContrib);
+    const employeeTax = netBik * taxRate;
+    const monthlyTax = employeeTax / 12;
+    const employerClass1a = netBik * 0.138;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const bikRes = document.getElementById('netTaxableBikDisplay');
+    const empTaxRes = document.getElementById('employeeTaxDueDisplay');
+    const niRes = document.getElementById('employerClass1aNiDisplay');
+    const totalRes = document.getElementById('totalP11dTaxDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + employeeTax.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (subVal) subVal.textContent = '£' + monthlyTax.toFixed(2) + ' / month';
+    if (bikRes) bikRes.textContent = '£' + netBik.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (empTaxRes) empTaxRes.textContent = '£' + employeeTax.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (niRes) niRes.textContent = '£' + employerClass1a.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (totalRes) totalRes.textContent = '£' + (employeeTax + employerClass1a).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ['p11d-benefit-value', 'p11d-employee-tax-band', 'p11d-employee-contribution'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateP11dTax);
+    document.getElementById(id)?.addEventListener('change', calculateP11dTax);
+  });
+  calculateP11dTax();
+</script>

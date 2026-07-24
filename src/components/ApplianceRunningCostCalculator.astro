@@ -1,0 +1,108 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Appliance Power Rating (Watts - W)</span></div>
+        <div class="amount-field">
+          <input type="number" id="appliance-power-w" value="1500" min="5" step="50" />
+          <span class="cur">Watts</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Daily Usage Duration (Hours)</span></div>
+        <div class="amount-field">
+          <input type="number" id="appliance-hours-per-day" value="2.0" min="0.1" max="24" step="0.5" />
+          <span class="cur">hrs/day</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Electricity Tariff Rate (Pence per kWh)</span></div>
+        <div class="amount-field">
+          <input type="number" id="appliance-pence-per-kwh" value="24.5" min="5" max="80" step="0.5" />
+          <span class="cur">p/kWh</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Appliance Electricity Cost Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Daily Consumption</span>
+          <strong id="appliance-daily-kwh">3.00 kWh / day</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Cost Per Hour</span>
+          <strong id="appliance-cost-per-hour">36.75p / hour</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Monthly Running Cost</span>
+          <strong id="appliance-monthly-cost">£22.37 / month</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Annual Running Cost</span>
+          <strong id="appliance-annual-cost">£268.28 / year</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="vivienda" />
+  </div>
+</div>
+
+<script>
+  function calculateApplianceCost() {
+    const wattsEl = document.getElementById('appliance-power-w') as HTMLInputElement;
+    const hoursEl = document.getElementById('appliance-hours-per-day') as HTMLInputElement;
+    const rateEl = document.getElementById('appliance-pence-per-kwh') as HTMLInputElement;
+
+    if (!wattsEl || !hoursEl || !rateEl) return;
+
+    const watts = parseFloat(wattsEl.value) || 0;
+    const hours = parseFloat(hoursEl.value) || 0;
+    const ratePence = parseFloat(rateEl.value) || 24.5;
+
+    const kw = watts / 1000;
+    const dailyKwh = kw * hours;
+    const rateGbp = ratePence / 100;
+
+    const costPerHour = kw * rateGbp;
+    const dailyCost = dailyKwh * rateGbp;
+    const monthlyCost = dailyCost * 30.4375;
+    const annualCost = dailyCost * 365;
+
+    const kwhResEl = document.getElementById('appliance-daily-kwh');
+    const hourResEl = document.getElementById('appliance-cost-per-hour');
+    const monthResEl = document.getElementById('appliance-monthly-cost');
+    const annualResEl = document.getElementById('appliance-annual-cost');
+
+    if (kwhResEl) kwhResEl.textContent = dailyKwh.toFixed(2) + ' kWh / day';
+    if (hourResEl) hourResEl.textContent = (costPerHour * 100).toFixed(2) + 'p / hour';
+    if (monthResEl) monthResEl.textContent = '£' + monthlyCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (annualResEl) annualResEl.textContent = '£' + annualCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+  }
+
+  ['appliance-power-w', 'appliance-hours-per-day', 'appliance-pence-per-kwh'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateApplianceCost);
+    document.getElementById(id)?.addEventListener('change', calculateApplianceCost);
+  });
+  calculateApplianceCost();
+</script>

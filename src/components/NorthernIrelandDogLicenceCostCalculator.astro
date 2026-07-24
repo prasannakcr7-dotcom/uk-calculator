@@ -1,0 +1,88 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout reside-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Number of Dogs to Register</span></div>
+        <div class="amount-field">
+          <input type="number" id="num-dogs-count" value="1" min="1" max="10" step="1" />
+          <span class="cur">dogs</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Dog Status / Owner Concession</span></div>
+        <select id="dog-licence-tier-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="12.50" selected>Standard Unsterilised Dog (£12.50 / dog)</option>
+          <option value="5.00">Microchipped & Neutered / Spayed (£5.00 / dog)</option>
+          <option value="5.00_senior">Senior Citizen Owner (Aged 65+) (£5.00 1st dog, £12.50 others)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Northern Ireland Dog Licence Fee Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Licence Renewal Frequency</span>
+          <strong id="licence-frequency">Annual Requirement</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Microchipping Status Requirement</span>
+          <strong id="microchip-statutory-status">Mandatory before licensing in NI</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Total Annual Licence Fee Payable</span>
+          <strong id="total-ni-dog-licence-fee">£12.50 / year</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="alltag" />
+  </div>
+</div>
+
+<script>
+  function calculateNiDogLicence() {
+    const dogsEl = document.getElementById('num-dogs-count') as HTMLInputElement;
+    const tierEl = document.getElementById('dog-licence-tier-select') as HTMLSelectElement;
+
+    if (!dogsEl || !tierEl) return;
+
+    const numDogs = parseInt(dogsEl.value) || 1;
+    const tier = tierEl.value;
+
+    let totalFee = 0;
+    if (tier === '12.50') {
+      totalFee = numDogs * 12.50;
+    } else if (tier === '5.00') {
+      totalFee = numDogs * 5.00;
+    } else if (tier === '5.00_senior') {
+      totalFee = 5.00 + Math.max(0, numDogs - 1) * 12.50;
+    }
+
+    const feeResEl = document.getElementById('total-ni-dog-licence-fee');
+    if (feeResEl) feeResEl.textContent = '£' + totalFee.toFixed(2) + ' / year';
+  }
+
+  ['num-dogs-count', 'dog-licence-tier-select'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateNiDogLicence);
+    document.getElementById(id)?.addEventListener('change', calculateNiDogLicence);
+  });
+  calculateNiDogLicence();
+</script>

@@ -1,0 +1,135 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Stock Appreciation Rights (SAR) Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Number of SAR Units Exercised</span></div>
+        <div class="amount-field">
+          <input type="number" id="sar-units-count" value="1000" min="10" step="50" />
+          <span class="cur">units</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Grant Price Per Unit (£/share)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="sar-grant-price" value="12.00" min="0.01" step="0.5" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Exercise Fair Market Value (£/share)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="sar-exercise-price" value="28.00" min="0.01" step="0.5" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Employee Marginal Income Tax Band</span></div>
+        <select id="sar-tax-band-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="0.40" selected>Higher Rate (40% Tax + 2% NI = 42%)</option>
+          <option value="0.20">Basic Rate (20% Tax + 8% NI = 28%)</option>
+          <option value="0.45">Additional Rate (45% Tax + 2% NI = 47%)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">Gross Cash Gain from SAR Exercise</div>
+      <div class="result-amount"><span id="mainResultDisplay">£16,000.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Net Take-Home Cash After PAYE Tax:</span>
+        <span class="val" id="subResultValue">£9,280.00 Net Cash</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 SAR Tax & Cash Payout Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Gross Appreciation Gain (£16.00/unit x 1,000)</span>
+          <span class="val" id="grossSarGainDisplay">£16,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>PAYE Income Tax (40%)</span>
+          <span class="val" id="sarIncomeTaxDisplay">-£6,400.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Employee National Insurance (2%)</span>
+          <span class="val" id="sarEmployeeNiDisplay">-£320.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Net Take-Home Cash Payout</span>
+          <span class="val" id="netSarPayoutDisplay" style="font-weight: 700; font-size: 18px;">£9,280.00 (58.0% Net Retention)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="impuestos" />
+  </div>
+</div>
+
+<script>
+  function calculateSarTax() {
+    const unitsEl = document.getElementById('sar-units-count') as HTMLInputElement;
+    const grantEl = document.getElementById('sar-grant-price') as HTMLInputElement;
+    const exerciseEl = document.getElementById('sar-exercise-price') as HTMLInputElement;
+    const bandEl = document.getElementById('sar-tax-band-select') as HTMLSelectElement;
+
+    if (!unitsEl || !grantEl || !exerciseEl || !bandEl) return;
+
+    const units = parseFloat(unitsEl.value) || 0;
+    const grantPrice = parseFloat(grantEl.value) || 0;
+    const exercisePrice = parseFloat(exerciseEl.value) || 0;
+    const taxRate = parseFloat(bandEl.value) || 0.40;
+
+    const gainPerUnit = Math.max(0, exercisePrice - grantPrice);
+    const grossGain = units * gainPerUnit;
+
+    const niRate = taxRate >= 0.40 ? 0.02 : 0.08;
+    const incomeTax = grossGain * taxRate;
+    const employeeNi = grossGain * niRate;
+    const totalTaxNi = incomeTax + employeeNi;
+    const netPayout = Math.max(0, grossGain - totalTaxNi);
+    const retentionPct = grossGain > 0 ? (netPayout / grossGain) * 100 : 0;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const grossRes = document.getElementById('grossSarGainDisplay');
+    const taxRes = document.getElementById('sarIncomeTaxDisplay');
+    const niRes = document.getElementById('sarEmployeeNiDisplay');
+    const netRes = document.getElementById('netSarPayoutDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + grossGain.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (subVal) subVal.textContent = '£' + netPayout.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Net Cash';
+    if (grossRes) grossRes.textContent = '£' + grossGain.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (taxRes) taxRes.textContent = '-£' + incomeTax.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (niRes) niRes.textContent = '-£' + employeeNi.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (netRes) netRes.textContent = '£' + netPayout.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` (${retentionPct.toFixed(1)}% Net Retention)`;
+  }
+
+  ['sar-units-count', 'sar-grant-price', 'sar-exercise-price', 'sar-tax-band-select'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateSarTax);
+    document.getElementById(id)?.addEventListener('change', calculateSarTax);
+  });
+  calculateSarTax();
+</script>

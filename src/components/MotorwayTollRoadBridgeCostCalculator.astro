@@ -1,0 +1,126 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout mobility-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>Toll Road & Bridge Crossing Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>UK Toll Location / Crossing</span></div>
+        <select id="toll-location-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="m6_toll" selected>M6 Toll Motorway (£8.90 Car Day Rate)</option>
+          <option value="dartford">Dartford Crossing Dart Charge (£2.50 Car Rate)</option>
+          <option value="mersey">Mersey Gateway Bridge (£2.00 Car Rate)</option>
+          <option value="tyme">Tyne Tunnel (£2.20 Car Rate)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Vehicle Classification</span></div>
+        <select id="toll-vehicle-class" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="car" selected>Class 2 Car / Van under 1.3m bonnet height</option>
+          <option value="hgv">Class 4 / 5 Heavy Goods Vehicle / HGV (2x Rate)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Monthly Commute Crossing Trips (One-Way Trips)</span></div>
+        <div class="amount-field">
+          <input type="number" id="toll-monthly-trips" value="20" min="1" max="100" step="1" />
+          <span class="cur">trips/mo</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--mobility-1), var(--mobility-2) 80%);">
+      <div class="result-label">Total Monthly Toll Crossing Outlay</div>
+      <div class="result-amount"><span id="mainResultDisplay">£178.00 / month</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Annual Toll Expense Total:</span>
+        <span class="val" id="subResultValue">£2,136.00 / year</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 Toll Expense Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Single One-Way Crossing Rate</span>
+          <span class="val" id="singleTollRateDisplay">£8.90 / trip</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Monthly One-Way Trips Count</span>
+          <span class="val" id="monthlyTripsCountDisplay">20 Trips</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Pre-pay Account Discount Savings (if applicable)</span>
+          <span class="val" id="prepaySavingsDisplay">£0.00 (0%)</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Monthly Commute Toll Bill</span>
+          <span class="val" id="totalMonthlyTollDisplay" style="font-weight: 700; font-size: 18px;">£178.00 / month</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="movilidad" />
+  </div>
+</div>
+
+<script>
+  function calculateTollCosts() {
+    const locationEl = document.getElementById('toll-location-select') as HTMLSelectElement;
+    const vehicleEl = document.getElementById('toll-vehicle-class') as HTMLSelectElement;
+    const tripsEl = document.getElementById('toll-monthly-trips') as HTMLInputElement;
+
+    if (!locationEl || !vehicleEl || !tripsEl) return;
+
+    const loc = locationEl.value;
+    const isHgv = vehicleEl.value === 'hgv';
+    const trips = parseInt(tripsEl.value) || 20;
+
+    let baseRate = 8.90; // M6 Toll
+    if (loc === 'dartford') baseRate = 2.50;
+    else if (loc === 'mersey') baseRate = 2.00;
+    else if (loc === 'tyme') baseRate = 2.20;
+
+    if (isHgv) baseRate *= 1.8;
+
+    const monthlyTotal = baseRate * trips;
+    const annualTotal = monthlyTotal * 12;
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const singleRes = document.getElementById('singleTollRateDisplay');
+    const tripsRes = document.getElementById('monthlyTripsCountDisplay');
+    const prepayRes = document.getElementById('prepaySavingsDisplay');
+    const totalRes = document.getElementById('totalMonthlyTollDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + monthlyTotal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+    if (subVal) subVal.textContent = '£' + annualTotal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / year';
+    if (singleRes) singleRes.textContent = '£' + baseRate.toFixed(2) + ' / trip';
+    if (tripsRes) tripsRes.textContent = trips + ' Trips';
+    if (prepayRes) prepayRes.textContent = loc === 'dartford' ? '£0.50/trip Dart Charge Local Discount Available' : '£0.00';
+    if (totalRes) totalRes.textContent = '£' + monthlyTotal.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+  }
+
+  ['toll-location-select', 'toll-vehicle-class', 'toll-monthly-trips'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateTollCosts);
+    document.getElementById(id)?.addEventListener('change', calculateTollCosts);
+  });
+  calculateTollCosts();
+</script>

@@ -1,0 +1,223 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout health-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Gym Membership & Home Gym Investment Details'}</h2>
+
+      <!-- Commercial Gym Membership Fee (£/month) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.gymMonthlyLabel || 'Commercial Gym Monthly Fee (£/month)'}</span>
+          <span class="hint" id="gymMonthlyVal">£45.00 / month</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="45.00" id="gymMonthlyInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="15" max="200" step="5" value="45" id="gymMonthlySlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£15/mo (Budget)</span><span>£200/mo (Luxury)</span></div>
+      </div>
+
+      <!-- Home Gym Equipment Investment (£) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.homeEquipmentLabel || 'Home Gym Setup Equipment Investment (£)'}</span>
+          <span class="hint" id="homeEquipmentVal">£950.00 (Squat Rack, Barbell, Dumbbells, Bench)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="950.00" id="homeEquipmentInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="200" max="5000" step="50" value="950" id="homeEquipmentSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£200</span><span>£5,000</span></div>
+      </div>
+
+      <!-- Travel Distance to Gym (Miles Round Trip) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.travelDistanceLabel || 'Gym Travel Round-Trip Distance (Miles per Visit)'}</span>
+          <span class="hint" id="travelDistanceVal">6.0 Miles round trip</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="6.0" id="travelDistanceInput" inputmode="decimal" />
+          <span class="cur">mi</span>
+        </div>
+        <input type="range" min="0" max="25" step="1" value="6" id="travelDistanceSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>0 mi</span><span>25 mi</span></div>
+      </div>
+
+      <!-- Gym Visits per Week -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.visitsPerWeekLabel || 'Gym Workouts / Visits per Week'}</span>
+          <span class="hint" id="visitsPerWeekVal">3 Visits / week</span>
+        </div>
+        <input type="range" min="1" max="7" step="1" value="3" id="visitsPerWeekSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1 Visit</span><span>7 Visits</span></div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--health-1), var(--health-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Home Gym Payback Period & 3-Year Savings'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">11.3 Months Payback</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.threeYearSavingsLabel || 'Estimated Net 3-Year Savings After Equipment Investment:'}</span>
+        <span class="val" id="subResultValue">Saved £1,570.00 Net Savings Over 3 Years</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Gym Financial Comparison Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Commercial Gym Membership Fees (£45/mo)</span>
+          <span class="val" id="gymMembershipCostDisplay">£540.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Gym Travel Fuel Costs (6 mi × 3 visits/wk @ 16.5p/mi)</span>
+          <span class="val" id="travelCostDisplay">£468.00 / year</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Total Commercial Gym Annual Operating Expense</span>
+          <span class="val" id="totalCommercialDisplay">£1,008.00 / year</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Home Gym Investment (£950 Initial Outlay)</span>
+          <span class="val" id="paybackDisplay" style="font-weight: 700; font-size: 18px;">11.3 Months Payback (£1,570.00 Saved in 3 Yrs)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>UK Gym Membership Rates:</strong> Budget (£15-£25/mo); Mid-market (£40-£60/mo); Premium David Lloyd (£150-£220/mo).<br/>
+        • <strong>Hidden Travel Cost:</strong> Driving 6 miles round trip 4x/week costs ~£200+ per year in car fuel.<br/>
+        • <strong>Equipment Resale Value:</strong> Quality iron barbell & bumper plate sets retain ~60% to 70% resale value.<br/>
+        • <strong>Time Savings:</strong> Home gym eliminates 30-45 minutes travel time per workout session.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const FUEL_COST_PER_MILE = 0.165; // ~16.5p/mile fuel cost benchmark
+
+  const gymMonthlyInput = document.getElementById('gymMonthlyInput') as HTMLInputElement;
+  const gymMonthlySlider = document.getElementById('gymMonthlySlider') as HTMLInputElement;
+  const gymMonthlyVal = document.getElementById('gymMonthlyVal') as HTMLElement;
+
+  const homeEquipmentInput = document.getElementById('homeEquipmentInput') as HTMLInputElement;
+  const homeEquipmentSlider = document.getElementById('homeEquipmentSlider') as HTMLInputElement;
+  const homeEquipmentVal = document.getElementById('homeEquipmentVal') as HTMLElement;
+
+  const travelDistanceInput = document.getElementById('travelDistanceInput') as HTMLInputElement;
+  const travelDistanceSlider = document.getElementById('travelDistanceSlider') as HTMLInputElement;
+  const travelDistanceVal = document.getElementById('travelDistanceVal') as HTMLElement;
+
+  const visitsPerWeekSlider = document.getElementById('visitsPerWeekSlider') as HTMLInputElement;
+  const visitsPerWeekVal = document.getElementById('visitsPerWeekVal') as HTMLElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const gymMembershipCostDisplay = document.getElementById('gymMembershipCostDisplay') as HTMLElement;
+  const travelCostDisplay = document.getElementById('travelCostDisplay') as HTMLElement;
+  const totalCommercialDisplay = document.getElementById('totalCommercialDisplay') as HTMLElement;
+  const paybackDisplay = document.getElementById('paybackDisplay') as HTMLElement;
+
+  function calculate() {
+    const gymMonthly = parseInputVal(gymMonthlyInput.value);
+    const equipmentCost = parseInputVal(homeEquipmentInput.value);
+    const roundTripMiles = parseInputVal(travelDistanceInput.value);
+    const visitsPerWeek = parseInt(visitsPerWeekSlider.value, 10);
+
+    const annualGymMembership = gymMonthly * 12;
+
+    const annualVisits = visitsPerWeek * 52;
+    const annualTravelMiles = roundTripMiles * annualVisits;
+    const annualTravelCost = annualTravelMiles * FUEL_COST_PER_MILE;
+
+    const totalCommercialAnnualCost = annualGymMembership + annualTravelCost;
+
+    const paybackMonths = totalCommercialAnnualCost > 0 ? (equipmentCost / totalCommercialAnnualCost) * 12 : 0;
+
+    const threeYearCommercialCost = totalCommercialAnnualCost * 3;
+    const netThreeYearSavings = Math.max(0, threeYearCommercialCost - equipmentCost);
+
+    gymMonthlyVal.innerText = `${formatCurrency(gymMonthly)} / month`;
+    homeEquipmentVal.innerText = `${formatCurrency(equipmentCost)} Setup Cost`;
+    travelDistanceVal.innerText = `${roundTripMiles.toFixed(1)} Miles round trip`;
+    visitsPerWeekVal.innerText = `${visitsPerWeek} Visit${visitsPerWeek === 1 ? '' : 's'} / week`;
+
+    mainResultDisplay.innerText = `${paybackMonths.toFixed(1)} Months Payback`;
+    subResultValue.innerText = `Saved ${formatCurrency(netThreeYearSavings)} Net Savings Over 3 Years`;
+
+    gymMembershipCostDisplay.innerText = `${formatCurrency(annualGymMembership)} / year (${formatCurrency(gymMonthly)}/mo)`;
+    travelCostDisplay.innerText = `${formatCurrency(annualTravelCost)} / year (${annualTravelMiles.toLocaleString('en-GB')} miles/yr)`;
+    totalCommercialDisplay.innerText = `${formatCurrency(totalCommercialAnnualCost)} / year`;
+    paybackDisplay.innerText = `${paybackMonths.toFixed(1)} Months Payback (${formatCurrency(netThreeYearSavings)} Saved in 3 Yrs)`;
+  }
+
+  gymMonthlyInput.addEventListener('input', () => {
+    const val = parseInputVal(gymMonthlyInput.value);
+    gymMonthlySlider.value = String(val);
+    calculate();
+  });
+
+  gymMonthlySlider.addEventListener('input', () => {
+    gymMonthlyInput.value = parseFloat(gymMonthlySlider.value).toFixed(2);
+    calculate();
+  });
+
+  homeEquipmentInput.addEventListener('input', () => {
+    const val = parseInputVal(homeEquipmentInput.value);
+    homeEquipmentSlider.value = String(val);
+    calculate();
+  });
+
+  homeEquipmentSlider.addEventListener('input', () => {
+    homeEquipmentInput.value = parseInt(homeEquipmentSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  travelDistanceInput.addEventListener('input', () => {
+    const val = parseInputVal(travelDistanceInput.value);
+    travelDistanceSlider.value = String(val);
+    calculate();
+  });
+
+  travelDistanceSlider.addEventListener('input', () => {
+    travelDistanceInput.value = parseFloat(travelDistanceSlider.value).toFixed(1);
+    calculate();
+  });
+
+  visitsPerWeekSlider.addEventListener('input', calculate);
+
+  calculate();
+</script>

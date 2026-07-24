@@ -1,0 +1,235 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Room Dimensions & Insulation Details'}</h2>
+
+      <!-- Room Length (m) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.lengthLabel || 'Room Length (Metres)'}</span>
+          <span class="hint" id="lengthVal">5.0 m</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="5.0" id="lengthInput" inputmode="decimal" />
+          <span class="cur">m</span>
+        </div>
+        <input type="range" min="1" max="15" step="0.5" value="5.0" id="lengthSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1.0m</span><span>15.0m</span></div>
+      </div>
+
+      <!-- Room Width (m) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.widthLabel || 'Room Width (Metres)'}</span>
+          <span class="hint" id="widthVal">4.0 m</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="4.0" id="widthInput" inputmode="decimal" />
+          <span class="cur">m</span>
+        </div>
+        <input type="range" min="1" max="15" step="0.5" value="4.0" id="widthSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>1.0m</span><span>15.0m</span></div>
+      </div>
+
+      <!-- Room Height (m) -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.heightLabel || 'Ceiling Height (Metres)'}</span>
+          <span class="hint" id="heightVal">2.4 m (Standard Ceiling)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="2.4" id="heightInput" inputmode="decimal" />
+          <span class="cur">m</span>
+        </div>
+        <input type="range" min="2.0" max="4.0" step="0.1" value="2.4" id="heightSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>2.0m</span><span>4.0m</span></div>
+      </div>
+
+      <!-- Room Type -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.roomTypeLabel || 'Room Type & Target Temperature'}</span>
+          <span class="hint" id="roomTypeVal">Living Room / Lounge (21°C Target)</span>
+        </div>
+        <select id="roomTypeSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="50" selected>Living Room / Dining Room (21°C Target — 50 BTU/cu ft)</option>
+          <option value="40">Bedroom (18°C Target — 40 BTU/cu ft)</option>
+          <option value="55">Bathroom / En-Suite (22°C Target — 55 BTU/cu ft)</option>
+          <option value="45">Kitchen / Hallway (19°C Target — 45 BTU/cu ft)</option>
+        </select>
+      </div>
+
+      <!-- Insulation Quality -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.insulationLabel || 'Property Wall & Window Insulation Quality'}</span>
+          <span class="hint" id="insulationVal">Average Insulation (Double Glazing & Cavity Wall)</span>
+        </div>
+        <select id="insulationSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="1.0" selected>Average Insulation (Double Glazed & Insulated Cavity Walls)</option>
+          <option value="1.2">Poor Insulation (Single Glazing / Uninsulated Solid Brick Walls)</option>
+          <option value="0.8">Good Insulation (Modern New Build / Triple Glazing / Insulated Loft)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Required Radiator Heating Output'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">8,476 BTU/hr</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.wattsLabel || 'Equivalent Metric Power Rating & Radiator Config:'}</span>
+        <span class="val" id="subResultValue">2,484 Watts (Recommend 2× Type 22 Double Convector Radiators)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Radiator Heat Output Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Total Room Volume</span>
+          <span class="val" id="volumeDisplay">48.0 m³ (1,695 cu ft)</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Base Thermal Heat Requirement</span>
+          <span class="val" id="baseBtuDisplay">8,476 BTU/hr</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Equivalent Metric Power (Watts)</span>
+          <span class="val" id="wattsDisplay">2,484 Watts</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Recommended Steel Panel Radiator Specification</span>
+          <span class="val" id="radiatorSpecDisplay" style="font-weight: 700; font-size: 18px;">2× Type 22 (K2) Double Radiators @ 1,242W each</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Conversion Ratio:</strong> 1 Watt = 3.412 BTU/hr (or 1,000 BTU/hr = 293 Watts).<br/>
+        • <strong>Delta T50 Standard:</strong> UK radiator ratings are specified at Delta T50 (75°C flow / 65°C return).<br/>
+        • <strong>Heat Pump Delta T30:</strong> Low-temperature heat pumps (55°C flow) require ~50% larger radiators.<br/>
+        • <strong>Radiator Types:</strong> Type 11 (Single panel single convector), Type 22 (Double panel double convector).
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  const lengthInput = document.getElementById('lengthInput') as HTMLInputElement;
+  const lengthSlider = document.getElementById('lengthSlider') as HTMLInputElement;
+  const lengthVal = document.getElementById('lengthVal') as HTMLElement;
+
+  const widthInput = document.getElementById('widthInput') as HTMLInputElement;
+  const widthSlider = document.getElementById('widthSlider') as HTMLInputElement;
+  const widthVal = document.getElementById('widthVal') as HTMLElement;
+
+  const heightInput = document.getElementById('heightInput') as HTMLInputElement;
+  const heightSlider = document.getElementById('heightSlider') as HTMLInputElement;
+  const heightVal = document.getElementById('heightVal') as HTMLElement;
+
+  const roomTypeSelect = document.getElementById('roomTypeSelect') as HTMLSelectElement;
+  const insulationSelect = document.getElementById('insulationSelect') as HTMLSelectElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const volumeDisplay = document.getElementById('volumeDisplay') as HTMLElement;
+  const baseBtuDisplay = document.getElementById('baseBtuDisplay') as HTMLElement;
+  const wattsDisplay = document.getElementById('wattsDisplay') as HTMLElement;
+  const radiatorSpecDisplay = document.getElementById('radiatorSpecDisplay') as HTMLElement;
+
+  function calculate() {
+    const length = parseInputVal(lengthInput.value);
+    const width = parseInputVal(widthInput.value);
+    const height = parseInputVal(heightInput.value);
+
+    const roomVolumeM3 = length * width * height;
+    const roomVolumeCuFt = roomVolumeM3 * 35.3147;
+
+    const btuPerCuFt = parseFloat(roomTypeSelect.value);
+    const insulationFactor = parseFloat(insulationSelect.value);
+
+    const requiredBtu = Math.round(roomVolumeCuFt * btuPerCuFt * insulationFactor);
+    const requiredWatts = Math.round(requiredBtu / 3.41214);
+
+    lengthVal.innerText = `${length.toFixed(1)} m`;
+    widthVal.innerText = `${width.toFixed(1)} m`;
+    heightVal.innerText = `${height.toFixed(1)} m`;
+
+    mainResultDisplay.innerText = `${requiredBtu.toLocaleString('en-GB')} BTU/hr`;
+    subResultValue.innerText = `${requiredWatts.toLocaleString('en-GB')} Watts (${requiredWatts > 1500 ? '2× Radiators' : '1× Radiator'})`;
+
+    volumeDisplay.innerText = `${roomVolumeM3.toFixed(1)} m³ (${Math.round(roomVolumeCuFt).toLocaleString('en-GB')} cu ft)`;
+    baseBtuDisplay.innerText = `${requiredBtu.toLocaleString('en-GB')} BTU/hr`;
+    wattsDisplay.innerText = `${requiredWatts.toLocaleString('en-GB')} Watts`;
+
+    if (requiredWatts > 1800) {
+      const halfWatt = Math.round(requiredWatts / 2);
+      radiatorSpecDisplay.innerText = `2× Type 22 (K2) Double Panel Radiators @ ~${halfWatt}W each`;
+    } else {
+      radiatorSpecDisplay.innerText = `1× Type 22 (K2) Double Panel Radiator @ ${requiredWatts}W`;
+    }
+  }
+
+  lengthInput.addEventListener('input', () => {
+    const val = parseInputVal(lengthInput.value);
+    lengthSlider.value = String(val);
+    calculate();
+  });
+
+  lengthSlider.addEventListener('input', () => {
+    lengthInput.value = parseFloat(lengthSlider.value).toFixed(1);
+    calculate();
+  });
+
+  widthInput.addEventListener('input', () => {
+    const val = parseInputVal(widthInput.value);
+    widthSlider.value = String(val);
+    calculate();
+  });
+
+  widthSlider.addEventListener('input', () => {
+    widthInput.value = parseFloat(widthSlider.value).toFixed(1);
+    calculate();
+  });
+
+  heightInput.addEventListener('input', () => {
+    const val = parseInputVal(heightInput.value);
+    heightSlider.value = String(val);
+    calculate();
+  });
+
+  heightSlider.addEventListener('input', () => {
+    heightInput.value = parseFloat(heightSlider.value).toFixed(1);
+    calculate();
+  });
+
+  roomTypeSelect.addEventListener('change', calculate);
+  insulationSelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

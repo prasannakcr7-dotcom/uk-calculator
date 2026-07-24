@@ -1,0 +1,178 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout housing-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'Garage Dimensions & Specification Details'}</h2>
+
+      <!-- Garage Floor Area (sq m) -->
+      <div class="field-group">
+        <div class="field-label">
+          <span>{labels.areaLabel || 'Garage Internal Floor Area (sq m)'}</span>
+          <span class="hint" id="areaVal">18.0 sq m (Single Garage)</span>
+        </div>
+        <div class="amount-field">
+          <input type="text" value="18.0" id="areaInput" inputmode="decimal" />
+          <span class="cur">sq m</span>
+        </div>
+        <input type="range" min="12" max="50" step="2" value="18" id="areaSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>12 sq m (Single)</span><span>50 sq m (Double)</span></div>
+      </div>
+
+      <!-- Garage Type Preset -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.garageTypeLabel || 'Garage Construction Type'}</span>
+          <span class="hint" id="garageTypeVal">Integral Single Garage (£1,000 / sq m)</span>
+        </div>
+        <select id="garageTypeSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="INTEGRAL" selected>Integral Garage (Inside Existing House Footprint — £1,000/sq m)</option>
+          <option value="ATTACHED">Attached Single Garage (Adjoining Main House — £1,200/sq m)</option>
+          <option value="DETACHED">Detached Garage (Freestanding Garden Outbuilding — £1,450/sq m)</option>
+        </select>
+      </div>
+
+      <!-- Target Room Use -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.roomUseLabel || 'Target New Room Use'}</span>
+          <span class="hint" id="roomUseVal">Home Office / Extra Living Room</span>
+        </div>
+        <select id="roomUseSelect" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); font-size:15px; margin-top:8px;">
+          <option value="1.0" selected>Home Office / Playroom / Bedroom (Standard Electrics & Heating)</option>
+          <option value="1.2">En-Suite Bedroom / Utility Room (Plumbing & Drainage Required)</option>
+          <option value="1.3">Home Cinema / Gym (Acoustic Soundproofing & HVAC)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--housing-1), var(--housing-2) 80%);">
+      <div class="result-label">{labels.resultLabel || 'Estimated Garage Conversion Cost'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£18,000.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.valueUpliftLabel || 'Estimated Home Value Addition:'}</span>
+        <span class="val" id="subResultValue">+£27,000 (+10% to 15% Property Value Increase)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'Garage Conversion Cost Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Garage Door Removal & Brick Front Infill</span>
+          <span class="val" id="infillCostDisplay">£3,600.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Floor Slab DPM, Insulation & Screed</span>
+          <span class="val" id="floorCostDisplay">£3,600.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Wall & Roof Insulation (Part L) & Plasterboarding</span>
+          <span class="val" id="insulationCostDisplay">£5,400.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Electrics, Central Heating & Finish Fit-out</span>
+          <span class="val" id="electricsCostDisplay">£5,400.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Total Estimated Conversion Budget</span>
+          <span class="val" id="totalGarageDisplay" style="font-weight: 700; font-size: 18px;">£18,000.00 (£1,000 / sq m)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="side-col">
+    <Sidebar />
+</div>
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+        • <strong>Permitted Development:</strong> Converting integral/attached garages generally requires NO planning permission.<br/>
+        • <strong>Building Control (Mandatory):</strong> Conversion MUST comply with Building Regs (Parts L, C, F, P).<br/>
+        • <strong>Part L Insulation:</strong> Floors require 100mm PIR insulation; walls target 0.18 W/m²K U-value.<br/>
+        • <strong>DPC Damp Infill:</strong> New brick infill wall must tie into existing house damp proof course.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 });
+  }
+
+  const areaInput = document.getElementById('areaInput') as HTMLInputElement;
+  const areaSlider = document.getElementById('areaSlider') as HTMLInputElement;
+  const areaVal = document.getElementById('areaVal') as HTMLElement;
+  const garageTypeSelect = document.getElementById('garageTypeSelect') as HTMLSelectElement;
+  const roomUseSelect = document.getElementById('roomUseSelect') as HTMLSelectElement;
+
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  const infillCostDisplay = document.getElementById('infillCostDisplay') as HTMLElement;
+  const floorCostDisplay = document.getElementById('floorCostDisplay') as HTMLElement;
+  const insulationCostDisplay = document.getElementById('insulationCostDisplay') as HTMLElement;
+  const electricsCostDisplay = document.getElementById('electricsCostDisplay') as HTMLElement;
+  const totalGarageDisplay = document.getElementById('totalGarageDisplay') as HTMLElement;
+
+  function calculate() {
+    const areaSqm = parseInputVal(areaInput.value);
+    const baseRatePerSqm = parseFloat(garageTypeSelect.value);
+    const useMultiplier = parseFloat(roomUseSelect.value);
+
+    const ratePerSqm = baseRatePerSqm * useMultiplier;
+    const totalCost = areaSqm * ratePerSqm;
+
+    const infillCost = totalCost * 0.20;
+    const floorCost = totalCost * 0.20;
+    const insulationCost = totalCost * 0.30;
+    const electricsCost = totalCost * 0.30;
+
+    const estimatedValueUplift = totalCost * 1.50; // 1.5x ROI on converting unused garage to living space
+
+    areaVal.innerText = `${areaSqm.toFixed(1)} sq m`;
+
+    mainResultDisplay.innerText = formatCurrency(totalCost);
+    subResultValue.innerText = `+${formatCurrency(estimatedValueUplift).slice(0, -3)} (+10% to 15% Value Increase)`;
+
+    infillCostDisplay.innerText = formatCurrency(infillCost);
+    floorCostDisplay.innerText = formatCurrency(floorCost);
+    insulationCostDisplay.innerText = formatCurrency(insulationCost);
+    electricsCostDisplay.innerText = formatCurrency(electricsCost);
+    totalGarageDisplay.innerText = `${formatCurrency(totalCost)} (${formatCurrency(ratePerSqm).slice(0, -3)} / sq m)`;
+  }
+
+  areaInput.addEventListener('input', () => {
+    const val = parseInputVal(areaInput.value);
+    areaSlider.value = String(val);
+    calculate();
+  });
+
+  areaSlider.addEventListener('input', () => {
+    areaInput.value = parseInt(areaSlider.value, 10).toLocaleString('en-GB');
+    calculate();
+  });
+
+  garageTypeSelect.addEventListener('change', calculate);
+  roomUseSelect.addEventListener('change', calculate);
+
+  calculate();
+</script>

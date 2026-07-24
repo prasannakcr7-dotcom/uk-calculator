@@ -1,0 +1,371 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels: Record<string, any>;
+  lang?: string;
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category" data-labels={JSON.stringify(labels)}>
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>{labels.inputTitle || 'VAT Details'}</h2>
+
+      <!-- Mode Selector -->
+      <div class="field-group">
+        <label class="field-label" style="margin-bottom: 8px;">{labels.modeLabel || 'Calculation Mode'}</label>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="mode-btn active" id="modeAddBtn" data-mode="add">
+            {labels.modeAdd || 'Add VAT (Net to Gross)'}
+          </button>
+          <button type="button" class="mode-btn" id="modeRemoveBtn" data-mode="remove">
+            {labels.modeRemove || 'Remove VAT (Gross to Net)'}
+          </button>
+        </div>
+      </div>
+
+      <!-- Amount Input -->
+      <div class="field-group" style="margin-top: 24px;">
+        <div class="field-label">
+          <span>{labels.amountLabel || 'Amount'}</span>
+          <span class="hint" id="amountVal">£100.00</span>
+        </div>
+        <div class="amount-field" style="margin-top: 0; margin-bottom: 0;">
+          <input type="text" value="100" id="amountInput" inputmode="decimal" />
+          <span class="cur">£</span>
+        </div>
+        <input type="range" min="1" max="10000" step="1" value="100" id="amountSlider" style="width:100%; margin-top:10px;" />
+        <div class="range-labels"><span>£1</span><span>£10,000</span></div>
+      </div>
+
+      <!-- VAT Rate Selector -->
+      <div class="field-group" style="margin-top: 24px;">
+        <label class="field-label" style="margin-bottom: 8px;">{labels.rateLabel || 'VAT Rate'}</label>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="ratePresetsContainer">
+          <button type="button" class="preset-btn active" data-rate="20">20% (Standard)</button>
+          <button type="button" class="preset-btn" data-rate="5">5% (Reduced)</button>
+          <button type="button" class="preset-btn" data-rate="0">0% (Zero)</button>
+          <button type="button" class="preset-btn" id="customRateTriggerBtn" data-rate="custom">Custom...</button>
+        </div>
+        
+        <!-- Custom Rate Input Field (Hidden by default) -->
+        <div class="amount-field hidden" id="customRateField" style="margin-top: 12px; max-width: 150px;">
+          <input type="text" value="12.5" id="customRateInput" inputmode="decimal" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label" id="resultCardLabel">{labels.grossResultLabel || 'Gross Amount'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£120.00</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">{labels.vatAmountLabel || 'VAT Portion:'}</span>
+        <span class="val" id="subResultValue">£20.00</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 {labels.breakdownTitle || 'VAT Breakdown'}</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span id="lblBaseAmount">{labels.netResultLabel || 'Net Amount'}</span>
+          <span class="val" id="baseAmountDisplay">£100.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>VAT Rate</span>
+          <span class="val" id="vatRateDisplay">20%</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>{labels.totalVatLabel || 'Total VAT'}</span>
+          <span class="val" id="vatAmountDisplay">£20.00</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span id="lblTotalResult">{labels.grossResultLabel || 'Gross Amount (Total)'}</span>
+          <span class="val" id="totalAmountDisplay" style="font-weight: 700; font-size: 18px;">£120.00</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MARKDOWN CONTENT SLOT -->
+    <slot />
+
+    <!-- CALCULATOR BADGES -->
+    <div class="card writeup" style="margin-top: -12px;">
+      <h3>{labels.calcBadgesTitle || 'Simulator Assurances'}</h3>
+      <div class="badge-grid">
+        <div class="badge">
+          <span class="check" style="background: var(--taxes-2);">✓</span>
+          <span><strong>{labels.standardBadge || 'HMRC Standards'}</strong>: {labels.standardBadgeDesc}</span>
+        </div>
+        <div class="badge">
+          <span class="check" style="background: var(--taxes-2);">✓</span>
+          <span><strong>{labels.precisionBadge || 'Penny Precision'}</strong>: {labels.precisionBadgeDesc}</span>
+        </div>
+        <div class="badge">
+          <span class="check" style="background: var(--taxes-2);">✓</span>
+          <span><strong>{labels.customRateBadge || 'Flexible Rates'}</strong>: {labels.customRateBadgeDesc}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- AUTHORITIES -->
+    <div class="card">
+      <h2>{labels.authoritiesTitle || 'Reference Authorities'}</h2>
+      <div class="auth-grid">
+        <div class="auth-box">
+          <span class="icon">🏛️</span>
+          <div class="name">{labels.auth1Name}</div>
+          <div class="desc">{labels.auth1Desc}</div>
+          <a href="https://www.gov.uk/government/organisations/hm-revenue-customs" target="_blank" rel="noopener" style="color: var(--theme-link) !important;">{labels.auth1Link}</a>
+        </div>
+        <div class="auth-box">
+          <span class="icon">🏢</span>
+          <div class="name">{labels.auth2Name}</div>
+          <div class="desc">{labels.auth2Desc}</div>
+          <a href="https://www.gov.uk/vat-businesses" target="_blank" rel="noopener" style="color: var(--theme-link) !important;">{labels.auth2Link}</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- SOURCES -->
+    <div class="sources">
+      <div class="lbl">{labels.sourcesTitle || 'Official Sources'}</div>
+      <a href="https://www.legislation.gov.uk/ukpga/1994/23/contents" target="_blank" rel="noopener" style="color: var(--theme-link) !important;">{labels.source1}</a>
+    </div>
+
+    <!-- UPDATE BOX -->
+    <div class="updated-box">
+      <span class="ico">🛡️</span>
+      <div><strong>{labels.lastUpdatedTitle}</strong> {labels.lastUpdatedDesc}</div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <Sidebar />
+  </div>
+</div>
+
+<script>
+  const container = document.querySelector('.calculator-layout') as HTMLElement;
+  if (!container) throw new Error('No calculator container');
+
+  // Input parsing helper (parses numbers with commas for thousands, periods for decimals)
+  function parseInputVal(str: string): number {
+    const clean = str.replace(/[^\d.-]/g, '');
+    if (clean === '') return 0;
+    return parseFloat(clean) || 0;
+  }
+
+  function formatCurrency(val: number): string {
+    return val.toLocaleString('en-GB', {
+      style: 'currency',
+      currency: 'GBP',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  function formatPercentage(val: number): string {
+    return val.toLocaleString('en-GB', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2
+    }) + '%';
+  }
+
+  // DOM Elements
+  const modeAddBtn = document.getElementById('modeAddBtn') as HTMLButtonElement;
+  const modeRemoveBtn = document.getElementById('modeRemoveBtn') as HTMLButtonElement;
+  
+  const amountInput = document.getElementById('amountInput') as HTMLInputElement;
+  const amountSlider = document.getElementById('amountSlider') as HTMLInputElement;
+  const amountVal = document.getElementById('amountVal') as HTMLElement;
+
+  const customRateField = document.getElementById('customRateField') as HTMLElement;
+  const customRateInput = document.getElementById('customRateInput') as HTMLInputElement;
+  
+  const mainResultDisplay = document.getElementById('mainResultDisplay') as HTMLElement;
+  const subResultValue = document.getElementById('subResultValue') as HTMLElement;
+  
+  const resultCardLabel = document.getElementById('resultCardLabel') as HTMLElement;
+  const subResultLabel = document.getElementById('subResultLabel') as HTMLElement;
+  
+  const lblBaseAmount = document.getElementById('lblBaseAmount') as HTMLElement;
+  const lblTotalResult = document.getElementById('lblTotalResult') as HTMLElement;
+  
+  const baseAmountDisplay = document.getElementById('baseAmountDisplay') as HTMLElement;
+  const vatRateDisplay = document.getElementById('vatRateDisplay') as HTMLElement;
+  const vatAmountDisplay = document.getElementById('vatAmountDisplay') as HTMLElement;
+  const totalAmountDisplay = document.getElementById('totalAmountDisplay') as HTMLElement;
+
+  // Variables
+  let mode: 'add' | 'remove' = 'add';
+  let vatRate = 20;
+
+  // Mode Selection
+  modeAddBtn.addEventListener('click', () => {
+    mode = 'add';
+    modeAddBtn.classList.add('active');
+    modeRemoveBtn.classList.remove('active');
+    calculate();
+  });
+
+  modeRemoveBtn.addEventListener('click', () => {
+    mode = 'remove';
+    modeRemoveBtn.classList.add('active');
+    modeAddBtn.classList.remove('active');
+    calculate();
+  });
+
+  // Rates Presets
+  const presetButtons = document.querySelectorAll('#ratePresetsContainer button');
+  presetButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      presetButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const rateVal = btn.getAttribute('data-rate');
+      if (rateVal === 'custom') {
+        customRateField.classList.remove('hidden');
+        vatRate = parseInputVal(customRateInput.value);
+      } else {
+        customRateField.classList.add('hidden');
+        vatRate = parseFloat(rateVal || '20');
+      }
+      calculate();
+    });
+  });
+
+  // Custom Rate Input Event
+  customRateInput.addEventListener('input', () => {
+    vatRate = parseInputVal(customRateInput.value);
+    calculate();
+  });
+
+  // Bi-directional slider sync
+  amountInput.addEventListener('input', () => {
+    const val = parseInputVal(amountInput.value);
+    amountSlider.value = String(Math.min(10000, Math.max(1, val)));
+    calculate();
+  });
+
+  amountSlider.addEventListener('input', () => {
+    amountInput.value = amountSlider.value;
+    calculate();
+  });
+
+  // Calculation Logic
+  function calculate() {
+    const amount = parseInputVal(amountInput.value);
+    const labels = JSON.parse(container.getAttribute('data-labels') || '{}');
+
+    amountVal.textContent = formatCurrency(amount);
+    vatRateDisplay.textContent = formatPercentage(vatRate);
+
+    let netAmount = 0;
+    let grossAmount = 0;
+    let vatAmount = 0;
+
+    if (mode === 'add') {
+      netAmount = amount;
+      vatAmount = netAmount * (vatRate / 100);
+      grossAmount = netAmount + vatAmount;
+
+      // Update Labels
+      resultCardLabel.textContent = labels.grossResultLabel || 'Gross Amount (VAT Included)';
+      subResultLabel.textContent = labels.vatAmountLabel || 'VAT Portion:';
+      lblBaseAmount.textContent = labels.netResultLabel || 'Net Amount (Pre-Tax)';
+      lblTotalResult.textContent = labels.grossResultLabel || 'Gross Amount (Total)';
+    } else {
+      grossAmount = amount;
+      netAmount = grossAmount / (1 + (vatRate / 100));
+      vatAmount = grossAmount - netAmount;
+
+      // Update Labels
+      resultCardLabel.textContent = labels.netResultLabel || 'Net Amount (VAT Excluded)';
+      subResultLabel.textContent = labels.vatAmountLabel || 'VAT Portion:';
+      lblBaseAmount.textContent = labels.grossResultLabel || 'Gross Amount (Total)';
+      lblTotalResult.textContent = labels.netResultLabel || 'Net Amount (Pre-Tax)';
+    }
+
+    // Update Displays
+    const mainResult = mode === 'add' ? grossAmount : netAmount;
+    mainResultDisplay.textContent = formatCurrency(mainResult);
+    subResultValue.textContent = formatCurrency(vatAmount);
+
+    baseAmountDisplay.textContent = formatCurrency(amount);
+    vatAmountDisplay.textContent = formatCurrency(vatAmount);
+    totalAmountDisplay.textContent = formatCurrency(mode === 'add' ? grossAmount : netAmount);
+  }
+
+  // FAQ Accordion Handlers
+  document.querySelectorAll('.faq-trigger').forEach(trigger => {
+    trigger.addEventListener('click', () => {
+      const item = trigger.closest('.faq-item');
+      if (item) {
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item').forEach(i => {
+          i.classList.remove('open');
+          const content = i.querySelector('.faq-content') as HTMLElement;
+          if (content) content.style.maxHeight = '0px';
+        });
+        if (!isOpen) {
+          item.classList.add('open');
+          const content = item.querySelector('.faq-content') as HTMLElement;
+          if (content) content.style.maxHeight = content.scrollHeight + 'px';
+        }
+      }
+    });
+  });
+
+  // Run initial calculation
+  calculate();
+</script>
+
+<style>
+  .mode-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    background: #F3F4F6;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .mode-btn:hover {
+    background: var(--soft);
+  }
+  .mode-btn.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  .preset-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--soft);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .preset-btn:hover {
+    background: var(--paper-dim);
+  }
+  .preset-btn.active {
+    background: var(--taxes-2);
+    color: #fff;
+    border-color: var(--taxes-2);
+  }
+</style>

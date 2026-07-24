@@ -1,0 +1,122 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Year 2 / Level 5 Average Mark (%)</span></div>
+        <div class="amount-field">
+          <input type="number" id="y2-average-mark" value="64" min="0" max="100" step="0.5" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Year 2 Weighting (%)</span></div>
+        <div class="amount-field">
+          <input type="number" id="y2-weight-pct" value="33.3" min="0" max="100" step="0.1" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Year 3 / Level 6 Average Mark (%)</span></div>
+        <div class="amount-field">
+          <input type="number" id="y3-average-mark" value="71" min="0" max="100" step="0.5" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Year 3 Weighting (%)</span></div>
+        <div class="amount-field">
+          <input type="number" id="y3-weight-pct" value="66.7" min="0" max="100" step="0.1" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>UK Degree Classification Breakdown</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Weighted Overall Overall Mean Mark</span>
+          <strong id="weighted-degree-mark">68.67%</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Boundary Target for 1st Class (70%)</span>
+          <strong id="mark-needed-for-first">+1.33% needed in Y3</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Boundary Target for 2:1 (60%)</span>
+          <strong id="mark-needed-for-21">Achieved (Clear of 60%)</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Predicted Degree Honours Honours Class</span>
+          <strong id="predicted-degree-class">Upper Second Class Honours (2:1)</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="trabajo" />
+  </div>
+</div>
+
+<script>
+  function calculateDegreeClass() {
+    const y2MarkEl = document.getElementById('y2-average-mark') as HTMLInputElement;
+    const y2WeightEl = document.getElementById('y2-weight-pct') as HTMLInputElement;
+    const y3MarkEl = document.getElementById('y3-average-mark') as HTMLInputElement;
+    const y3WeightEl = document.getElementById('y3-weight-pct') as HTMLInputElement;
+
+    if (!y2MarkEl || !y2WeightEl || !y3MarkEl || !y3WeightEl) return;
+
+    const y2Mark = parseFloat(y2MarkEl.value) || 0;
+    const y2W = parseFloat(y2WeightEl.value) || 33.3;
+    const y3Mark = parseFloat(y3MarkEl.value) || 0;
+    const y3W = parseFloat(y3WeightEl.value) || 66.7;
+
+    const totalWeight = y2W + y3W;
+    const overallMark = totalWeight > 0 ? ((y2Mark * y2W) + (y3Mark * y3W)) / totalWeight : 0;
+
+    let honorsClass = '';
+    if (overallMark >= 70) honorsClass = 'First-Class Honours (1st)';
+    else if (overallMark >= 60) honorsClass = 'Upper Second-Class Honours (2:1)';
+    else if (overallMark >= 50) honorsClass = 'Lower Second-Class Honours (2:2)';
+    else if (overallMark >= 40) honorsClass = 'Third-Class Honours (3rd)';
+    else honorsClass = 'Fail / Ordinary Degree';
+
+    const firstDiff = 70 - overallMark;
+    const firstText = firstDiff <= 0 ? 'Achieved 1st Boundary!' : `+${firstDiff.toFixed(2)}% overall needed`;
+
+    const markEl = document.getElementById('weighted-degree-mark');
+    const firstEl = document.getElementById('mark-needed-for-first');
+    const twoOneEl = document.getElementById('mark-needed-for-21');
+    const classEl = document.getElementById('predicted-degree-class');
+
+    if (markEl) markEl.textContent = overallMark.toFixed(2) + '%';
+    if (firstEl) firstEl.textContent = firstText;
+    if (twoOneEl) twoOneEl.textContent = overallMark >= 60 ? 'Achieved (Clear of 60%)' : `+${(60 - overallMark).toFixed(2)}% needed`;
+    if (classEl) classEl.textContent = honorsClass;
+  }
+
+  ['y2-average-mark', 'y2-weight-pct', 'y3-average-mark', 'y3-weight-pct'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateDegreeClass);
+    document.getElementById(id)?.addEventListener('change', calculateDegreeClass);
+  });
+  calculateDegreeClass();
+</script>

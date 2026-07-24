@@ -1,0 +1,114 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout taxes-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2>National Insurance Record Details</h2>
+      <div class="field-group">
+        <div class="field-label"><span>Current Full Qualifying NI Years on Record</span></div>
+        <div class="amount-field">
+          <input type="number" id="ni-qualifying-years-current" value="28" min="0" max="35" step="1" />
+          <span class="cur">years</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Years Remaining Until State Pension Age</span></div>
+        <div class="amount-field">
+          <input type="number" id="ni-years-to-pension-age" value="10" min="0" max="45" step="1" />
+          <span class="cur">years</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT HERO -->
+    <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
+      <div class="result-label">Projected New State Pension Weekly Forecast</div>
+      <div class="result-amount"><span id="mainResultDisplay">£221.20 / week</span></div>
+      <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
+        <span id="subResultLabel">Full New State Pension Target:</span>
+        <span class="val" id="subResultValue">35 Years Required (£221.20/wk)</span>
+      </div>
+    </div>
+
+    <!-- BREAKDOWN CARD -->
+    <div class="card" style="padding-bottom:0;">
+      <h2 style="margin-bottom:6px;">📊 State Pension NI Record Breakdown</h2>
+      <div style="margin-bottom:18px;">
+        <div class="breakdown-row section">
+          <span>Current Pension Accrued (28 Years)</span>
+          <span class="val" id="currentAccruedPensionDisplay">£176.96 / week</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Additional Years Needed for Full Pension</span>
+          <span class="val" id="yearsNeededForFullDisplay">7 Years Needed</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Voluntary Class 3 Gap Fill Cost Per Year</span>
+          <span class="val" id="class3GapCostDisplay">£907.40 / year</span>
+        </div>
+        <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
+          <span>Projected Final Weekly State Pension</span>
+          <span class="val" id="finalProjectedPensionDisplay" style="font-weight: 700; font-size: 18px;">£221.20 / week (£11,502.40/yr)</span>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="impuestos" />
+  </div>
+</div>
+
+<script>
+  function calculateNiQualifyingYears() {
+    const currentEl = document.getElementById('ni-qualifying-years-current') as HTMLInputElement;
+    const remainingEl = document.getElementById('ni-years-to-pension-age') as HTMLInputElement;
+
+    if (!currentEl || !remainingEl) return;
+
+    const currentYears = parseInt(currentEl.value) || 0;
+    const remainingYears = parseInt(remainingEl.value) || 0;
+
+    const fullPensionWeekly = 221.20; // 2026/27 Full New State Pension £221.20/wk
+    const ratePerYear = fullPensionWeekly / 35; // £6.32/wk per qualifying year
+
+    const currentWeekly = currentYears * ratePerYear;
+    const projectedTotalYears = Math.min(35, currentYears + remainingYears);
+    const projectedWeekly = projectedTotalYears * ratePerYear;
+    const projectedAnnual = projectedWeekly * 52;
+
+    const yearsNeeded = Math.max(0, 35 - currentYears);
+
+    const mainRes = document.getElementById('mainResultDisplay');
+    const subVal = document.getElementById('subResultValue');
+    const accruedRes = document.getElementById('currentAccruedPensionDisplay');
+    const neededRes = document.getElementById('yearsNeededForFullDisplay');
+    const costRes = document.getElementById('class3GapCostDisplay');
+    const finalRes = document.getElementById('finalProjectedPensionDisplay');
+
+    if (mainRes) mainRes.textContent = '£' + projectedWeekly.toFixed(2) + ' / week';
+    if (subVal) subVal.textContent = `${projectedTotalYears}/35 Years (${projectedWeekly >= fullPensionWeekly ? 'Full Pension' : 'Partial Pension'})`;
+    if (accruedRes) accruedRes.textContent = '£' + currentWeekly.toFixed(2) + ' / week';
+    if (neededRes) neededRes.textContent = yearsNeeded > 0 ? `${yearsNeeded} Years Needed` : 'Full 35 Years Reached!';
+    if (costRes) costRes.textContent = '£907.40 / year';
+    if (finalRes) finalRes.textContent = '£' + projectedWeekly.toFixed(2) + ` / week (£${projectedAnnual.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/yr)`;
+  }
+
+  ['ni-qualifying-years-current', 'ni-years-to-pension-age'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateNiQualifyingYears);
+    document.getElementById(id)?.addEventListener('change', calculateNiQualifyingYears);
+  });
+  calculateNiQualifyingYears();
+</script>

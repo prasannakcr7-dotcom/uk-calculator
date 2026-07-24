@@ -1,0 +1,110 @@
+---
+import Sidebar from './Sidebar.astro';
+interface Props {
+  labels?: Record<string, string>;
+  lang?: string;
+}
+
+const { labels = {}, lang = 'en' } = Astro.props;
+---
+
+<div class="layout calculator-layout work-category">
+  <div class="main-col">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="field-group">
+        <div class="field-label"><span>Reference Monthly Gross Salary (£)</span></div>
+        <div class="amount-field">
+          <span class="cur">£</span>
+          <input type="number" id="reference-monthly-salary" value="2800" min="500" step="100" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>CJRS Furlough Grant Percentage Phase</span></div>
+        <select id="furlough-phase-pct" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
+          <option value="80" selected>80% Government Grant (Max £2,500/mo Cap)</option>
+          <option value="70">70% Government Grant (Max £2,187.50/mo Cap)</option>
+          <option value="60">60% Government Grant (Max £1,875.00/mo Cap)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label"><span>Employer Top-Up Voluntary Contribution (%)</span></div>
+        <div class="amount-field">
+          <input type="number" id="employer-topup-pct" value="20" min="0" max="40" step="5" />
+          <span class="cur">%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT BREAKDOWN CARD -->
+    <div class="card breakdown-card" id="results-card">
+      <h2>Historical CJRS Furlough Pay Summary</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Uncapped Furlough Base Amount</span>
+          <strong id="uncapped-furlough-amount">£2,240.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Government Grant Contribution (Capped)</span>
+          <strong id="gov-grant-portion">£2,240.00</strong>
+        </div>
+        <div class="breakdown-row">
+          <span>Employer Top-Up Payment</span>
+          <strong id="employer-topup-portion">£560.00</strong>
+        </div>
+        <div class="breakdown-row net">
+          <span>Total Monthly Furlough Gross Pay</span>
+          <strong id="total-furlough-monthly-pay">£2,800.00 / month</strong>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+
+  <div class="sidebar">
+    <Sidebar category="trabajo" />
+  </div>
+</div>
+
+<script>
+  function calculateFurlough() {
+    const salaryEl = document.getElementById('reference-monthly-salary') as HTMLInputElement;
+    const phaseEl = document.getElementById('furlough-phase-pct') as HTMLSelectElement;
+    const topupEl = document.getElementById('employer-topup-pct') as HTMLInputElement;
+
+    if (!salaryEl || !phaseEl || !topupEl) return;
+
+    const salary = parseFloat(salaryEl.value) || 0;
+    const phasePct = parseFloat(phaseEl.value) || 80;
+    const topupPct = parseFloat(topupEl.value) || 0;
+
+    let govCap = 2500;
+    if (phasePct === 70) govCap = 2187.50;
+    if (phasePct === 60) govCap = 1875.00;
+
+    const uncappedGov = salary * (phasePct / 100);
+    const govPortion = Math.min(uncappedGov, govCap);
+    const topupPortion = salary * (topupPct / 100);
+
+    const totalPay = govPortion + topupPortion;
+
+    const uncappedEl = document.getElementById('uncapped-furlough-amount');
+    const govEl = document.getElementById('gov-grant-portion');
+    const topupResEl = document.getElementById('employer-topup-portion');
+    const totalEl = document.getElementById('total-furlough-monthly-pay');
+
+    if (uncappedEl) uncappedEl.textContent = '£' + uncappedGov.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (govEl) govEl.textContent = '£' + govPortion.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (topupResEl) topupResEl.textContent = '£' + topupPortion.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (totalEl) totalEl.textContent = '£' + totalPay.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / month';
+  }
+
+  ['reference-monthly-salary', 'furlough-phase-pct', 'employer-topup-pct'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateFurlough);
+    document.getElementById(id)?.addEventListener('change', calculateFurlough);
+  });
+  calculateFurlough();
+</script>
