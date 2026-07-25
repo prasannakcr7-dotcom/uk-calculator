@@ -1,6 +1,7 @@
 ---
 title: "Domestic Flight Carbon Footprint Calculator UK 2026/27 — Flight vs Train"
 description: "Calculate UK domestic flight greenhouse gas carbon emissions (kg CO2e), Radiative Forcing, and compare against electric train travel."
+keywords: "domestic flight carbon footprint calculator uk 2026 27 flight vs train, calculate uk domestic flight greenhouse gas, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

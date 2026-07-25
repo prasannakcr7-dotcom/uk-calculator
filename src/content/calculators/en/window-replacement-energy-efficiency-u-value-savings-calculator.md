@@ -1,6 +1,7 @@
 ---
 title: "Window Replacement Energy Savings Calculator UK 2026/27 — U-Value"
 description: "Calculate UK window replacement energy bill savings, U-value thermal heat loss reductions (1.2 W/m²K Part L), and FENSA standards."
+keywords: "window replacement energy savings calculator uk 2026 27 u-value, calculate uk window replacement energy bill, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

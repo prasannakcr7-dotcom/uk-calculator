@@ -1,6 +1,7 @@
 ---
 title: "Scottish Land and Buildings Transaction Tax (LBTT) Calculator 2026/27"
 description: "Calculate Revenue Scotland Land and Buildings Transaction Tax (LBTT) liabilities, First-Time Buyer relief (£175k threshold), and 6% ADS surcharges."
+keywords: "scottish land and buildings transaction tax (lbtt) calculator 2026 27, calculate revenue scotland land and buildings, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: true

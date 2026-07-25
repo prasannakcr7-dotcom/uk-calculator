@@ -1,6 +1,7 @@
 ---
 title: "Tile Calculator UK 2026/27 — Quantity & Box Estimator"
 description: "Calculate UK ceramic, porcelain, and metro wall and floor tile quantities, box counts, and cutting waste allowances."
+keywords: "tile calculator uk 2026 27 quantity & box estimator, calculate uk ceramic porcelain and metro, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

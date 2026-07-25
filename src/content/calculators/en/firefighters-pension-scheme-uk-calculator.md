@@ -1,6 +1,7 @@
 ---
 title: "UK Firefighters' Pension Scheme (FPS 2015) CARE Calculator 2026/27"
 description: "Calculate UK Firefighters' Pension Scheme CARE pension accrual (1/59.7th rate), member contribution tiers (11.0%-14.5%), and Normal Pension Age 60 benefits."
+keywords: "uk firefighters' pension scheme (fps 2015) care calculator 2026 27, calculate uk firefighters' pension scheme care, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

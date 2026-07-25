@@ -1,6 +1,7 @@
 ---
 title: "Removal & Home Moving Cost Calculator UK 2026/27"
 description: "Calculate UK removal company costs, house size fees (1 to 5+ beds), distance mileage, and professional packing services."
+keywords: "removal & home moving cost calculator uk 2026 27, calculate uk removal company costs house, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

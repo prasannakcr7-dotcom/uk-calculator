@@ -1,6 +1,7 @@
 ---
 title: "Electricity Bill Estimator UK 2026/27 — Ofgem Price Cap"
 description: "Calculate UK electricity bills, kWh annual consumption costs, daily standing charges, and Ofgem Energy Price Cap rates."
+keywords: "electricity bill estimator uk 2026 27 ofgem price cap, calculate uk electricity bills kwh annual, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

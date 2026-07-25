@@ -1,6 +1,7 @@
 ---
 title: "UK Imperial to Metric Unit Converter 2026/27"
 description: "Convert between UK Imperial units (feet, inches, stones, pounds, miles, pints, gallons) and Metric units (metres, cm, kg, litres)."
+keywords: "uk imperial to metric unit converter 2026 27, convert between uk imperial units feet, daily life 2026/27"
 category: "alltag"
 lang: "en"
 isDevolved: false

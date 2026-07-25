@@ -1,6 +1,7 @@
 ---
 title: "House Extension Cost per Sq M Calculator UK 2026/27"
 description: "Calculate UK house extension construction costs per square metre (£1,750 to £2,500/sq m), single vs two-story, and regional London costs."
+keywords: "house extension cost per sq m calculator uk 2026 27, calculate uk house extension construction costs, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

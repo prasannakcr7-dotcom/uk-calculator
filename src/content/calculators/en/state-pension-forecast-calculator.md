@@ -1,6 +1,7 @@
 ---
 title: "State Pension Forecast Calculator UK 2026/27 — New State Pension"
 description: "Calculate UK New State Pension forecasts (£221.20/wk full rate), 35-year NI requirements, and 10-year minimum thresholds."
+keywords: "state pension forecast calculator uk 2026 27 new state pension, calculate uk new state pension forecasts, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: false

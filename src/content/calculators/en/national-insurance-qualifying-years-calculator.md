@@ -1,6 +1,7 @@
 ---
 title: "National Insurance Qualifying Years Calculator UK 2026/27"
 description: "Calculate UK National Insurance qualifying years, 35-year full State Pension targets, and Class 3 voluntary top-up ROI."
+keywords: "national insurance qualifying years calculator uk 2026 27, calculate uk national insurance qualifying years, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: false

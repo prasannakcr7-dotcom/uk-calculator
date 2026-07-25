@@ -1,6 +1,7 @@
 ---
 title: "Part-Time Pro-Rata Salary Calculator UK"
 description: "Calculate pro-rata part-time annual and monthly salaries based on Full-Time Equivalent (FTE) benchmarks."
+keywords: "part-time pro-rata salary calculator uk, calculate prorata parttime annual and monthly, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

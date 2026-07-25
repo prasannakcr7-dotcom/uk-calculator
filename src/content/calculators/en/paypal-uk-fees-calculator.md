@@ -1,6 +1,7 @@
 ---
 title: "PayPal UK Merchant & Transfer Fees Calculator 2026/27"
 description: "Calculate PayPal UK transaction fees, fixed pence charges, cross-border payments, and exact invoice amounts needed."
+keywords: "paypal uk merchant & transfer fees calculator 2026 27, calculate paypal uk transaction fees fixed, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "US GPA to UK Degree & Percentage Grade Converter 2026/27"
 description: "Convert US 4.0 GPA scores to UK university degree classifications (1st, 2:1, 2:2, 3rd) and UK percentage grade equivalents."
+keywords: "us gpa to uk degree & percentage grade converter 2026 27, convert us 40 gpa scores to, daily life 2026/27"
 category: "alltag"
 lang: "en"
 isDevolved: false

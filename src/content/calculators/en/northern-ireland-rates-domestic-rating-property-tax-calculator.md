@@ -1,6 +1,7 @@
 ---
 title: "Northern Ireland Domestic Rates Property Tax Calculator 2026/27"
 description: "Calculate Northern Ireland domestic rates property tax liabilities based on Land & Property Services (LPS) capital valuation, regional rate, and district rate."
+keywords: "northern ireland domestic rates property tax calculator 2026 27, calculate northern ireland domestic rates property, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: true

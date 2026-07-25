@@ -1,6 +1,7 @@
 ---
 title: "Vehicle Excise Duty (VED Road Tax) Calculator UK 2026/27"
 description: "Calculate UK Vehicle Excise Duty (VED road tax) rates, £190 standard rate, £410 expensive car supplement (>£40k), and EV changes."
+keywords: "vehicle excise duty (ved road tax) calculator uk 2026 27, calculate uk vehicle excise duty ved, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "PAYE Tax Calculator UK 2026/27 — Salary Payroll Take-Home"
 description: "Calculate UK Pay As You Earn (PAYE) income tax deductions, Class 1 NI, pension, and net monthly take-home salary."
+keywords: "paye tax calculator uk 2026 27 salary payroll take-home, calculate uk pay as you earn, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: true

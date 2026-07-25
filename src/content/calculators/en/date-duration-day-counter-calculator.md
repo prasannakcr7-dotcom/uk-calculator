@@ -1,6 +1,7 @@
 ---
 title: "Date Duration, Day Counter & Business Day Calculator 2026/27"
 description: "Calculate the exact number of days, weeks, months, or working business days between dates, or add/subtract days from a start date."
+keywords: "date duration, day counter & business day calculator 2026 27, calculate the exact number of days, daily life 2026/27"
 category: "alltag"
 lang: "en"
 isDevolved: false

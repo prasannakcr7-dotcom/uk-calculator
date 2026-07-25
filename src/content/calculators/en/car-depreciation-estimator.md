@@ -1,6 +1,7 @@
 ---
 title: "UK Car Depreciation & Residual Value Estimator 2026/27"
 description: "Estimate vehicle value loss over time, residual resale values, total cash depreciation loss, and monthly depreciation costs."
+keywords: "uk car depreciation & residual value estimator 2026 27, estimate vehicle value loss over time, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

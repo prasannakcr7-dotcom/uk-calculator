@@ -1,6 +1,7 @@
 ---
 title: "Laminate & Wood Flooring Calculator UK 2026/27 — Pack Estimator"
 description: "Calculate UK laminate, real wood, and engineered flooring pack quantities, square meterage coverage, and underlay."
+keywords: "laminate & wood flooring calculator uk 2026 27 pack estimator, calculate uk laminate real wood and, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

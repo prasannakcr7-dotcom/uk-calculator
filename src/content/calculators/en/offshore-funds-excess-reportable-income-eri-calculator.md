@@ -1,6 +1,7 @@
 ---
 title: "Offshore Funds ERI Calculator UK 2026/27 — Reportable Income"
 description: "Calculate UK Excess Reportable Income (ERI) tax on offshore reporting funds and CGT base cost adjustments."
+keywords: "offshore funds eri calculator uk 2026 27 reportable income, calculate uk excess reportable income eri, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

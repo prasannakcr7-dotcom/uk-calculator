@@ -1,6 +1,7 @@
 ---
 title: "Pay Rise Net Income Calculator UK 2026/27 — Salary Increase"
 description: "Calculate exact net take-home salary increases after Income Tax, National Insurance, and Student Loan deductions."
+keywords: "pay rise net income calculator uk 2026 27 salary increase, calculate exact net takehome salary increases, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

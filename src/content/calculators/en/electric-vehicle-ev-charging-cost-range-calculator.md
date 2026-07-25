@@ -1,6 +1,7 @@
 ---
 title: "UK Electric Vehicle (EV) Charging Cost & Range Calculator 2026/27"
 description: "Calculate full EV battery charging costs, pence-per-mile running costs, charging session costs, and range added across UK tariffs."
+keywords: "uk electric vehicle (ev) charging cost & range calculator 2026 27, calculate full ev battery charging costs, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "UK Commercial Lease Service Charge & Square Footage Calculator 2026/27"
 description: "Calculate total annual and monthly commercial property outlays per square foot (sq ft), incorporating rent, service charges, business rates, and VAT."
+keywords: "uk commercial lease service charge & square footage calculator 2026 27, calculate total annual and monthly commercial, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

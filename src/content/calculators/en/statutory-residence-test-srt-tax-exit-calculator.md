@@ -1,6 +1,7 @@
 ---
 title: "Statutory Residence Test (SRT) Calculator UK 2026/27 — Tax Exit"
 description: "Calculate UK tax residence status under the statutory HMRC Statutory Residence Test (SRT) and Sufficient Ties rules."
+keywords: "statutory residence test (srt) calculator uk 2026 27 tax exit, calculate uk tax residence status under, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

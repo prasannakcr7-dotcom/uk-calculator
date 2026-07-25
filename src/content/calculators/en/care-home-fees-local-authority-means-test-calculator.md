@@ -1,6 +1,7 @@
 ---
 title: "Care Home Fees & Local Authority Means Test Calculator UK 2026/27"
 description: "Calculate UK care home fees, local authority financial assessment thresholds (£23,250 upper limit), tariff income, and PEA allowances."
+keywords: "care home fees & local authority means test calculator uk 2026 27, calculate uk care home fees local, health calculator 2026/27"
 category: "salud"
 lang: "en"
 isDevolved: false

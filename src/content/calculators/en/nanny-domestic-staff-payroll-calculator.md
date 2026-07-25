@@ -1,6 +1,7 @@
 ---
 title: "Nanny & Domestic Staff Payroll Calculator UK 2026/27"
 description: "Calculate total employer costs for hiring a nanny or domestic staff, including Employer NI, pension, and PAYE tax."
+keywords: "nanny & domestic staff payroll calculator uk 2026 27, calculate total employer costs for hiring, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

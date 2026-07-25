@@ -1,6 +1,7 @@
 ---
 title: "Index Fund & ETF Investment Calculator 2026/27"
 description: "Calculate expected long-term portfolio growth for index funds and exchange-traded funds (ETFs) in Stocks & Shares ISAs or SIPPs."
+keywords: "index fund & etf investment calculator 2026 27, calculate expected longterm portfolio growth for, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

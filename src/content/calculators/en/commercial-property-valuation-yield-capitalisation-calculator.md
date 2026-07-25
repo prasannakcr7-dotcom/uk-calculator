@@ -1,6 +1,7 @@
 ---
 title: "Commercial Property Valuation Calculator UK 2026/27 — Capitalisation"
 description: "Calculate UK commercial property valuations using the Income Capitalisation method, Years Purchase (YP), and Cap Rates."
+keywords: "commercial property valuation calculator uk 2026 27 capitalisation, calculate uk commercial property valuations using, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

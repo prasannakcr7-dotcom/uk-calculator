@@ -1,6 +1,7 @@
 ---
 title: "Leasehold Service Charge Allocation Calculator UK 2026/27"
 description: "Calculate UK leasehold service charge apportionments, percentage shares, equal splits, and floor area calculations."
+keywords: "leasehold service charge allocation calculator uk 2026 27, calculate uk leasehold service charge apportionments, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "Childcare Funding & Grants Calculator UK 2026/27"
 description: "Estimate free statutory childcare hours and annual savings for eligible working parents across UK nations."
+keywords: "childcare funding & grants calculator uk 2026 27, estimate free statutory childcare hours and, family benefits 2026/27"
 category: "familia"
 lang: "en"
 isDevolved: true

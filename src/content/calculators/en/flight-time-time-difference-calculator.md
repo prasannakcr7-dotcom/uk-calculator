@@ -1,6 +1,7 @@
 ---
 title: "UK Flight Duration & Time Zone Difference Calculator 2026/27"
 description: "Calculate flight duration, local arrival times, and time zone offsets for international flights originating from UK airports."
+keywords: "uk flight duration & time zone difference calculator 2026 27, calculate flight duration local arrival times, daily life 2026/27"
 category: "alltag"
 lang: "en"
 isDevolved: false

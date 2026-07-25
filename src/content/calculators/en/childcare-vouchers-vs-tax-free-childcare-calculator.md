@@ -1,6 +1,7 @@
 ---
 title: "UK Tax-Free Childcare vs Legacy Childcare Vouchers Scheme Calculator 2026/27"
 description: "Compare annual government savings between Tax-Free Childcare (20% top-up up to £2,000/child) and legacy Employer Childcare Vouchers."
+keywords: "uk tax-free childcare vs legacy childcare vouchers scheme calculator 2026 27, compare annual government savings between taxfree, family benefits 2026/27"
 category: "familia"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "Property Income Tax & Buy-to-Let Calculator UK 2026/27"
 description: "Calculate UK rental income tax, Section 24 mortgage interest 20% tax credits, and net landlord profits for 2026/27."
+keywords: "property income tax & buy-to-let calculator uk 2026 27, calculate uk rental income tax section, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

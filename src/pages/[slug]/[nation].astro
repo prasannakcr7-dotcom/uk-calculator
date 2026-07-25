@@ -3,6 +3,9 @@ import { getCollection, render } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import NationFlagIcon from '../../components/NationFlagIcon.astro';
 import Sidebar from '../../components/Sidebar.astro';
+import BreadcrumbSchema from '../../components/BreadcrumbSchema.astro';
+import WebAppSchema from '../../components/WebAppSchema.astro';
+import FaqSchema from '../../components/FaqSchema.astro';
 import { componentMap } from '../../data/componentMap';
 
 export async function getStaticPaths() {
@@ -109,7 +112,7 @@ const nationName = nationDisplayNames[nation] || "England";
 const localizedTitle = `${entry.data.title} (${nationName})`;
 ---
 
-<Layout title={localizedTitle} description={entry.data.description}>
+<Layout title={localizedTitle} description={entry.data.description} keywords={entry.data.keywords}>
   <div class="crumb">
     <a href="/">Home</a>
     <span class="sep">›</span>
@@ -119,6 +122,11 @@ const localizedTitle = `${entry.data.title} (${nationName})`;
     <span class="sep">›</span>
     <span class="current">{nationName}</span>
   </div>
+  <BreadcrumbSchema items={[
+    { name: cat.title, url: `${cat.url}${nation}/` },
+    { name: entry.data.title, url: `/${slug}/` },
+    { name: nationName, url: `/${slug}/${nation}/` }
+  ]} />
   
   <div class={`hero ${cat.class}`}>
     <a href={`${cat.url}${nation}/`} class="hero-back">{cat.backText}</a>
@@ -126,6 +134,13 @@ const localizedTitle = `${entry.data.title} (${nationName})`;
     <h1>{localizedTitle}</h1>
     <p class="sub">{entry.data.description}</p>
   </div>
+
+  <WebAppSchema
+    title={localizedTitle}
+    description={entry.data.description}
+    url={`/${slug}/${nation}/`}
+    category={categoryKey}
+  />
 
   <!-- Devolved Nation Selector Banner -->
   <div style="max-width: 1200px; margin: 24px auto 0; padding: 0 48px; box-sizing: border-box;">
@@ -158,6 +173,7 @@ const localizedTitle = `${entry.data.title} (${nationName})`;
       </div>
     )}
   </div>
+  <FaqSchema content={entry.body} />
 </Layout>
 
 <style>

@@ -1,6 +1,7 @@
 ---
 title: "Power of Attorney (LPA) OPG Registration Fee Calculator UK 2026/27"
 description: "Calculate UK Lasting Power of Attorney (LPA) OPG registration fees (£82/document), 50% fee remissions, 100% exemptions, and solicitor fees."
+keywords: "power of attorney (lpa) opg registration fee calculator uk 2026 27, calculate uk lasting power of attorney, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: false

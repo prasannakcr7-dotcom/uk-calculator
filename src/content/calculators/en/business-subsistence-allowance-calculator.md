@@ -1,6 +1,7 @@
 ---
 title: "Business Subsistence Allowance Calculator UK — HMRC Scale Rates"
 description: "Calculate tax-free business meal and travel subsistence allowances using official HMRC benchmark scale rates."
+keywords: "business subsistence allowance calculator uk hmrc scale rates, calculate taxfree business meal and travel, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

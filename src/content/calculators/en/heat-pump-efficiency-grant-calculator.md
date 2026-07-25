@@ -1,6 +1,7 @@
 ---
 title: "Heat Pump Efficiency & Grant Calculator UK 2026/27 — £7,500 BUS"
 description: "Calculate UK Boiler Upgrade Scheme (BUS) £7,500 heat pump grants, 0% VAT savings, and net installation costs."
+keywords: "heat pump efficiency & grant calculator uk 2026 27 £7,500 bus, calculate uk boiler upgrade scheme bus, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: true

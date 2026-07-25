@@ -1,6 +1,7 @@
 ---
 title: "Room BTU Radiator Calculator UK 2026/27 — Heat Output & Watts"
 description: "Calculate UK room BTU heat requirements, radiator Watt power ratings, room volumes, and Delta T50/T30 heat pump sizing."
+keywords: "room btu radiator calculator uk 2026 27 heat output & watts, calculate uk room btu heat requirements, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

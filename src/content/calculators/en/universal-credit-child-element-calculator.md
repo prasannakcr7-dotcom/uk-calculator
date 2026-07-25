@@ -1,6 +1,7 @@
 ---
 title: "Universal Credit Child Element Calculator UK 2026/27"
 description: "Calculate Universal Credit Child Element monthly rates, 2-child limit rules, and disabled child additions for 2026/27."
+keywords: "universal credit child element calculator uk 2026 27, calculate universal credit child element monthly, family benefits 2026/27"
 category: "familia"
 lang: "en"
 isDevolved: false

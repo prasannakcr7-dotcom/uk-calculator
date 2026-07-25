@@ -1,6 +1,7 @@
 ---
 title: "Capital Allowances & Depreciation Calculator UK 2026/27"
 description: "Calculate UK Capital Allowances, Annual Investment Allowance (£1M AIA), and Writing Down Allowances (18% / 6%)."
+keywords: "capital allowances & depreciation calculator uk 2026 27, calculate uk capital allowances annual investment, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

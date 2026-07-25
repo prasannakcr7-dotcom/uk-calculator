@@ -1,6 +1,7 @@
 ---
 title: "Private Medical Insurance (PMI) Cost Estimator UK 2026/27"
 description: "Calculate UK Private Medical Insurance (PMI) health premiums, age factors, policy excess discounts (£250 excess), and 12% IPT tax."
+keywords: "private medical insurance (pmi) cost estimator uk 2026 27, calculate uk private medical insurance pmi, health calculator 2026/27"
 category: "salud"
 lang: "en"
 isDevolved: false

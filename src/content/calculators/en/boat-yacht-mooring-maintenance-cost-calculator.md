@@ -1,6 +1,7 @@
 ---
 title: "Boat & Yacht Mooring Maintenance Cost Calculator UK 2026/27"
 description: "Calculate UK boat & yacht ownership costs, marina pontoon mooring berth fees (£140-£220/ft), hull antifouling, insurance, and BSS tests."
+keywords: "boat & yacht mooring maintenance cost calculator uk 2026 27, calculate uk boat yacht ownership costs, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

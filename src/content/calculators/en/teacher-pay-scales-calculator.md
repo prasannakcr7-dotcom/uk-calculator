@@ -1,6 +1,7 @@
 ---
 title: "Teacher Pay Scales Calculator UK 2026/27 — Main & Upper Scales"
 description: "Calculate UK qualified teacher salary bands, London allowances, TLR payments, and Teachers' Pension deductions."
+keywords: "teacher pay scales calculator uk 2026 27 main & upper scales, calculate uk qualified teacher salary bands, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

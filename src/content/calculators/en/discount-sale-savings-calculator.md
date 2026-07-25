@@ -1,6 +1,7 @@
 ---
 title: "Shopping Discount & Sale Savings Calculator 2026/27"
 description: "Calculate final checkout sale prices, total money saved, and stacked double discount code combinations."
+keywords: "shopping discount & sale savings calculator 2026 27, calculate final checkout sale prices total, daily life 2026/27"
 category: "alltag"
 lang: "en"
 isDevolved: false

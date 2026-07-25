@@ -1,6 +1,7 @@
 ---
 title: "UK Student Loan Plan 5 & Plan 2 Interest Compounding Estimator 2026/27"
 description: "Calculate total student loan debt balance growth, RPI interest compounding rates, monthly salary deductions, and 30/40-year write-off projections."
+keywords: "uk student loan plan 5 & plan 2 interest compounding estimator 2026 27, calculate total student loan debt balance, daily life 2026/27"
 category: "alltag"
 lang: "en"
 isDevolved: false

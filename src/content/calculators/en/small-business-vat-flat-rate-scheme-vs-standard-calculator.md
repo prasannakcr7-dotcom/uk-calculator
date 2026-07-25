@@ -1,6 +1,7 @@
 ---
 title: "UK VAT Flat Rate Scheme (FRS) vs Standard Accounting Calculator 2026/27"
 description: "Compare net VAT payments, administrative savings, and profit margins between the HMRC Flat Rate Scheme (FRS) and Standard Accrual VAT Accounting."
+keywords: "uk vat flat rate scheme (frs) vs standard accounting calculator 2026 27, compare net vat payments administrative savings, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

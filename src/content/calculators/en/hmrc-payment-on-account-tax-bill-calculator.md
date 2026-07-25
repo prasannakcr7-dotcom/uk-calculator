@@ -1,6 +1,7 @@
 ---
 title: "HMRC Payments on Account & January/July Tax Bill Calculator 2026/27"
 description: "Calculate HMRC Self Assessment balancing payments, 50% advance Payments on Account, and cash required for 31 January and 31 July deadlines."
+keywords: "hmrc payments on account & january july tax bill calculator 2026 27, calculate hmrc self assessment balancing payments, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

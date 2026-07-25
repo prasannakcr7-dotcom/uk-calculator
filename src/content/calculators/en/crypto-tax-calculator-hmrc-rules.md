@@ -1,6 +1,7 @@
 ---
 title: "UK Crypto Tax Calculator - HMRC Rules 2026/27"
 description: "Calculate UK Capital Gains Tax (CGT) on crypto assets under HMRC rules for selling, trading crypto-to-crypto, staking, and mining."
+keywords: "uk crypto tax calculator - hmrc rules 2026 27, calculate uk capital gains tax cgt, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

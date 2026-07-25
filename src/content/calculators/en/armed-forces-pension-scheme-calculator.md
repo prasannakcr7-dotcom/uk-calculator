@@ -1,6 +1,7 @@
 ---
 title: "UK Armed Forces Pension Scheme (AFPS 15) Retirement Calculator 2026/27"
 description: "Calculate UK Armed Forces (Army, Royal Navy, RAF) CARE pension benefits, Early Departure Payments (EDP), and tax-free lump sums under AFPS 15 rules."
+keywords: "uk armed forces pension scheme (afps 15) retirement calculator 2026 27, calculate uk armed forces army royal, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "UK Mortgage Offer Expiry & Delay Risk Estimator 2026/27"
 description: "Calculate mortgage offer validity windows, conveyancing delay completion risks, and extension eligibility across UK lenders."
+keywords: "uk mortgage offer expiry & delay risk estimator 2026 27, calculate mortgage offer validity windows conveyancing, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "Housing Benefit & Council Tax Support Calculator UK 2026/27"
 description: "Calculate UK Housing Benefit entitlements, Local Housing Allowance (LHA) caps, and Council Tax Reduction support."
+keywords: "housing benefit & council tax support calculator uk 2026 27, calculate uk housing benefit entitlements local, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: true

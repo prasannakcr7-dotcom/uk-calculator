@@ -1,6 +1,7 @@
 ---
 title: "Statutory Maternity & Paternity Pay Calculator UK 2026/27"
 description: "Calculate UK Statutory Maternity Pay (SMP) and Statutory Paternity Pay (SPP) weekly amounts and statutory payment schedules."
+keywords: "statutory maternity & paternity pay calculator uk 2026 27, calculate uk statutory maternity pay smp, family benefits 2026/27"
 category: "familia"
 lang: "en"
 isDevolved: false

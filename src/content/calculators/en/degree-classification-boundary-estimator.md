@@ -1,6 +1,7 @@
 ---
 title: "UK University Degree Classification & Borderline Boundary Estimator 2026/27"
 description: "Calculate overall weighted undergraduate degree averages, degree classifications (1st, 2:1, 2:2, 3rd), and borderline upgrade rule eligibility."
+keywords: "uk university degree classification & borderline boundary estimator 2026 27, calculate overall weighted undergraduate degree averages, daily life 2026/27"
 category: "alltag"
 lang: "en"
 isDevolved: false

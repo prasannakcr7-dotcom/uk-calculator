@@ -1,6 +1,7 @@
 ---
 title: "Used Car Depreciation & Resale Value Calculator UK 2026/27"
 description: "Calculate UK used car depreciation curves, 3-year resale values, retained value percentage (%), and cost per mile lost."
+keywords: "used car depreciation & resale value calculator uk 2026 27, calculate uk used car depreciation curves, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

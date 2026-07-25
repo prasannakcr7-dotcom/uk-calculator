@@ -1,6 +1,7 @@
 ---
 title: "UK Motorway Toll Road & Bridge Cost Calculator 2026/27"
 description: "Calculate UK toll road & bridge prices, M6 Toll (£9.70 car rate), Dart Charge (A282 £2.50), Tyne Tunnel, and pre-paid tag account savings."
+keywords: "uk motorway toll road & bridge cost calculator 2026 27, calculate uk toll road bridge prices, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

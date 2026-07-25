@@ -1,6 +1,7 @@
 ---
 title: "No Win No Fee Solicitor Success Fee Calculator UK 2026/27"
 description: "Calculate UK Conditional Fee Agreement (CFA) success fees (25% statutory cap), After The Event (ATE) insurance premiums, and net client payouts."
+keywords: "no win no fee solicitor success fee calculator uk 2026 27, calculate uk conditional fee agreement cfa, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: false

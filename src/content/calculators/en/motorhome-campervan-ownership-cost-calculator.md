@@ -1,6 +1,7 @@
 ---
 title: "Motorhome & Campervan Ownership Cost Calculator UK 2026/27"
 description: "Calculate UK motorhome & campervan running costs, diesel fuel (25-30 MPG), DVLA TC11 VED tax, CaSSOA storage, and habitation servicing."
+keywords: "motorhome & campervan ownership cost calculator uk 2026 27, calculate uk motorhome campervan running costs, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "Compound Interest & Growth Calculator 2026/27"
 description: "Calculate compound interest gains over time for UK savings accounts, Stocks & Shares ISAs, SIPPs, and investments."
+keywords: "compound interest & growth calculator 2026 27, calculate compound interest gains over time, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

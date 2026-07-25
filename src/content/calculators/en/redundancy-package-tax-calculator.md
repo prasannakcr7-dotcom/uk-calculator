@@ -1,6 +1,7 @@
 ---
 title: "Redundancy Package Tax Calculator 2026/27 — £30,000 Exemption"
 description: "Calculate income tax and net payout on ex-gratia and enhanced redundancy severance packages."
+keywords: "redundancy package tax calculator 2026 27 £30,000 exemption, calculate income tax and net payout, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

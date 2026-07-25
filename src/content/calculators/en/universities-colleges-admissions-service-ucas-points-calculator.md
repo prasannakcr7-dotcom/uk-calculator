@@ -1,6 +1,7 @@
 ---
 title: "UK UCAS Tariff Points & University Entry Calculator 2026/27"
 description: "Calculate total UCAS tariff points for UK university entry from A-Levels, T-Levels, BTEC Nationals, and EPQ qualifications."
+keywords: "uk ucas tariff points & university entry calculator 2026 27, calculate total ucas tariff points for, daily life 2026/27"
 category: "alltag"
 lang: "en"
 isDevolved: false

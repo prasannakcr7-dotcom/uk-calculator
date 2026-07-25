@@ -1,6 +1,7 @@
 ---
 title: "Mortgage Amortisation Calculator UK 2026/27 — Payment Schedule"
 description: "Calculate UK mortgage amortisation schedules, monthly capital vs interest splits, and lifetime interest costs."
+keywords: "mortgage amortisation calculator uk 2026 27 payment schedule, calculate uk mortgage amortisation schedules monthly, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

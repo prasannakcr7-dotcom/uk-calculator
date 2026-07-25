@@ -1,6 +1,7 @@
 ---
 title: "Appliance Running Cost Calculator UK 2026/27 — Energy Usage"
 description: "Calculate UK household electrical appliance running costs per hour, daily cycle costs, and annual electricity bills."
+keywords: "appliance running cost calculator uk 2026 27 energy usage, calculate uk household electrical appliance running, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

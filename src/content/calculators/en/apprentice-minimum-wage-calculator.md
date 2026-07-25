@@ -1,6 +1,7 @@
 ---
 title: "Apprentice Minimum Wage Calculator 2026/27 — NMW Rates"
 description: "Check statutory UK National Minimum Wage (NMW) rates and gross pay entitlements for apprentices."
+keywords: "apprentice minimum wage calculator 2026 27 nmw rates, check statutory uk national minimum wage, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "EV Charging Cost & Mileage Calculator UK 2026/27 — Cost per Mile"
 description: "Calculate UK electric vehicle (EV) charging costs per mile (p/mi), annual kWh consumption, off-peak tariffs, and petrol savings."
+keywords: "ev charging cost & mileage calculator uk 2026 27 cost per mile, calculate uk electric vehicle ev charging, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

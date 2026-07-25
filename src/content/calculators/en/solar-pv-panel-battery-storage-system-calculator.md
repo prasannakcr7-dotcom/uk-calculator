@@ -1,6 +1,7 @@
 ---
 title: "Solar PV & Battery Storage Calculator UK 2026/27 — Payback & SEG"
 description: "Calculate UK rooftop solar PV panel generation (kWp), lithium battery storage (kWh), 0% VAT savings, SEG export tariffs, and payback."
+keywords: "solar pv & battery storage calculator uk 2026 27 payback & seg, calculate uk rooftop solar pv panel, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

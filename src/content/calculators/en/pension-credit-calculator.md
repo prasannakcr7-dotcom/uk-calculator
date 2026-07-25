@@ -1,6 +1,7 @@
 ---
 title: "Pension Credit Calculator UK 2026/27 — Guarantee Credit Rates"
 description: "Calculate UK Guarantee Pension Credit top-ups (£218.15 single; £332.95 couple) and passported benefits."
+keywords: "pension credit calculator uk 2026 27 guarantee credit rates, calculate uk guarantee pension credit topups, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: false

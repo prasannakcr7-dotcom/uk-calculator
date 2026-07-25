@@ -1,6 +1,7 @@
 ---
 title: "IVF Fertility Treatment Cost Estimator UK 2026/27"
 description: "Calculate UK IVF treatment costs (£4,500-£8,000/cycle), ICSI, PGT-A genetic screening, stimulation medication, and NHS ICB funding rules."
+keywords: "ivf fertility treatment cost estimator uk 2026 27, calculate uk ivf treatment costs £4500£8000cycle, health calculator 2026/27"
 category: "salud"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "Bicycle & e-Bike Commuter Savings Calculator UK 2026/27"
 description: "Calculate UK Cycle to Work Scheme salary sacrifice tax savings (32% to 42%), replaced car/train travel costs, and e-Bike payback periods."
+keywords: "bicycle & e-bike commuter savings calculator uk 2026 27, calculate uk cycle to work scheme, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

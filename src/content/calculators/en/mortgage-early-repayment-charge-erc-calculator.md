@@ -1,6 +1,7 @@
 ---
 title: "Mortgage Early Repayment Charge (ERC) Calculator UK 2026/27"
 description: "Calculate UK mortgage Early Repayment Charges (ERC), 10% annual penalty-free overpayment allowances, and remortgaging exit fees."
+keywords: "mortgage early repayment charge (erc) calculator uk 2026 27, calculate uk mortgage early repayment charges, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

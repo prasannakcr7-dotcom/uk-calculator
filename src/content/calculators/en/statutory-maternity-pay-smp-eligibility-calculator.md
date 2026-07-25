@@ -1,6 +1,7 @@
 ---
 title: "UK Statutory Maternity Pay (SMP) & Allowance Calculator 2026/27"
 description: "Calculate Statutory Maternity Pay (SMP) weekly earnings, 6 weeks at 90% gross pay, 33 weeks at statutory rate (£184.03/wk), and 39-week totals."
+keywords: "uk statutory maternity pay (smp) & allowance calculator 2026 27, calculate statutory maternity pay smp weekly, family benefits 2026/27"
 category: "familia"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "Social Security Scotland Carer's Allowance Supplement Calculator 2026/27"
 description: "Calculate Scottish Carer Support Payment weekly benefits, Social Security Scotland bi-annual Carer's Allowance Supplement payments, and annual income."
+keywords: "social security scotland carer's allowance supplement calculator 2026 27, calculate scottish carer support payment weekly, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: true

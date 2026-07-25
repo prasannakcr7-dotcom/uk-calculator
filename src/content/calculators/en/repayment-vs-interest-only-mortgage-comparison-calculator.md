@@ -1,6 +1,7 @@
 ---
 title: "Repayment vs Interest-Only Mortgage Comparison Calculator 2026/27"
 description: "Compare monthly outlays, lifetime interest costs, and end-of-term debt balances between Capital Repayment and Interest-Only mortgages."
+keywords: "repayment vs interest-only mortgage comparison calculator 2026 27, compare monthly outlays lifetime interest costs, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

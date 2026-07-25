@@ -1,6 +1,7 @@
 ---
 title: "Probationary Period Calculator UK — Probation Rights"
 description: "Calculate probation completion dates, notice terms, and two-year unfair dismissal qualification timelines."
+keywords: "probationary period calculator uk probation rights, calculate probation completion dates notice terms, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

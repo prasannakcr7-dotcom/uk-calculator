@@ -1,6 +1,7 @@
 ---
 title: "Underfloor Heating BTU & Pipe Length Calculator UK 2026/27"
 description: "Calculate UK wet underfloor heating (UFH) 16mm PERT/PEX pipe coil lengths, manifold loop counts, and BTU thermal heat outputs."
+keywords: "underfloor heating btu & pipe length calculator uk 2026 27, calculate uk wet underfloor heating ufh, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "Capital Gains Tax (CGT) Calculator UK 2026/27 — Rates & Exemptions"
 description: "Calculate UK Capital Gains Tax (CGT) on shares, crypto, and residential property using the £3,000 exemption allowance."
+keywords: "capital gains tax (cgt) calculator uk 2026 27 rates & exemptions, calculate uk capital gains tax cgt, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

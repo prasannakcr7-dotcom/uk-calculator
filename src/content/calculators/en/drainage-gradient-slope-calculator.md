@@ -1,6 +1,7 @@
 ---
 title: "Drainage Gradient / Slope Calculator UK 2026/27 — Building Regs Part H"
 description: "Calculate UK underground drainage pipe falls (1 in 40 to 1 in 80), vertical elevation drops, and self-cleansing flow velocity."
+keywords: "drainage gradient slope calculator uk 2026 27 building regs part h, calculate uk underground drainage pipe falls, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

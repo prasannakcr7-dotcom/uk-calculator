@@ -1,6 +1,7 @@
 ---
 title: "Block Paving & Patio Calculator UK 2026/27 — Quantities & Sub-Base"
 description: "Calculate UK block paving blocks, patio slabs, MOT Type 1 sub-base tonnage, sharp sand bedding, and kiln-dried sand."
+keywords: "block paving & patio calculator uk 2026 27 quantities & sub-base, calculate uk block paving blocks patio, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

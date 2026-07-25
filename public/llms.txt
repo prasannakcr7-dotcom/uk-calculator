@@ -1,0 +1,32 @@
+# UK Calculator
+
+> Free, accurate calculators for UK taxes, salary, property, benefits, health, and finance — tailored for England, Scotland, Wales, and Northern Ireland.
+
+## About
+UK Calculator offers 298 free single-purpose online tools covering income tax, VAT, National Insurance, stamp duty, child benefit, mortgage payments, and more. All figures are based on official HMRC, GOV.UK, and DWP sources, updated for the 2026/27 tax year. Calculators are adjusted for regional differences across England, Scotland, Wales, and Northern Ireland.
+
+## Main Categories
+- [Work & Salary](https://uk-calculator.theweekenddev.com/work-and-salary/): Take-home pay, overtime, holiday entitlement, national minimum wage, redundancy pay
+- [Taxes & Duties](https://uk-calculator.theweekenddev.com/taxes-and-fees/): Income tax, VAT, stamp duty, capital gains tax, corporation tax, self-assessment
+- [Family & Children](https://uk-calculator.theweekenddev.com/family-and-maternity/): Child benefit, maternity/paternity pay, childcare funding, child maintenance
+- [Housing & Property](https://uk-calculator.theweekenddev.com/housing-and-rent/): Mortgage, rent vs buy, council tax, SDLT, property buying costs
+- [Car & Mobility](https://uk-calculator.theweekenddev.com/mobility-and-vehicles/): Fuel cost, EV charging, HMRC mileage claims, car depreciation
+- [Health & Fitness](https://uk-calculator.theweekenddev.com/health-and-wellbeing/): BMI/BMR, body fat percentage, hydration, running pace
+- [Benefits & Pensions](https://uk-calculator.theweekenddev.com/social-and-benefits/): Universal Credit, JSA, state pension forecast, pension drawdown
+- [Finance & Savings](https://uk-calculator.theweekenddev.com/finance-and-credit/): Compound interest, ISA, loan repayment, budgeting, investment returns
+- [Everyday & School](https://uk-calculator.theweekenddev.com/daily-life/): Percentage calculator, unit conversion, UCAS points, age calculator
+
+## Popular Tools
+- [Salary / Take-Home Pay Calculator](https://uk-calculator.theweekenddev.com/salary-income-tax-calculator/england/): Calculate net pay after income tax, National Insurance, and student loan deductions
+- [VAT Calculator](https://uk-calculator.theweekenddev.com/vat-calculator/): Add or remove UK VAT at standard 20%, reduced 5%, or zero 0% rates
+- [Stamp Duty (SDLT) Calculator](https://uk-calculator.theweekenddev.com/stamp-duty-land-tax-calculator/england/): Estimate property transaction tax for England and Northern Ireland
+- [Child Benefit Calculator](https://uk-calculator.theweekenddev.com/child-benefit-calculator/): Estimate weekly and annual child benefit payments including HICBC
+- [Mortgage Calculator](https://uk-calculator.theweekenddev.com/mortgage-payment-calculator/): Calculate monthly mortgage payments and total interest over the loan term
+- [Universal Credit Calculator](https://uk-calculator.theweekenddev.com/universal-credit-calculator/): Estimate Universal Credit entitlement based on income and circumstances
+- [Income Tax Calculator](https://uk-calculator.theweekenddev.com/income-tax-calculator/england/): Calculate income tax liability across all UK tax bands
+- [Council Tax Calculator](https://uk-calculator.theweekenddev.com/council-tax-domestic-rates-calculator/): Estimate council tax by band and local authority
+
+## Notes
+- Content updated for 2026/27 tax year
+- Sourced from: HM Revenue & Customs (HMRC), GOV.UK, Department for Work and Pensions (DWP), Office for National Statistics (ONS), Bank of England
+- All calculations are estimates and do not constitute financial, legal, or tax advice

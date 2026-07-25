@@ -1,6 +1,7 @@
 ---
 title: "NHS Agenda for Change Pay Scales Calculator 2026/27"
 description: "Calculate NHS Agenda for Change (AfC) pay bands, High Cost Area Supplements (HCAS), and net take-home salary."
+keywords: "nhs agenda for change pay scales calculator 2026 27, calculate nhs agenda for change afc, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

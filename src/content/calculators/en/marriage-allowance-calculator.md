@@ -1,6 +1,7 @@
 ---
 title: "Marriage Allowance Calculator UK 2026/27 — £252 Tax Saving"
 description: "Calculate UK Marriage Allowance tax savings (£252/year) and backdated claims up to £1,260 for married couples."
+keywords: "marriage allowance calculator uk 2026 27 £252 tax saving, calculate uk marriage allowance tax savings, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

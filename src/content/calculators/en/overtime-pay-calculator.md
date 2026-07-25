@@ -1,6 +1,7 @@
 ---
 title: "Overtime Pay Calculator UK — Time & A Half Rates"
 description: "Calculate enhanced overtime pay at time-and-a-half (1.5x) or double time (2.0x) rates."
+keywords: "overtime pay calculator uk time & a half rates, calculate enhanced overtime pay at timeandahalf, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

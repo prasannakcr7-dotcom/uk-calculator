@@ -1,6 +1,7 @@
 ---
 title: "Private Jet & Helicopter Charter Cost Calculator UK 2026/27"
 description: "Calculate UK private jet & helicopter charter prices, hourly flight rates (£1,200 to £7,500/hr), FBO landing fees, and Empty Leg deals."
+keywords: "private jet & helicopter charter cost calculator uk 2026 27, calculate uk private jet helicopter charter, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

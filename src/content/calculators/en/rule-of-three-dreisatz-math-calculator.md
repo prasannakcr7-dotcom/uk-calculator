@@ -1,6 +1,7 @@
 ---
 title: "Rule of Three (Dreisatz) Proportional Math Calculator 2026/27"
 description: "Solve direct and inverse proportional cross-multiplication math problems (If A gives B, then C gives X) using the Rule of Three."
+keywords: "rule of three (dreisatz) proportional math calculator 2026 27, solve direct and inverse proportional crossmultiplication, daily life 2026/27"
 category: "alltag"
 lang: "en"
 isDevolved: false

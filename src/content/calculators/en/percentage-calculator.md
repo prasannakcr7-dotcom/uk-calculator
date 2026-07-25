@@ -1,6 +1,7 @@
 ---
 title: "All-in-One Percentage & Percentage Change Calculator 2026/27"
 description: "Calculate what X% of Y is, percentage increases, percentage decreases, percentage differences, and reverse percentage calculations."
+keywords: "all-in-one percentage & percentage change calculator 2026 27, calculate what x of y is, daily life 2026/27"
 category: "alltag"
 lang: "en"
 isDevolved: false

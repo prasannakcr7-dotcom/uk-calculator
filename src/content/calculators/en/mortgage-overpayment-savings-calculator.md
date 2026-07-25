@@ -1,6 +1,7 @@
 ---
 title: "UK Mortgage Overpayment Savings & Term Reduction Calculator 2026/27"
 description: "Calculate total interest savings and mortgage term reduction from monthly or lump-sum mortgage overpayments."
+keywords: "uk mortgage overpayment savings & term reduction calculator 2026 27, calculate total interest savings and mortgage, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

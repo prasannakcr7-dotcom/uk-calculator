@@ -1,6 +1,7 @@
 ---
 title: "ROI & Annualized Return (ROI p.a.) Calculator 2026/27"
 description: "Calculate total Return on Investment (ROI %) and annualized per-annum return rates (ROI p.a. / CAGR) over multi-year holding periods."
+keywords: "roi & annualized return (roi p.a.) calculator 2026 27, calculate total return on investment roi, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

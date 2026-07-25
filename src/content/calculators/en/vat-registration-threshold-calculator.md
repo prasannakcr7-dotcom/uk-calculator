@@ -1,6 +1,7 @@
 ---
 title: "VAT Registration Threshold Calculator UK 2026/27 — £90,000 Limit"
 description: "Calculate UK VAT registration rules, rolling 12-month turnover tests, and £90,000 statutory thresholds."
+keywords: "vat registration threshold calculator uk 2026 27 £90,000 limit, calculate uk vat registration rules rolling, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

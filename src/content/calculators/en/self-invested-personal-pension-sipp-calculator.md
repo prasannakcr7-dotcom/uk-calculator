@@ -1,6 +1,7 @@
 ---
 title: "Self-Invested Personal Pension (SIPP) Calculator 2026/27"
 description: "Calculate HMRC pension tax relief, gross SIPP contributions, higher-rate tax refunds, and retirement pot accumulation."
+keywords: "self-invested personal pension (sipp) calculator 2026 27, calculate hmrc pension tax relief gross, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

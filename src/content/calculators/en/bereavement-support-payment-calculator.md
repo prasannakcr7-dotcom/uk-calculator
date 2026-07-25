@@ -1,6 +1,7 @@
 ---
 title: "Bereavement Support Payment Calculator UK 2026/27 — DWP Rates"
 description: "Calculate UK Bereavement Support Payment rates (£3,500 + £350/mo for children; £2,500 + £100/mo without children)."
+keywords: "bereavement support payment calculator uk 2026 27 dwp rates, calculate uk bereavement support payment rates, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: false

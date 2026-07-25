@@ -1,6 +1,7 @@
 ---
 title: "Bonus Tax & Net Pay Calculator UK 2026/27 — Annual Bonus"
 description: "Calculate exact net take-home pay on annual work bonuses after Income Tax, National Insurance, and Student Loans."
+keywords: "bonus tax & net pay calculator uk 2026 27 annual bonus, calculate exact net takehome pay on, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

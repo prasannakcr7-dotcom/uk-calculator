@@ -1,6 +1,7 @@
 ---
 title: "Scottish Income Tax vs Rest of UK Comparison Calculator 2026/27"
 description: "Compare annual Income Tax and net take-home pay between Scottish Income Tax bands (6-tier system) and Rest of UK rates (rUK 3-tier system)."
+keywords: "scottish income tax vs rest of uk comparison calculator 2026 27, compare annual income tax and net, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: true

@@ -1,6 +1,7 @@
 ---
 title: "Gas Bill Estimator UK 2026/27 — Ofgem Price Cap"
 description: "Calculate UK mains gas bills, annual kWh consumption costs, daily standing charges, and m³ to kWh meter conversions."
+keywords: "gas bill estimator uk 2026 27 ofgem price cap, calculate uk mains gas bills annual, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

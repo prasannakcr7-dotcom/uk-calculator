@@ -1,6 +1,7 @@
 ---
 title: "Buy-to-Let Section 24 Tax Calculator UK 2026/27 — Mortgage Relief"
 description: "Calculate UK Buy-to-Let (BTL) Section 24 tax liabilities, 20% mortgage interest tax credits, and landlord net profit."
+keywords: "buy-to-let section 24 tax calculator uk 2026 27 mortgage relief, calculate uk buytolet btl section 24, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

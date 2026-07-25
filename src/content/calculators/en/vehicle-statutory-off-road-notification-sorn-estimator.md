@@ -1,6 +1,7 @@
 ---
 title: "UK Statutory Off Road Notification (SORN) Estimator 2026/27"
 description: "Calculate DVLA road tax (VED) refunds, insurance lay-up savings, and legal storage requirements when declaring a UK vehicle SORN."
+keywords: "uk statutory off road notification (sorn) estimator 2026 27, calculate dvla road tax ved refunds, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

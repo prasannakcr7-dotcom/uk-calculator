@@ -1,6 +1,7 @@
 ---
 title: "Global Time Zone Converter & Meeting Planner 2026/27"
 description: "Convert time zones between UK (GMT/BST), New York (EST/EDT), Tokyo (JST), Sydney (AEST), and global business financial centers."
+keywords: "global time zone converter & meeting planner 2026 27, convert time zones between uk gmtbst, daily life 2026/27"
 category: "alltag"
 lang: "en"
 isDevolved: false

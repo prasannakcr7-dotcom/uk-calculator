@@ -1,6 +1,7 @@
 ---
 title: "UK Capital Repayment Mortgage Calculator 2026/27"
 description: "Calculate monthly principal and interest repayments, overall loan costs, and amortization schedules for UK capital repayment mortgages."
+keywords: "uk capital repayment mortgage calculator 2026 27, calculate monthly principal and interest repayments, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

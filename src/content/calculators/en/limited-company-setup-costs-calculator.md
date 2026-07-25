@@ -1,6 +1,7 @@
 ---
 title: "UK Limited Company Setup & First-Year Costs Calculator 2026/27"
 description: "Calculate total first-year incorporation fees, accounting software, annual statutory filings, insurance, and accountancy costs for UK Ltd companies."
+keywords: "uk limited company setup & first-year costs calculator 2026 27, calculate total firstyear incorporation fees accounting, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "UK Early Payment Discount & APR Calculator 2026/27"
 description: "Calculate early payment discount savings and equivalent annual interest rates (APR) for UK B2B trade credit terms."
+keywords: "uk early payment discount & apr calculator 2026 27, calculate early payment discount savings and, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

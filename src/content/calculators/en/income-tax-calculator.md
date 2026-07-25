@@ -1,6 +1,7 @@
 ---
 title: "Income Tax Calculator UK 2026/27 — PAYE Take-Home Pay"
 description: "Calculate UK Income Tax liability, Personal Allowance, National Insurance, and net monthly take-home pay for 2026/27."
+keywords: "income tax calculator uk 2026 27 paye take-home pay, calculate uk income tax liability personal, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: true

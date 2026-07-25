@@ -1,6 +1,7 @@
 ---
 title: "Energy Saving Renovation VAT Calculator UK 2026/27 — 0% Relief"
 description: "Calculate UK VAT savings on energy-saving materials (0% VAT relief) and home insulation installations."
+keywords: "energy saving renovation vat calculator uk 2026 27 0% relief, calculate uk vat savings on energysaving, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

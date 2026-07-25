@@ -1,6 +1,7 @@
 ---
 title: "Retirement Pension Gap Calculator UK 2026/27 — Income Shortfall"
 description: "Calculate your UK retirement income gap, PLSA Retirement Living Standards targets, and required pension pot size."
+keywords: "retirement pension gap calculator uk 2026 27 income shortfall, calculate your uk retirement income gap, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: false

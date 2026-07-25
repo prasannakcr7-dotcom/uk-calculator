@@ -1,6 +1,7 @@
 ---
 title: "Lifetime ISA Withdrawal Penalty Calculator UK 2026/27"
 description: "Calculate UK Lifetime ISA (LISA) 25% unauthorized withdrawal penalties and net cash losses."
+keywords: "lifetime isa withdrawal penalty calculator uk 2026 27, calculate uk lifetime isa lisa 25, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "P11D Company Car Benefit in Kind Tax Calculator UK 2026/27"
 description: "Calculate UK P11D company car Benefit in Kind (BIK) tax, CO2 emissions percentages (2% EV rate), and monthly PAYE deductions."
+keywords: "p11d company car benefit in kind tax calculator uk 2026 27, calculate uk p11d company car benefit, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

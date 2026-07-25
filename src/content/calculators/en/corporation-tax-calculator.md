@@ -1,6 +1,7 @@
 ---
 title: "Corporation Tax Calculator UK 2026/27 — 19% to 25% Rates"
 description: "Calculate UK Corporation Tax for limited companies, Small Profits Rate (19%), Main Rate (25%), and Marginal Relief."
+keywords: "corporation tax calculator uk 2026 27 19% to 25% rates, calculate uk corporation tax for limited, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

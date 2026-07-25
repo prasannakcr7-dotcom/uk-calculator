@@ -1,6 +1,7 @@
 ---
 title: "UK Home Energy Efficiency Grants & Subsidy Calculator 2026/27"
 description: "Calculate UK government grant eligibility for heat pumps (£7,500 BUS), insulation (ECO4/GBIS), and 0% VAT savings across UK nations."
+keywords: "uk home energy efficiency grants & subsidy calculator 2026 27, calculate uk government grant eligibility for, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: true

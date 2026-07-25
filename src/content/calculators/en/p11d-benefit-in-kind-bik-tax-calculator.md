@@ -1,6 +1,7 @@
 ---
 title: "UK P11D Benefit in Kind (BiK) Tax & Class 1A NI Calculator 2026/27"
 description: "Calculate employee Income Tax liabilities and employer Class 1A National Insurance (13.8%) on non-cash workplace benefits reported on Form P11D."
+keywords: "uk p11d benefit in kind (bik) tax & class 1a ni calculator 2026 27, calculate employee income tax liabilities and, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

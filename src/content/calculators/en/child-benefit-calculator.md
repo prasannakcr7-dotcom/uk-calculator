@@ -1,6 +1,7 @@
 ---
 title: "Child Benefit Calculator UK 2026/27 — Rates & HICBC Taper"
 description: "Calculate UK Child Benefit payments and High Income Child Benefit Charge (HICBC) tax deductions for 2026/27."
+keywords: "child benefit calculator uk 2026 27 rates & hicbc taper, calculate uk child benefit payments and, family benefits 2026/27"
 category: "familia"
 lang: "en"
 isDevolved: false

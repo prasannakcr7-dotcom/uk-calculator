@@ -1,6 +1,7 @@
 ---
 title: "Paint Calculator UK 2026/27 — Litres & Tin Size Estimator"
 description: "Calculate UK wall, ceiling, and masonry paint volume requirements in litres, number of coats, and recommended tin purchases."
+keywords: "paint calculator uk 2026 27 litres & tin size estimator, calculate uk wall ceiling and masonry, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

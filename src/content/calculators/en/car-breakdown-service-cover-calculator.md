@@ -1,6 +1,7 @@
 ---
 title: "Car Breakdown Service Cover Calculator UK 2026/27 — AA / RAC"
 description: "Calculate UK car breakdown cover costs, Roadside Assistance, National Recovery, At Home cover, European cover, and pay-on-demand fees."
+keywords: "car breakdown service cover calculator uk 2026 27 aa rac, calculate uk car breakdown cover costs, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "Welsh Land Transaction Tax (LTT) Property Calculator 2026/27"
 description: "Calculate Welsh Land Transaction Tax (LTT) liabilities for residential property purchases in Wales, including standard main residence and higher rates."
+keywords: "welsh land transaction tax (ltt) property calculator 2026 27, calculate welsh land transaction tax ltt, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: true

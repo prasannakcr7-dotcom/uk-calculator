@@ -1,6 +1,7 @@
 ---
 title: "Self-Build House Cost Estimator UK 2026/27 — Build Cost Sizing"
 description: "Calculate UK self-build house construction costs per sq m (£1,500 to £3,000/sq m), HMRC DIY VAT Reclaim, and CIL exemptions."
+keywords: "self-build house cost estimator uk 2026 27 build cost sizing, calculate uk selfbuild house construction costs, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

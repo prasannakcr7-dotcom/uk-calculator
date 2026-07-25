@@ -109,6 +109,36 @@ const calculators: CalculatorItem[] = allCalcEntries.map((entry, idx) => {
   description="Over 250 free single-purpose calculators tailored for England, Scotland, Wales, and Northern Ireland. Calculate take-home pay, VAT, Stamp Duty, and benefits."
 >
 
+  <!-- WebSite Schema with SearchAction (Section 3) -->
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "UK Calculator",
+    "url": "https://uk-calculator.theweekenddev.com",
+    "description": "Over 298 free calculators for taxes, salary, benefits, property, health, and finance — tailored for England, Scotland, Wales, and Northern Ireland.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://uk-calculator.theweekenddev.com/calculators/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  })} />
+
+  <!-- Organization Schema (Section 4) -->
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "UK Calculator",
+    "url": "https://uk-calculator.theweekenddev.com",
+    "logo": "https://uk-calculator.theweekenddev.com/icons/icon-512x512.png",
+    "description": "Free single-purpose calculators for UK taxes, salary, benefits, property, and finance — updated for 2026/27.",
+    "foundingDate": "2025",
+    "areaServed": {
+      "@type": "Country",
+      "name": "United Kingdom"
+    },
+    "sameAs": []
+  })} />
+
   <!-- HERO BANNER (VIBRANT ROYAL NAVY TO CRIMSON GRADIENT) -->
   <div class="hero" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #dc2626 100%); color: #ffffff; padding: 64px 48px 60px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);">
     <div class="hero-inner">

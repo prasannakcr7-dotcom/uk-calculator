@@ -1,6 +1,7 @@
 ---
 title: "UK Teachers' Pension Scheme (TPS) CARE Retirement Calculator 2026/27"
 description: "Calculate UK Teachers' Pension Scheme CARE pension accrual (1/57th rate), member contribution rates (7.4% - 11.7%), and employer contributions (28.6%)."
+keywords: "uk teachers' pension scheme (tps) care retirement calculator 2026 27, calculate uk teachers' pension scheme care, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

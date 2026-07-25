@@ -1,6 +1,7 @@
 ---
 title: "Salary Take-Home Pay & Income Tax Calculator UK 2026/27"
 description: "Estimate your UK net take-home pay, income tax deductions, and National Insurance. Supports devolved Scottish income tax rates and Personal Allowance tapering."
+keywords: "salary take-home pay & income tax calculator uk 2026 27, estimate your uk net takehome pay, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: true

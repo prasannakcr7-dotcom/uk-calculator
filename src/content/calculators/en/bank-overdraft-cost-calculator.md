@@ -1,6 +1,7 @@
 ---
 title: "Bank Overdraft Cost & Interest Calculator 2026/27"
 description: "Calculate daily interest fees and monthly costs for UK current account arranged overdrafts under FCA single EAR rules."
+keywords: "bank overdraft cost & interest calculator 2026 27, calculate daily interest fees and monthly, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "Hourly Wage to Salary Converter UK 2026/27"
 description: "Convert hourly pay rates into annual, monthly, weekly, and daily gross salaries for UK job offers."
+keywords: "hourly wage to salary converter uk 2026 27, convert hourly pay rates into annual, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

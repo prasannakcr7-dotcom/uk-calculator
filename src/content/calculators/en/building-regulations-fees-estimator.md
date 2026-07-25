@@ -1,6 +1,7 @@
 ---
 title: "Building Regulations Fees Estimator UK 2026/27 — Building Control"
 description: "Calculate UK local authority and private approved inspector Building Control fees, Full Plans plan charges, and Regularisation fees."
+keywords: "building regulations fees estimator uk 2026 27 building control, calculate uk local authority and private, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

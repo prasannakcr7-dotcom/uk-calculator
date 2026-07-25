@@ -26,6 +26,7 @@ const calculators = defineCollection({
     isDevolved: z.boolean().optional(),
     translationUrl: z.string().optional(),
     labels: z.record(z.any()),
+    keywords: z.string().optional(),
   }),
 });
 

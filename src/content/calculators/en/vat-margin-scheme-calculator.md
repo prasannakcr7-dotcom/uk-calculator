@@ -1,6 +1,7 @@
 ---
 title: "VAT Margin Scheme Calculator UK 2026/27 — Second-Hand Goods"
 description: "Calculate UK VAT Margin Scheme liabilities (16.67% fraction on gross margin) for second-hand cars, antiques, and art."
+keywords: "vat margin scheme calculator uk 2026 27 second-hand goods, calculate uk vat margin scheme liabilities, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "London ULEZ & Congestion Charge Calculator UK 2026/27"
 description: "Calculate London ULEZ (£12.50 daily) & Congestion Charge (£15 daily) costs, Euro emissions compliance rules, and TfL Auto Pay."
+keywords: "london ulez & congestion charge calculator uk 2026 27, calculate london ulez £1250 daily congestion, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

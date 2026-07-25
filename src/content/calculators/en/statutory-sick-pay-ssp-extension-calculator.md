@@ -1,6 +1,7 @@
 ---
 title: "Statutory Sick Pay (SSP) Extension Calculator UK 2026/27"
 description: "Calculate UK Statutory Sick Pay (SSP) entitlement (£116.75/wk), 28-week maximum limits, and Form SSP1 transition rules."
+keywords: "statutory sick pay (ssp) extension calculator uk 2026 27, calculate uk statutory sick pay ssp, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: false

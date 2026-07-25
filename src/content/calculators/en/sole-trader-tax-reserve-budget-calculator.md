@@ -1,6 +1,7 @@
 ---
 title: "UK Sole Trader Monthly Tax Reserve & Budgeting Calculator 2026/27"
 description: "Calculate what percentage of gross invoice revenue sole traders must set aside into a separate tax reserve savings account to cover HMRC tax bills."
+keywords: "uk sole trader monthly tax reserve & budgeting calculator 2026 27, calculate what percentage of gross invoice, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

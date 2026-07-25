@@ -1,6 +1,7 @@
 ---
 title: "Property Transaction Tax Calculator UK — SDLT, LBTT & LTT"
 description: "Calculate UK property purchase taxes including Stamp Duty Land Tax (SDLT), Land and Buildings Transaction Tax (LBTT), and Land Transaction Tax (LTT)."
+keywords: "property transaction tax calculator uk sdlt, lbtt & ltt, calculate uk property purchase taxes including, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: true

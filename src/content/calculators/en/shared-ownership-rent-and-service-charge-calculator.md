@@ -1,6 +1,7 @@
 ---
 title: "UK Shared Ownership Rent & Service Charge Calculator 2026/27"
 description: "Calculate combined monthly outlays for UK Shared Ownership homes, including mortgage repayments, housing association rent, and service charges."
+keywords: "uk shared ownership rent & service charge calculator 2026 27, calculate combined monthly outlays for uk, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "State Pension Age Calculator UK 2026/27 — Statutory Timetable"
 description: "Calculate your UK statutory State Pension age (66, 67, or 68) and exact year of pension access by date of birth."
+keywords: "state pension age calculator uk 2026 27 statutory timetable, calculate your uk statutory state pension, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: false

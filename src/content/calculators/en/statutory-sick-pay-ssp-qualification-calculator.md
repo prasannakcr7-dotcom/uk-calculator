@@ -1,6 +1,7 @@
 ---
 title: "Statutory Sick Pay (SSP) Calculator UK 2026/27 — Qualification & Rates"
 description: "Calculate UK Statutory Sick Pay (SSP £125.10/wk), Lower Earnings Limit (£123 LEL), 4-day PIW rules, 3 unpaid waiting days, and 28-week max."
+keywords: "statutory sick pay (ssp) calculator uk 2026 27 qualification & rates, calculate uk statutory sick pay ssp, health calculator 2026/27"
 category: "salud"
 lang: "en"
 isDevolved: false

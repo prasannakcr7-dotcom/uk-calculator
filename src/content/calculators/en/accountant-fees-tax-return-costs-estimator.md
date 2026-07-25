@@ -1,6 +1,7 @@
 ---
 title: "Accountant Fees & Tax Return Estimator UK 2026/27"
 description: "Estimate average UK accountant fees for sole traders, limited companies, Self Assessment, and tax deductibility savings."
+keywords: "accountant fees & tax return estimator uk 2026 27, estimate average uk accountant fees for, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "High Income Child Benefit Charge (HICBC) Calculator 2026/27"
 description: "Calculate UK High Income Child Benefit Charge (HICBC) tax deductions, £60,000 threshold, and net benefit retention."
+keywords: "high income child benefit charge (hicbc) calculator 2026 27, calculate uk high income child benefit, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

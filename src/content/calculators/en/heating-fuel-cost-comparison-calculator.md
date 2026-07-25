@@ -1,6 +1,7 @@
 ---
 title: "Heating Fuel Cost Comparison Calculator UK 2026/27"
 description: "Compare UK space heating costs across Mains Gas, Heating Oil, LPG, Direct Electric, and Air Source Heat Pumps."
+keywords: "heating fuel cost comparison calculator uk 2026 27, compare uk space heating costs across, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

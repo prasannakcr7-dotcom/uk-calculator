@@ -1,6 +1,7 @@
 ---
 title: "UK Insolvency & Statutory Debt Solution Selector 2026/27"
 description: "Evaluate eligible UK statutory debt relief options (DRO, IVA, Bankruptcy, MAP, Debt Arrangement Scheme, Protected Trust Deed)."
+keywords: "uk insolvency & statutory debt solution selector 2026 27, evaluate eligible uk statutory debt relief, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: true

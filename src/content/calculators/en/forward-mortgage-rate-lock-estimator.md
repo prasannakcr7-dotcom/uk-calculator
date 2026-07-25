@@ -1,6 +1,7 @@
 ---
 title: "UK Forward Mortgage Rate Lock & Validity Estimator 2026/27"
 description: "Calculate mortgage rate lock validity windows (up to 6 months), offer expiration timelines, and interest rate hedging protection."
+keywords: "uk forward mortgage rate lock & validity estimator 2026 27, calculate mortgage rate lock validity windows, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

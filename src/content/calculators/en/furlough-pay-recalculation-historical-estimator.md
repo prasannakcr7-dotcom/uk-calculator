@@ -1,6 +1,7 @@
 ---
 title: "UK Coronavirus Job Retention Scheme (CJRS) Furlough Audit Estimator"
 description: "Calculate historical CJRS furlough grant entitlements (80% gross pay up to £2,500/month cap), employer top-up requirements, and audit verification parameters."
+keywords: "uk coronavirus job retention scheme (cjrs) furlough audit estimator, calculate historical cjrs furlough grant entitlements, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

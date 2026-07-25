@@ -1,6 +1,7 @@
 ---
 title: "UK Police Pension Scheme (PPS 2015) CARE Retirement Calculator 2026/27"
 description: "Calculate UK Police Pension Scheme CARE pension accrual (1/55.3rd rate), member contribution rates (12.44% - 13.78%), and Normal Pension Age 60 benefits."
+keywords: "uk police pension scheme (pps 2015) care retirement calculator 2026 27, calculate uk police pension scheme care, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

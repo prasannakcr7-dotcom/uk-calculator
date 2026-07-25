@@ -1,6 +1,7 @@
 ---
 title: "UK Right to Buy Council House Discount Calculator 2026/27"
 description: "Calculate UK council house and housing association Right to Buy purchase discounts, statutory maximum caps (£102,400 / £136,400 London), and net price."
+keywords: "uk right to buy council house discount calculator 2026 27, calculate uk council house and housing, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

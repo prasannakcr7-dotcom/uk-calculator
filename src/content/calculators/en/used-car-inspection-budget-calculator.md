@@ -1,6 +1,7 @@
 ---
 title: "UK Used Car Pre-Purchase Inspection & Buyer Budget Calculator 2026/27"
 description: "Calculate total used car purchase outlays, including AA/RAC pre-purchase inspection fees, HPI check costs, servicing reserves, and road tax setup."
+keywords: "uk used car pre-purchase inspection & buyer budget calculator 2026 27, calculate total used car purchase outlays, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

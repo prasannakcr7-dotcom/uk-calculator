@@ -1,0 +1,48 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  url: string;
+  category?: string;
+}
+
+const { title, description, url, category = 'trabajo' } = Astro.props;
+const siteUrl = Astro.site?.href?.replace(/\/$/, '') || 'https://uk-calculator.theweekenddev.com';
+const fullUrl = url.startsWith('http') ? url : `${siteUrl}${url}`;
+
+// Map internal category IDs to schema.org applicationCategory values
+const appCategoryMap: Record<string, string> = {
+  trabajo: 'FinanceApplication',
+  impuestos: 'FinanceApplication',
+  familia: 'LifestyleApplication',
+  vivienda: 'FinanceApplication',
+  movilidad: 'UtilitiesApplication',
+  salud: 'HealthApplication',
+  social: 'FinanceApplication',
+  finanzas: 'FinanceApplication',
+  alltag: 'UtilitiesApplication',
+};
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": title,
+  "description": description,
+  "url": fullUrl,
+  "applicationCategory": appCategoryMap[category] || 'FinanceApplication',
+  "operatingSystem": "Web",
+  "browserRequirements": "Requires JavaScript. Requires HTML5.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "GBP"
+  },
+  "author": {
+    "@type": "Organization",
+    "name": "UK Calculator",
+    "url": siteUrl
+  }
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

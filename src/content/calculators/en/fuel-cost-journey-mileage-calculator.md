@@ -1,6 +1,7 @@
 ---
 title: "UK Fuel Cost & Journey Mileage Trip Calculator 2026/27"
 description: "Calculate total petrol and diesel costs for UK road trips, vehicle MPG fuel economy, litres required, and passenger cost sharing."
+keywords: "uk fuel cost & journey mileage trip calculator 2026 27, calculate total petrol and diesel costs, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

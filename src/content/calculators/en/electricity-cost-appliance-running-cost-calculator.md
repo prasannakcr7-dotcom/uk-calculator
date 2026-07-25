@@ -1,6 +1,7 @@
 ---
 title: "UK Electricity Cost & Appliance Running Cost Calculator 2026/27"
 description: "Calculate exact daily, monthly, and annual running costs for household electrical appliances based on Ofgem price cap unit rates."
+keywords: "uk electricity cost & appliance running cost calculator 2026 27, calculate exact daily monthly and annual, daily life 2026/27"
 category: "alltag"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "ESA & PIP Benefits Calculator UK 2026/27 — Disability Rates"
 description: "Calculate UK Employment and Support Allowance (ESA) and Personal Independence Payment (PIP) combined disability benefits."
+keywords: "esa & pip benefits calculator uk 2026 27 disability rates, calculate uk employment and support allowance, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: false

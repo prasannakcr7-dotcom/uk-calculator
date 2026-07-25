@@ -1,6 +1,7 @@
 ---
 title: "Concrete Mix Calculator UK 2026/27 — Volume & Bags Estimator"
 description: "Calculate UK concrete slab volume in m³, cement bag counts (25kg), ballast aggregate tonnage, and 1:2:4 mix ratios."
+keywords: "concrete mix calculator uk 2026 27 volume & bags estimator, calculate uk concrete slab volume in, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

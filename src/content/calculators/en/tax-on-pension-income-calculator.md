@@ -1,6 +1,7 @@
 ---
 title: "Tax on Pension Income Calculator UK 2026/27 — Drawdown & Tax-Free 25%"
 description: "Calculate UK pension income tax, 25% tax-free lump sum drawdowns, Personal Allowance rules, and net take-home."
+keywords: "tax on pension income calculator uk 2026 27 drawdown & tax-free 25%, calculate uk pension income tax 25, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: true

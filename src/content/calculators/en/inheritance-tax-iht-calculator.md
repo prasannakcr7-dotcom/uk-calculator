@@ -1,6 +1,7 @@
 ---
 title: "Inheritance Tax (IHT) Calculator UK 2026/27 — Allowances & 40% Rate"
 description: "Calculate UK Inheritance Tax (IHT) liabilities, Nil Rate Band (£325k), and Residence Nil Rate Band (£175k)."
+keywords: "inheritance tax (iht) calculator uk 2026 27 allowances & 40% rate, calculate uk inheritance tax iht liabilities, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

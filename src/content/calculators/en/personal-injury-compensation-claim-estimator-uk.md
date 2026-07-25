@@ -1,6 +1,7 @@
 ---
 title: "Personal Injury Compensation Claim Calculator UK 2026/27"
 description: "Calculate UK personal injury compensation payouts, Judicial College Guidelines (General Damages), Special Damages, and 25% success fee caps."
+keywords: "personal injury compensation claim calculator uk 2026 27, calculate uk personal injury compensation payouts, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: false

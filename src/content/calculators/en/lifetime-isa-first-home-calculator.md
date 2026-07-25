@@ -1,6 +1,7 @@
 ---
 title: "UK Lifetime ISA (LISA) First Home Calculator 2026/27"
 description: "Calculate 25% government bonus top-ups, deposit growth, and £450,000 property price cap rules when saving for your first home in the UK."
+keywords: "uk lifetime isa (lisa) first home calculator 2026 27, calculate 25 government bonus topups deposit, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

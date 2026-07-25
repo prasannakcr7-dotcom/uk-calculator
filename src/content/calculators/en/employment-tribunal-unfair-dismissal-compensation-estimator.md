@@ -1,6 +1,7 @@
 ---
 title: "Employment Tribunal Unfair Dismissal Compensation Calculator UK 2026/27"
 description: "Calculate UK Unfair Dismissal tribunal awards, Basic Award caps (£700/wk limit), Compensatory Award (52-week cap), and 2-year service rules."
+keywords: "employment tribunal unfair dismissal compensation calculator uk 2026 27, calculate uk unfair dismissal tribunal awards, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "Workplace Pension & Auto-Enrolment Calculator 2026/27"
 description: "Calculate statutory minimum 8% workplace pension contributions, employer matches, employee costs, and tax relief for 2026/27."
+keywords: "workplace pension & auto-enrolment calculator 2026 27, calculate statutory minimum 8 workplace pension, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

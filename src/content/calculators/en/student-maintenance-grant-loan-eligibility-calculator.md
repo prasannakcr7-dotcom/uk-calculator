@@ -1,6 +1,7 @@
 ---
 title: "UK Student Maintenance Loan & Grant Eligibility Calculator 2026/27"
 description: "Calculate Student Finance England maintenance loan entitlements, household income means-testing taper rates, and parental contribution gaps."
+keywords: "uk student maintenance loan & grant eligibility calculator 2026 27, calculate student finance england maintenance loan, daily life 2026/27"
 category: "alltag"
 lang: "en"
 isDevolved: false

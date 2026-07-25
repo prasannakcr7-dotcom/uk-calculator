@@ -1,6 +1,7 @@
 ---
 title: "UK Pound (GBP) Foreign Currency Exchange Converter 2026/27"
 description: "Convert British Pounds (GBP) into Euros, US Dollars, Canadian Dollars, and other major currencies accounting for bank exchange margins."
+keywords: "uk pound (gbp) foreign currency exchange converter 2026 27, convert british pounds gbp into euros, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

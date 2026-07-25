@@ -1,6 +1,7 @@
 ---
 title: "Pregnancy Due Date Calculator & Trimester Planner UK"
 description: "Calculate estimated pregnancy due dates using Naegele's Rule, trimester milestones, and NHS scan dates."
+keywords: "pregnancy due date calculator & trimester planner uk, calculate estimated pregnancy due dates using, family benefits 2026/27"
 category: "familia"
 lang: "en"
 isDevolved: false

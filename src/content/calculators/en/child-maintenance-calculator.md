@@ -1,6 +1,7 @@
 ---
 title: "Child Maintenance Calculator UK 2026/27 — CMS Formula"
 description: "Calculate official Child Maintenance Service (CMS) statutory payment rates based on gross income, children, and overnight stays."
+keywords: "child maintenance calculator uk 2026 27 cms formula, calculate official child maintenance service cms, family benefits 2026/27"
 category: "familia"
 lang: "en"
 isDevolved: false

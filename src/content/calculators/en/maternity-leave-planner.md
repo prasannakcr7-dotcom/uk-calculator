@@ -1,6 +1,7 @@
 ---
 title: "Maternity Leave Planner & Key Dates Calculator UK"
 description: "Calculate maternity leave start dates, qualifying weeks, and 52-week statutory timelines."
+keywords: "maternity leave planner & key dates calculator uk, calculate maternity leave start dates qualifying, family benefits 2026/27"
 category: "familia"
 lang: "en"
 isDevolved: false

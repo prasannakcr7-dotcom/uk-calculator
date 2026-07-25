@@ -1,6 +1,7 @@
 ---
 title: "UK 50-30-20 Budgeting Rule Calculator 2026/27"
 description: "Calculate your ideal monthly spending split using the 50/30/20 budgeting rule (Needs 50%, Wants 30%, Savings/Debt 20%)."
+keywords: "uk 50-30-20 budgeting rule calculator 2026 27, calculate your ideal monthly spending split, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

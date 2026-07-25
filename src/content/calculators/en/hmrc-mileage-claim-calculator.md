@@ -1,6 +1,7 @@
 ---
 title: "HMRC Mileage Claim Calculator 2026/27 — AMAPs Rates & P87"
 description: "Calculate UK Approved Mileage Allowance Payments (AMAPs) tax-free rates and P87 tax relief claims for business miles."
+keywords: "hmrc mileage claim calculator 2026 27 amaps rates & p87, calculate uk approved mileage allowance payments, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

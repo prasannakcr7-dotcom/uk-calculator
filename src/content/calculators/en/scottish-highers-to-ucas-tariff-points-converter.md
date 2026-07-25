@@ -1,6 +1,7 @@
 ---
 title: "Scottish Highers & Advanced Highers to UCAS Tariff Converter 2026/27"
 description: "Calculate total UCAS Tariff points score for UK university entry from Scottish SQA Highers and Advanced Highers qualifications."
+keywords: "scottish highers & advanced highers to ucas tariff converter 2026 27, calculate total ucas tariff points score, daily life 2026/27"
 category: "alltag"
 lang: "en"
 isDevolved: true

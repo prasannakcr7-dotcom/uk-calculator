@@ -1,6 +1,7 @@
 ---
 title: "Personal Loan Repayment & Cost Calculator 2026/27"
 description: "Calculate monthly repayments, APR interest charges, total loan costs, and compare repayment terms for unsecured personal loans in the UK."
+keywords: "personal loan repayment & cost calculator 2026 27, calculate monthly repayments apr interest charges, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

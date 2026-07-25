@@ -1,6 +1,7 @@
 ---
 title: "Car Leasing (PCH) vs PCP Finance Comparison Calculator 2026/27"
 description: "Compare total contract costs, initial deposits, monthly payments, balloon payments, and ownership options between PCH Leasing and PCP Finance."
+keywords: "car leasing (pch) vs pcp finance comparison calculator 2026 27, compare total contract costs initial deposits, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

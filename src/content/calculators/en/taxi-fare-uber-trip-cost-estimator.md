@@ -1,6 +1,7 @@
 ---
 title: "Taxi Fare & Uber Trip Cost Estimator UK 2026/27 — Fare Rates"
 description: "Calculate UK taxi & ride-hailing fares, London Black Cabs (TfL metered tariffs), Uber, Bolt, surge pricing multipliers, and airport charges."
+keywords: "taxi fare & uber trip cost estimator uk 2026 27 fare rates, calculate uk taxi ridehailing fares london, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "Tenant Rent Increase Calculator UK 2026/27 — Section 13 Notice"
 description: "Calculate UK percentage rent increases, annual costs, Section 13 notice requirements, and tribunal challenge rules."
+keywords: "tenant rent increase calculator uk 2026 27 section 13 notice, calculate uk percentage rent increases annual, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

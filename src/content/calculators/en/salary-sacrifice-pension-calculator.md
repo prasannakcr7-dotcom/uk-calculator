@@ -1,6 +1,7 @@
 ---
 title: "Salary Sacrifice Pension Calculator UK 2026/27 — NI & Tax Savings"
 description: "Calculate National Insurance and Income Tax savings achieved through workplace pension salary sacrifice arrangements."
+keywords: "salary sacrifice pension calculator uk 2026 27 ni & tax savings, calculate national insurance and income tax, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

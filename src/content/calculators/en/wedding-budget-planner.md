@@ -1,6 +1,7 @@
 ---
 title: "UK Wedding Budget Planner & Cost Allocator 2026/27"
 description: "Calculate UK wedding spending allocations across venue hire, per-guest catering, photography, attire, entertainment, and contingency funds."
+keywords: "uk wedding budget planner & cost allocator 2026 27, calculate uk wedding spending allocations across, daily life 2026/27"
 category: "alltag"
 lang: "en"
 isDevolved: false

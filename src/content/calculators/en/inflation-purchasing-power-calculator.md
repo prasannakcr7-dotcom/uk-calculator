@@ -1,6 +1,7 @@
 ---
 title: "UK Inflation & Purchasing Power Calculator 2026/27"
 description: "Calculate how UK Consumer Prices Index (CPI) inflation degrades uninvested cash purchasing power and inflates future cost of living."
+keywords: "uk inflation & purchasing power calculator 2026 27, calculate how uk consumer prices index, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

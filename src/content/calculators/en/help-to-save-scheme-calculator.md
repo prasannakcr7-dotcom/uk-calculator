@@ -1,6 +1,7 @@
 ---
 title: "UK Help to Save Scheme Calculator 2026/27"
 description: "Calculate 50% government bonus payments on savings for UK residents receiving Universal Credit or Tax Credits."
+keywords: "uk help to save scheme calculator 2026 27, calculate 50 government bonus payments on, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

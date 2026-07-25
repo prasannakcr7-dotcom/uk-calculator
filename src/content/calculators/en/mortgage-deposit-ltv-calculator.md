@@ -1,6 +1,7 @@
 ---
 title: "Mortgage Deposit & LTV Calculator UK 2026/27 — Interest Rate Tiers"
 description: "Calculate UK mortgage Loan-to-Value (LTV) ratios, cash deposit percentages, and lender interest rate brackets."
+keywords: "mortgage deposit & ltv calculator uk 2026 27 interest rate tiers, calculate uk mortgage loantovalue ltv ratios, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

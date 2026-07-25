@@ -1,6 +1,7 @@
 ---
 title: "Tenancy Deposit Cap & Scheme Fee Calculator UK 2026/27"
 description: "Calculate UK statutory tenancy deposit caps (5 weeks or 6 weeks rent under Tenant Fees Act 2019) and protection rules."
+keywords: "tenancy deposit cap & scheme fee calculator uk 2026 27, calculate uk statutory tenancy deposit caps, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

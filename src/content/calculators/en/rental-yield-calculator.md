@@ -1,6 +1,7 @@
 ---
 title: "Rental Yield Calculator UK 2026/27 — Gross vs Net Yield"
 description: "Calculate UK Buy-to-Let rental yields, gross annual rent percentages, net operating income (NOI), and property return benchmarks."
+keywords: "rental yield calculator uk 2026 27 gross vs net yield, calculate uk buytolet rental yields gross, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

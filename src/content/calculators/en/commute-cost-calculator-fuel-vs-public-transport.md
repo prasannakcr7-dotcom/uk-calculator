@@ -1,6 +1,7 @@
 ---
 title: "Commute Cost Calculator UK 2026/27 — Fuel vs Public Transport"
 description: "Calculate UK daily & annual commute costs, comparing driving (petrol, diesel, EV + parking) against train & bus fares."
+keywords: "commute cost calculator uk 2026 27 fuel vs public transport, calculate uk daily annual commute costs, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

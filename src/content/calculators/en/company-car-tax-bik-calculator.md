@@ -1,6 +1,7 @@
 ---
 title: "UK Company Car Tax Benefit-in-Kind (BiK) Calculator 2026/27"
 description: "Calculate UK company car tax liabilities (BiK %) based on P11D list price, CO2 emissions, fuel type, and personal income tax band."
+keywords: "uk company car tax benefit-in-kind (bik) calculator 2026 27, calculate uk company car tax liabilities, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

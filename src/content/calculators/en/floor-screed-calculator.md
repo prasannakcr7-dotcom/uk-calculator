@@ -1,6 +1,7 @@
 ---
 title: "Floor Screed Calculator UK 2026/27 — Volume & Sand/Cement Bags"
 description: "Calculate UK floor screed volumes in m³, 25kg cement bags, sharp sand bulk bags, and underfloor heating depth rules."
+keywords: "floor screed calculator uk 2026 27 volume & sand cement bags, calculate uk floor screed volumes in, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "Student Loan Repayment Calculator UK 2026/27 — Plans 1, 2, 4, 5 & Postgrad"
 description: "Calculate monthly student loan repayments, income thresholds, and write-off timelines for Plans 1, 2, 4, 5, and Postgraduate loans."
+keywords: "student loan repayment calculator uk 2026 27 plans 1, 2, 4, 5 & postgrad, calculate monthly student loan repayments income, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

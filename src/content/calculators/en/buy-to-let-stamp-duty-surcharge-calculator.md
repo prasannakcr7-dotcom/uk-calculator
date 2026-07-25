@@ -1,6 +1,7 @@
 ---
 title: "UK Buy-to-Let & Additional Property Stamp Duty (SDLT) Surcharge Calculator 2026/27"
 description: "Calculate Stamp Duty Land Tax (SDLT) liabilities for UK Buy-to-Let properties and second homes, including the 5% additional property surcharge."
+keywords: "uk buy-to-let & additional property stamp duty (sdlt) surcharge calculator 2026 27, calculate stamp duty land tax sdlt, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

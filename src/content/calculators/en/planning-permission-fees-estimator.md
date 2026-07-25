@@ -1,6 +1,7 @@
 ---
 title: "Planning Permission Fees Estimator UK 2026/27 — Statutory Rates"
 description: "Calculate UK statutory local authority planning application fees, householder rates (£258), new dwellings (£578), and Planning Portal admin fees."
+keywords: "planning permission fees estimator uk 2026 27 statutory rates, calculate uk statutory local authority planning, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

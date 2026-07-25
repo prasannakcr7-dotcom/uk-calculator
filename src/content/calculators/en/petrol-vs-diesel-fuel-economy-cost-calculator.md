@@ -1,6 +1,7 @@
 ---
 title: "Petrol vs Diesel Fuel Economy Calculator UK 2026/27 — MPG & Costs"
 description: "Calculate UK petrol vs diesel fuel economy (MPG), cost per mile (p/mi), annual fuel bill savings, and purchase price payback breakeven."
+keywords: "petrol vs diesel fuel economy calculator uk 2026 27 mpg & costs, calculate uk petrol vs diesel fuel, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

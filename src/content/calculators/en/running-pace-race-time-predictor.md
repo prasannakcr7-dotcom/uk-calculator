@@ -1,6 +1,7 @@
 ---
 title: "Running Pace & Race Finish Time Predictor 2026/27"
 description: "Calculate required running pace per km and per mile, predict race finish times using Riegel's formula, and split times for 5k, 10k, and marathon events."
+keywords: "running pace & race finish time predictor 2026 27, calculate required running pace per km, health calculator 2026/27"
 category: "salud"
 lang: "en"
 isDevolved: false

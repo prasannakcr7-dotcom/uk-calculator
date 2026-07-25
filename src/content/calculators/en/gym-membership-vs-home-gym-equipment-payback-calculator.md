@@ -1,6 +1,7 @@
 ---
 title: "Gym Membership vs Home Gym Payback Calculator UK 2026/27"
 description: "Calculate UK commercial gym membership costs, home gym setup equipment payback periods (months), travel fuel savings, and 3-year net savings."
+keywords: "gym membership vs home gym payback calculator uk 2026 27, calculate uk commercial gym membership costs, health calculator 2026/27"
 category: "salud"
 lang: "en"
 isDevolved: false

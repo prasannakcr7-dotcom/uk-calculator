@@ -1,6 +1,7 @@
 ---
 title: "Land Plot Price Calculator UK 2026/27 — Acre & Sq M Converter"
 description: "Calculate UK land plot prices per acre, square metre (£/sq m), hectares, and imperial to metric area conversions."
+keywords: "land plot price calculator uk 2026 27 acre & sq m converter, calculate uk land plot prices per, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "VAT Calculator UK 2026/27 — Standard, Reduced & Exempt Rates"
 description: "Calculate UK Value Added Tax (VAT) amounts, net-to-gross prices, gross-to-net prices, and £90,000 threshold limits."
+keywords: "vat calculator uk 2026 27 standard, reduced & exempt rates, calculate uk value added tax vat, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

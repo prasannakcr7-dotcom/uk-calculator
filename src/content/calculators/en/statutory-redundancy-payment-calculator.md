@@ -1,6 +1,7 @@
 ---
 title: "UK Statutory Redundancy Payment Calculator 2026/27"
 description: "Calculate statutory redundancy pay entitlements based on age, completed years of service, weekly pay caps (£700/wk limit), and £30,000 tax-free rules."
+keywords: "uk statutory redundancy payment calculator 2026 27, calculate statutory redundancy pay entitlements based, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

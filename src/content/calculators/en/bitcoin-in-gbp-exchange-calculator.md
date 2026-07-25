@@ -1,6 +1,7 @@
 ---
 title: "Bitcoin (BTC) to GBP Converter & Tax Estimator 2026/27"
 description: "Convert Bitcoin (BTC) values into British Pounds Sterling (GBP), calculate crypto exchange fees, and estimate HMRC Capital Gains Tax."
+keywords: "bitcoin (btc) to gbp converter & tax estimator 2026 27, convert bitcoin btc values into british, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "Bank Holiday Optimizer & Annual Leave Planner UK 2026/27"
 description: "Optimize annual leave bookings around official UK bank holidays to turn 19 days of annual leave into 47 days off work."
+keywords: "bank holiday optimizer & annual leave planner uk 2026 27, optimize annual leave bookings around official, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

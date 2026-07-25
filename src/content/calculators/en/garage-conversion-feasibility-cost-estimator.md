@@ -1,6 +1,7 @@
 ---
 title: "Garage Conversion Feasibility & Cost Estimator UK 2026/27"
 description: "Calculate UK garage conversion costs per sq m (£1,000 to £1,450/sq m), integral vs detached, building regs, and ROI value."
+keywords: "garage conversion feasibility & cost estimator uk 2026 27, calculate uk garage conversion costs per, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

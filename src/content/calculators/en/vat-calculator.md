@@ -1,6 +1,7 @@
 ---
 title: "VAT Calculator UK — Add or Remove VAT 20% / 5%"
 description: "Calculate UK Value Added Tax (VAT) additions and deductions. Supports standard 20%, reduced 5%, and zero 0% rates for 2026/27."
+keywords: "vat calculator uk add or remove vat 20% 5%, calculate uk value added tax vat, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

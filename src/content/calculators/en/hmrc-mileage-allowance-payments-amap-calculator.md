@@ -1,6 +1,7 @@
 ---
 title: "HMRC Mileage Allowance Payments (AMAP) & Tax Relief Calculator 2026/27"
 description: "Calculate HMRC statutory business mileage allowances (45p/25p rates) and Mileage Allowance Relief (MAR) tax refunds for using personal cars."
+keywords: "hmrc mileage allowance payments (amap) & tax relief calculator 2026 27, calculate hmrc statutory business mileage allowances, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

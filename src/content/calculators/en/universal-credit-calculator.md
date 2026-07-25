@@ -1,6 +1,7 @@
 ---
 title: "Universal Credit Calculator UK 2026/27 — Payment Estimator"
 description: "Calculate UK Universal Credit monthly entitlements, 55% earnings taper rate, child elements, and Work Allowances."
+keywords: "universal credit calculator uk 2026 27 payment estimator, calculate uk universal credit monthly entitlements, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: true

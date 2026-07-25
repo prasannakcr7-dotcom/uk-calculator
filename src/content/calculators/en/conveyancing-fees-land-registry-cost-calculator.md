@@ -1,6 +1,7 @@
 ---
 title: "Conveyancing Fees & Land Registry Cost Calculator UK 2026/27"
 description: "Calculate UK solicitor conveyancing legal fees, HM Land Registry Scale 1 registration costs, and property search disbursements."
+keywords: "conveyancing fees & land registry cost calculator uk 2026 27, calculate uk solicitor conveyancing legal fees, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

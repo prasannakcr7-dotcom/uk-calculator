@@ -1,6 +1,7 @@
 ---
 title: "Universal Credit Scottish Choice & Work Allowance Calculator 2026/27"
 description: "Calculate Universal Credit monthly award taper reductions (55% rate), Work Allowances for parents, and Scottish Choices payment flexibilities."
+keywords: "universal credit scottish choice & work allowance calculator 2026 27, calculate universal credit monthly award taper, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: true

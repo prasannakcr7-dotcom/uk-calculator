@@ -1,6 +1,7 @@
 ---
 title: "Estate Agent Commission Calculator UK 2026/27 — Fees & VAT"
 description: "Calculate UK estate agent commission fees, Sole Agency vs Multi-Agency rates, and 20% VAT inclusions."
+keywords: "estate agent commission calculator uk 2026 27 fees & vat, calculate uk estate agent commission fees, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "Business Rates Calculator UK 2026/27 — SBRR & Multipliers"
 description: "Calculate UK Business Rates, Small Business Rate Relief (SBRR 100%), and rateable value multipliers for 2026/27."
+keywords: "business rates calculator uk 2026 27 sbrr & multipliers, calculate uk business rates small business, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: true

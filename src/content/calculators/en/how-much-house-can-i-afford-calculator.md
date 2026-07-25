@@ -1,6 +1,7 @@
 ---
 title: "UK Home Affordability & Max Mortgage Calculator 2026/27"
 description: "Calculate how much house you can afford to buy in the UK based on bank income multipliers (4.5x salary), deposit savings, and debt stress tests."
+keywords: "uk home affordability & max mortgage calculator 2026 27, calculate how much house you can, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

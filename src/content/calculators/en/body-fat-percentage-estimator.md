@@ -1,6 +1,7 @@
 ---
 title: "UK Body Fat Percentage & Lean Mass Estimator 2026/27"
 description: "Calculate body fat percentage (US Navy method), fat mass (kg), lean tissue mass (kg), and ACE fitness category bands."
+keywords: "uk body fat percentage & lean mass estimator 2026 27, calculate body fat percentage us navy, health calculator 2026/27"
 category: "salud"
 lang: "en"
 isDevolved: false

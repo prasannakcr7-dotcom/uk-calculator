@@ -1,6 +1,7 @@
 ---
 title: "Optical Eyewear & Contact Lens Cost Calculator UK 2026/27"
 description: "Calculate UK glasses & contact lens subscription costs, daily vs monthly contact lenses, NHS GOS optical vouchers, and eye test fees."
+keywords: "optical eyewear & contact lens cost calculator uk 2026 27, calculate uk glasses contact lens subscription, health calculator 2026/27"
 category: "salud"
 lang: "en"
 isDevolved: false

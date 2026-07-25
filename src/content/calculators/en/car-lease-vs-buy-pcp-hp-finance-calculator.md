@@ -1,6 +1,7 @@
 ---
 title: "Car PCP vs HP vs Lease Calculator UK 2026/27 — Car Finance"
 description: "Compare UK Personal Contract Purchase (PCP) monthly payments, Hire Purchase (HP), Personal Contract Hire (PCH lease), and balloon GMFVs."
+keywords: "car pcp vs hp vs lease calculator uk 2026 27 car finance, compare uk personal contract purchase pcp, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

@@ -2,6 +2,9 @@
 import { getCollection, render } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import Sidebar from '../components/Sidebar.astro';
+import BreadcrumbSchema from '../components/BreadcrumbSchema.astro';
+import WebAppSchema from '../components/WebAppSchema.astro';
+import FaqSchema from '../components/FaqSchema.astro';
 
 import VATCalculator from '../components/VATCalculator.astro';
 import SalaryCalculator from '../components/SalaryCalculator.astro';
@@ -719,7 +722,7 @@ const CalcComponent = slug ? componentMap[slug] : null;
     </body>
   </html>
 ) : (
-  <Layout title={entry.data.title} description={entry.data.description}>
+  <Layout title={entry.data.title} description={entry.data.description} keywords={entry.data.keywords}>
     <div class="crumb">
       <a href="/">Home</a>
       <span class="sep">›</span>
@@ -727,6 +730,10 @@ const CalcComponent = slug ? componentMap[slug] : null;
       <span class="sep">›</span>
       <span class="current">{entry.data.title}</span>
     </div>
+    <BreadcrumbSchema items={[
+      { name: cat.title, url: cat.url },
+      { name: entry.data.title, url: `/${slug}/` }
+    ]} />
     
     <div class={`hero ${cat.class}`}>
       <a href={cat.url} class="hero-back">{cat.backText}</a>
@@ -734,6 +741,13 @@ const CalcComponent = slug ? componentMap[slug] : null;
       <h1>{entry.data.title}</h1>
       <p class="sub">{entry.data.description}</p>
     </div>
+
+    <WebAppSchema
+      title={entry.data.title}
+      description={entry.data.description}
+      url={`/${slug}/`}
+      category={categoryKey}
+    />
 
     <div class={cat.class}>
       {CalcComponent ? (
@@ -753,5 +767,6 @@ const CalcComponent = slug ? componentMap[slug] : null;
         </div>
       )}
     </div>
+    <FaqSchema content={entry.body} />
   </Layout>
 )}

@@ -1,6 +1,7 @@
 ---
 title: "Wallpaper Calculator UK 2026/27 — Roll & Pattern Match Estimator"
 description: "Calculate UK wallpaper rolls required based on standard UK roll dimensions (10.05m x 0.53m) and pattern repeat offsets."
+keywords: "wallpaper calculator uk 2026 27 roll & pattern match estimator, calculate uk wallpaper rolls required based, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "Limited Company vs Sole Trader Tax Calculator UK 2026/27"
 description: "Compare UK sole trader self-employed taxes against limited company salary and dividend take-home profit."
+keywords: "limited company vs sole trader tax calculator uk 2026 27, compare uk sole trader selfemployed taxes, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

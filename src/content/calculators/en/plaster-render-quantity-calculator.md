@@ -1,6 +1,7 @@
 ---
 title: "Plaster & Render Quantity Calculator UK 2026/27 — 25kg Bags"
 description: "Calculate UK plaster bag quantities for Gyproc Multi-Finish skim, Hardwall undercoat, and sand & cement render."
+keywords: "plaster & render quantity calculator uk 2026 27 25kg bags, calculate uk plaster bag quantities for, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

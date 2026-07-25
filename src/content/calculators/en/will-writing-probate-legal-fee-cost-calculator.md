@@ -1,6 +1,7 @@
 ---
 title: "Will Writing & Probate Legal Fee Cost Calculator UK 2026/27"
 description: "Calculate UK Will writing fees (£220-£750), HMCTS probate court fees (£300), estate administration fees (1.5%), and intestacy rules."
+keywords: "will writing & probate legal fee cost calculator uk 2026 27, calculate uk will writing fees £220£750, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: false

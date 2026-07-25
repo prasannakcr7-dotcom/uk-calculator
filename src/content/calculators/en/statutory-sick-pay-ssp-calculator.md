@@ -1,6 +1,7 @@
 ---
 title: "UK Statutory Sick Pay (SSP) Calculator 2026/27"
 description: "Calculate Statutory Sick Pay (SSP) daily and weekly entitlements (£116.75/wk statutory rate), 3 waiting days rules, and maximum 28-week sick pay limits."
+keywords: "uk statutory sick pay (ssp) calculator 2026 27, calculate statutory sick pay ssp daily, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

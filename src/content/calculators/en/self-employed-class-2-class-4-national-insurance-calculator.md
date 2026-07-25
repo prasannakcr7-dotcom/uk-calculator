@@ -1,6 +1,7 @@
 ---
 title: "UK Self-Employed Class 2 & Class 4 National Insurance Calculator 2026/27"
 description: "Calculate Self-Employed Class 2 and Class 4 National Insurance Contributions (NICs) based on net sole trader profit thresholds."
+keywords: "uk self-employed class 2 & class 4 national insurance calculator 2026 27, calculate selfemployed class 2 and class, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

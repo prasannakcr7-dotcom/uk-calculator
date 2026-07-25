@@ -1,6 +1,7 @@
 ---
 title: "UK Unfair Dismissal Employment Tribunal Compensation Calculator 2026/27"
 description: "Calculate UK Employment Tribunal compensation awards for unfair dismissal, including the Statutory Basic Award (£700/wk cap) and Compensatory Award caps."
+keywords: "uk unfair dismissal employment tribunal compensation calculator 2026 27, calculate uk employment tribunal compensation awards, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

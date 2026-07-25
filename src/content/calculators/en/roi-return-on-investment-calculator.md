@@ -1,6 +1,7 @@
 ---
 title: "Return on Investment (ROI) & CAGR Calculator 2026/27"
 description: "Calculate total Return on Investment (ROI %), net financial gain, and Compound Annual Growth Rate (CAGR) for UK investments."
+keywords: "return on investment (roi) & cagr calculator 2026 27, calculate total return on investment roi, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

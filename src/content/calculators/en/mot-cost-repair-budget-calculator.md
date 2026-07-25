@@ -1,6 +1,7 @@
 ---
 title: "UK MOT Test Maximum Fee & Repair Budget Calculator 2026/27"
 description: "Calculate statutory DVSA maximum MOT test fees, retest rules, common failure repair budgets, and garage discount savings."
+keywords: "uk mot test maximum fee & repair budget calculator 2026 27, calculate statutory dvsa maximum mot test, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

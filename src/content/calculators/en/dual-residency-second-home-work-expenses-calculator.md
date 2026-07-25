@@ -1,6 +1,7 @@
 ---
 title: "Dual Residency & Second Home Work Expenses Calculator UK 2026/27"
 description: "Calculate HMRC tax relief on second home accommodation and living expenses for temporary workplace assignments."
+keywords: "dual residency & second home work expenses calculator uk 2026 27, calculate hmrc tax relief on second, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

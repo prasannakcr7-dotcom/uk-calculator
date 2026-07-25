@@ -1,6 +1,7 @@
 ---
 title: "Chronological Age & Exact Day Counter Calculator 2026/27"
 description: "Calculate your exact chronological age in years, months, weeks, and days, total days lived, and countdown to your next birthday."
+keywords: "chronological age & exact day counter calculator 2026 27, calculate your exact chronological age in, daily life 2026/27"
 category: "alltag"
 lang: "en"
 isDevolved: false

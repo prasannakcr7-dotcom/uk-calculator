@@ -1,6 +1,7 @@
 ---
 title: "National Insurance Transition Zone Calculator"
 description: "Analyze effective National Insurance rate curves and threshold transition impacts across UK salary bands."
+keywords: "national insurance transition zone calculator, analyze effective national insurance rate curves, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

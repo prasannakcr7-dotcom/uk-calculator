@@ -1,6 +1,7 @@
 ---
 title: "Scale Model & Ordnance Survey Map Distance Converter 2026/27"
 description: "Convert real-world dimensions into scale model sizes (OO gauge 1:76, N gauge 1:148, 1:72, 1:35) and Ordnance Survey map distances."
+keywords: "scale model & ordnance survey map distance converter 2026 27, convert realworld dimensions into scale model, daily life 2026/27"
 category: "alltag"
 lang: "en"
 isDevolved: false

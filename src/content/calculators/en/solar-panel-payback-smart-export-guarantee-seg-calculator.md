@@ -1,6 +1,7 @@
 ---
 title: "Solar Panel Payback & SEG Calculator UK 2026/27 — 0% VAT"
 description: "Calculate UK rooftop solar PV payback periods, Smart Export Guarantee (SEG) income, and 0% VAT tax savings."
+keywords: "solar panel payback & seg calculator uk 2026 27 0% vat, calculate uk rooftop solar pv payback, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

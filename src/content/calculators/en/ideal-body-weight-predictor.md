@@ -1,6 +1,7 @@
 ---
 title: "Ideal Body Weight (IBW) & Target Weight Range Predictor 2026/27"
 description: "Calculate your ideal healthy body weight range using clinical formulas (Devine, Robinson, Miller) and NHS healthy BMI guidelines."
+keywords: "ideal body weight (ibw) & target weight range predictor 2026 27, calculate your ideal healthy body weight, health calculator 2026/27"
 category: "salud"
 lang: "en"
 isDevolved: false

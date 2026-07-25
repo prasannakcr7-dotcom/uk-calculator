@@ -1,6 +1,7 @@
 ---
 title: "Decimal Time & Industrial Minutes Converter — Payroll Math"
 description: "Convert clock time minutes to industrial decimal hours for payroll, timesheets, and billing."
+keywords: "decimal time & industrial minutes converter payroll math, convert clock time minutes to industrial, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

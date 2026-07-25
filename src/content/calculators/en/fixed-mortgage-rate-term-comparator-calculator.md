@@ -1,6 +1,7 @@
 ---
 title: "2-Year vs 5-Year Fixed Mortgage Rate Comparator 2026/27"
 description: "Compare total 5-year costs, monthly repayments, arrangement fees, and break-even rates between 2-year and 5-year fixed mortgages."
+keywords: "2-year vs 5-year fixed mortgage rate comparator 2026 27, compare total 5year costs monthly repayments, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

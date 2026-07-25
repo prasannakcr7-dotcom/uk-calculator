@@ -1,6 +1,7 @@
 ---
 title: "Divorce Financial Settlement & Asset Division Calculator UK 2026/27"
 description: "Calculate UK divorce financial settlements, Matrimonial Causes Act Section 25 criteria, 50/50 yardstick of equality, and pension sharing."
+keywords: "divorce financial settlement & asset division calculator uk 2026 27, calculate uk divorce financial settlements matrimonial, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: false

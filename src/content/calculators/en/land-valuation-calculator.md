@@ -1,6 +1,7 @@
 ---
 title: "Land Valuation Calculator UK 2026/27 — Residual Valuation Method"
 description: "Calculate UK development plot Residual Land Values based on Gross Development Value (GDV), build costs, and developer profit."
+keywords: "land valuation calculator uk 2026 27 residual valuation method, calculate uk development plot residual land, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

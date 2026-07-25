@@ -1,6 +1,7 @@
 ---
 title: "Driving Lesson & Total Pass Cost Calculator UK 2026/27"
 description: "Calculate UK driving lesson hourly rates (£35-£45/hr), total hours to pass (DVSA average 45 hrs), theory & practical test fees."
+keywords: "driving lesson & total pass cost calculator uk 2026 27, calculate uk driving lesson hourly rates, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

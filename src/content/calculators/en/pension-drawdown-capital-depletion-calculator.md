@@ -1,6 +1,7 @@
 ---
 title: "UK Pension Drawdown & Capital Depletion Calculator 2026/27"
 description: "Forecast how many years your UK pension pot will last under flexi-access drawdown, inflation rate increases, and investment growth."
+keywords: "uk pension drawdown & capital depletion calculator 2026 27, forecast how many years your uk, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

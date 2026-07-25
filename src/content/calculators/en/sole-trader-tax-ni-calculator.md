@@ -1,6 +1,7 @@
 ---
 title: "Sole Trader Tax & NI Calculator UK 2026/27 — Take-Home Profit"
 description: "Calculate UK sole trader self-employed Income Tax, Class 4 National Insurance, and net take-home profit for 2026/27."
+keywords: "sole trader tax & ni calculator uk 2026 27 take-home profit, calculate uk sole trader selfemployed income, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: true

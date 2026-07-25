@@ -1,6 +1,7 @@
 ---
 title: "Lifetime ISA (LISA) Calculator UK 2026/27 — £1,000 Bonus"
 description: "Calculate UK Lifetime ISA (LISA) 25% government bonuses (up to £1,000/yr), first home savings, and age 60 retirement pots."
+keywords: "lifetime isa (lisa) calculator uk 2026 27 £1,000 bonus, calculate uk lifetime isa lisa 25, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: false

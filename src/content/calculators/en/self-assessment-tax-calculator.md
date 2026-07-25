@@ -1,6 +1,7 @@
 ---
 title: "Self-Assessment Tax Calculator UK 2026/27 — 31 January Bill"
 description: "Calculate UK Self Assessment tax returns, Payments on Account (50% POA), Income Tax, and Class 4 NI liabilities."
+keywords: "self-assessment tax calculator uk 2026 27 31 january bill, calculate uk self assessment tax returns, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: true

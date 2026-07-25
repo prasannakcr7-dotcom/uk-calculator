@@ -1,6 +1,7 @@
 ---
 title: "Shared Parental Leave & Pay Calculator UK 2026/27"
 description: "Calculate UK Shared Parental Pay (ShPP) weekly rates and shared leave allocations between parents."
+keywords: "shared parental leave & pay calculator uk 2026 27, calculate uk shared parental pay shpp, family benefits 2026/27"
 category: "familia"
 lang: "en"
 isDevolved: false

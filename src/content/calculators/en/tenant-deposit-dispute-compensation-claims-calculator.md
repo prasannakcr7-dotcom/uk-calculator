@@ -1,6 +1,7 @@
 ---
 title: "Tenant Deposit Dispute & Compensation Claim Calculator UK 2026/27"
 description: "Calculate UK tenancy deposit compensation awards (1x to 3x penalty), 30-day protection rules, Tenant Fees Act 5-week deposit caps, and Section 21 rules."
+keywords: "tenant deposit dispute & compensation claim calculator uk 2026 27, calculate uk tenancy deposit compensation awards, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "Room Floor Area Calculator UK 2026/27 — Square Metres & Feet"
 description: "Calculate UK room floor area in square metres (sq m) and square feet (sq ft) with cutting waste allowances."
+keywords: "room floor area calculator uk 2026 27 square metres & feet, calculate uk room floor area in, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

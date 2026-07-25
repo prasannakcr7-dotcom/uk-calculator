@@ -1,6 +1,7 @@
 ---
 title: "UK Customs Import Duty & VAT Calculator 2026/27"
 description: "Calculate UK Customs Duty, 20% Import VAT, courier administration fees, and total landed import costs when buying goods abroad."
+keywords: "uk customs import duty & vat calculator 2026 27, calculate uk customs duty 20 import, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "Home EV Charger Installation Cost Calculator UK 2026/27"
 description: "Calculate UK 7.4 kW home EV charger wallbox prices, installation costs, OZEV £350 EV chargepoint grants, and charging speeds."
+keywords: "home ev charger installation cost calculator uk 2026 27, calculate uk 74 kw home ev, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

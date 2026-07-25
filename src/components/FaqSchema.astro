@@ -1,0 +1,49 @@
+---
+/**
+ * FaqSchema.astro — Extracts FAQ Q&A pairs from rendered markdown HTML
+ * and generates FAQPage JSON-LD schema.
+ *
+ * Expects the raw markdown body text (entry.body) as the `content` prop.
+ * Parses faq-trigger buttons and faq-content divs using regex.
+ */
+
+interface Props {
+  content: string;
+}
+
+const { content } = Astro.props;
+
+// Extract FAQ items from the markdown source
+// Pattern: <button class="faq-trigger">Question text <span...>▼</span></button>
+//          <div class="faq-content">Answer HTML</div>
+const faqItems: Array<{ question: string; answer: string }> = [];
+
+const faqRegex = /<button\s+class="faq-trigger">([\s\S]*?)<\/button>\s*<div\s+class="faq-content">([\s\S]*?)<\/div>/gi;
+let match;
+while ((match = faqRegex.exec(content)) !== null) {
+  // Strip HTML tags from question (remove the ▼ icon span etc.)
+  const question = match[1].replace(/<[^>]*>/g, '').trim();
+  // Strip HTML tags from answer, collapse whitespace
+  const answer = match[2].replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+  if (question && answer) {
+    faqItems.push({ question, answer });
+  }
+}
+
+const schema = faqItems.length > 0 ? {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqItems.map(faq => ({
+    "@type": "Question",
+    "name": faq.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": faq.answer
+    }
+  }))
+} : null;
+---
+
+{schema && (
+  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+)}

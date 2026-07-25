@@ -1,6 +1,7 @@
 ---
 title: "Gross Profit Margin & Markup Calculator 2026/27"
 description: "Calculate gross profit margin percentage, markup percentage, cost of goods sold (COGS), and selling prices for UK businesses."
+keywords: "gross profit margin & markup calculator 2026 27, calculate gross profit margin percentage markup, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "VAT Return Estimator UK 2026/27 — Quarterly Box 5 Math"
 description: "Calculate UK quarterly VAT returns, Making Tax Digital (MTD) Box 1 & Box 4 totals, and net VAT payable."
+keywords: "vat return estimator uk 2026 27 quarterly box 5 math, calculate uk quarterly vat returns making, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "Scottish Child Payment Calculator 2026/27 — Social Security Scotland"
 description: "Calculate Scottish Child Payment entitlements (£26.70/week per child under 16) administered by Social Security Scotland."
+keywords: "scottish child payment calculator 2026 27 social security scotland, calculate scottish child payment entitlements £2670week, family benefits 2026/27"
 category: "familia"
 lang: "en"
 isDevolved: true

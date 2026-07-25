@@ -1,6 +1,7 @@
 ---
 title: "UK Loan-to-Value (LTV) Bracket & Equity Calculator 2026/27"
 description: "Calculate your Loan-to-Value (LTV %) ratio, identify interest rate pricing brackets (60%, 75%, 80%, 85%, 90%), and cash needed for cheaper rates."
+keywords: "uk loan-to-value (ltv) bracket & equity calculator 2026 27, calculate your loantovalue ltv ratio identify, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

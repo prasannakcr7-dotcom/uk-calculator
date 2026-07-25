@@ -1,6 +1,7 @@
 ---
 title: "UK Tipping & Discretionary Service Charge Calculator 2026/27"
 description: "Calculate UK restaurant tip amounts, discretionary service charges (10%-15%), bill splits, and statutory rights under the Tips Act 2023."
+keywords: "uk tipping & discretionary service charge calculator 2026 27, calculate uk restaurant tip amounts discretionary, daily life 2026/27"
 category: "alltag"
 lang: "en"
 isDevolved: false

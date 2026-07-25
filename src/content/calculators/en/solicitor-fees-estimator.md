@@ -1,6 +1,7 @@
 ---
 title: "UK Solicitor Hourly Rate & Legal Fee Estimator 2026/27"
 description: "Estimate UK solicitor hourly rates and legal costs based on HMCTS Guideline Hourly Rates across London and national regional bands."
+keywords: "uk solicitor hourly rate & legal fee estimator 2026 27, estimate uk solicitor hourly rates and, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: false

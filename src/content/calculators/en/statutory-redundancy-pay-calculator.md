@@ -1,6 +1,7 @@
 ---
 title: "Statutory Redundancy Pay Calculator 2026/27 — Caps & Tax Rules"
 description: "Calculate statutory redundancy pay based on age, complete years of service, and weekly pay limits under UK employment law."
+keywords: "statutory redundancy pay calculator 2026 27 caps & tax rules, calculate statutory redundancy pay based on, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

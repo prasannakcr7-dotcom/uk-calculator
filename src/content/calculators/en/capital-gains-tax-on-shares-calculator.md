@@ -1,6 +1,7 @@
 ---
 title: "UK Capital Gains Tax (CGT) on Shares Calculator 2026/27"
 description: "Calculate HMRC Capital Gains Tax on UK stock and share sales outside ISAs using Section 104 pooling and 2026/27 rates."
+keywords: "uk capital gains tax (cgt) on shares calculator 2026 27, calculate hmrc capital gains tax on, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

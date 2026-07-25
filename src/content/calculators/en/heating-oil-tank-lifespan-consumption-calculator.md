@@ -1,6 +1,7 @@
 ---
 title: "Heating Oil Tank Lifespan & Consumption Calculator UK 2026/27"
 description: "Calculate UK domestic kerosene heating oil costs, annual consumption (litres), and OFTEC oil tank replacement lifespan rules."
+keywords: "heating oil tank lifespan & consumption calculator uk 2026 27, calculate uk domestic kerosene heating oil, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

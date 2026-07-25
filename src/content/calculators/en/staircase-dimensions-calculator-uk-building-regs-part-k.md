@@ -1,6 +1,7 @@
 ---
 title: "Staircase Dimensions Calculator UK 2026/27 — Building Regs Part K"
 description: "Calculate UK domestic staircase riser heights, going tread depths, pitch angles (max 42°), and 2G + R compliance rules."
+keywords: "staircase dimensions calculator uk 2026 27 building regs part k, calculate uk domestic staircase riser heights, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

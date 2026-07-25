@@ -1,6 +1,7 @@
 ---
 title: "UK Dividend Tax Calculator 2026/27"
 description: "Calculate HMRC Dividend Income Tax rates and tax payable on company shares and limited company director distributions."
+keywords: "uk dividend tax calculator 2026 27, calculate hmrc dividend income tax rates, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

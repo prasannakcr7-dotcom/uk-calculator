@@ -1,6 +1,7 @@
 ---
 title: "UK Body Mass Index (BMI) & BMR Calorie Calculator 2026/27"
 description: "Calculate your NHS Body Mass Index (BMI), Basal Metabolic Rate (BMR), Total Daily Energy Expenditure (TDEE), and daily calorie targets."
+keywords: "uk body mass index (bmi) & bmr calorie calculator 2026 27, calculate your nhs body mass index, health calculator 2026/27"
 category: "salud"
 lang: "en"
 isDevolved: false

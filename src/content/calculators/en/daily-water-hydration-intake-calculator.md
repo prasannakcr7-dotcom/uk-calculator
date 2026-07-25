@@ -1,6 +1,7 @@
 ---
 title: "UK Daily Water Hydration Intake Calculator 2026/27"
 description: "Calculate your recommended daily fluid intake (litres & glasses) based on body weight, climate temperature, and physical exercise duration."
+keywords: "uk daily water hydration intake calculator 2026 27, calculate your recommended daily fluid intake, health calculator 2026/27"
 category: "salud"
 lang: "en"
 isDevolved: false

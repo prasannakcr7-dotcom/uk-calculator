@@ -1,6 +1,7 @@
 ---
 title: "NHS Dental Treatment Charges Calculator UK 2026/27"
 description: "Calculate UK NHS dental charges across Band 1 (£26.80), Band 2 (£73.50), Band 3 (£319.10), and check NHS dental exemptions."
+keywords: "nhs dental treatment charges calculator uk 2026 27, calculate uk nhs dental charges across, health calculator 2026/27"
 category: "salud"
 lang: "en"
 isDevolved: false

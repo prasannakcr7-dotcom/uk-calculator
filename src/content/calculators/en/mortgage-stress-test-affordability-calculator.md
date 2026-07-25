@@ -1,6 +1,7 @@
 ---
 title: "UK Mortgage Stress Test & Lender Rate Buffer Calculator 2026/27"
 description: "Calculate UK mortgage stress-test monthly repayments at +1% or +3% interest rate buffers to evaluate lender affordability requirements."
+keywords: "uk mortgage stress test & lender rate buffer calculator 2026 27, calculate uk mortgage stresstest monthly repayments, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

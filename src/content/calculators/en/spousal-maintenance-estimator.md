@@ -1,6 +1,7 @@
 ---
 title: "Spousal Maintenance Estimator UK 2026/27 — Financial Support"
 description: "Estimate spousal maintenance support guidelines, duration, and financial needs after divorce in the UK."
+keywords: "spousal maintenance estimator uk 2026 27 financial support, estimate spousal maintenance support guidelines duration, family benefits 2026/27"
 category: "familia"
 lang: "en"
 isDevolved: false

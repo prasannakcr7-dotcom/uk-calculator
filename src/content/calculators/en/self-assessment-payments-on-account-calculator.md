@@ -1,6 +1,7 @@
 ---
 title: "Self-Assessment Payments on Account Calculator UK 2026/27"
 description: "Calculate HMRC Payments on Account (50% POA), 31 January & 31 July deadlines, and reduction rules."
+keywords: "self-assessment payments on account calculator uk 2026 27, calculate hmrc payments on account 50, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: true

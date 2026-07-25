@@ -1,6 +1,7 @@
 ---
 title: "Working Days Calculator UK — Business Days & Bank Holidays"
 description: "Calculate business working days between dates excluding weekends and official UK bank holidays."
+keywords: "working days calculator uk business days & bank holidays, calculate business working days between dates, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

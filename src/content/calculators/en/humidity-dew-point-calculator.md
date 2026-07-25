@@ -1,6 +1,7 @@
 ---
 title: "Humidity & Dew Point Calculator UK 2026/27 — Condensation & Mold"
 description: "Calculate UK indoor dew point temperatures (°C), relative humidity (RH %), condensation thresholds, and black mold risks."
+keywords: "humidity & dew point calculator uk 2026 27 condensation & mold, calculate uk indoor dew point temperatures, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

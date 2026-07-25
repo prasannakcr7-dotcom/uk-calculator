@@ -1,6 +1,7 @@
 ---
 title: "National Minimum Wage Calculator 2026/27 — NMW & NLW Rates"
 description: "Check UK National Minimum Wage (NMW) and National Living Wage (NLW) statutory hourly rates across all age brackets."
+keywords: "national minimum wage calculator 2026 27 nmw & nlw rates, check uk national minimum wage nmw, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

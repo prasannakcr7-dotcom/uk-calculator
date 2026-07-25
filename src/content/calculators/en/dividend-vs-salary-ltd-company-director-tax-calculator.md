@@ -1,6 +1,7 @@
 ---
 title: "Dividend vs Salary Tax Calculator UK 2026/27 — Director Strategy"
 description: "Calculate optimal Ltd Company director salary and dividend extraction strategies for 2026/27."
+keywords: "dividend vs salary tax calculator uk 2026 27 director strategy, calculate optimal ltd company director salary, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

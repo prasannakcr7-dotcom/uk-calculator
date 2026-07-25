@@ -1,6 +1,7 @@
 ---
 title: "Mortgage Payment Calculator UK 2026/27 — Repayment & Interest"
 description: "Calculate UK monthly mortgage payments, capital repayment vs interest-only options, total interest, and term amortisation."
+keywords: "mortgage payment calculator uk 2026 27 repayment & interest, calculate uk monthly mortgage payments capital, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

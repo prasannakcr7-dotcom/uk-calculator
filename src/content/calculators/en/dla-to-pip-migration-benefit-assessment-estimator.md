@@ -1,6 +1,7 @@
 ---
 title: "DLA to PIP Migration & Assessment Estimator UK 2026/27 — Rates"
 description: "Calculate UK Personal Independence Payment (PIP) assessment points, Daily Living (£72.65/£108.55) & Mobility (£28.70/£79.35) rates, and Motability."
+keywords: "dla to pip migration & assessment estimator uk 2026 27 rates, calculate uk personal independence payment pip, health calculator 2026/27"
 category: "salud"
 lang: "en"
 isDevolved: false

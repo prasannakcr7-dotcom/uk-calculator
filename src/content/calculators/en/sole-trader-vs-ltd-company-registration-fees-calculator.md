@@ -1,6 +1,7 @@
 ---
 title: "Sole Trader vs Ltd Company Registration Fees Calculator 2026/27"
 description: "Compare Companies House incorporation fees, annual confirmation statement costs, and registered office expenses for UK business structures."
+keywords: "sole trader vs ltd company registration fees calculator 2026 27, compare companies house incorporation fees annual, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "Roof Pitch Calculator UK 2026/27 — Pitch Angle & Rafter Length"
 description: "Calculate UK roof pitch angles in degrees (°), slope percentages, rafter lengths, and tile minimum pitch suitability."
+keywords: "roof pitch calculator uk 2026 27 pitch angle & rafter length, calculate uk roof pitch angles in, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

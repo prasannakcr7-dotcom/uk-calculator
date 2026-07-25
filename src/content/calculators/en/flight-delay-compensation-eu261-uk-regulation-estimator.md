@@ -1,6 +1,7 @@
 ---
 title: "Flight Delay Compensation Calculator UK 2026/27 (UK261 / EU261)"
 description: "Calculate UK261 / EU261 flight delay compensation (£220 to £520 per passenger), 3-hour arrival delay rules, and extraordinary circumstances."
+keywords: "flight delay compensation calculator uk 2026 27 (uk261 eu261), calculate uk261 eu261 flight delay compensation, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: false

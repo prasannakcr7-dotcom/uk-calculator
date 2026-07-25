@@ -1,6 +1,7 @@
 ---
 title: "Salary Comparison Calculator UK 2026/27 — Side-by-Side Net Pay"
 description: "Compare two job salary offers side-by-side to evaluate net take-home pay differences after income tax and NI."
+keywords: "salary comparison calculator uk 2026 27 side-by-side net pay, compare two job salary offers sidebyside, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

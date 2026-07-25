@@ -1,6 +1,7 @@
 ---
 title: "NHS Prescription Charges & PPC Calculator UK 2026/27 — Savings"
 description: "Calculate UK NHS prescription costs (£9.90 single item), Prescription Prepayment Certificate (PPC £114.50), HRT PPC, and free exemptions."
+keywords: "nhs prescription charges & ppc calculator uk 2026 27 savings, calculate uk nhs prescription costs £990, health calculator 2026/27"
 category: "salud"
 lang: "en"
 isDevolved: false

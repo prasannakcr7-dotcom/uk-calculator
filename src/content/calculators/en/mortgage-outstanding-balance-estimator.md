@@ -1,6 +1,7 @@
 ---
 title: "UK Mortgage Outstanding Balance & Amortization Estimator 2026/27"
 description: "Estimate your remaining UK mortgage debt balance, accumulated home equity, and principal paid off after X years of repayments."
+keywords: "uk mortgage outstanding balance & amortization estimator 2026 27, estimate your remaining uk mortgage debt, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

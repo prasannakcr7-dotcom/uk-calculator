@@ -1,6 +1,7 @@
 ---
 title: "Night Shift Pay & Premium Calculator UK"
 description: "Calculate night shift premium rate pay enhancements and check UK Working Time Directive rules."
+keywords: "night shift pay & premium calculator uk, calculate night shift premium rate pay, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

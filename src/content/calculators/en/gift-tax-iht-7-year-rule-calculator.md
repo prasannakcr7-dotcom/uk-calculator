@@ -1,6 +1,7 @@
 ---
 title: "Gift Tax & IHT 7-Year Rule Calculator UK 2026/27"
 description: "Calculate UK Inheritance Tax (IHT) taper relief on lifetime gifts made 3 to 7 years before death."
+keywords: "gift tax & iht 7-year rule calculator uk 2026 27, calculate uk inheritance tax iht taper, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

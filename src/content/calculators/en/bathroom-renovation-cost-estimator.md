@@ -1,6 +1,7 @@
 ---
 title: "Bathroom Renovation Cost Estimator UK 2026/27 — Suite & Fitting"
 description: "Calculate UK bathroom installation costs, sanitaryware suites, wall/floor tiling, plumbing labour, and Part P electrical rules."
+keywords: "bathroom renovation cost estimator uk 2026 27 suite & fitting, calculate uk bathroom installation costs sanitaryware, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

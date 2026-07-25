@@ -1,6 +1,7 @@
 ---
 title: "UK Remortgage vs Product Transfer Calculator 2026/27"
 description: "Compare total net costs and monthly savings between switching lenders (remortgaging) vs staying with your current lender (product transfer)."
+keywords: "uk remortgage vs product transfer calculator 2026 27, compare total net costs and monthly, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

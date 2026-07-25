@@ -1,6 +1,7 @@
 ---
 title: "Savings Target & Goal Planner Calculator 2026/27"
 description: "Calculate how much you need to save each month or year to reach a specific financial goal in the UK."
+keywords: "savings target & goal planner calculator 2026 27, calculate how much you need to, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

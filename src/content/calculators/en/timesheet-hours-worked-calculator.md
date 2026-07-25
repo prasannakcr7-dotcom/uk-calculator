@@ -1,6 +1,7 @@
 ---
 title: "Timesheet Hours Worked Calculator — Paid Hours & Breaks"
 description: "Calculate total paid working hours and decimal hours from start times, end times, and unpaid meal breaks."
+keywords: "timesheet hours worked calculator paid hours & breaks, calculate total paid working hours and, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

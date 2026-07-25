@@ -1,6 +1,7 @@
 ---
 title: "Council Tax & Domestic Rates Calculator UK 2026/27"
 description: "Calculate UK Council Tax valuation bands (A to H), Single Person Discounts (25%), and monthly instalment breakdowns."
+keywords: "council tax & domestic rates calculator uk 2026 27, calculate uk council tax valuation bands, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: true

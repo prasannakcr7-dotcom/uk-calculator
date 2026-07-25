@@ -1,6 +1,7 @@
 ---
 title: "UK Business Valuation Calculator 2026/27"
 description: "Calculate UK SME business valuations using EBITDA multiples, Seller's Discretionary Earnings (SDE), and net asset values."
+keywords: "uk business valuation calculator 2026 27, calculate uk sme business valuations using, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

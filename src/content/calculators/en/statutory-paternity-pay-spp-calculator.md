@@ -1,6 +1,7 @@
 ---
 title: "UK Statutory Paternity Pay (SPP) & Leave Calculator 2026/27"
 description: "Calculate Statutory Paternity Pay (SPP) weekly entitlements (1 or 2 weeks at £184.03/wk or 90% AWE), eligibility, and flexible leave rules."
+keywords: "uk statutory paternity pay (spp) & leave calculator 2026 27, calculate statutory paternity pay spp weekly, family benefits 2026/27"
 category: "familia"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "Hearing Aid & Audiologist Fitting Cost Calculator UK 2026/27"
 description: "Calculate UK hearing aid prices (£1,100 to £3,600 pair), private audiologist fitting packages, 0% VAT exemption, and free NHS hearing aids."
+keywords: "hearing aid & audiologist fitting cost calculator uk 2026 27, calculate uk hearing aid prices £1100, health calculator 2026/27"
 category: "salud"
 lang: "en"
 isDevolved: false

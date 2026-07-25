@@ -1,6 +1,7 @@
 ---
 title: "Sabbatical / Career Break Savings Calculator UK"
 description: "Calculate required savings fund targets and monthly expense budgets to fund a sabbatical or extended career break."
+keywords: "sabbatical career break savings calculator uk, calculate required savings fund targets and, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

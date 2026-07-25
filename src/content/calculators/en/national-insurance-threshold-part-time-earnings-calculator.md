@@ -1,6 +1,7 @@
 ---
 title: "National Insurance Part-Time Threshold Calculator 2026/27"
 description: "Calculate National Insurance liability, Lower Earnings Limit (LEL), and Primary Threshold (PT) for part-time workers."
+keywords: "national insurance part-time threshold calculator 2026 27, calculate national insurance liability lower earnings, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

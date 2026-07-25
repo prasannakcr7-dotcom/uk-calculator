@@ -1,6 +1,7 @@
 ---
 title: "Service Charge & Utility Cost Estimator UK 2026/27"
 description: "Calculate annual and monthly leasehold service charges, utility bills, ground rent, and reserve sinking fund costs."
+keywords: "service charge & utility cost estimator uk 2026 27, calculate annual and monthly leasehold service, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

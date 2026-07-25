@@ -1,6 +1,7 @@
 ---
 title: "Scottish Council Tax Bands & Multiplier Calculator 2026/27"
 description: "Calculate Scottish Council Tax liabilities across Bands A to H, incorporating statutory ratio multipliers (Bands E-H weighting) and water charges."
+keywords: "scottish council tax bands & multiplier calculator 2026 27, calculate scottish council tax liabilities across, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: true

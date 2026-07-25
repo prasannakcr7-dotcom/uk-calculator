@@ -1,6 +1,7 @@
 ---
 title: "SIPP Tax Relief & Pension Contribution Calculator 2026/27"
 description: "Calculate SIPP tax relief savings across England, Scotland, Wales, and Northern Ireland for 2026/27 income tax bands."
+keywords: "sipp tax relief & pension contribution calculator 2026 27, calculate sipp tax relief savings across, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: true

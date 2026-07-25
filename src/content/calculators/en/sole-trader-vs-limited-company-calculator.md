@@ -1,6 +1,7 @@
 ---
 title: "Sole Trader vs Limited Company Calculator UK 2026/27"
 description: "Compare sole trader self-employed net profits against limited company director salary and dividend extraction in the UK."
+keywords: "sole trader vs limited company calculator uk 2026 27, compare sole trader selfemployed net profits, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

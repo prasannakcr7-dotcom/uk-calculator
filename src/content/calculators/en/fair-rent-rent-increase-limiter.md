@@ -1,6 +1,7 @@
 ---
 title: "Fair Rent / Rent Increase Limiter Calculator UK 2026/27"
 description: "Calculate UK Maximum Fair Rent Order statutory caps (RPI + 5%) for Rent Act 1977 regulated tenancies."
+keywords: "fair rent rent increase limiter calculator uk 2026 27, calculate uk maximum fair rent order, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

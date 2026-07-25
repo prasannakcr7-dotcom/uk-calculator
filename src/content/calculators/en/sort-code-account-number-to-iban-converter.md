@@ -1,6 +1,7 @@
 ---
 title: "UK Sort Code & Account Number to IBAN Converter 2026/27"
 description: "Convert 6-digit UK bank sort codes and 8-digit account numbers into 22-character UK IBANs and BIC/SWIFT codes."
+keywords: "uk sort code & account number to iban converter 2026 27, convert 6digit uk bank sort codes, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

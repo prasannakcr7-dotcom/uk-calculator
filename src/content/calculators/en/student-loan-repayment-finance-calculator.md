@@ -1,6 +1,7 @@
 ---
 title: "Student Loan Repayment Calculator UK 2026/27 — Plans 1, 2, 5 & PG"
 description: "Calculate UK Student Loan repayments for Plan 1, Plan 2, Plan 5, and Postgraduate loans based on gross salary."
+keywords: "student loan repayment calculator uk 2026 27 plans 1, 2, 5 & pg, calculate uk student loan repayments for, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: true

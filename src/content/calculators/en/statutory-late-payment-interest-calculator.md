@@ -1,6 +1,7 @@
 ---
 title: "UK Statutory Late Payment Interest Calculator 2026/27"
 description: "Calculate statutory interest (8% + Bank of England base rate) and compensation charges on overdue commercial B2B invoices under UK law."
+keywords: "uk statutory late payment interest calculator 2026 27, calculate statutory interest 8 + bank, compound interest 2026/27"
 category: "finanzas"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "Dividend Tax Allowance Calculator UK 2026/27 — £500 Allowance"
 description: "Calculate UK Dividend Tax liabilities, £500 tax-free allowance, and dividend tax rates for company directors."
+keywords: "dividend tax allowance calculator uk 2026 27 £500 allowance, calculate uk dividend tax liabilities £500, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

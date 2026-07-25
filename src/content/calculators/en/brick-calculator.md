@@ -1,6 +1,7 @@
 ---
 title: "Brick Calculator UK 2026/27 — Brickwork & Mortar Estimator"
 description: "Calculate UK facing brick quantities per square metre (60 bricks/sq m), brick pack counts (500/pack), and mortar sand/cement."
+keywords: "brick calculator uk 2026 27 brickwork & mortar estimator, calculate uk facing brick quantities per, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

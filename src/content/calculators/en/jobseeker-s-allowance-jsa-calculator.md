@@ -1,6 +1,7 @@
 ---
 title: "Jobseeker's Allowance (JSA) Calculator UK 2026/27 — New Style Rates"
 description: "Calculate UK New Style Jobseeker's Allowance (JSA) weekly rates (£90.50), NI contribution rules, and earnings offset math."
+keywords: "jobseeker's allowance (jsa) calculator uk 2026 27 new style rates, calculate uk new style jobseeker's allowance, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: false

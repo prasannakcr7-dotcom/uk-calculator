@@ -1,6 +1,7 @@
 ---
 title: "Party Wall Act Cost Estimator UK 2026/27 — Surveyor Fees"
 description: "Calculate UK Party Wall etc. Act 1996 notice costs, agreed surveyor fees (£1,200), two surveyor dissent costs, and 3m/6m excavation rules."
+keywords: "party wall act cost estimator uk 2026 27 surveyor fees, calculate uk party wall etc act, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

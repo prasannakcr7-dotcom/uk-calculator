@@ -1,6 +1,7 @@
 ---
 title: "Price per Square Foot / Metre Calculator UK 2026/27"
 description: "Calculate UK property price per square foot (sq ft) and price per square metre (sq m) using RICS GIA standards."
+keywords: "price per square foot metre calculator uk 2026 27, calculate uk property price per square, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

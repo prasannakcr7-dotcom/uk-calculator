@@ -1,6 +1,7 @@
 ---
 title: "Copyright, Patent & Trademark Registration Fee Calculator UK 2026/27"
 description: "Calculate UK IPO trade mark registration fees (£170 1st class + £50 extra class), patent fees (£310), registered designs, and attorney costs."
+keywords: "copyright, patent & trademark registration fee calculator uk 2026 27, calculate uk ipo trade mark registration, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: false

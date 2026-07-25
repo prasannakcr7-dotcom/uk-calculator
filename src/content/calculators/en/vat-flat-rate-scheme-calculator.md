@@ -1,6 +1,7 @@
 ---
 title: "VAT Flat Rate Scheme Calculator UK 2026/27 — FRS Rates"
 description: "Calculate UK VAT Flat Rate Scheme (FRS) liabilities, sector percentage rates, and Limited Cost Trader rules."
+keywords: "vat flat rate scheme calculator uk 2026 27 frs rates, calculate uk vat flat rate scheme, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "Kitchen Renovation Cost Estimator UK 2026/27 — Units & Fitting"
 description: "Calculate UK kitchen renovation budgets, fitted units (Howdens, Wren, IKEA), quartz worktop fabrication, appliances, and trades labour."
+keywords: "kitchen renovation cost estimator uk 2026 27 units & fitting, calculate uk kitchen renovation budgets fitted, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

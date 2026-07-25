@@ -1,6 +1,7 @@
 ---
 title: "Rent vs Buy Calculator UK 2026/27 — Financial Comparison"
 description: "Compare UK renting vs buying a home, monthly mortgage vs rent outgoings, unrecoverable costs, and 10-year net equity."
+keywords: "rent vs buy calculator uk 2026 27 financial comparison, compare uk renting vs buying a, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

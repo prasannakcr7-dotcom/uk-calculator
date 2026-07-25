@@ -1,6 +1,7 @@
 ---
 title: "HMRC Late Tax Filing & Payment Penalty Calculator 2026/27"
 description: "Calculate HMRC Self Assessment late filing penalties (£100 + £10/day), late payment penalty surcharges (5%/10%/15%), and late payment interest."
+keywords: "hmrc late tax filing & payment penalty calculator 2026 27, calculate hmrc self assessment late filing, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

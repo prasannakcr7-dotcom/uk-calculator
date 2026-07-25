@@ -1,6 +1,7 @@
 ---
 title: "Loft Conversion Cost & Area Estimator UK 2026/27"
 description: "Calculate UK loft conversion costs per sq m (£1,100 to £1,900/sq m), Velux, Dormer, Hip-to-Gable, Mansard, and value uplift."
+keywords: "loft conversion cost & area estimator uk 2026 27, calculate uk loft conversion costs per, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "National Insurance Credits for Parents Calculator UK 2026/27"
 description: "Calculate UK Class 3 National Insurance credits for parents caring for children under 12 and grandparent transfer rules."
+keywords: "national insurance credits for parents calculator uk 2026 27, calculate uk class 3 national insurance, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: false

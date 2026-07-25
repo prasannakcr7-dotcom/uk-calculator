@@ -1,6 +1,7 @@
 ---
 title: "First-Time Buyer Stamp Duty (SDLT) Calculator UK 2026/27"
 description: "Calculate UK First-Time Buyer Stamp Duty Land Tax (SDLT) relief, £300,000 threshold, and savings vs standard buyers."
+keywords: "first-time buyer stamp duty (sdlt) calculator uk 2026 27, calculate uk firsttime buyer stamp duty, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: true

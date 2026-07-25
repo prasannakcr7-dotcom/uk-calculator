@@ -1,6 +1,7 @@
 ---
 title: "Northern Ireland Dog Licence Cost Calculator 2026/27"
 description: "Calculate Northern Ireland statutory annual dog licence fees, concessionary £5 rates, and microchipping requirements across district councils."
+keywords: "northern ireland dog licence cost calculator 2026 27, calculate northern ireland statutory annual dog, daily life 2026/27"
 category: "alltag"
 lang: "en"
 isDevolved: true

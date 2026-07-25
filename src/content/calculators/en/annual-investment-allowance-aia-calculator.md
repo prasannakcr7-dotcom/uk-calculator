@@ -1,6 +1,7 @@
 ---
 title: "Annual Investment Allowance (AIA) Calculator UK 2026/27 — £1M Cap"
 description: "Calculate UK Annual Investment Allowance (£1,000,000 AIA cap), 100% year-1 equipment write-offs, and Corporation Tax savings."
+keywords: "annual investment allowance (aia) calculator uk 2026 27 £1m cap, calculate uk annual investment allowance £1000000, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

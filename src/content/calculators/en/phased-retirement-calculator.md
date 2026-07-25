@@ -1,6 +1,7 @@
 ---
 title: "Phased Retirement Calculator UK 2026/27 — Part-Time & Drawdown"
 description: "Model combined net income from part-time work earnings and partial pension drawdown during phased retirement."
+keywords: "phased retirement calculator uk 2026 27 part-time & drawdown, model combined net income from parttime, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

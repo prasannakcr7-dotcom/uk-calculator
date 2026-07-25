@@ -1,6 +1,7 @@
 ---
 title: "Birthday Day-of-Week, Star Sign & Birthstone Finder 2026/27"
 description: "Find the day of the week you were born on, Western Zodiac star sign, official birthstone, and Chinese zodiac animal."
+keywords: "birthday day-of-week, star sign & birthstone finder 2026 27, find the day of the week, daily life 2026/27"
 category: "alltag"
 lang: "en"
 isDevolved: false

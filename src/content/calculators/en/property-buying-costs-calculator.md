@@ -1,6 +1,7 @@
 ---
 title: "Property Buying Costs Calculator UK 2026/27 — Fees & SDLT"
 description: "Calculate UK property purchasing fees, Stamp Duty Land Tax (SDLT), solicitor conveyancing fees, and RICS surveys."
+keywords: "property buying costs calculator uk 2026 27 fees & sdlt, calculate uk property purchasing fees stamp, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: true

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://uk-calculator.theweekenddev.com/sitemap-index.xml

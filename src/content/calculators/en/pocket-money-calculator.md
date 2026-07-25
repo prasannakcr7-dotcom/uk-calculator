@@ -1,6 +1,7 @@
 ---
 title: "Pocket Money & Savings Allowance Calculator UK 2026"
 description: "Calculate recommended weekly pocket money allowances by age and project savings growth for children."
+keywords: "pocket money & savings allowance calculator uk 2026, calculate recommended weekly pocket money allowances, family benefits 2026/27"
 category: "familia"
 lang: "en"
 isDevolved: false

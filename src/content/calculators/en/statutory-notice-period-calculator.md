@@ -1,6 +1,7 @@
 ---
 title: "Statutory Notice Period Calculator UK — Notice Rights"
 description: "Calculate statutory minimum notice periods for dismissal or resignation under UK Employment Rights Act rules."
+keywords: "statutory notice period calculator uk notice rights, calculate statutory minimum notice periods for, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

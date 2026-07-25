@@ -1,6 +1,7 @@
 ---
 title: "Motorcycle Running Costs Calculator UK 2026/27 — Fuel, VED & Insurance"
 description: "Calculate UK motorcycle running costs, fuel economy (40 to 100+ MPG), DVLA bike VED road tax bands, MOT (£29.65), and insurance."
+keywords: "motorcycle running costs calculator uk 2026 27 fuel, ved & insurance, calculate uk motorcycle running costs fuel, car costs 2026/27"
 category: "movilidad"
 lang: "en"
 isDevolved: false

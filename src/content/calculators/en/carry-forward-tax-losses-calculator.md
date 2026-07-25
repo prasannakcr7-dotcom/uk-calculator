@@ -1,6 +1,7 @@
 ---
 title: "Carry Forward Tax Losses Calculator UK — Sole Trader & Ltd Company"
 description: "Calculate UK business trading loss relief carried forward against future taxable profits for sole traders and limited companies."
+keywords: "carry forward tax losses calculator uk sole trader & ltd company, calculate uk business trading loss relief, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

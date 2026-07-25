@@ -1,6 +1,7 @@
 ---
 title: "Gas Unit Converter UK (m³ & ft³ to kWh) 2026/27"
 description: "Convert UK gas meter readings (cubic metres m³ and imperial cubic feet ft³) into energy kilowatt-hours (kWh)."
+keywords: "gas unit converter uk (m³ & ft³ to kwh) 2026 27, convert uk gas meter readings cubic, stamp duty 2026/27"
 category: "vivienda"
 lang: "en"
 isDevolved: false

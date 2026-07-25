@@ -1,6 +1,7 @@
 ---
 title: "Working from Home Tax Relief Calculator 2026/27 — HMRC Flat Rate"
 description: "Calculate annual HMRC tax relief claims for homeworking expenses under flat rate allowance rules."
+keywords: "working from home tax relief calculator 2026 27 hmrc flat rate, calculate annual hmrc tax relief claims, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

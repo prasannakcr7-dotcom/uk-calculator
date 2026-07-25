@@ -1,6 +1,7 @@
 ---
 title: "Child Height Predictor Calculator — Mid-Parental Formula"
 description: "Predict adult height for boys and girls using the clinically validated Mid-Parental Height formula."
+keywords: "child height predictor calculator mid-parental formula, predict adult height for boys and, family benefits 2026/27"
 category: "familia"
 lang: "en"
 isDevolved: false

@@ -1,6 +1,7 @@
 ---
 title: "Divorce Costs Calculator UK 2026/27 — Legal Fees & Court Costs"
 description: "Estimate total divorce costs in the UK including court filing fees, solicitor rates, and mediation costs."
+keywords: "divorce costs calculator uk 2026 27 legal fees & court costs, estimate total divorce costs in the, family benefits 2026/27"
 category: "familia"
 lang: "en"
 isDevolved: false

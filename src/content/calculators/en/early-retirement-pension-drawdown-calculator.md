@@ -1,6 +1,7 @@
 ---
 title: "Early Retirement Pension Drawdown Calculator UK 2026/27"
 description: "Calculate 25% tax-free lump sum cash withdrawals and taxable income drawdown from UK private pensions."
+keywords: "early retirement pension drawdown calculator uk 2026 27, calculate 25 taxfree lump sum cash, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

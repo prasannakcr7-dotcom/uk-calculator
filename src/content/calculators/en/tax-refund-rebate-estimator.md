@@ -1,6 +1,7 @@
 ---
 title: "Tax Refund & Rebate Estimator UK 2026/27 — Overpayment Claims"
 description: "Estimate UK PAYE Income Tax refunds, overpayment calculations, and HMRC P800 rebate claims."
+keywords: "tax refund & rebate estimator uk 2026 27 overpayment claims, estimate uk paye income tax refunds, hmrc 2026/27"
 category: "impuestos"
 lang: "en"
 isDevolved: false

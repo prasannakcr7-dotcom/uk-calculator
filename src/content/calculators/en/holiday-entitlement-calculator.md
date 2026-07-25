@@ -1,6 +1,7 @@
 ---
 title: "Holiday Entitlement Calculator UK 2026/27 — Annual Leave"
 description: "Calculate statutory annual leave entitlement in days and weeks for full-time and part-time workers."
+keywords: "holiday entitlement calculator uk 2026 27 annual leave, calculate statutory annual leave entitlement in, uk salary 2026/27"
 category: "trabajo"
 lang: "en"
 isDevolved: false

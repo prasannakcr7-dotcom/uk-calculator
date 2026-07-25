@@ -1,6 +1,7 @@
 ---
 title: "Small Claims & High Court Fee Calculator UK 2026/27 (EX50)"
 description: "Calculate UK court fees for Money Claim Online (MCOL), Small Claims Track (£10k limit), Fast Track, High Court, and EX160 fee help."
+keywords: "small claims & high court fee calculator uk 2026 27 (ex50), calculate uk court fees for money, universal credit 2026/27"
 category: "social"
 lang: "en"
 isDevolved: false
