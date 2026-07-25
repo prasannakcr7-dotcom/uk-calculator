@@ -17,7 +17,7 @@ calcBadgesTitle: "Student Loan Assurances"
 taxYearBadge: "2026/27 Plan Thresholds"
 taxYearBadgeDesc: "Calculates PAYE student loan deductions using official Student Loans Company (SLC) repayment thresholds."
 devolBadge: "Plan 1 / 2 / 5 / PG Support"
-devolBadgeDesc: "Supports Plan 1 (£24,990), Plan 2 (£27,295), Plan 5 (£25,000), and Postgraduate (£21,000) repayment math."
+devolBadgeDesc: "Supports Plan 1 (£26,065), Plan 2 (£27,295), Plan 5 (£25,000), and Postgraduate (£21,000) repayment math."
 taperBadge: "9% / 6% Marginal Deduction"
 taperBadgeDesc: "Applies 9% repayment rate above undergraduate thresholds and 6% above Postgraduate threshold."
 authoritiesTitle: "Reference Authorities"
@@ -41,7 +41,7 @@ Understanding how your specific **Student Loan Plan Type (Plan 1, Plan 2, Plan 5
 
 ### 1. Undergraduate Repayment Plans (9% Repayment Rate)
 You pay **9% of your gross annual salary above the threshold** for your specific loan plan:
-- **Plan 1 (Pre-2012 England/Wales; all NI & Scotland)**: Repayment threshold **£24,990 per year** (£2,082/month).
+- **Plan 1 (Pre-2012 England/Wales; all NI & Scotland)**: Repayment threshold **£26,065 per year** (£2,172/month).
 - **Plan 2 (2012 to 2023 England & Wales)**: Repayment threshold **£27,295 per year** (£2,274/month).
 - **Plan 5 (Post-August 2023 England)**: Repayment threshold **£25,000 per year** (£2,083/month).
 

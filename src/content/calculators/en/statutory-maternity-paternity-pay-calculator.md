@@ -14,7 +14,7 @@ labels:
   breakdownTitle: "Payment Schedule Breakdown"
 calcBadgesTitle: "Statutory Assurances"
 taxYearBadge: "2026/27 Statutory Rates"
-taxYearBadgeDesc: "Uses the official DWP statutory flat rate of £184.03 per week (or 90% of average weekly earnings if lower)."
+taxYearBadgeDesc: "Uses the official DWP statutory flat rate of £194.32 per week (or 90% of average weekly earnings if lower)."
 devolBadge: "39-Week Coverage"
 devolBadgeDesc: "Calculates full 6-week initial 90% rate plus 33-week statutory flat rate period."
 taperBadge: "PAYE Compliant"
@@ -41,15 +41,15 @@ Understanding your exact financial entitlement during maternity or paternity lea
 ### Statutory Maternity Pay (SMP) Structure (39 Weeks)
 SMP is paid for up to **39 weeks** divided into two distinct payment phases:
 - **First 6 Weeks**: Paid at **90% of your average gross weekly earnings** (with no maximum cap).
-- **Next 33 Weeks**: Paid at the statutory flat rate of **£184.03 per week**, or **90% of your average gross weekly earnings** (whichever amount is lower).
+- **Next 33 Weeks**: Paid at the statutory flat rate of **£194.32 per week**, or **90% of your average gross weekly earnings** (whichever amount is lower).
 
 ### Statutory Paternity Pay (SPP) Structure (2 Weeks)
 - **Duration**: Eligible fathers and partners can take up to **2 weeks of paid paternity leave**.
-- **Rate**: Paid at **£184.03 per week**, or **90% of average weekly earnings** (whichever is lower).
+- **Rate**: Paid at **£194.32 per week**, or **90% of average weekly earnings** (whichever is lower).
 
 ### Qualification Criteria
 To qualify for SMP or SPP, you must:
-1. Earn at least the **Lower Earnings Limit (LEL)** of **£123.00 per week** in the 8-week calculation period.
+1. Earn at least the **Lower Earnings Limit (LEL)** of **£125.00 per week** in the 8-week calculation period.
 2. Have worked continuously for your employer for at least **26 weeks** continuing into the 15th week before the expected week of childbirth.
 
 ---
@@ -63,10 +63,10 @@ Below are two worked examples demonstrating how average weekly earnings affect 3
   <ul>
     <li>Average Weekly Earnings: **£500.00**</li>
     <li>First 6 Weeks (90% rate): £500.00 × 90% = **£450.00 / week** (£2,700.00 total)</li>
-    <li>Remaining 33 Weeks (Statutory cap): **£184.03 / week** (£6,072.99 total)</li>
+    <li>Remaining 33 Weeks (Statutory cap): **£194.32 / week** (£6,412.56 total)</li>
   </ul>
-  <p>Calculation: Total SMP entitlement = £2,700.00 + £6,072.99 = **£8,772.99**.</p>
-  <div class="net-highlight">Total 39-Week Statutory Maternity Pay: **£8,772.99**</div>
+  <p>Calculation: Total SMP entitlement = £2,700.00 + £6,412.56 = **£9,112.56**.</p>
+  <div class="net-highlight">Total 39-Week Statutory Maternity Pay: **£9,112.56**</div>
 </div>
 
 <div class="example-box">
@@ -74,7 +74,7 @@ Below are two worked examples demonstrating how average weekly earnings affect 3
   <ul>
     <li>Average Weekly Earnings: **£180.00**</li>
     <li>First 6 Weeks (90% rate): £180.00 × 90% = **£162.00 / week** (£972.00 total)</li>
-    <li>Remaining 33 Weeks (90% applies as lower than £184.03): **£162.00 / week** (£5,346.00 total)</li>
+    <li>Remaining 33 Weeks (90% applies as lower than £194.32): **£162.00 / week** (£5,346.00 total)</li>
   </ul>
   <p>Calculation: Total SMP entitlement = £972.00 + £5,346.00 = **£6,318.00**.</p>
   <div class="net-highlight">Total 39-Week Statutory Maternity Pay: **£6,318.00**</div>
@@ -84,7 +84,7 @@ Below are two worked examples demonstrating how average weekly earnings affect 3
 
 ## 📑 Common Pitfalls & Tax Warnings
 
-1. **Confusing Gross SMP with Net Take-Home Pay**: SMP is subject to standard Income Tax and Class 1 National Insurance Contributions. Your net bank transfer will be lower than the headline £184.03 weekly figure depending on tax codes.
+1. **Confusing Gross SMP with Net Take-Home Pay**: SMP is subject to standard Income Tax and Class 1 National Insurance Contributions. Your net bank transfer will be lower than the headline £194.32 weekly figure depending on tax codes.
 2. **Assuming Company Maternity Pay Replaces SMP**: Enhanced contractual maternity pay offered by generous employers usually includes statutory SMP rather than paying it on top. Check your employment handbook contract terms.
 3. **Missing Notice Deadlines**: You must notify your employer at least 15 weeks before your baby is due, stating your expected due date and when you wish your maternity leave to begin.
 
@@ -117,7 +117,7 @@ Below are two worked examples demonstrating how average weekly earnings affect 3
   <div class="faq-item">
     <button class="faq-trigger">What if I do not meet the 26-week qualification period for SMP? <span class="icon">▼</span></button>
     <div class="faq-content">
-      <p>If you do not qualify for SMP from your employer, they must give you a form SMP1. You can then apply to the government for **Maternity Allowance (MA)**, which provides up to £184.03 per week for 39 weeks via Jobcentre Plus.</p>
+      <p>If you do not qualify for SMP from your employer, they must give you a form SMP1. You can then apply to the government for **Maternity Allowance (MA)**, which provides up to £194.32 per week for 39 weeks via Jobcentre Plus.</p>
     </div>
   </div>
 </div>

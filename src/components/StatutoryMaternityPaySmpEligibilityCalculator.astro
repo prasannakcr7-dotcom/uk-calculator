@@ -36,8 +36,8 @@ const { labels = {}, lang = 'en' } = Astro.props;
           <strong id="first-6-weeks-rate-val">£495.00 / week</strong>
         </div>
         <div class="breakdown-row">
-          <span>Next 33 Weeks Rate (Lower of 90% or £184.03)</span>
-          <strong id="next-33-weeks-rate-val">£184.03 / week</strong>
+          <span>Next 33 Weeks Rate (Lower of 90% or £194.32)</span>
+          <strong id="next-33-weeks-rate-val">£194.32 / week</strong>
         </div>
         <div class="breakdown-row net">
           <span>Total 39-Week Statutory Maternity Pay</span>
@@ -64,8 +64,8 @@ const { labels = {}, lang = 'en' } = Astro.props;
     const weeklyEarn = parseFloat(weeklyEarnEl.value) || 0;
     const weeksService = parseInt(weeksServiceEl.value) || 0;
 
-    const lel = 123.0;
-    const statRate = 184.03;
+    const lel = 125.0;
+    const statRate = 194.32;
 
     let isEligible = false;
     let statusStr = '';
@@ -74,7 +74,7 @@ const { labels = {}, lang = 'en' } = Astro.props;
       isEligible = true;
       statusStr = 'Qualified for SMP';
     } else if (weeklyEarn < lel) {
-      statusStr = 'Not Eligible (Earnings below £123/wk LEL)';
+      statusStr = 'Not Eligible (Earnings below £125/wk LEL)';
     } else {
       statusStr = 'Not Eligible (Less than 26 wks service)';
     }

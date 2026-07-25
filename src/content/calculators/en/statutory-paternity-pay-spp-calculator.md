@@ -1,6 +1,6 @@
 ---
 title: "UK Statutory Paternity Pay (SPP) & Leave Calculator 2026/27"
-description: "Calculate Statutory Paternity Pay (SPP) weekly entitlements (1 or 2 weeks at £184.03/wk or 90% AWE), eligibility, and flexible leave rules."
+description: "Calculate Statutory Paternity Pay (SPP) weekly entitlements (1 or 2 weeks at £194.32/wk or 90% AWE), eligibility, and flexible leave rules."
 keywords: "uk statutory paternity pay (spp) & leave calculator 2026 27, calculate statutory paternity pay spp weekly, family benefits 2026/27"
 category: "familia"
 lang: "en"
@@ -12,7 +12,7 @@ labels:
   service: "Weeks of Continuous Employment at 15th Week Before Due Date"
 calcBadgesTitle: "Paternity Pay Rules"
 taxYearBadge: "2026/27 Statutory Rates"
-taxYearBadgeDesc: "Calculates Statutory Paternity Pay (SPP) governed by DWP statutory weekly rates (£184.03/week)."
+taxYearBadgeDesc: "Calculates Statutory Paternity Pay (SPP) governed by DWP statutory weekly rates (£194.32/week)."
 devolBadge: "UK Wide Application"
 devolBadgeDesc: "Applies to statutory paternity pay rights across England, Scotland, Wales, and Northern Ireland."
 taperBadge: "Flexible Paternity Leave Reform"
@@ -38,9 +38,9 @@ Under statutory paternity reforms, fathers have increased flexibility to take th
 
 - **SPP Qualification Requirements**:
   - Must be employed by the same employer for at least **26 continuous weeks** extending into the **15th week before the expected week of childbirth (Qualifying Week)**.
-  - Must earn at least the **Lower Earnings Limit (LEL)** of **£123 per week** (gross).
+  - Must earn at least the **Lower Earnings Limit (LEL)** of **£125 per week** (gross).
 - **Statutory Paternity Pay Rate (2026/27)**:
-  - Paid at the statutory flat rate of **£184.03 per week** (or **90% of your Average Weekly Earnings**, whichever is lower).
+  - Paid at the statutory flat rate of **£194.32 per week** (or **90% of your Average Weekly Earnings**, whichever is lower).
 - **Flexible Leave Rules**:
   - Paternity leave can be taken as **1 week** or **2 weeks** (consecutive or split into two separate 1-week blocks).
   - Must be taken within **52 weeks of the birth date** (giving 28 days' notice before each period of leave).
@@ -52,11 +52,11 @@ Under statutory paternity reforms, fathers have increased flexibility to take th
   <ul>
     <li>Average Gross Weekly Earnings: £520.00</li>
     <li>Continuous Service: 52 Weeks (Fully Qualified for SPP)</li>
-    <li>Statutory Weekly Rate (Lower of 90% or £184.03): **£184.03 / week**</li>
+    <li>Statutory Weekly Rate (Lower of 90% or £194.32): **£194.32 / week**</li>
     <li>Leave Duration: 2 Weeks (split into two separate 1-week blocks)</li>
   </ul>
-  <p>Total Statutory Paternity Pay Award: £184.03 × 2 weeks = **£368.06**.<br>Flexible Leave Rule: Block 1 taken immediately after birth; Block 2 taken 6 months later during partner's return to work.</p>
-  <div class="net-highlight">Total SPP Award: £368.06 (£184.03 / week for 2 weeks)</div>
+  <p>Total Statutory Paternity Pay Award: £194.32 × 2 weeks = **£388.64**.<br>Flexible Leave Rule: Block 1 taken immediately after birth; Block 2 taken 6 months later during partner's return to work.</p>
+  <div class="net-highlight">Total SPP Award: £388.64 (£194.32 / week for 2 weeks)</div>
 </div>
 
 ## 📑 Common Pitfalls
@@ -73,7 +73,7 @@ Under statutory paternity reforms, fathers have increased flexibility to take th
   <div class="faq-item">
     <button class="faq-trigger">What is the weekly Statutory Paternity Pay (SPP) rate for 2026/27?</button>
     <div class="faq-content">
-      <p>For the 2026/27 tax year, Statutory Paternity Pay is paid at £184.03 per week, or 90% of your average gross weekly earnings, whichever is lower. SPP is paid for up to 2 weeks.</p>
+      <p>For the 2026/27 tax year, Statutory Paternity Pay is paid at £194.32 per week, or 90% of your average gross weekly earnings, whichever is lower. SPP is paid for up to 2 weeks.</p>
     </div>
   </div>
 

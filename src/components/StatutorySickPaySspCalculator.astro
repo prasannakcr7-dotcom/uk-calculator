@@ -58,8 +58,8 @@ const { labels = {}, lang = 'en' } = Astro.props;
           <strong id="ssp-daily-rate-val">£23.35 / day</strong>
         </div>
         <div class="breakdown-row">
-          <span>Paid Sick Days Count (After 3 Waiting Days)</span>
-          <strong id="paid-sick-days-count">0 Days Paid</strong>
+          <span>Paid Work Days Count</span>
+          <strong id="paid-sick-days-count">0 Work Days Paid</strong>
         </div>
         <div class="breakdown-row net">
           <span>Total Statutory Sick Pay Awarded</span>
@@ -88,27 +88,32 @@ const { labels = {}, lang = 'en' } = Astro.props;
     const totalDays = parseInt(sickDaysInput.value) || 0;
     const workDaysPerWeek = parseInt(workDaysSelect.value) || 5;
 
-    const lel = 123.0;
-    const weeklySspRate = 116.75;
-    const dailyRate = weeklySspRate / workDaysPerWeek;
+    // 2026/27 SSP Rules (Employment Rights Act 2025 reforms):
+    // - Flat weekly rate: £123.25
+    // - Capped at 80% of Average Weekly Earnings (AWE)
+    // - LEL threshold removed (everyone qualifies)
+    // - 3 waiting days abolished (paid from Day 1)
+    const flatWeeklySspRate = 123.25;
+    const employeeWeeklySspRate = Math.min(flatWeeklySspRate, weeklyEarn * 0.80);
+    const dailyRate = employeeWeeklySspRate / workDaysPerWeek;
 
     let isEligible = false;
     let statusStr = '';
 
-    if (weeklyEarn >= lel && totalDays >= 4) {
+    if (weeklyEarn > 0 && totalDays >= 1) {
       isEligible = true;
-      statusStr = 'Eligible for SSP';
-    } else if (weeklyEarn < lel) {
-      statusStr = 'Not Eligible (Earnings below £123/wk LEL)';
+      statusStr = 'Eligible for SSP (Day-1 Entitlement)';
     } else {
-      statusStr = 'Not Eligible (Under 4 consecutive sick days)';
+      statusStr = 'Not Eligible (No sick days reported)';
     }
 
     let paidDays = 0;
     let totalSsp = 0;
 
     if (isEligible) {
-      paidDays = Math.max(0, totalDays - 3);
+      // Approximate work days missed from total calendar sick days
+      // Under new 2026/27 rules, there are no unpaid waiting days
+      paidDays = Math.min(28 * workDaysPerWeek, Math.round(totalDays * (workDaysPerWeek / 7)));
       totalSsp = paidDays * dailyRate;
     }
 
@@ -120,7 +125,7 @@ const { labels = {}, lang = 'en' } = Astro.props;
     if (totalEl) totalEl.textContent = '£' + totalSsp.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     if (statusEl) statusEl.textContent = statusStr;
     if (rateEl) rateEl.textContent = '£' + dailyRate.toFixed(2) + ' / day';
-    if (paidDaysEl) paidDaysEl.textContent = paidDays + ' Days Paid';
+    if (paidDaysEl) paidDaysEl.textContent = paidDays + ' Work Days Paid';
   }
 
   ['ssp-gross-weekly-earnings', 'ssp-sick-days-count', 'qualifying-days-per-week'].forEach(id => {

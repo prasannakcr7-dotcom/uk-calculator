@@ -75,10 +75,10 @@ const { labels } = Astro.props;
     <slot />
   </div>
 
-  <div class="side-col">
+  <div class="sidebar">
     <Sidebar />
-</div>
-      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+    <div style="margin-top:20px; padding:15px; background:var(--soft); border-radius:10px;">
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin:0;">
         • <strong>£60,000 Threshold:</strong> Tax charge starts at £60,000 adjusted net income.<br/>
         • <strong>1% per £200:</strong> Tax charge increases by 1% for every £200 earned above £60,000.<br/>
         • <strong>£80,000 Cap:</strong> 100% tax charge applies at £80,000 income.<br/>

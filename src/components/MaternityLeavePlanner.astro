@@ -49,8 +49,8 @@ const { labels = {}, lang = 'en' } = Astro.props;
           <span class="val" id="first6WeeksTotalDisplay">£3,510.00 (£585.00/wk)</span>
         </div>
         <div class="breakdown-row section">
-          <span>Next 33 Weeks (Statutory Rate £184.03/wk)</span>
-          <span class="val" id="remaining33WeeksTotalDisplay">£6,072.99 (£184.03/wk)</span>
+          <span>Next 33 Weeks (Statutory Rate £194.32/wk)</span>
+          <span class="val" id="remaining33WeeksTotalDisplay">£6,412.56 (£194.32/wk)</span>
         </div>
         <div class="breakdown-row section">
           <span>Remaining Weeks (Unpaid Additional Maternity Leave)</span>
@@ -58,7 +58,7 @@ const { labels = {}, lang = 'en' } = Astro.props;
         </div>
         <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
           <span>Total Statutory SMP Paid Across Leave</span>
-          <span class="val" id="totalSmpPayDisplay" style="font-weight: 700; font-size: 18px;">£9,582.99</span>
+          <span class="val" id="totalSmpPayDisplay" style="font-weight: 700; font-size: 18px;">£9,922.56</span>
         </div>
       </div>
     </div>
@@ -81,9 +81,9 @@ const { labels = {}, lang = 'en' } = Astro.props;
     const awe = parseFloat(aweEl.value) || 0;
     const totalWeeks = parseInt(weeksEl.value) || 39;
 
-    // 2026/27 SMP Rates: First 6 wks 90% AWE, Next 33 wks lower of £184.03 or 90% AWE
+    // 2026/27 SMP Rates: First 6 wks 90% AWE, Next 33 wks lower of £194.32 or 90% AWE
     const rateFirst6 = awe * 0.90;
-    const statRate = 184.03;
+    const statRate = 194.32;
     const rateNext33 = Math.min(statRate, awe * 0.90);
 
     const totalFirst6 = rateFirst6 * 6;

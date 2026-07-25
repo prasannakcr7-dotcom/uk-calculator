@@ -1,6 +1,6 @@
 ---
 title: "UK Statutory Maternity Pay (SMP) & Allowance Calculator 2026/27"
-description: "Calculate Statutory Maternity Pay (SMP) weekly earnings, 6 weeks at 90% gross pay, 33 weeks at statutory rate (£184.03/wk), and 39-week totals."
+description: "Calculate Statutory Maternity Pay (SMP) weekly earnings, 6 weeks at 90% gross pay, 33 weeks at statutory rate (£194.32/wk), and 39-week totals."
 keywords: "uk statutory maternity pay (smp) & allowance calculator 2026 27, calculate statutory maternity pay smp weekly, family benefits 2026/27"
 category: "familia"
 lang: "en"
@@ -11,7 +11,7 @@ labels:
   weeks: "Weeks of Continuous Employment at 15th Week Before Due Date"
 calcBadgesTitle: "Maternity Pay Rules"
 taxYearBadge: "2026/27 Statutory Rates"
-taxYearBadgeDesc: "Calculates Statutory Maternity Pay (SMP) governed by DWP statutory weekly rates (£184.03/week)."
+taxYearBadgeDesc: "Calculates Statutory Maternity Pay (SMP) governed by DWP statutory weekly rates (£194.32/week)."
 devolBadge: "UK Wide Application"
 devolBadgeDesc: "Applies to statutory maternity pay rights across England, Scotland, Wales, and Northern Ireland."
 taperBadge: "39 Weeks Statutory Pay"
@@ -37,12 +37,12 @@ SMP is paid directly by employers through payroll (subject to PAYE Tax and Natio
 
 - **SMP Qualification Requirements**:
   - Must be employed by the same employer for at least **26 continuous weeks** extending into the **15th week before the expected week of childbirth (Qualifying Week)**.
-  - Must earn at least the **Lower Earnings Limit (LEL)** of **£123 per week** (gross) in the 8-week calculation period.
+  - Must earn at least the **Lower Earnings Limit (LEL)** of **£125 per week** (gross) in the 8-week calculation period.
 - **SMP Payment Structure (39 Weeks Total)**:
   - **First 6 Weeks**: Paid at **90% of your Average Weekly Earnings (AWE)** with no upper cap.
-  - **Next 33 Weeks**: Paid at the statutory flat rate of **£184.03 per week** (or 90% of your AWE, whichever is lower).
+  - **Next 33 Weeks**: Paid at the statutory flat rate of **£194.32 per week** (or 90% of your AWE, whichever is lower).
   - **Remaining 13 Weeks**: Unpaid statutory leave.
-- **Maternity Allowance (MA)**: If you do not qualify for SMP (e.g. self-employed or recently changed jobs), you can claim **Maternity Allowance** (£184.03/wk for 39 weeks) directly from Jobcentre Plus.
+- **Maternity Allowance (MA)**: If you do not qualify for SMP (e.g. self-employed or recently changed jobs), you can claim **Maternity Allowance** (£194.32/wk for 39 weeks) directly from Jobcentre Plus.
 
 ## 📊 Practical Examples
 
@@ -52,10 +52,10 @@ SMP is paid directly by employers through payroll (subject to PAYE Tax and Natio
     <li>Average Gross Weekly Earnings: £550.00</li>
     <li>Continuous Service: 52 Weeks (Fully Qualified for SMP)</li>
     <li>First 6 Weeks Rate (90% of £550): **£495.00 / week** (£2,970.00 subtotal)</li>
-    <li>Next 33 Weeks Rate (Lower of 90% or £184.03): **£184.03 / week** (£6,072.99 subtotal)</li>
+    <li>Next 33 Weeks Rate (Lower of 90% or £194.32): **£194.32 / week** (£6,412.56 subtotal)</li>
   </ul>
-  <p>Total 39-Week Statutory Maternity Pay Award: £2,970.00 + £6,072.99 = **£9,042.99**.<br>Weekly Breakdown: Weeks 1-6 = £495/wk; Weeks 7-39 = £184.03/wk; Weeks 40-52 = Unpaid.</p>
-  <div class="net-highlight">Total SMP Award: £9,042.99 (First 6 Wks: £495/wk | Next 33 Wks: £184.03/wk)</div>
+  <p>Total 39-Week Statutory Maternity Pay Award: £2,970.00 + £6,412.56 = **£9,382.56**.<br>Weekly Breakdown: Weeks 1-6 = £495/wk; Weeks 7-39 = £194.32/wk; Weeks 40-52 = Unpaid.</p>
+  <div class="net-highlight">Total SMP Award: £9,382.56 (First 6 Wks: £495/wk | Next 33 Wks: £194.32/wk)</div>
 </div>
 
 ## 📑 Common Pitfalls
@@ -72,14 +72,14 @@ SMP is paid directly by employers through payroll (subject to PAYE Tax and Natio
   <div class="faq-item">
     <button class="faq-trigger">What is the rate of Statutory Maternity Pay (SMP) for 2026/27?</button>
     <div class="faq-content">
-      <p>For the 2026/27 tax year, Statutory Maternity Pay is paid for 39 weeks: 90% of your average weekly earnings for the first 6 weeks, followed by £184.03 per week (or 90% of average weekly earnings, whichever is lower) for the remaining 33 weeks.</p>
+      <p>For the 2026/27 tax year, Statutory Maternity Pay is paid for 39 weeks: 90% of your average weekly earnings for the first 6 weeks, followed by £194.32 per week (or 90% of average weekly earnings, whichever is lower) for the remaining 33 weeks.</p>
     </div>
   </div>
 
   <div class="faq-item">
     <button class="faq-trigger">What is the difference between SMP and Maternity Allowance?</button>
     <div class="faq-content">
-      <p>Statutory Maternity Pay (SMP) is paid by your employer to eligible employed staff earning above £123/week with 26 weeks' service. Maternity Allowance (MA) is paid directly by DWP to self-employed women or those who do not qualify for SMP.</p>
+      <p>Statutory Maternity Pay (SMP) is paid by your employer to eligible employed staff earning above £125/week with 26 weeks' service. Maternity Allowance (MA) is paid directly by DWP to self-employed women or those who do not qualify for SMP.</p>
     </div>
   </div>
 

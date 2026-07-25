@@ -18,7 +18,7 @@ calcBadgesTitle: "Property Buying Assurances"
 taxYearBadge: "2026/27 SDLT Rates"
 taxYearBadgeDesc: "Calculates statutory Stamp Duty Land Tax (SDLT) in England & NI, LBTT in Scotland, and LTT in Wales."
 devolBadge: "First-Time Buyer Relief"
-devolBadgeDesc: "Applies statutory 0% SDLT rate up to £425,000 for qualifying first-time buyers."
+devolBadgeDesc: "Applies statutory 0% SDLT rate up to £300,000 for qualifying first-time buyers."
 taperBadge: "+5% Second Home Surcharge"
 taperBadgeDesc: "Includes statutory 5% additional property SDLT surcharge for buy-to-let and second home purchases."
 authoritiesTitle: "Reference Authorities"
@@ -42,14 +42,15 @@ Calculating statutory **Stamp Duty Land Tax (SDLT)** alongside mandatory **conve
 
 ### 1. Stamp Duty Land Tax (SDLT) Rates (England & Northern Ireland)
 SDLT is calculated in progressive tax bands on residential purchases:
-- **Up to £250,000**: **0%**.
+- **Up to £125,000**: **0%**.
+- **£125,001 to £250,000**: **2%**.
 - **£250,001 to £925,000**: **5%**.
 - **£925,001 to £1,500,000**: **10%**.
 - **Over £1,500,000**: **12%**.
 
 ### 2. First-Time Buyer Relief & Additional Property Surcharge (+5%)
-- **First-Time Buyer Relief**: Qualifying first-time buyers pay **0% SDLT on the first £425,000** for properties valued up to £625,000 (and 5% on the portion between £425,001 and £625,000).
-- **Additional Property Surcharge (+5%)**: Buying a second home, holiday home, or Buy-to-Let property incurs a **5% SDLT surcharge** across every price band (including 5% on the first £250,000).
+- **First-Time Buyer Relief**: Qualifying first-time buyers pay **0% SDLT on the first £300,000** for properties valued up to £500,000 (and 5% on the portion between £300,001 and £500,000).
+- **Additional Property Surcharge (+5%)**: Buying a second home, holiday home, or Buy-to-Let property incurs a **5% SDLT surcharge** across every price band (including 5% on the first £125,000).
 
 ### 3. Legal Conveyancing & Survey Fees
 - **Solicitor Conveyancing Fees**: **£1,200 to £2,500** (Includes legal representation, contract exchange, mortgage transfer, and Land Registry registration).

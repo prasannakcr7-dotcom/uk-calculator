@@ -1,7 +1,7 @@
 ---
 title: "UK Statutory Sick Pay (SSP) Calculator 2026/27"
-description: "Calculate Statutory Sick Pay (SSP) daily and weekly entitlements (£116.75/wk statutory rate), 3 waiting days rules, and maximum 28-week sick pay limits."
-keywords: "uk statutory sick pay (ssp) calculator 2026 27, calculate statutory sick pay ssp daily, uk salary 2026/27"
+description: "Calculate UK Statutory Sick Pay (SSP) daily and weekly entitlements (£123.25/wk statutory rate) and learn about the abolition of waiting days and the LEL threshold."
+keywords: "uk statutory sick pay (ssp) calculator 2026 27, calculate statutory sick pay ssp daily, statutory sick pay changes 2026, ssp 80% awe cap"
 category: "trabajo"
 lang: "en"
 isDevolved: false
@@ -11,39 +11,41 @@ labels:
   days: "Total Consecutive Days Off Sick"
   workDays: "Qualifying Work Days Per Week"
 calcBadgesTitle: "Sick Pay Rules"
-taxYearBadge: "2026/27 Statutory Rates"
-taxYearBadgeDesc: "Calculates Statutory Sick Pay (SSP) governed by DWP statutory weekly rates (£116.75/week)."
+taxYearBadge: "2026/27 Statutory Rate"
+taxYearBadgeDesc: "Calculates Statutory Sick Pay using the new £123.25/week flat rate or 80% AWE cap."
 devolBadge: "UK Wide Application"
 devolBadgeDesc: "Applies to statutory sick pay rights across England, Scotland, Wales, and Northern Ireland."
-taperBadge: "3 Waiting Days Rule"
-taperBadgeDesc: "Explains that statutory sick pay begins on the 4th qualifying day off sick, following 3 unpaid waiting days."
+taperBadge: "No Waiting Days"
+taperBadgeDesc: "Reflects the landmark abolition of the 3 unpaid waiting days, paying workers from Day 1 of sickness."
 authoritiesTitle: "Reference Authorities"
 auth1Name: "Department for Work and Pensions (DWP)"
-auth1Desc: "UK government department setting statutory sick pay rates, lower earnings limits, and Employment and Support Allowance (ESA)."
+auth1Desc: "UK government department setting statutory sick pay rates, rules, and administering benefits."
 auth1Link: "https://www.gov.uk/government/organisations/department-for-work-pensions"
 auth2Name: "ACAS (Advisory, Conciliation and Arbitration Service)"
-auth2Desc: "UK body providing advice on sickness absence, fit notes, and occupational sick pay."
+auth2Desc: "UK body providing advice on sickness absence, fit notes, and statutory worker rights."
 auth2Link: "https://www.acas.org.uk"
 sourcesTitle: "Official Sources"
-source1: "Social Security Contributions and Benefits Act 1992 & DWP Statutory Sick Pay Rates 2026/27"
+source1: "Employment Rights Act 2025 & DWP Statutory Sick Pay Regulations 2026"
 lastUpdatedTitle: "Last Updated"
-lastUpdatedDesc: "April 2026 — Verified with 2026/27 DWP statutory sick pay rates."
+lastUpdatedDesc: "April 2026 — Updated to reflect the Employment Rights Act 2025 reforms."
 ---
 
 If you are unable to work in the UK due to illness or injury, you may be entitled to receive **Statutory Sick Pay (SSP)** paid by your employer for up to **28 weeks**.
 
-SSP is paid directly through your employer's regular payroll (subject to PAYE Income Tax and National Insurance deductions). Many UK employers also offer **Occupational Sick Pay (OSP)**, which tops up statutory payments to full or half salary.
+Under the landmark reforms of the **Employment Rights Act 2025** (which took effect on **6 April 2026**), the UK sick pay system was significantly restructured to offer day-one financial support to all workers, including low-income earners who were previously excluded.
 
 ## ⚙️ Rules & Thresholds
 
-- **SSP Qualification Requirements**:
-  - Must be an employee earning at least the **Lower Earnings Limit (LEL)** of **£123 per week** (gross).
-  - Must be off sick for at least **4 consecutive days in a row** (including weekends and non-working days).
-- **Statutory Sick Pay Rates (2026/27)**:
-  - **Weekly Rate**: Statutory flat rate of **£116.75 per week**.
-  - **Daily Rate**: `£116.75 / Number of Qualifying Work Days in the Week` (e.g. £23.35 per day for a 5-day week).
+- **Abolition of the Lower Earnings Limit (LEL)**:
+  - Previously, workers earning less than the LEL (e.g. £123/week) did not qualify for SSP. 
+  - From **6 April 2026**, the earnings threshold has been completely removed. All employees, including part-time and zero-hours contract workers, qualify for SSP regardless of their earnings level.
+- **Abolition of the 3 Unpaid Waiting Days**:
+  - The requirement to wait 3 days before receiving sick pay has been abolished. Employees are now entitled to receive SSP from **Day 1 (the first qualifying work day)** of their sickness absence.
+- **Statutory Sick Pay Rates & the 80% Cap (2026/27)**:
+  - **Weekly Rate**: Standard flat rate of **£123.25 per week**.
+  - **The 80% Earnings Cap**: For workers with lower earnings, SSP is capped at **80% of their Average Weekly Earnings (AWE)**. This ensures employees are not paid more while off sick than they would earn while working.
+  - **Daily Rate**: `Employee Weekly SSP / Qualifying Work Days in the Week` (e.g. £24.65 per day for a 5-day week at the full rate).
   - **Maximum Payment Duration**: Paid for up to **28 weeks**.
-- **The 3 Unpaid Waiting Days Rule**: SSP is NOT paid for the first 3 qualifying work days off sick (called "waiting days"). Payment begins from the **4th qualifying work day** onwards.
 - **Fit Note Requirement**: You can self-certify sickness for up to **7 calendar days**. If off sick for more than 7 days, you must provide your employer with a GP **Fit Note (Medical Statement)**.
 
 ## 📊 Practical Examples
@@ -51,19 +53,32 @@ SSP is paid directly through your employer's regular payroll (subject to PAYE In
 <div class="example-box">
   <strong>Example 1: Employee Earning £450/week Off Sick for 10 Consecutive Calendar Days (5-Day Work Week)</strong>
   <ul>
-    <li>Average Gross Weekly Earnings: £450.00 (Exceeds £123/wk LEL)</li>
-    <li>Total Consecutive Days Off Sick: 10 Days</li>
+    <li>Average Gross Weekly Earnings: £450.00</li>
+    <li>Earnings Cap Check: 80% of AWE is £360.00, so the flat rate of **£123.25/week** applies.</li>
+    <li>Total Consecutive Days Off Sick: 10 Days (equivalent to **7 work days missed**).</li>
     <li>Qualifying Work Days Per Week: 5 Days (Monday to Friday)</li>
-    <li>Daily Statutory Rate (£116.75 / 5): **£23.35 / day**</li>
+    <li>Daily Statutory Rate (£123.25 / 5): **£24.65 / day**</li>
   </ul>
-  <p>1. Unpaid Waiting Days (First 3 Work Days): £0.00<br>2. Paid Sick Days: 7 work days - 3 waiting days = **4 Paid Work Days**.<br>Total SSP Award: 4 days × £23.35 = **£93.40**.</p>
-  <div class="net-highlight">Total SSP Award: £93.40 (4 Paid Days @ £23.35/day | 3 Unpaid Waiting Days)</div>
+  <p>Calculation: Since there are no unpaid waiting days, SSP is paid for all 7 work days missed.<br>Total SSP Award: 7 days × £24.65 = **£172.55**.</p>
+  <div class="net-highlight">Total SSP Award: £172.55 (7 Paid Days @ £24.65/day | Day-1 Entitlement)</div>
+</div>
+
+<div class="example-box">
+  <strong>Example 2: Low-Income Employee Earning £100/week Off Sick for 10 Consecutive Calendar Days (5-Day Work Week)</strong>
+  <ul>
+    <li>Average Gross Weekly Earnings: £100.00 (Previously excluded under the old LEL rule).</li>
+    <li>Earnings Cap Check: 80% of AWE is **£80.00/week** (since £80.00 is lower than the flat rate of £123.25, the employee's weekly rate is capped at £80.00).</li>
+    <li>Total Consecutive Days Off Sick: 10 Days (equivalent to **7 work days missed**).</li>
+    <li>Daily Statutory Rate (£80.00 / 5): **£16.00 / day**</li>
+  </ul>
+  <p>Calculation: SSP is paid from Day 1 for all 7 work days missed at the capped rate.<br>Total SSP Award: 7 days × £16.00 = **£112.00**.</p>
+  <div class="net-highlight">Total SSP Award: £112.00 (7 Paid Days @ £16.00/day | Capped at 80% AWE)</div>
 </div>
 
 ## 📑 Common Pitfalls
 
-- **Expecting SSP for Absences Under 4 Days**: Taking 1, 2, or 3 days off sick yields £0 in Statutory Sick Pay due to the 3 unpaid waiting days rule.
-- **Assuming SSP Is Reclaimable by Employers**: Unlike Statutory Maternity Pay, employers cannot reclaim Statutory Sick Pay costs from HMRC (unless specified under temporary crisis schemes).
+- **Expecting the Flat Rate as a Lower Earner**: Low-income workers must remember that their SSP is capped at 80% of their actual weekly earnings, rather than receiving the flat £123.25 weekly rate.
+- **Assuming SSP Is Reclaimable by Employers**: Employers cannot reclaim Statutory Sick Pay costs from HMRC. The cost of SSP must be funded entirely by the employer.
 - **Failing to Provide a Fit Note After 7 Days**: If off sick for over 7 consecutive days, failing to submit a doctor's fit note allows employers to withhold SSP payments.
 
 ---
@@ -74,28 +89,28 @@ SSP is paid directly through your employer's regular payroll (subject to PAYE In
   <div class="faq-item">
     <button class="faq-trigger">What is the Statutory Sick Pay (SSP) rate for 2026/27?</button>
     <div class="faq-content">
-      <p>For the 2026/27 tax year, Statutory Sick Pay is paid at £116.75 per week. For an employee working a standard 5-day week, this equals a daily statutory rate of £23.35 per qualifying day.</p>
+      <p>For the 2026/27 tax year, the standard flat rate of Statutory Sick Pay is £123.25 per week. For an employee working a standard 5-day week, this equals a daily statutory rate of £24.65 per qualifying day. However, if 80% of your average weekly earnings is lower than £123.25, your sick pay will be capped at that lower amount.</p>
     </div>
   </div>
 
   <div class="faq-item">
-    <button class="faq-trigger">What are SSP waiting days?</button>
+    <button class="faq-trigger">Are there waiting days for SSP in 2026/27?</button>
     <div class="faq-content">
-      <p>Waiting days are the first 3 qualifying work days of sickness absence for which no Statutory Sick Pay is payable. SSP payments begin on the 4th qualifying work day of continuous sickness.</p>
+      <p>No. Under the Employment Rights Act 2025 reforms that took effect on 6 April 2026, the 3 unpaid waiting days have been completely abolished. Employees are now entitled to receive Statutory Sick Pay from the very first day of their sickness absence.</p>
     </div>
   </div>
 
   <div class="faq-item">
     <button class="faq-trigger">What happens after 28 weeks of Statutory Sick Pay?</button>
     <div class="faq-content">
-      <p>If your sickness lasts longer than 28 weeks, SSP stops. Your employer must issue form SSP1, allowing you to apply to DWP for Employment and Support Allowance (ESA) or Universal Credit.</p>
+      <p>If your sickness lasts longer than 28 weeks, SSP stops. Your employer must issue form SSP1, allowing you to apply to the Department for Work and Pensions (DWP) for Employment and Support Allowance (ESA) or Universal Credit to receive ongoing financial assistance.</p>
     </div>
   </div>
 
   <div class="faq-item">
-    <button class="faq-trigger">Do agency workers and zero-hours contract workers qualify for SSP?</button>
+    <button class="faq-trigger">Do low earners qualify for SSP now?</button>
     <div class="faq-content">
-      <p>Yes. Agency workers, gig economy staff, and zero-hours contract workers qualify for Statutory Sick Pay provided they earn an average of at least £123 per week (gross) and meet the 4-day sickness threshold.</p>
+      <p>Yes. The Lower Earnings Limit (LEL) qualification threshold has been abolished for sick pay. All employees, including part-time workers and zero-hours contract workers, qualify for SSP from Day 1, with their weekly rate capped at 80% of their average weekly earnings if they earn below £154.06 per week.</p>
     </div>
   </div>
 </div>

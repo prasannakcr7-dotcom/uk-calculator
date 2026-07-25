@@ -43,17 +43,18 @@ Buying real estate in the UK involves paying statutory property transaction tax 
 ## ⚙️ Statutory Property Tax Bands & Surcharges for 2026/27
 
 ### 1. SDLT Bands (England & Northern Ireland — Next Home Buyer)
-- **Up to £250,000**: **0%**.
+- **Up to £125,000**: **0%**.
+- **£125,001 to £250,000**: **2%**.
 - **£250,001 to £925,000**: **5%**.
 - **£925,001 to £1,500,000**: **10%**.
 - **Over £1,500,000**: **12%**.
 
 ### 2. First-Time Buyer Relief (England & NI)
-First-time buyers pay **0% SDLT on purchases up to £425,000**, and **5%** on the portion between £425,001 and £625,000. (If property value exceeds £625,000, standard buyer rates apply).
+First-time buyers pay **0% SDLT on purchases up to £300,000**, and **5%** on the portion between £300,001 and £500,000. (If property value exceeds £500,000, standard buyer rates apply).
 
 ### 3. Additional Property Surcharges (Buy-to-Let / Second Homes)
 Purchasing an additional residential property (such as a holiday home or buy-to-let investment) incurs a severe statutory surcharge across all price bands:
-- **England & NI**: Extra **3% SDLT surcharge**.
+- **England & NI**: Extra **5% SDLT surcharge**.
 - **Scotland**: Extra **6% Additional Dwelling Supplement (ADS)**.
 - **Wales**: Higher residential LTT band rates apply.
 
@@ -61,35 +62,59 @@ Purchasing an additional residential property (such as a holiday home or buy-to-
 
 ## 📊 Practical Property Tax Worked Examples
 
-Below are two worked calculation examples illustrating SDLT property taxes in England:
+Below are four realistic worked calculation examples illustrating residential property taxes across England, Scotland, and Wales for the **2026/27 tax year**:
 
 <div class="example-box">
-  <strong>Example 1: Buying a next home in England for £350,000 (Standard Rates)</strong>
+  <strong>Example 1: Standard Home Mover (England/NI) purchasing at £350,000</strong>
   <ul>
     <li>Property Price: **£350,000.00**</li>
-    <li>First £250,000 @ 0%: **£0.00**</li>
-    <li>Remaining £100,000 (£250k to £350k) @ 5%: **£5,000.00**</li>
+    <li>First £125,000 @ 0% Rate: **£0.00**</li>
+    <li>Next £125,000 (£125,001 to £250,000) @ 2% Rate: **£2,500.00**</li>
+    <li>Remaining £100,000 (£250,001 to £350,000) @ 5% Rate: **£5,000.00**</li>
   </ul>
-  <p>Calculation: Total SDLT due = £0.00 + £5,000.00 = £5,000.00. Effective tax rate = 1.43%.</p>
-  <div class="net-highlight">Total Stamp Duty Land Tax (SDLT): **£5,000.00** (Effective Rate: **1.43%**)</div>
+  <p>Calculation: Total SDLT due = £0.00 + £2,500.00 + £5,000.00 = £7,500.00. Effective tax rate = 2.14%.</p>
+  <div class="net-highlight">Total Stamp Duty Land Tax (SDLT): **£7,500.00** (Effective Rate: **2.14%**)</div>
 </div>
 
 <div class="example-box">
-  <strong>Example 2: Buying a Buy-to-Let property in England for £350,000 (+3% Surcharge)</strong>
+  <strong>Example 2: Buy-to-Let Investment (England/NI) purchasing at £350,000 (+5% Surcharge)</strong>
   <ul>
     <li>Property Price: **£350,000.00** (Additional Property)</li>
-    <li>First £250,000 @ 3% surcharge: **£7,500.00**</li>
-    <li>Remaining £100,000 @ 8% (5% + 3%): **£8,000.00**</li>
+    <li>First £125,000 @ 5% surcharge band rate: **£6,250.00**</li>
+    <li>Next £125,000 @ 7% band rate (2% standard + 5% surcharge): **£8,750.00**</li>
+    <li>Remaining £100,000 @ 10% band rate (5% standard + 5% surcharge): **£10,000.00**</li>
   </ul>
-  <p>Calculation: Total SDLT due = £7,500.00 + £8,000.00 = £15,500.00. Effective tax rate = 4.43%.</p>
-  <div class="net-highlight">Total Stamp Duty Land Tax (SDLT): **£15,500.00** (Effective Rate: **4.43%**)</div>
+  <p>Calculation: Total SDLT due = £6,250.00 + £8,750.00 + £10,000.00 = £25,000.00. Effective tax rate = 7.14%.</p>
+  <div class="net-highlight">Total Stamp Duty Land Tax (SDLT): **£25,000.00** (Effective Rate: **7.14%**)</div>
+</div>
+
+<div class="example-box">
+  <strong>Example 3: First-time Buyer in Scotland (LBTT) purchasing at £210,000</strong>
+  <ul>
+    <li>Property Price: **£210,000.00** (Scottish First-Time Buyer Relief)</li>
+    <li>First £175,000 @ 0% Relief Rate: **£0.00**</li>
+    <li>Remaining £35,000 (£175,001 to £210,000) @ 2% Rate: **£700.00**</li>
+  </ul>
+  <p>Calculation: Total LBTT due = £0.00 + £700.00 = £700.00. Effective tax rate = 0.33%.</p>
+  <div class="net-highlight">Total Scottish Land and Buildings Tax (LBTT): **£700.00** (Effective Rate: **0.33%**)</div>
+</div>
+
+<div class="example-box">
+  <strong>Example 4: Home Mover in Wales (LTT) purchasing at £300,000</strong>
+  <ul>
+    <li>Property Price: **£300,000.00**</li>
+    <li>First £225,000 @ 0% Rate: **£0.00**</li>
+    <li>Remaining £75,000 (£225,001 to £300,000) @ 6% Rate: **£4,500.00**</li>
+  </ul>
+  <p>Calculation: Total LTT due = £0.00 + £4,500.00 = £4,500.00. Effective tax rate = 1.50%.</p>
+  <div class="net-highlight">Total Welsh Land Transaction Tax (LTT): **£4,500.00** (Effective Rate: **1.50%**)</div>
 </div>
 
 ---
 
 ## 📑 Common Pitfalls & Property Tax Warnings
 
-1. **Failing to Claim Second Home Refund Following Replacement of Main Residence**: If you buy a new main home before selling your old main home, you must pay the 3% additional property surcharge upfront. However, if you sell your old main home within **36 months**, you can claim a **100% refund of the 3% surcharge** from HMRC.
+1. **Failing to Claim Second Home Refund Following Replacement of Main Residence**: If you buy a new main home before selling your old main home, you must pay the 5% additional property surcharge upfront. However, if you sell your old main home within **36 months**, you can claim a **100% refund of the 5% surcharge** from HMRC.
 2. **First-Time Buyer Relief Qualification Rules**: Both joint buyers must be genuine first-time buyers who have never owned an interest in any residential property anywhere in the world.
 3. **Non-UK Resident Surcharge**: Non-UK residents purchasing residential property in England face an additional **2% non-resident SDLT surcharge** on top of standard rates.
 
@@ -123,6 +148,20 @@ Below are two worked calculation examples illustrating SDLT property taxes in En
     <button class="faq-trigger">Is stamp duty payable on property inherited through a will? <span class="icon">▼</span></button>
     <div class="faq-content">
       <p>No. Properties inherited through a will or legal estate distribution are completely exempt from Stamp Duty Land Tax, LBTT, and LTT.</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-trigger">How does the 36-month main residence replacement refund work? <span class="icon">▼</span></button>
+    <div class="faq-content">
+      <p>If you purchase a new primary residence but are delayed in selling your previous home, you must pay the higher additional property rate (containing the 5% surcharge) at completion. If you successfully sell your old home within 36 months, you can apply to HMRC for a full refund of that 5% surcharge share.</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-trigger">What is the 2% Non-UK Resident Surcharge on SDLT? <span class="icon">▼</span></button>
+    <div class="faq-content">
+      <p>Buyers who are not present in the UK for at least 183 days during any continuous 365-day period starting 12 months before and ending 12 months after the purchase date are classed as non-residents. They must pay a 2% surcharge on top of standard or surcharge SDLT rates.</p>
     </div>
   </div>
 </div>

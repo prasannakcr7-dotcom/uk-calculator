@@ -52,8 +52,8 @@ const { labels = {}, lang = 'en' } = Astro.props;
           <strong id="spp-qualification-status">Qualified for SPP</strong>
         </div>
         <div class="breakdown-row">
-          <span>Weekly Statutory Rate (Lower of 90% or £184.03)</span>
-          <strong id="spp-weekly-rate-val">£184.03 / week</strong>
+          <span>Weekly Statutory Rate (Lower of 90% or £194.32)</span>
+          <strong id="spp-weekly-rate-val">£194.32 / week</strong>
         </div>
         <div class="breakdown-row">
           <span>Flexible Leave Window Rule</span>
@@ -61,7 +61,7 @@ const { labels = {}, lang = 'en' } = Astro.props;
         </div>
         <div class="breakdown-row net">
           <span>Total Statutory Paternity Pay</span>
-          <strong id="total-spp-award-val">£368.06</strong>
+          <strong id="total-spp-award-val">£388.64</strong>
         </div>
       </div>
     </div>
@@ -86,8 +86,8 @@ const { labels = {}, lang = 'en' } = Astro.props;
     const leaveWeeks = parseInt(leaveWeeksSelect.value) || 2;
     const weeksService = parseInt(serviceInput.value) || 0;
 
-    const lel = 123.0;
-    const statRate = 184.03;
+    const lel = 125.0;
+    const statRate = 194.32;
 
     let isEligible = false;
     let statusStr = '';
@@ -96,7 +96,7 @@ const { labels = {}, lang = 'en' } = Astro.props;
       isEligible = true;
       statusStr = 'Qualified for SPP';
     } else if (weeklyEarn < lel) {
-      statusStr = 'Not Eligible (Earnings below £123/wk LEL)';
+      statusStr = 'Not Eligible (Earnings below £125/wk LEL)';
     } else {
       statusStr = 'Not Eligible (Under 26 wks continuous service)';
     }

@@ -80,10 +80,10 @@ const { labels } = Astro.props;
     <slot />
   </div>
 
-  <div class="side-col">
+  <div class="sidebar">
     <Sidebar />
-</div>
-      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
+    <div style="margin-top:20px; padding:15px; background:var(--soft); border-radius:10px;">
+      <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin:0;">
         • First Child: <strong>£26.05/week</strong><br/>
         • Additional Children: <strong>£17.25/week</strong><br/>
         • HICBC Threshold: Income over <strong>£60,000</strong> (tapered to 100% at £80,000).
