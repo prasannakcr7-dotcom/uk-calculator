@@ -1492,3 +1492,41 @@ select.fancy {
 .promo-card.reside-theme a.btn {
   color: var(--reside-2);
 }
+
+/* ===== SINGLE-COLUMN CALCULATOR PAGE LAYOUT ===== */
+body.individual-calculator-page .layout {
+  display: flex;
+  flex-direction: column;
+  max-width: 800px;
+  margin: 28px auto 0;
+  gap: 24px;
+}
+
+body.individual-calculator-page .layout .main-col {
+  width: 100%;
+}
+
+body.individual-calculator-page .layout > .sidebar,
+body.individual-calculator-page .layout > .side-col {
+  width: 100%;
+  margin-top: 24px;
+  display: block;
+}
+
+body.individual-calculator-page .sidebar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  width: 100%;
+}
+
+body.individual-calculator-page .layout > .sidebar:has(.sidebar) {
+  display: block;
+  margin-top: 24px;
+}
+
+@media (max-width: 768px) {
+  body.individual-calculator-page .sidebar {
+    grid-template-columns: 1fr;
+  }
+}

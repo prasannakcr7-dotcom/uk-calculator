@@ -14,6 +14,30 @@ interface Props {
 
 const { title, description, lang = 'en', keywords } = Astro.props;
 
+// Determine if we are on an individual calculator page to customize the layout
+const path = Astro.url.pathname;
+const urlParts = path.split('/').filter(Boolean);
+const nonCalculatorPaths = new Set([
+  '',
+  'calculators',
+  'work-and-salary',
+  'taxes-and-fees',
+  'family-and-maternity',
+  'housing-and-rent',
+  'mobility-and-vehicles',
+  'health-and-wellbeing',
+  'social-and-benefits',
+  'finance-and-credit',
+  'daily-life',
+  'about',
+  'contact',
+  'privacy-policy',
+  'terms-and-conditions',
+  'blog'
+]);
+const firstUrlSegment = urlParts.length > 0 ? urlParts[0] : '';
+const isIndividualCalculatorPage = firstUrlSegment && !nonCalculatorPaths.has(firstUrlSegment);
+
 // Derive fallback keywords from title if not explicitly provided
 let keywordsStr = '';
 if (keywords) {
@@ -75,7 +99,7 @@ const socialImageUrl = new URL('/social-share-en.png', siteUrl).href;
   <meta property="twitter:description" content={description} />
   <meta property="twitter:image" content={socialImageUrl} />
 </head>
-<body>
+<body class={isIndividualCalculatorPage ? 'individual-calculator-page' : ''}>
 
   <!-- TOP NAV -->
   <div class="nav">
