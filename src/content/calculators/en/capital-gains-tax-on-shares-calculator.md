@@ -14,7 +14,7 @@ labels:
   losses: "Carried Forward Capital Losses to Offset (£)"
 calcBadgesTitle: "CGT Share Rules"
 taxYearBadge: "2026/27 £3,000 Allowance"
-taxYearBadgeDesc: "Calculates share gains against the £3,000 annual exempt amount and 10% (basic rate) or 20% (higher rate) CGT rates."
+taxYearBadgeDesc: "Calculates share gains against the £3,000 annual exempt amount and 18% (basic rate) or 24% (higher rate) CGT rates."
 devolBadge: "UK Wide Standard"
 devolBadgeDesc: "HMRC Capital Gains Tax rules apply to all UK tax residents selling unwrapped shares nationwide."
 taperBadge: "Section 104 Pooling"
@@ -39,9 +39,9 @@ To calculate share capital gains accurately, HMRC applies strict share matching 
 ## ⚙️ Rules & Thresholds
 
 - **CGT Annual Exempt Amount (2026/27)**: **£3,000** per individual tax year. Gains up to £3,000 across all assets are tax-free.
-- **CGT Rates for Shares**:
-  - **10%** for gains falling within your unused Basic Rate Income Tax band (£50,270 limit).
-  - **20%** for gains exceeding your Basic Rate Income Tax band.
+- **CGT Rates for Shares (Harmonized)**:
+  - **18%** for gains falling within your unused Basic Rate Income Tax band (£50,270 limit).
+  - **24%** for gains exceeding your Basic Rate Income Tax band.
 - **HMRC Share Matching Order**:
   1. Shares bought on the **Same Day** as disposal.
   2. Shares bought within **30 Days** after disposal ("Bed and Breakfasting" rule).
@@ -61,8 +61,8 @@ To calculate share capital gains accurately, HMRC applies strict share matching 
     <li>Net Taxable Gain: £4,900</li>
     <li>Income: £38,000 (Fully within Basic Rate Band)</li>
   </ul>
-  <p>CGT Calculation: £4,900 taxable gain × 10% basic CGT rate = £490.00 tax due.</p>
-  <div class="net-highlight">CGT Payable: £490.00 (Net Profit after Tax: £7,410.00)</div>
+  <p>CGT Calculation: £4,900 taxable gain × 18% basic CGT rate = £882.00 tax due.</p>
+  <div class="net-highlight">CGT Payable: £882.00 (Net Profit after Tax: £7,018.00)</div>
 </div>
 
 ## 📑 Common Pitfalls

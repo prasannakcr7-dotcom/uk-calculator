@@ -42,11 +42,11 @@ const { labels = {}, lang = 'en' } = Astro.props;
           <strong id="taxable-dividend-amount">£11,500.00</strong>
         </div>
         <div class="breakdown-row">
-          <span>Basic Rate Dividend Tax (8.75%)</span>
+          <span>Basic Rate Dividend Tax (10.75%)</span>
           <strong id="basic-rate-div-tax">£461.13</strong>
         </div>
         <div class="breakdown-row">
-          <span>Higher Rate Dividend Tax (33.75%)</span>
+          <span>Higher Rate Dividend Tax (35.75%)</span>
           <strong id="higher-rate-div-tax">£2,102.63</strong>
         </div>
         <div class="breakdown-row net">
@@ -102,8 +102,8 @@ const { labels = {}, lang = 'en' } = Astro.props;
       const inHigher = Math.min(remAfterBasic, higherRateSpaceLeft);
       const inAdditional = Math.max(0, remAfterBasic - inHigher);
 
-      basicTax = inBasic * 0.0875;
-      higherTax = inHigher * 0.3375;
+      basicTax = inBasic * 0.1075;
+      higherTax = inHigher * 0.3575;
       additionalTax = inAdditional * 0.3935;
     }
 

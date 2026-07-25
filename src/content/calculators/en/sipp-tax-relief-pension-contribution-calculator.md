@@ -42,9 +42,9 @@ Because income tax rates are devolved in Scotland, Scottish taxpayers paying the
   - Higher Rate (£50,271 to £125,140): 40%
   - Additional Rate (Above £125,140): 45%
 - **Scottish Income Tax Bands (2026/27)**:
-  - Starter Rate (£12,571 to £14,876): 19%
-  - Basic Rate (£14,877 to £26,561): 20%
-  - Intermediate Rate (£26,562 to £43,662): 21%
+  - Starter Rate (£12,571 to £16,537): 19%
+  - Basic Rate (£16,538 to £29,526): 20%
+  - Intermediate Rate (£29,527 to £43,662): 21%
   - Higher Rate (£43,663 to £75,000): 42%
   - Advanced Rate (£75,001 to £125,140): 45%
   - Top Rate (Above £125,140): 48%

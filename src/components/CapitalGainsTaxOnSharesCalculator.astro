@@ -122,13 +122,13 @@ const { labels = {}, lang = 'en' } = Astro.props;
 
     if (taxableGain > 0) {
       if (taxableGain <= basicRateSpaceRemaining) {
-        cgtPayable = taxableGain * 0.10;
-        rateStr = '10% (Basic Rate Band)';
+        cgtPayable = taxableGain * 0.18;
+        rateStr = '18% (Basic Rate Band)';
       } else {
         const basicPart = basicRateSpaceRemaining;
         const higherPart = taxableGain - basicPart;
-        cgtPayable = (basicPart * 0.10) + (higherPart * 0.20);
-        rateStr = basicPart > 0 ? '10% and 20% Split' : '20% (Higher/Additional Rate Band)';
+        cgtPayable = (basicPart * 0.18) + (higherPart * 0.24);
+        rateStr = basicPart > 0 ? '18% and 24% Split' : '24% (Higher/Additional Rate Band)';
       }
     } else {
       rateStr = '0% (Covered by Allowance)';

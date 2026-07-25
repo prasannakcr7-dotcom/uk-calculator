@@ -58,9 +58,9 @@ Here is a summary of the core rules governing UK payroll deductions for the **20
 - **Additional Rate (45%)**: Applied to all earnings above **£125,140**.
 
 ### 🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scotland Income Tax Brackets (Devolved Bands)
-- **Starter Rate (19%)**: Income between **£12,571** and **£14,876**.
-- **Basic Rate (20%)**: Income between **£14,877** and **£26,561**.
-- **Intermediate Rate (21%)**: Income between **£26,562** and **£43,662**.
+- **Starter Rate (19%)**: Income between **£12,571** and **£16,537**.
+- **Basic Rate (20%)**: Income between **£16,538** and **£29,526**.
+- **Intermediate Rate (21%)**: Income between **£29,527** and **£43,662**.
 - **Higher Rate (42%)**: Income between **£43,663** and **£75,000**.
 - **Advanced Rate (45%)**: Income between **£75,001** and **£125,140**.
 - **Top Rate (48%)**: Applied to all income above **£125,140**.
@@ -98,16 +98,16 @@ Below are two worked examples comparing a **£30,000** salary in England vs. Sco
   <ul>
     <li>Scottish Income Tax:
       <ul>
-        <li>Starter band: £2,306 × 19% = **£438.14**</li>
-        <li>Basic band: £11,685 × 20% = **£2,337.00**</li>
-        <li>Intermediate band: £3,439 × 21% = **£722.19**</li>
-        <li>Total Scottish Tax: **£3,497.33**</li>
+        <li>Starter band: £3,967 × 19% = **£753.73**</li>
+        <li>Basic band: £12,989 × 20% = **£2,597.80**</li>
+        <li>Intermediate band: £474 × 21% = **£99.54**</li>
+        <li>Total Scottish Tax: **£3,451.07**</li>
       </ul>
     </li>
     <li>National Insurance: **£1,394.40** (remains the same)</li>
-    <li>Total Deductions: **£4,891.73**</li>
+    <li>Total Deductions: **£4,845.47**</li>
   </ul>
-  <div class="net-highlight">Take-Home Pay: **£25,108.27** (£2,092.36 per month)</div>
+  <div class="net-highlight">Take-Home Pay: **£25,154.53** (£2,096.21 per month)</div>
 </div>
 
 ---

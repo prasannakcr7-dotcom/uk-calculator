@@ -11,7 +11,7 @@ labels:
   salary: "Non-Dividend Taxable Income (£ Salary/Pension/Rent)"
 calcBadgesTitle: "Dividend Tax Rules"
 taxYearBadge: "2026/27 £500 Allowance"
-taxYearBadgeDesc: "Calculates dividend tax using the £500 Dividend Allowance and 8.75%, 33.75%, and 39.35% tax bands."
+taxYearBadgeDesc: "Calculates dividend tax using the £500 Dividend Allowance and 10.75%, 35.75%, and 39.35% tax bands."
 devolBadge: "UK Wide Application"
 devolBadgeDesc: "Dividend Income Tax rates apply identically across England, Scotland, Wales, and Northern Ireland."
 taperBadge: "Top-Slice Taxation"
@@ -31,14 +31,14 @@ lastUpdatedDesc: "April 2026 — Verified with 2026/27 HMRC dividend tax bands."
 
 In the UK, dividend income—whether received from shares in publicly listed companies or drawn as profit distributions by limited company owner-directors—is subject to **Dividend Income Tax**.
 
-Dividends are taxed differently from standard employment income. They benefit from a dedicated tax-free **Dividend Allowance (£500 for 2026/27)** and carry lower headline tax rates (8.75%, 33.75%, and 39.35%) because the underlying corporate profits have already been subjected to UK Corporation Tax.
+Dividends are taxed differently from standard employment income. They benefit from a dedicated tax-free **Dividend Allowance (£500 for 2026/27)** and carry lower headline tax rates (10.75%, 35.75%, and 39.35%) because the underlying corporate profits have already been subjected to UK Corporation Tax.
 
 ## ⚙️ Rules & Thresholds
 
 - **Dividend Allowance (2026/27)**: The first **£500** of dividend income per tax year is tax-free.
 - **Dividend Tax Rates (2026/27)**:
-  - **Basic Rate (8.75%)**: For total taxable income up to £50,270.
-  - **Higher Rate (33.75%)**: For taxable income between £50,271 and £125,140.
+  - **Basic Rate (10.75%)**: For total taxable income up to £50,270.
+  - **Higher Rate (35.75%)**: For taxable income between £50,271 and £125,140.
   - **Additional Rate (39.35%)**: For taxable income above £125,140.
 - **Top-Slicing Order**: Dividend income is stacked on top of salary, pension, and property income when determining which tax band applies.
 - **ISA Exemption**: Dividends received inside a Stocks & Shares ISA are 100% tax-free and do not count towards your £500 allowance.
@@ -54,13 +54,13 @@ Dividends are taxed differently from standard employment income. They benefit fr
     <li>Taxable Dividends: £14,500</li>
     <li>Income Position: All £14,500 falls within Basic Rate Band (£12,571 to £50,270)</li>
   </ul>
-  <p>Calculation: £14,500 × 8.75% Basic Dividend Rate = £1,268.75 tax due.</p>
-  <div class="net-highlight">Dividend Tax Due: £1,268.75 (Effective Tax Rate: 8.46%)</div>
+  <p>Calculation: £14,500 × 10.75% Basic Dividend Rate = £1,558.75 tax due.</p>
+  <div class="net-highlight">Dividend Tax Due: £1,558.75 (Effective Tax Rate: 10.39%)</div>
 </div>
 
 ## 📑 Common Pitfalls
 
-- **Forgetting Dividend Stacking**: Dividend income sits on top of earned salary. If your salary is £45,000, only £5,270 of dividends fall into the 8.75% basic rate band; remaining dividends enter the 33.75% higher rate band!
+- **Forgetting Dividend Stacking**: Dividend income sits on top of earned salary. If your salary is £45,000, only £5,270 of dividends fall into the 10.75% basic rate band; remaining dividends enter the 35.75% higher rate band!
 - **Not Reporting via Self Assessment**: If your dividend income exceeds the £500 tax-free allowance, you must register for Self Assessment and file a return by 31 January.
 - **Drawing Dividends Without Retained Reserves**: Limited company directors can legally only declare dividends out of post-tax retained company profits; illegal dividends can be reclassified as director loans.
 

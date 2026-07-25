@@ -41,7 +41,7 @@ Over extended time horizons, low-cost index funds combined with disciplined doll
 - **Ongoing Charge Figure (OCF)**: The annual cost charged by the fund manager (typically 0.05% to 0.25% for passive global index tracker funds).
 - **Platform Custody Fee**: The percentage fee charged by the broker or investment platform (e.g. 0.15% to 0.45%), often capped on share/ETF holdings.
 - **Capital Gains Tax (CGT) Threshold**: Outside an ISA or pension wrapper, UK investors get a £3,000 CGT tax-free annual allowance for 2026/27.
-- **Dividend Allowance**: Unwrapped dividend income above £500 per year is subject to Dividend Tax (8.75% basic rate, 33.75% higher rate, 39.35% additional rate).
+- **Dividend Allowance**: Unwrapped dividend income above £500 per year is subject to Dividend Tax (10.75% basic rate, 35.75% higher rate, 39.35% additional rate).
 
 ## 📊 Practical Examples
 

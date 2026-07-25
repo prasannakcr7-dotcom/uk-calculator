@@ -31,8 +31,8 @@ const { labels } = Astro.props;
 
     <!-- RESULT HERO -->
     <div class="result-card" style="background: linear-gradient(135deg, var(--taxes-1), var(--taxes-2) 80%);">
-      <div class="result-label">{labels.resultLabel || 'Total Dividend Income Tax Liability (Basic 8.75%)'}</div>
-      <div class="result-amount"><span id="mainResultDisplay">£656.25/yr</span></div>
+      <div class="result-label">{labels.resultLabel || 'Total Dividend Income Tax Liability (Basic 10.75%)'}</div>
+      <div class="result-amount"><span id="mainResultDisplay">£806.25/yr</span></div>
       <div class="result-year" style="border-top: 1px solid rgba(255,255,255,0.3); margin-top: 20px; padding-top: 14px;">
         <span id="subResultLabel">{labels.allowanceLabel || 'Statutory Tax-Free Allowance:'}</span>
         <span class="val" id="subResultValue">£500.00/yr</span>
@@ -56,8 +56,8 @@ const { labels } = Astro.props;
           <span class="val" id="taxableDividendDisplay">£7,500.00</span>
         </div>
         <div class="breakdown-row net" style="border-top: 2px solid var(--line);">
-          <span>Total Basic Rate Dividend Tax (8.75%)</span>
-          <span class="val" id="totalDividendTaxDisplay" style="font-weight: 700; font-size: 18px;">£656.25</span>
+          <span>Total Basic Rate Dividend Tax (10.75%)</span>
+          <span class="val" id="totalDividendTaxDisplay" style="font-weight: 700; font-size: 18px;">£806.25</span>
         </div>
       </div>
     </div>
@@ -65,13 +65,15 @@ const { labels } = Astro.props;
     <slot />
   </div>
 
-  <div class="side-col">
+  <div class="sidebar">
     <Sidebar />
-</div>
+  </div>
+  <div>
+    <div>
       <p style="font-size:13px; line-height:1.5; color:rgba(26,46,40,0.7); margin-bottom:8px;">
         • Allowance: <strong>£500</strong> (0%)<br/>
-        • Basic Rate Band: <strong>8.75%</strong><br/>
-        • Higher Rate Band: <strong>33.75%</strong><br/>
+        • Basic Rate Band: <strong>10.75%</strong><br/>
+        • Higher Rate Band: <strong>35.75%</strong><br/>
         • Additional Rate Band: <strong>39.35%</strong>
       </p>
     </div>
@@ -117,7 +119,7 @@ const { labels } = Astro.props;
 
     const allowance = 500;
     const taxable = Math.max(0, divInc - allowance);
-    const tax = taxable * 0.0875;
+    const tax = taxable * 0.1075;
 
     mainResultDisplay.textContent = `${formatCurrency(tax)}/yr`;
     subResultValue.textContent = formatCurrency(allowance);

@@ -17,8 +17,8 @@ labels:
 calcBadgesTitle: "CGT Assurances"
 taxYearBadge: "2026/27 £3,000 Exemption"
 taxYearBadgeDesc: "Calculates tax using the statutory Annual Exempt Amount of £3,000 per individual."
-devolBadge: "Asset Class Split"
-devolBadgeDesc: "Applies statutory CGT rates for shares/assets (10% basic / 20% higher) vs. residential property (18% / 24%)."
+devolBadge: "Harmonized Rates"
+devolBadgeDesc: "Applies statutory CGT rates (18% basic rate / 24% higher rate) across shares, crypto, and residential property."
 taperBadge: "Private Residence Exemption"
 taperBadgeDesc: "Includes Private Residence Relief (PRR) 100% tax exemption for selling your main home."
 authoritiesTitle: "Reference Authorities"
@@ -43,13 +43,10 @@ Understanding the **£3,000 statutory Annual Exempt Amount** and asset-specific 
 ### 1. Annual Exempt Amount (Tax-Free Allowance)
 - **Individual Allowance**: **£3,000 per tax year** (0% CGT on net gains up to £3,000).
 
-### 2. Statutory CGT Rates by Asset Class
-- **Shares, Investments, Cryptocurrency & Other Assets**:
-  - **Basic Rate Taxpayers**: **10% CGT**.
-  - **Higher / Additional Rate Taxpayers**: **20% CGT**.
-- **Residential Property (Second Homes & Buy-to-Let)**:
-  - **Basic Rate Taxpayers**: **18% CGT**.
-  - **Higher / Additional Rate Taxpayers**: **24% CGT**.
+### 2. Statutory CGT Rates (Harmonized)
+Following recent UK fiscal reforms, the tax rates on capital gains are fully aligned across standard assets (shares, investments, and cryptocurrency) and residential property:
+- **Basic Rate Taxpayers**: **18% CGT** on taxable gains.
+- **Higher & Additional Rate Taxpayers**: **24% CGT** on taxable gains.
 
 ### 3. Private Residence Relief (PRR)
 Selling your **main home** is **100% tax-free** under Private Residence Relief, provided you lived in the property as your primary residence throughout ownership.
@@ -66,10 +63,10 @@ Below are two worked calculation examples illustrating CGT on shares and residen
     <li>Total Capital Gain: **£10,000.00**</li>
     <li>Annual Exempt Amount: **£3,000.00** (0% Tax)</li>
     <li>Taxable Gain: £10,000 - £3,000 = **£7,000.00**</li>
-    <li>CGT Rate (Shares / Basic Rate): **10%**</li>
+    <li>CGT Rate (Basic Rate): **18%**</li>
   </ul>
-  <p>Calculation: £7,000.00 × 10% = £700.00 CGT payable.</p>
-  <div class="net-highlight">Total Capital Gains Tax Payable: **£700.00** (Effective Rate: **7.00%**)</div>
+  <p>Calculation: £7,000.00 × 18% = £1,260.00 CGT payable.</p>
+  <div class="net-highlight">Total Capital Gains Tax Payable: **£1,260.00** (Effective Rate: **12.60%**)</div>
 </div>
 
 <div class="example-box">
@@ -78,7 +75,7 @@ Below are two worked calculation examples illustrating CGT on shares and residen
     <li>Total Capital Gain: **£50,000.00**</li>
     <li>Annual Exempt Amount: **£3,000.00**</li>
     <li>Taxable Gain: £50,000 - £3,000 = **£47,000.00**</li>
-    <li>CGT Rate (Residential Property / Higher Rate): **24%**</li>
+    <li>CGT Rate (Higher Rate): **24%**</li>
   </ul>
   <p>Calculation: £47,000.00 × 24% = £11,280.00 CGT payable.</p>
   <div class="net-highlight">Total Capital Gains Tax Payable: **£11,280.00** (Effective Rate: **22.56%**)</div>
@@ -121,7 +118,7 @@ Below are two worked calculation examples illustrating CGT on shares and residen
   <div class="faq-item">
     <button class="faq-trigger">What is Business Asset Disposal Relief (BADR)? <span class="icon">▼</span></button>
     <div class="faq-content">
-      <p>Business Asset Disposal Relief (formerly Entrepreneurs' Relief) allows qualifying business owners selling their business shares or assets to pay a reduced **10% CGT rate** on lifetime gains up to £1,000,000.</p>
+      <p>Business Asset Disposal Relief (formerly Entrepreneurs' Relief) allows qualifying business owners selling their business shares or assets to pay a reduced CGT rate of 18% (which was 14% in 2025/26 and 10% previously) on lifetime gains up to £1,000,000.</p>
     </div>
   </div>
 </div>

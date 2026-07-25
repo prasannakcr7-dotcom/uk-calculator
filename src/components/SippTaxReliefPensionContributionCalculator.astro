@@ -19,14 +19,14 @@ const { labels = {}, lang = 'en', nation = 'england' } = Astro.props;
       <div class="field-group">
         <label class="field-label" for="gross-salary">Annual Taxable Earnings (£)</label>
         <div class="amount-field">
-          <input type="number" id="gross-salary" value="55000" min="10000" step="1000" />
           <span class="cur">£</span>
+          <input type="number" id="gross-salary" value="55000" min="10000" step="1000" />
         </div>
       </div>
 
       <div class="field-group">
         <label class="field-label" for="tax-region">Taxation Jurisdiction / Nation</label>
-        <select id="tax-region" class="fancy">
+        <select id="tax-region" class="fancy" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
           <option value="rUK" selected={nation !== 'scotland'}>England, Wales & Northern Ireland (rUK)</option>
           <option value="scotland" selected={nation === 'scotland'}>Scotland (Scottish Tax Bands)</option>
         </select>
@@ -35,12 +35,10 @@ const { labels = {}, lang = 'en', nation = 'england' } = Astro.props;
       <div class="field-group">
         <label class="field-label" for="pension-payment-net">Proposed Net Personal SIPP Payment (£)</label>
         <div class="amount-field">
-          <input type="number" id="pension-payment-net" value="4000" min="100" step="100" />
           <span class="cur">£</span>
+          <input type="number" id="pension-payment-net" value="4000" min="100" step="100" />
         </div>
       </div>
-
-      <button id="calc-btn" class="calc-btn">Calculate SIPP Tax Relief</button>
     </div>
 
     <!-- RESULT HERO -->
@@ -56,33 +54,41 @@ const { labels = {}, lang = 'en', nation = 'england' } = Astro.props;
     <!-- BREAKDOWN CARD -->
     <div class="card" style="margin-top: 24px;">
       <h2 style="margin-bottom:14px;">📊 SIPP Tax Relief Breakdown</h2>
-      <div class="breakdown-row">
-        <span>Automatic Basic Provider Relief (20%):</span>
-        <span class="val" id="provider-relief">£1,000.00</span>
-      </div>
-      <div class="breakdown-row">
-        <span>Additional Tax Claimable from HMRC:</span>
-        <span class="val" id="hmrc-claimable">£1,000.00</span>
-      </div>
-      <div class="breakdown-row section">
-        <span>Total Government Tax Relief Benefit:</span>
-        <span class="val" id="total-tax-benefit">£2,000.00</span>
+      <div class="breakdown-list">
+        <div class="breakdown-row">
+          <span>Automatic Basic Provider Relief (20%):</span>
+          <span class="val" id="provider-relief">£1,000.00</span>
+        </div>
+        <div class="breakdown-row">
+          <span>Additional Tax Claimable from HMRC:</span>
+          <span class="val" id="hmrc-claimable">£1,000.00</span>
+        </div>
+        <div class="breakdown-row section">
+          <span>Total Government Tax Relief Benefit:</span>
+          <span class="val" id="total-tax-benefit">£2,000.00</span>
+        </div>
       </div>
     </div>
 
     <slot />
   </div>
 
-  <div class="side-col">
+  <div class="sidebar">
     <Sidebar category="finanzas" currentSlug="sipp-tax-relief-pension-contribution-calculator" />
   </div>
 </div>
 
 <script>
   function calculateRegionalSippRelief() {
-    const salary = parseFloat((document.getElementById('gross-salary') as HTMLInputElement).value) || 0;
-    const region = (document.getElementById('tax-region') as HTMLSelectElement).value;
-    const netPayment = parseFloat((document.getElementById('pension-payment-net') as HTMLInputElement).value) || 0;
+    const salaryEl = document.getElementById('gross-salary') as HTMLInputElement;
+    const regionEl = document.getElementById('tax-region') as HTMLSelectElement;
+    const netPaymentEl = document.getElementById('pension-payment-net') as HTMLInputElement;
+
+    if (!salaryEl || !regionEl || !netPaymentEl) return;
+
+    const salary = parseFloat(salaryEl.value) || 0;
+    const region = regionEl.value;
+    const netPayment = parseFloat(netPaymentEl.value) || 0;
 
     // Automatic 20% provider relief adds 25% to net payment
     const grossAddition = netPayment / 0.8;
@@ -93,9 +99,9 @@ const { labels = {}, lang = 'en', nation = 'england' } = Astro.props;
     if (region === 'scotland') {
       if (salary > 125140) marginalRate = 48; // Top Rate
       else if (salary > 75000) marginalRate = 45; // Advanced Rate
-      else if (salary > 43662) marginalRate = 42; // Higher Rate
-      else if (salary > 26561) marginalRate = 21; // Intermediate Rate
-      else if (salary > 14876) marginalRate = 20; // Basic Rate
+      else if (salary > 43663) marginalRate = 42; // Higher Rate
+      else if (salary > 29526) marginalRate = 21; // Intermediate Rate
+      else if (salary > 16537) marginalRate = 20; // Basic Rate
       else marginalRate = 19; // Starter Rate
     } else {
       if (salary > 125140) marginalRate = 45;
@@ -108,13 +114,22 @@ const { labels = {}, lang = 'en', nation = 'england' } = Astro.props;
     const totalTaxBenefit = providerRelief + hmrcClaimable;
     const trueNetCost = netPayment - hmrcClaimable;
 
-    (document.getElementById('gross-addition') as HTMLElement).textContent = '£' + grossAddition.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    (document.getElementById('provider-relief') as HTMLElement).textContent = '£' + providerRelief.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    (document.getElementById('hmrc-claimable') as HTMLElement).textContent = '£' + hmrcClaimable.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    (document.getElementById('total-tax-benefit') as HTMLElement).textContent = '£' + totalTaxBenefit.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    (document.getElementById('true-net-cost') as HTMLElement).textContent = '£' + trueNetCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const grossAddEl = document.getElementById('gross-addition');
+    const provReliefEl = document.getElementById('provider-relief');
+    const hmrcClaimEl = document.getElementById('hmrc-claimable');
+    const totalBenefitEl = document.getElementById('total-tax-benefit');
+    const netCostEl = document.getElementById('true-net-cost');
+
+    if (grossAddEl) grossAddEl.textContent = '£' + grossAddition.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (provReliefEl) provReliefEl.textContent = '£' + providerRelief.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (hmrcClaimEl) hmrcClaimEl.textContent = '£' + hmrcClaimable.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (totalBenefitEl) totalBenefitEl.textContent = '£' + totalTaxBenefit.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (netCostEl) netCostEl.textContent = '£' + trueNetCost.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
-  document.getElementById('calc-btn')?.addEventListener('click', calculateRegionalSippRelief);
+  ['gross-salary', 'tax-region', 'pension-payment-net'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', calculateRegionalSippRelief);
+    document.getElementById(id)?.addEventListener('change', calculateRegionalSippRelief);
+  });
   calculateRegionalSippRelief();
 </script>

@@ -32,8 +32,8 @@ const { labels = {}, lang = 'en' } = Astro.props;
       <div class="field-group">
         <div class="field-label"><span>Investor Tax Status / Rate</span></div>
         <select id="eri-investor-tax-rate-select" style="width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; background: #fff; color: var(--ink);">
-          <option value="0.3375" selected>Higher Rate Dividend Tax (33.75%)</option>
-          <option value="0.0875">Basic Rate Dividend Tax (8.75%)</option>
+          <option value="0.3575" selected>Higher Rate Dividend Tax (35.75%)</option>
+          <option value="0.1075">Basic Rate Dividend Tax (10.75%)</option>
           <option value="0.3935">Additional Rate Dividend Tax (39.35%)</option>
         </select>
       </div>
@@ -59,7 +59,7 @@ const { labels = {}, lang = 'en' } = Astro.props;
         </div>
         <div class="breakdown-row section">
           <span>Applicable UK Dividend Tax Rate</span>
-          <span class="val" id="applicableDivTaxRateDisplay">33.75%</span>
+          <span class="val" id="applicableDivTaxRateDisplay">35.75%</span>
         </div>
         <div class="breakdown-row section">
           <span>CGT Base Cost Addition Adjustment</span>
@@ -90,7 +90,7 @@ const { labels = {}, lang = 'en' } = Astro.props;
 
     const shares = parseFloat(sharesEl.value) || 0;
     const ratePerShare = parseFloat(rateEl.value) || 0;
-    const divTaxRate = parseFloat(taxRateEl.value) || 0.3375;
+    const divTaxRate = parseFloat(taxRateEl.value) || 0.3575;
 
     const totalEriIncome = shares * ratePerShare;
     const taxDue = totalEriIncome * divTaxRate;

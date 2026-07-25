@@ -18,7 +18,7 @@ taxYearBadgeDesc: "Compares current statutory sole trader Class 4 NI against Ltd
 devolBadge: "Optimal Director Salary"
 devolBadgeDesc: "Models optimal director salary mix (£12,570 Personal Allowance threshold) plus dividend extraction."
 taperBadge: "£500 Dividend Allowance"
-taperBadgeDesc: "Includes £500 statutory tax-free dividend allowance and 8.75% / 33.75% dividend tax bands."
+taperBadgeDesc: "Includes £500 statutory tax-free dividend allowance and 10.75% / 35.75% dividend tax bands."
 authoritiesTitle: "Reference Authorities"
 auth1Name: "HM Revenue & Customs (HMRC)"
 auth1Desc: "The UK tax department regulating corporate dividend taxation, PAYE director salaries, and sole trader tax."
@@ -50,8 +50,8 @@ A Limited Company pays **19% to 25% Corporation Tax** on profits after deducting
 - **Corporation Tax**: Paid by the company at 19% (on profits up to £50k) or 25% (profits above £250k).
 - **Dividend Extraction**: Remaining post-tax profits are paid to the shareholder as dividends:
   - **£500 Dividend Allowance**: 0% Tax.
-  - **Basic Rate Dividends**: **8.75% Tax** (total income up to £50,270).
-  - **Higher Rate Dividends**: **33.75% Tax** (total income between £50,271 and £125,140).
+  - **Basic Rate Dividends**: **10.75% Tax** (total income up to £50,270).
+  - **Higher Rate Dividends**: **35.75% Tax** (total income between £50,271 and £125,140).
 
 ---
 
@@ -63,17 +63,17 @@ Below are two worked calculation examples comparing net take-home profits:
   <strong>Example 1: Business with £60,000 annual net profit before tax</strong>
   <ul>
     <li>Sole Trader Tax Paid: Income Tax £11,430 + Class 4 NI £2,456.60 = **£13,886.60** (Take-home: **£46,113.40**)</li>
-    <li>Ltd Company Tax Paid: Corp Tax £9,011.70 + Dividend Tax £2,734.90 = **£11,746.60** (Take-home: **£48,253.40**)</li>
+    <li>Ltd Company Tax Paid: Corp Tax £9,011.70 + Dividend Tax £4,130.79 = **£13,142.49** (Take-home: **£46,857.51**)</li>
   </ul>
-  <p>Calculation: Net take-home advantage for Limited Company = £48,253.40 - £46,113.40 = £2,140.00 extra cash per year.</p>
-  <div class="net-highlight">Optimal Structure: **Limited Company** (Saves **£2,140.00 / year** in tax)</div>
+  <p>Calculation: Net take-home advantage for Limited Company = £46,857.51 - £46,113.40 = £744.11 extra cash per year.</p>
+  <div class="net-highlight">Optimal Structure: **Limited Company** (Saves **£744.11 / year** in tax)</div>
 </div>
 
 <div class="example-box">
   <strong>Example 2: Business with £25,000 annual net profit before tax</strong>
   <ul>
     <li>Sole Trader Tax Paid: Income Tax £2,486.00 + Class 4 NI £745.80 = **£3,231.80** (Take-home: **£21,768.20**)</li>
-    <li>Ltd Company Tax Paid: Corp Tax £2,361.70 + Dividend Tax £990.20 = **£3,351.90** (Take-home: **£21,648.10**)</li>
+    <li>Ltd Company Tax Paid: Corp Tax £2,361.70 + Dividend Tax £1,028.59 = **£3,390.29** (Take-home: **£21,609.71**)</li>
   </ul>
   <p>Calculation: At lower profit levels, additional accountancy fees make Sole Trader status more cost-effective.</p>
   <div class="net-highlight">Optimal Structure: **Sole Trader** (Higher Net Profit After Accountancy Costs)</div>

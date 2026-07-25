@@ -1,35 +1,36 @@
 ---
-title: "Dividend vs Salary Tax Calculator UK 2026/27 — Director Strategy"
-description: "Calculate optimal Ltd Company director salary and dividend extraction strategies for 2026/27."
-keywords: "dividend vs salary tax calculator uk 2026 27 director strategy, calculate optimal ltd company director salary, hmrc 2026/27"
-category: "impuestos"
+title: "UK Dividend vs Salary Calculator 2026/27 — Ltd Company Director"
+description: "Calculate optimal Limited Company director salary and dividend extraction mix to minimize HMRC Income Tax and National Insurance."
+keywords: "uk dividend vs salary calculator 2026 27, ltd company director tax optimization, compound interest 2026/27"
+category: "finanzas"
 lang: "en"
 isDevolved: false
-translationUrl: "/dividend-vs-salary-ltd-company-director-tax-calculator/"
+translationUrl: "/dividend-vs-salary-ltd-company-director-tax-calculator"
 labels:
-  inputTitle: "Director Extraction Strategy Details"
-  profitLabel: "Available Gross Company Profit (£)"
-  resultLabel: "Optimal Take-Home (Salary + Dividend Mix)"
-  optimalSalaryLabel: "Optimal Salary Drawn:"
-  breakdownTitle: "Director Tax Extraction Breakdown"
-calcBadgesTitle: "Director Strategy Assurances"
-taxYearBadge: "£12,570 Optimal Salary"
-taxYearBadgeDesc: "Calculates optimal £12,570 director salary threshold incurring 0% Income Tax and 0% NI."
-devolBadge: "£500 Dividend Allowance"
-devolBadgeDesc: "Integrates statutory £500 tax-free dividend allowance and 8.75% / 33.75% dividend tax tiers."
-taperBadge: "Corp Tax Savings"
-taperBadgeDesc: "Models 19% to 25% Corporation Tax savings achieved by paying director salaries."
+  inputTitle: "Director & Company Profit Details"
+  companyProfitsLabel: "Gross Annual Company Profits (Before PAYE £)"
+  salaryLabel: "Director's Gross Annual PAYE Salary (£)"
+  resultLabel: "Optimal Director Net Take-Home Pay"
+  taxSavingLabel: "Total Tax & National Insurance Saved:"
+  breakdownTitle: "Income Extraction Breakdown"
+calcBadgesTitle: "Director Assurances"
+taxYearBadge: "2026/27 Optimal Salary"
+taxYearBadgeDesc: "Uses the £12,570 Personal Allowance and NI Primary Threshold to calculate £0.00 PAYE Tax & NI."
+devolBadge: "Dividend Rate Alignment"
+devolBadgeDesc: "Calculates dividend tax using statutory 2026/27 rates of 10.75% basic and 35.75% higher rate."
+taperBadge: "Corporation Tax Offset"
+taperBadgeDesc: "Applies 19% to 25% Corporation Tax deductions to company profits prior to dividend distribution."
 authoritiesTitle: "Reference Authorities"
 auth1Name: "HM Revenue & Customs (HMRC)"
-auth1Desc: "The UK tax authority regulating director PAYE salaries, dividend vouchers, and corporate tax returns."
-auth1Link: "https://www.gov.uk/running-a-limited-company/taking-money-out-of-a-company"
-auth2Name: "GOV.UK Tax on Dividends Guide"
-auth2Desc: "Official HMRC guidance detailing dividend allowances, tax rates, and dividend voucher record keeping."
-auth2Link: "https://www.gov.uk/tax-on-dividends"
+auth1Desc: "Sets statutory PAYE income tax bands, Corporation Tax rates, and director National Insurance thresholds."
+auth1Link: "https://www.gov.uk/government/organisations/hm-revenue-customs"
+auth2Name: "ACAS (Advisory, Conciliation and Arbitration Service)"
+auth2Desc: "UK body providing advice on employment contracts, holiday entitlements, and workplace compliance rules."
+auth2Link: "https://www.acas.org.uk"
 sourcesTitle: "Official Sources"
-source1: "Income Tax (Earnings and Pensions) Act 2003 & CTA 2010 →"
-lastUpdatedTitle: "Updated for 2026/27:"
-lastUpdatedDesc: "Aligned with current UK statutory director tax rules."
+source1: "HMRC Director's National Insurance Guide CA44 & Corporation Tax Act 2010"
+lastUpdatedTitle: "Last Updated"
+lastUpdatedDesc: "April 2026 — Updated for 2026/27 HMRC dividend and Corporation Tax rules."
 ---
 
 UK Limited Company owner-directors have the unique tax flexibility to choose how they extract profits from their company—combining a director's **PAYE Salary** with **Dividend distributions**.
@@ -47,8 +48,8 @@ Understanding why drawing an **optimal salary of £12,570** combined with divide
 ### 2. Dividend Distribution Tax Rates
 After paying the £12,570 salary, remaining company profits (minus 19% to 25% Corporation Tax) are distributed to shareholders as dividends:
 - **First £500**: **0% Tax** (Statutory Dividend Allowance).
-- **Basic Rate Dividends (Total income up to £50,270)**: **8.75% Dividend Tax**.
-- **Higher Rate Dividends (Total income £50,271 to £125,140)**: **33.75% Dividend Tax**.
+- **Basic Rate Dividends (Total income up to £50,270)**: **10.75% Dividend Tax**.
+- **Higher Rate Dividends (Total income £50,271 to £125,140)**: **35.75% Dividend Tax**.
 - **Additional Rate Dividends (Total income over £125,140)**: **39.35% Dividend Tax**.
 
 ---
@@ -64,10 +65,10 @@ Below are two worked calculation examples illustrating optimal dividend vs salar
     <li>Post-Salary Taxable Company Profit: **£57,430.00**</li>
     <li>Corporation Tax Paid (19% & Marginal Rate): **£10,958.95**</li>
     <li>Post-Tax Dividends Available: **£46,471.05**</li>
-    <li>Dividend Tax Paid by Director: **£6,603.85**</li>
+    <li>Dividend Tax Paid by Director: **£7,009.65**</li>
   </ul>
-  <p>Calculation: Director net take-home = £12,570 salary + £46,471.05 dividends - £6,603.85 dividend tax = £52,437.20.</p>
-  <div class="net-highlight">Net Annual Director Take-Home: **£52,437.20 / year** (£4,369.77 per month)</div>
+  <p>Calculation: Director net take-home = £12,570 salary + £46,471.05 dividends - £7,009.65 dividend tax = £52,031.40.</p>
+  <div class="net-highlight">Net Annual Director Take-Home: **£52,031.40 / year** (£4,335.95 per month)</div>
 </div>
 
 <div class="example-box">
@@ -77,10 +78,10 @@ Below are two worked calculation examples illustrating optimal dividend vs salar
     <li>Post-Salary Taxable Company Profit: **£27,430.00**</li>
     <li>Corporation Tax Paid (19% Small Profits Rate): **£5,211.70**</li>
     <li>Post-Tax Dividends Available: **£22,218.30**</li>
-    <li>Dividend Tax Paid (8.75% basic rate above £500): **£1,900.35**</li>
+    <li>Dividend Tax Paid (10.75% basic rate above £500): **£2,334.72**</li>
   </ul>
-  <p>Calculation: Director net take-home = £12,570 + £22,218.30 - £1,900.35 = £32,887.95.</p>
-  <div class="net-highlight">Net Annual Director Take-Home: **£32,887.95 / year** (£2,740.66 per month)</div>
+  <p>Calculation: Director net take-home = £12,570 + £22,218.30 - £2,334.72 = £32,453.58.</p>
+  <div class="net-highlight">Net Annual Director Take-Home: **£32,453.58 / year** (£2,704.47 per month)</div>
 </div>
 
 ---

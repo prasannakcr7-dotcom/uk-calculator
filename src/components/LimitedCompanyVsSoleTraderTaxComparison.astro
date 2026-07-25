@@ -95,13 +95,13 @@ const { labels = {}, lang = 'en' } = Astro.props;
     const corpTax = corpTaxable * corpRate;
     const netDividendAvailable = Math.max(0, corpTaxable - corpTax);
     
-    // Dividend Tax: £500 allowance, 8.75% basic rate up to £37.7k, 33.75% higher rate
+    // Dividend Tax: £500 allowance, 10.75% basic rate up to £37.7k, 35.75% higher rate
     const divTaxable = Math.max(0, netDividendAvailable - 500);
     let divTax = 0;
     if (divTaxable > 37700) {
-      divTax += 37700 * 0.0875 + (divTaxable - 37700) * 0.3375;
+      divTax += 37700 * 0.1075 + (divTaxable - 37700) * 0.3575;
     } else {
-      divTax += divTaxable * 0.0875;
+      divTax += divTaxable * 0.1075;
     }
     const ltdTakeHome = salary + netDividendAvailable - divTax;
 

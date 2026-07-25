@@ -48,9 +48,9 @@ Understanding how your **Personal Allowance** and marginal tax brackets operate 
 
 ### 2. Devolved Scottish Income Tax Bands (Scotland Residents)
 - **Personal Allowance**: **0% Tax** (£0 to £12,570).
-- **Starter Rate (£12,571 to £14,876)**: **19%**.
-- **Basic Rate (£14,877 to £26,561)**: **20%**.
-- **Intermediate Rate (£26,562 to £43,662)**: **21%**.
+- **Starter Rate (£12,571 to £16,537)**: **19%**.
+- **Basic Rate (£16,538 to £29,526)**: **20%**.
+- **Intermediate Rate (£29,527 to £43,662)**: **21%**.
 - **Higher Rate (£43,663 to £75,000)**: **42%**.
 - **Advanced Rate (£75,001 to £125,140)**: **45%**.
 - **Top Rate (Above £125,140)**: **48%**.

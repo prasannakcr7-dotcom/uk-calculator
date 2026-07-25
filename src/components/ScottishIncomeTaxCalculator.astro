@@ -42,16 +42,16 @@ const { labels = {}, lang = 'en' } = Astro.props;
       <h2 style="margin-bottom:6px;">📊 Scottish Tax Band Breakdown</h2>
       <div style="margin-bottom:18px;">
         <div class="breakdown-row section">
-          <span>Starter Rate (19% on £12,570 - £14,876)</span>
-          <span class="val" id="starterRateTaxDisplay">£438.14</span>
+          <span>Starter Rate (19% on £12,570 - £16,537)</span>
+          <span class="val" id="starterRateTaxDisplay">£753.73</span>
         </div>
         <div class="breakdown-row section">
-          <span>Basic Rate (20% on £14,876 - £26,561)</span>
-          <span class="val" id="basicRateTaxDisplay">£2,337.00</span>
+          <span>Basic Rate (20% on £16,537 - £29,526)</span>
+          <span class="val" id="basicRateTaxDisplay">£2,597.80</span>
         </div>
         <div class="breakdown-row section">
-          <span>Intermediate Rate (21% on £26,561 - £43,662)</span>
-          <span class="val" id="intermediateRateTaxDisplay">£3,591.21</span>
+          <span>Intermediate Rate (21% on £29,526 - £43,662)</span>
+          <span class="val" id="intermediateRateTaxDisplay">£2,968.56</span>
         </div>
         <div class="breakdown-row section">
           <span>Higher Rate (42% on £43,662 - £48,000)</span>
@@ -82,9 +82,9 @@ const { labels = {}, lang = 'en' } = Astro.props;
     const taxable = Math.max(0, gross - pa);
 
     // 2026/27 Scottish Tax Bands:
-    // Starter: 19% (£12,571 - £14,876) -> £2,306 band
-    // Basic: 20% (£14,877 - £26,561) -> £11,685 band
-    // Intermediate: 21% (£26,562 - £43,662) -> £17,101 band
+    // Starter: 19% (£12,571 - £16,537) -> £3,967 band
+    // Basic: 20% (£16,538 - £29,526) -> £12,989 band
+    // Intermediate: 21% (£29,527 - £43,662) -> £14,136 band
     // Higher: 42% (£43,663 - £75,000)
     // Advanced: 45% (£75,001 - £125,140)
     // Top: 48% (over £125,140)
@@ -93,17 +93,17 @@ const { labels = {}, lang = 'en' } = Astro.props;
     let rem = taxable;
 
     if (rem > 0) {
-      const b1 = Math.min(rem, 2306);
+      const b1 = Math.min(rem, 3967);
       starterTax = b1 * 0.19;
       rem -= b1;
     }
     if (rem > 0) {
-      const b2 = Math.min(rem, 11685);
+      const b2 = Math.min(rem, 12989);
       basicTax = b2 * 0.20;
       rem -= b2;
     }
     if (rem > 0) {
-      const b3 = Math.min(rem, 17101);
+      const b3 = Math.min(rem, 14136);
       interTax = b3 * 0.21;
       rem -= b3;
     }

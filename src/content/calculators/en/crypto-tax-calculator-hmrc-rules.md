@@ -44,7 +44,10 @@ Under HMRC rules, a taxable "disposal" occurs whenever you sell crypto for GBP o
   - Gifting crypto to friends/family (excluding spouses/civil partners).
 - **Income Tax Events**: Crypto received from mining, staking rewards, yield farming, or workplace salary is taxed as **Income Tax and National Insurance** at market value upon receipt.
 - **Section 104 Pool Matching**: Crypto tokens of the same unit type (e.g. Bitcoin) must be pooled into a Section 104 Pool to track average acquisition costs, subject to "Same Day" and "30-Day Bed and Breakfasting" rules.
-- **2026/27 CGT Allowance & Rates**: £3,000 tax-free allowance; excess gains taxed at 10% (basic rate) or 20% (higher/additional rate).
+- **2026/27 CGT Allowance & Rates (Harmonized)**:
+  - **£3,000** individual tax-free allowance.
+  - **18% CGT** for gains falling within the unused Basic Rate Income Tax band (£50,270 limit).
+  - **24% CGT** for gains exceeding the Basic Rate Income Tax band.
 
 ## 📊 Practical Examples
 
@@ -57,10 +60,10 @@ Under HMRC rules, a taxable "disposal" occurs whenever you sell crypto for GBP o
     <li>Gross Capital Gain: £6,850 (£12,000 - £5,150)</li>
     <li>Annual Exempt Allowance Applied: -£3,000</li>
     <li>Taxable Capital Gain: £3,850</li>
-    <li>Tax Bracket: Basic Rate Taxpayer (10% CGT)</li>
+    <li>Tax Bracket: Basic Rate Taxpayer (18% CGT)</li>
   </ul>
-  <p>CGT Payable: £3,850 taxable gain × 10% = £385.00 due to HMRC.</p>
-  <div class="net-highlight">Crypto CGT Payable: £385.00</div>
+  <p>CGT Payable: £3,850 taxable gain × 18% = £693.00 due to HMRC.</p>
+  <div class="net-highlight">Crypto CGT Payable: £693.00</div>
 </div>
 
 ## 📑 Common Pitfalls

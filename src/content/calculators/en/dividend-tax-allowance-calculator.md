@@ -16,8 +16,8 @@ labels:
 calcBadgesTitle: "Dividend Assurances"
 taxYearBadge: "2026/27 £500 Allowance"
 taxYearBadgeDesc: "Calculates tax using official UK statutory Dividend Allowance of £500 per year."
-devolBadge: "Rate Tiers (8.75% / 33.75%)"
-devolBadgeDesc: "Applies statutory dividend tax rates: Basic (8.75%), Higher (33.75%), Additional (39.35%)."
+devolBadge: "Rate Tiers (10.75% / 35.75%)"
+devolBadgeDesc: "Applies statutory dividend tax rates: Basic (10.75%), Higher (35.75%), Additional (39.35%)."
 taperBadge: "PAYE Stacking Math"
 taperBadgeDesc: "Stacks dividend income on top of employment salary to determine marginal tax bands."
 authoritiesTitle: "Reference Authorities"
@@ -35,7 +35,7 @@ lastUpdatedDesc: "Aligned with current statutory UK dividend tax rates."
 
 Dividends received from company shares or limited company director profit distributions are subject to UK Dividend Tax.
 
-Understanding the **£500 tax-free Dividend Allowance** and statutory dividend tax rates (8.75%, 33.75%, 39.35%) enables company directors and investors to plan tax-efficient income extraction.
+Understanding the **£500 tax-free Dividend Allowance** and statutory dividend tax rates (10.75%, 35.75%, 39.35%) enables company directors and investors to plan tax-efficient income extraction.
 
 ## ⚙️ Statutory Dividend Tax Rates & Allowances for 2026/27
 
@@ -44,8 +44,8 @@ Understanding the **£500 tax-free Dividend Allowance** and statutory dividend t
 
 ### 2. Statutory Dividend Tax Rates by Income Bracket
 Dividend tax rates are lower than standard Income Tax rates because corporate profits have already been subject to Corporation Tax:
-- **Basic Rate Band (Income up to £50,270)**: **8.75% Dividend Tax**.
-- **Higher Rate Band (Income £50,271 to £125,140)**: **33.75% Dividend Tax**.
+- **Basic Rate Band (Income up to £50,270)**: **10.75% Dividend Tax**.
+- **Higher Rate Band (Income £50,271 to £125,140)**: **35.75% Dividend Tax**.
 - **Additional Rate Band (Above £125,140)**: **39.35% Dividend Tax**.
 
 ### 3. Income Stacking Order Rules
@@ -66,10 +66,10 @@ Below are two worked calculation examples illustrating dividend tax liabilities:
     <li>Salary: **£12,570.00** (Covered 100% by £12,570 Personal Allowance = £0 Tax)</li>
     <li>Gross Dividend Income: **£20,000.00**</li>
     <li>Tax-Free Dividend Allowance: **£500.00** (0% Tax)</li>
-    <li>Taxable Dividends (Basic Rate Band @ 8.75%): £19,500 × 8.75% = **£1,706.25**</li>
+    <li>Taxable Dividends (Basic Rate Band @ 10.75%): £19,500 × 10.75% = **£2,096.25**</li>
   </ul>
-  <p>Calculation: Total Income Tax due = £1,706.25 on £32,570 total gross income.</p>
-  <div class="net-highlight">Total Dividend Tax Payable: **£1,706.25** (Effective Tax Rate: **8.53%**)</div>
+  <p>Calculation: Total Income Tax due = £2,096.25 on £32,570 total gross income.</p>
+  <div class="net-highlight">Total Dividend Tax Payable: **£2,096.25** (Effective Tax Rate: **10.48%**)</div>
 </div>
 
 <div class="example-box">
@@ -78,10 +78,10 @@ Below are two worked calculation examples illustrating dividend tax liabilities:
     <li>Salary (£55,000): Salary already uses up basic rate band (£50,270).</li>
     <li>Gross Dividend Income: **£10,000.00**</li>
     <li>Tax-Free Dividend Allowance: **£500.00**</li>
-    <li>Taxable Dividends (Higher Rate Band @ 33.75%): £9,500 × 33.75% = **£3,206.25**</li>
+    <li>Taxable Dividends (Higher Rate Band @ 35.75%): £9,500 × 35.75% = **£3,396.25**</li>
   </ul>
-  <p>Calculation: Total Dividend Tax due = £3,206.25.</p>
-  <div class="net-highlight">Total Dividend Tax Payable: **£3,206.25** (Effective Rate: **32.06%**)</div>
+  <p>Calculation: Total Dividend Tax due = £3,396.25.</p>
+  <div class="net-highlight">Total Dividend Tax Payable: **£3,396.25** (Effective Rate: **33.96%**)</div>
 </div>
 
 ---
@@ -100,7 +100,7 @@ Below are two worked calculation examples illustrating dividend tax liabilities:
   <div class="faq-item">
     <button class="faq-trigger">Do Scottish residents pay different dividend tax rates? <span class="icon">▼</span></button>
     <div class="faq-content">
-      <p>No. Dividend tax rates (8.75%, 33.75%, 39.35%) and the £500 Dividend Allowance are set centrally by the UK government and apply identically across England, Scotland, Wales, and Northern Ireland.</p>
+      <p>No. Dividend tax rates (10.75%, 35.75%, 39.35%) and the £500 Dividend Allowance are set centrally by the UK government and apply identically across England, Scotland, Wales, and Northern Ireland.</p>
     </div>
   </div>
 

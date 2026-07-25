@@ -40,7 +40,7 @@ The most widespread method for valuing profitable established UK businesses is t
 - **EBITDA Multiples Range**: UK SME business multiples typically range between **2.5x and 8.0x EBITDA**, depending on recurring revenue share, client concentration, growth trajectory, and sector.
 - **Seller's Discretionary Earnings (SDE)**: Calculated as: `Operating Profit + Director Salary + Non-recurring Expenses + Personal Perks`.
 - **Net Asset Value (NAV)**: Acts as the baseline valuation floor (`Total Tangible Assets minus Total Liabilities`).
-- **Business Asset Disposal Relief (BADR)**: Reductions in Capital Gains Tax on qualifying UK business share sales (14% CGT rate in 2026/27 up to £1M lifetime limit).
+- **Business Asset Disposal Relief (BADR)**: Reductions in Capital Gains Tax on qualifying UK business share sales (18% CGT rate in 2026/27 up to £1M lifetime limit).
 
 ## 📊 Practical Examples
 
@@ -84,7 +84,7 @@ The most widespread method for valuing profitable established UK businesses is t
   <div class="faq-item">
     <button class="faq-trigger">How does Business Asset Disposal Relief (BADR) affect business sale proceeds?</button>
     <div class="faq-content">
-      <p>Business Asset Disposal Relief (formerly Entrepreneurs' Relief) lowers the Capital Gains Tax (CGT) rate payable when selling a qualifying UK business or company shares. For 2026/27, qualifying gains up to £1 million lifetime limit are taxed at a reduced CGT rate of 14% (compared to standard 24% higher CGT rates), saving up to £100,000 in tax.</p>
+      <p>Business Asset Disposal Relief (formerly Entrepreneurs' Relief) lowers the Capital Gains Tax (CGT) rate payable when selling a qualifying UK business or company shares. For 2026/27, qualifying gains up to £1 million lifetime limit are taxed at a reduced CGT rate of 18% (compared to standard 24% higher CGT rates on shares), saving up to £60,000 in tax.</p>
     </div>
   </div>
 

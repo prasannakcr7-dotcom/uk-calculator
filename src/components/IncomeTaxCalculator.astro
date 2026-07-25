@@ -102,16 +102,34 @@ const { labels = {}, lang = 'en' } = Astro.props;
     const taxableIncome = Math.max(0, salary - pa);
     let tax = 0;
 
-    // Basic Rate 20% (£0 - £37,700 taxable), Higher Rate 40% (£37,701 - £125,140), Additional Rate 45% (> £125,140)
-    if (taxableIncome > 112570) {
-      tax += (taxableIncome - 112570) * 0.45;
-      tax += (112570 - 37700) * 0.40;
-      tax += 37700 * 0.20;
-    } else if (taxableIncome > 37700) {
-      tax += (taxableIncome - 37700) * 0.40;
-      tax += 37700 * 0.20;
+    if (regionEl.value === 'scotland') {
+      const bands = [
+        { limit: 3967, rate: 0.19 },      // Starter: up to £16,537 (£3,967 wide)
+        { limit: 12989, rate: 0.20 },     // Basic: up to £29,526 (£12,989 wide)
+        { limit: 14136, rate: 0.21 },     // Intermediate: up to £43,662 (£14,136 wide)
+        { limit: 31338, rate: 0.42 },     // Higher: up to £75,000 (£31,338 wide)
+        { limit: 50140, rate: 0.45 },     // Advanced: up to £125,140 (£50,140 wide)
+        { limit: Infinity, rate: 0.48 }   // Top: above £125,140
+      ];
+      let tempTaxable = taxableIncome;
+      for (const b of bands) {
+        if (tempTaxable <= 0) break;
+        const chunk = Math.min(tempTaxable, b.limit);
+        tax += chunk * b.rate;
+        tempTaxable -= chunk;
+      }
     } else {
-      tax += taxableIncome * 0.20;
+      // Basic Rate 20% (£0 - £37,700 taxable), Higher Rate 40% (£37,701 - £112,570), Additional Rate 45% (> £112,570)
+      if (taxableIncome > 112570) {
+        tax += (taxableIncome - 112570) * 0.45;
+        tax += (112570 - 37700) * 0.40;
+        tax += 37700 * 0.20;
+      } else if (taxableIncome > 37700) {
+        tax += (taxableIncome - 37700) * 0.40;
+        tax += 37700 * 0.20;
+      } else {
+        tax += taxableIncome * 0.20;
+      }
     }
 
     const monthlyTax = tax / 12;

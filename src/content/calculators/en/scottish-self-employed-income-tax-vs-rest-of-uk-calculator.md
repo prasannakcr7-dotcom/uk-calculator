@@ -36,14 +36,14 @@ While the Rest of the UK (England, Wales, and Northern Ireland) operates a 3-tie
 
 - **Scottish Income Tax Bands & Rates (2026/27)**:
   - **Personal Allowance**: **£12,570** (0% Tax - standard UK allowance, tapered above £100,000).
-  - **Starter Rate (19%)**: **£12,571 to £14,876** (Taxable £1 to £2,306).
-  - **Basic Rate (20%)**: **£14,877 to £26,561** (Taxable £2,307 to £13,991).
-  - **Intermediate Rate (21%)**: **£26,562 to £43,662** (Taxable £13,992 to £31,092).
+  - **Starter Rate (19%)**: **£12,571 to £16,537** (Taxable £1 to £3,967).
+  - **Basic Rate (20%)**: **£16,538 to £29,526** (Taxable £3,968 to £16,956).
+  - **Intermediate Rate (21%)**: **£29,527 to £43,662** (Taxable £16,957 to £31,092).
   - **Higher Rate (42%)**: **£43,663 to £75,000** (Taxable £31,093 to £62,430).
   - **Advanced Rate (45%)**: **£75,001 to £125,140** (Taxable £62,431 to £112,570).
   - **Top Rate (48%)**: **Over £125,140** (Taxable above £112,570).
 - **Rest of UK (rUK) Rates (2026/27)**: Basic Rate 20% (£12,571 to £50,270); Higher Rate 40% (£50,271 to £125,140); Additional Rate 45% (Over £125,140).
-- **The Crossover Point**: Lower earners in Scotland (making under **£28,850 per year**) pay **slightly less Income Tax** than elsewhere in the UK due to the 19% Starter Rate. Middle and higher earners in Scotland (making over £28,850) pay **more Income Tax** than in the Rest of the UK.
+- **The Crossover Point**: Lower earners in Scotland (making under **£33,493 per year**) pay **slightly less Income Tax** than elsewhere in the UK (up to £39.67/yr less) due to the 19% Starter Rate. Middle and higher earners in Scotland (making over £33,493) pay **more Income Tax** than in the Rest of the UK.
 
 ## 📊 Practical Examples
 
@@ -51,10 +51,10 @@ While the Rest of the UK (England, Wales, and Northern Ireland) operates a 3-tie
   <strong>Example 1: Self-Employed Sole Trader Earning £48,000 Annual Net Profit in Scotland vs Rest of UK</strong>
   <ul>
     <li>Annual Taxable Income: £48,000.00 | Personal Allowance: £12,570.00</li>
-    <li>Rest of UK (rUK) Income Tax: (£37,700 × 20%) + (£2,230 × 40%) = **£8,432.00 / year**</li>
+    <li>Rest of UK (rUK) Income Tax: £35,430 taxable × 20% = **£7,086.00 / year**</li>
   </ul>
-  <p>Scottish Income Tax Breakdown:<br>- Starter Rate (19% on £2,306): £438.14<br>- Basic Rate (20% on £11,685): £2,337.00<br>- Intermediate Rate (21% on £17,101): £3,591.21<br>- Higher Rate (42% on £4,338): £1,821.96<br>Total Scottish Income Tax: **£8,188.31 / year**.<br>Comparison Result: The Scottish taxpayer pays **£243.69 MORE Income Tax** per year than a taxpayer in England earning the same income.</p>
-  <div class="net-highlight">Scottish Tax: £8,188.31 / yr | rUK Tax: £8,432.00 / yr (Scottish tax is £243.69 higher)</div>
+  <p>Scottish Income Tax Breakdown:<br>- Starter Rate (19% on £3,967): £753.73<br>- Basic Rate (20% on £12,989): £2,597.80<br>- Intermediate Rate (21% on £14,136): £2,968.56<br>- Higher Rate (42% on £4,338): £1,821.96<br>Total Scottish Income Tax: **£8,142.05 / year**.<br>Comparison Result: The Scottish taxpayer pays **£1,056.05 MORE Income Tax** per year than a taxpayer in England earning the same income.</p>
+  <div class="net-highlight">Scottish Tax: £8,142.05 / yr | rUK Tax: £7,086.00 / yr (Scottish tax is £1,056.05 higher)</div>
 </div>
 
 ## 📑 Common Pitfalls
@@ -78,7 +78,7 @@ While the Rest of the UK (England, Wales, and Northern Ireland) operates a 3-tie
   <div class="faq-item">
     <button class="faq-trigger">At what income level do people in Scotland pay more tax than the Rest of the UK?</button>
     <div class="faq-content">
-      <p>In the 2026/27 tax year, individuals earning under £28,850 per year pay slightly less tax in Scotland than in the Rest of the UK (up to £23/yr less). Individuals earning over £28,850 pay more tax in Scotland than elsewhere in the UK.</p>
+      <p>In the 2026/27 tax year, individuals earning under £33,493 per year pay slightly less tax in Scotland than in the Rest of the UK (up to £39.67/yr less). Individuals earning over £33,493 pay more tax in Scotland than elsewhere in the UK.</p>
     </div>
   </div>
 
@@ -92,7 +92,7 @@ While the Rest of the UK (England, Wales, and Northern Ireland) operates a 3-tie
   <div class="faq-item">
     <button class="faq-trigger">How are savings interest and stock dividends taxed in Scotland?</button>
     <div class="faq-content">
-      <p>Savings interest and dividend income earned by Scottish residents are taxed using UK-wide tax rates and bands (Basic 8.75%, Higher 33.75%, Additional 39.35% for dividends), reserved exclusively to the UK Parliament in Westminster.</p>
+      <p>Savings interest and dividend income earned by Scottish residents are taxed using UK-wide tax rates and bands (Basic 10.75%, Higher 35.75%, Additional 39.35% for dividends), reserved exclusively to the UK Parliament in Westminster.</p>
     </div>
   </div>
 </div>

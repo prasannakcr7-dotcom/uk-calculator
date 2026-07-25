@@ -48,7 +48,7 @@ Sole traders pay Income Tax and National Insurance directly on 100% of net profi
 A Limited Company pays **Corporation Tax (19% to 25%)** on profits after deducting director salaries:
 - **Director Salary (£12,570)**: Drawn tax-free and tax-deductible for Corporation Tax.
 - **Corporation Tax (19% / 25%)**: Paid by the company on remaining net profits.
-- **Dividends**: Extracted from post-tax profits (£500 tax-free allowance; 8.75% basic rate; 33.75% higher rate).
+- **Dividends**: Extracted from post-tax profits (£500 tax-free allowance; 10.75% basic rate; 35.75% higher rate).
 
 ---
 
@@ -59,18 +59,18 @@ Below are two worked calculation examples illustrating net take-home comparison:
 <div class="example-box">
   <strong>Example 1: Business generating £50,000 net profit per year</strong>
   <ul>
-    <li>Sole Trader Net Take-Home: **£32,868.20**</li>
-    <li>Limited Company Net Take-Home (£12.57k salary + post-tax dividends): **£34,288.20**</li>
+    <li>Sole Trader Net Take-Home: **£40,268.20**</li>
+    <li>Limited Company Net Take-Home (£12.57k salary + post-tax dividends): **£39,682.83**</li>
   </ul>
-  <p>Calculation: Limited company structure delivers £1,420.00 extra net cash per year.</p>
-  <div class="net-highlight">Recommended Structure: **Limited Company** (Saves **£1,420.00 / year**)</div>
+  <p>Calculation: Due to the 19% Corporation Tax and 10.75% dividend tax rates, the Sole Trader structure yields £585.37 extra net cash per year at this profit level before accountancy costs.</p>
+  <div class="net-highlight">Recommended Structure: **Sole Trader** (Saves **£585.37 / year** in tax/NI)</div>
 </div>
 
 <div class="example-box">
   <strong>Example 2: Freelancer generating £20,000 net profit per year</strong>
   <ul>
     <li>Sole Trader Net Take-Home: **£18,068.20**</li>
-    <li>Limited Company Net Take-Home: **£18,046.20**</li>
+    <li>Limited Company Net Take-Home: **£17,995.08**</li>
   </ul>
   <p>Calculation: At £20k profit, sole trader status yields higher take-home pay before accounting fees.</p>
   <div class="net-highlight">Recommended Structure: **Sole Trader** (Higher Net Take-Home Pay)</div>
@@ -106,7 +106,7 @@ Below are two worked calculation examples illustrating net take-home comparison:
   <div class="faq-item">
     <button class="faq-trigger">How are dividends taxed compared to sole trader profits? <span class="icon">▼</span></button>
     <div class="faq-content">
-      <p>Dividends do not incur National Insurance contributions, saving 6% Class 4 NI compared to sole trader profits. Dividend tax rates are 8.75% (basic rate) and 33.75% (higher rate).</p>
+      <p>Dividends do not incur National Insurance contributions, saving 6% Class 4 NI compared to sole trader profits. Dividend tax rates are 10.75% (basic rate) and 35.75% (higher rate).</p>
     </div>
   </div>
 

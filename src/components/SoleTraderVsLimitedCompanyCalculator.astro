@@ -134,9 +134,9 @@ const { labels } = Astro.props;
     if (taxableDivs > 0) {
       const basicBandRemaining = Math.max(0, 37700 - Math.max(0, directorSalary - 12570));
       if (taxableDivs <= basicBandRemaining) {
-        divTax = taxableDivs * 0.0875;
+        divTax = taxableDivs * 0.1075;
       } else {
-        divTax = (basicBandRemaining * 0.0875) + ((taxableDivs - basicBandRemaining) * 0.3375);
+        divTax = (basicBandRemaining * 0.1075) + ((taxableDivs - basicBandRemaining) * 0.3575);
       }
     }
 
