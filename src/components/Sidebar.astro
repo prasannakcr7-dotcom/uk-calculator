@@ -10,6 +10,27 @@ const path = Astro.url.pathname;
 const urlParts = path.split('/').filter(Boolean);
 const slugFromUrl = propSlug || (urlParts.length > 0 ? urlParts[0] : '');
 
+const nonCalculatorPaths = new Set([
+  '',
+  'calculators',
+  'work-and-salary',
+  'taxes-and-fees',
+  'family-and-maternity',
+  'housing-and-rent',
+  'mobility-and-vehicles',
+  'health-and-wellbeing',
+  'social-and-benefits',
+  'finance-and-credit',
+  'daily-life',
+  'about',
+  'contact',
+  'privacy-policy',
+  'terms-and-conditions',
+  'blog'
+]);
+const firstUrlSegment = urlParts.length > 0 ? urlParts[0] : '';
+const isIndividualCalculatorPage = firstUrlSegment && !nonCalculatorPaths.has(firstUrlSegment);
+
 // Map category from prop or URL path
 let categoryKey = (propCategory || '').toLowerCase();
 
@@ -134,14 +155,16 @@ const promo = promoData[categoryKey] || promoData.trabajo;
 
 <div class="sidebar">
   <!-- CARD 1: CATEGORIES -->
-  <div class="card">
-    <div class="side-title">CATEGORIES</div>
-    {categories.map(c => (
-      <a href={c.slug} class={`cat-link ${categoryKey === c.key ? 'active' : ''}`}>
-        <span class="dot" style={`background: ${c.color};`}></span> {c.label}
-      </a>
-    ))}
-  </div>
+  {!isIndividualCalculatorPage && (
+    <div class="card">
+      <div class="side-title">CATEGORIES</div>
+      {categories.map(c => (
+        <a href={c.slug} class={`cat-link ${categoryKey === c.key ? 'active' : ''}`}>
+          <span class="dot" style={`background: ${c.color};`}></span> {c.label}
+        </a>
+      ))}
+    </div>
+  )}
 
   <!-- CARD 2: RELATED CALCULATORS -->
   <div class="card">
